@@ -6,7 +6,7 @@
 
 The binding Project Novus dependency access patterns live directly in [`CODE_ARCHITECTURE.md`](../CODE_ARCHITECTURE.md#dependency-injection-patterns). This chapter owns only the runtime-scope and composition details that would make the primary architecture document needlessly swollen.
 
-Every Java example is a shortened excerpt from linked production code. If an excerpt stops matching production, update the document rather than preserving architectural fan fiction for sentimental reasons.
+Java examples are either shortened excerpts from linked production code or are explicitly labeled canonical adaptations derived from production. If an excerpt stops matching production, update the document rather than preserving architectural fan fiction for sentimental reasons.
 
 ## Module Registration Pattern
 
@@ -173,6 +173,200 @@ public final class AchievementCompletionHandler {
 ```
 
 Do not move a Paper, Velocity, Spring, or other externally owned object into generated DI access merely to make declarations look uniform. This exception does not permit constructor injection of Tavall-managed handlers, services, repositories, registries, caches, gateways, or other application dependencies.
+
+## Default Consumer Pattern
+
+A **consumer** is an ordinary production class that uses Tavall-managed capabilities to perform one focused operation. Handlers, services, orchestrators, listeners, command handlers, controllers, and adapters are consumers when they call domain boundaries owned elsewhere.
+
+The default consumer should be deliberately boring:
+
+- one coherent behavior;
+- one typed request or explicit method input family;
+- one typed result when the operation has meaningful outcomes;
+- Tavall-managed collaborators declared through `DependencyAccess<...>`;
+- `getInstance()` captured once when several collaborators are used;
+- no constructor-captured Tavall dependencies;
+- no static dependency lookup;
+- no mutable map/set fields for domain state;
+- no raw registry/cache/repository maps exposed to the consumer;
+- no hidden persistence, cache, or registry ownership.
+
+The consumer calls domain methods. The owning dependency decides how its state is represented internally.
+
+### Pattern Responsibilities
+
+| Pattern | Consumer rule |
+| --- | --- |
+| `*Data` / `*State` | Pass or return typed values. Do not replace them with generic maps. |
+| `*Request` | Carry operation input across a meaningful boundary. Validate before mutation. |
+| `*Result` | Represent expected success/rejection outcomes explicitly. |
+| `*DataHandler` | Consume through DI for domain data load/save/update policy. The consumer does not reproduce repository/cache coordination. |
+| `*MetaData` | Use a typed value for known metadata. Extensible maps remain encapsulated at real integration edges only. |
+| `*MetaDataHandler` | Use through DI only when metadata needs derivation, normalization, validation, enrichment, or cross-source resolution. Passive metadata needs only a value type. |
+| `*Registry` | Consume through DI and call domain lookup/registration methods. Do not call or expose backing-map methods. |
+| `*Cache` | Consume through DI only when the consumer genuinely owns cache-facing behavior. Prefer a data handler/service to encapsulate cache policy when cache mechanics are not the consumer's job. |
+| `*Repository` | Usually sits behind a data handler or persistence service. Direct repository consumption is reserved for a consumer that truly owns persistence workflow. |
+| `*Router` | Delegate a typed request to the selected handler. The router does not become the implementation. |
+| `*Builder` | Construct a typed value. Builders do not resolve dependencies or become service locators. |
+| `*Handler` / `*Service` | Invoke focused behavior through DI. Do not reach into another component's collections to perform that behavior manually. |
+
+### Production-Derived Reference Consumer
+
+Production baseline:
+
+- [`AchievementProgressMutationHandler`](../../../novus-achievements/src/main/java/org/tavall/minecraft/achievement/handler/AchievementProgressMutationHandler.java)
+- [`AchievementRuntimeBuilder`](../../../novus-achievements/src/main/java/org/tavall/minecraft/achievement/runtime/AchievementRuntimeBuilder.java)
+- [`IAchievementListRegistry`](../../../minecraft-framework/backend-api/src/main/java/org/tavall/api/minecraft/achievement/registry/IAchievementListRegistry.java)
+- [`IPlayerAchievementDataHandler`](../../../novus-achievements/src/main/java/org/tavall/minecraft/achievement/data/handler/interfaces/IPlayerAchievementDataHandler.java)
+
+The following is a **canonical adaptation**, not a verbatim production excerpt. It removes compatibility-era dependency-map construction and shows the target consumer shape. The `IAchievementProgressMetaDataHandler` and typed request shown here define the metadata-handler seam; they are pattern examples, not a claim that those exact classes already exist in production.
+
+```java
+@DelegatesTo(IAchievementProgressMutationHandler.class)
+public final class AchievementProgressMutationHandler
+        implements IAchievementProgressMutationHandler,
+        DependencyAccess<
+                IAchievementListRegistry,
+                IPlayerAchievementDataHandler,
+                AchievementEventMutationAccess,
+                IAchievementProgressMetaDataHandler
+        > {
+
+    @Override
+    public AchievementProgressMutationResult applyProgress(
+            AchievementProgressMutationRequest request
+    ) {
+        IDependencyMap dependencies = getInstance();
+
+        AchievementListData definition = dependencies
+                .iAchievementListRegistry()
+                .find(request.achievementKey())
+                .orElse(null);
+
+        if (definition == null
+                || !definition.enabled()
+                || request.amount() <= 0L) {
+            return AchievementProgressMutationResult.rejected();
+        }
+
+        PlayerAchievementData playerData = dependencies
+                .iPlayerAchievementDataHandler()
+                .load(request.playerId());
+
+        if (playerData == null) {
+            return AchievementProgressMutationResult.playerNotFound();
+        }
+
+        AchievementProgressEventData eventData = dependencies
+                .iAchievementProgressMetaDataHandler()
+                .resolveEventData(
+                        new AchievementProgressMetaDataRequest(
+                                request,
+                                definition
+                        )
+                );
+
+        return dependencies
+                .achievementEventMutationAccess()
+                .applyEventProgressOnce(eventData, definition);
+    }
+}
+```
+
+The important part is not the exact achievement method names. The shape is the contract:
+
+1. The caller supplies typed operation input.
+2. The consumer resolves its declared Tavall dependencies through the owning DI map.
+3. A registry resolves typed runtime definitions through a domain method.
+4. A data handler owns domain data access rather than exposing repository/cache internals.
+5. A metadata handler derives a typed metadata/data value when derivation is real behavior.
+6. A focused mutation boundary performs the state transition.
+7. The consumer returns a typed result.
+8. No consumer-owned map is created as a shortcut for any of those systems.
+
+### Data and Metadata Boundary
+
+A primitive key does not justify a generic map value.
+
+Bad:
+
+```java
+Map<UUID, Map<String, Object>> playerData;
+```
+
+Prefer a named value:
+
+```java
+public record PlayerActionMetaData(
+        UUID playerId,
+        String sourceContext,
+        Instant occurredAt,
+        ActionType actionType
+) {
+}
+```
+
+If that metadata must be derived from several sources, the derivation becomes a DI-managed handler:
+
+```java
+public interface IPlayerActionMetaDataHandler {
+    PlayerActionMetaData resolve(PlayerActionMetaDataRequest request);
+}
+```
+
+If it is merely passive values already supplied by the caller, do not create a metadata handler. Use the data type directly.
+
+Known fields remain typed. A `Map<String, Object>` is not a substitute for deciding what the fields are.
+
+### Consumer-Owned Collection Rejection
+
+Ordinary consumers must not own mutable keyed domain state merely because the state is private or short-lived.
+
+Rejected:
+
+```java
+public final class MatchHandler {
+    private final Map<UUID, MatchState> activeMatches =
+            new ConcurrentHashMap<>();
+}
+```
+
+Preferred shape:
+
+```java
+@DelegatesTo(IMatchHandler.class)
+public final class MatchHandler
+        implements IMatchHandler,
+        DependencyAccess<IMatchRegistry> {
+
+    @Override
+    public MatchResult handle(MatchRequest request) {
+        IDependencyMap dependencies = getInstance();
+        return dependencies
+                .iMatchRegistry()
+                .start(request);
+    }
+}
+```
+
+The registry owns collection semantics, duplicate policy, snapshots, replacement, indexing, and lifecycle. The consumer owns the operation that needs the registry.
+
+The same rule applies to caches, repositories, pending-operation state, and metadata: select the owning pattern first, then consume that pattern through DI rather than embedding a collection in the caller.
+
+### More Than Four Dependencies
+
+The default consumer example intentionally stops at four managed dependencies.
+
+More than four remains a design-review signal. Do not respond by creating one giant `Dependencies` object or by hiding extra dependencies behind maps or static access.
+
+Choose among:
+
+- keep expanded direct access when the behavior is still clearly cohesive;
+- introduce a real domain bundle when several collaborators form one reusable lifecycle boundary;
+- split independent phases into focused handlers/services;
+- move storage/cache coordination behind the data handler or persistence boundary that actually owns it.
+
+The dependency count is a signal to review the behavior, not an invitation to hide the count.
 
 ## Module Cleanup Pattern
 
