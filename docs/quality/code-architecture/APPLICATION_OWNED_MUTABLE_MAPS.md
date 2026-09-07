@@ -23,7 +23,7 @@ Before introducing mutable keyed state, classify what the state actually is:
 
 If a collection represents something engineers can name, model the named thing instead of adding a mutable map.
 
-The registry case already exists in production. [`AchievementListRegistry`](https://github.com/TavallStudios/tavall-project-novus/blob/main/minecraft-framework/backend-api/src/main/java/org/tavall/api/minecraft/achievement/registry/AchievementListRegistry.java) owns `AchievementKey -> AchievementListData` through `AbstractRegistry` and exposes domain methods rather than requiring consumers to own the key space themselves:
+[`AchievementListRegistry`](https://github.com/TavallStudios/tavall-project-novus/blob/main/minecraft-framework/backend-api/src/main/java/org/tavall/api/minecraft/achievement/registry/AchievementListRegistry.java) demonstrates the registry case in production. It owns `AchievementKey -> AchievementListData` through `AbstractRegistry` and exposes domain methods rather than requiring consumers to own the key space themselves:
 
 ```java
 @DelegatesTo(IAchievementListRegistry.class)
