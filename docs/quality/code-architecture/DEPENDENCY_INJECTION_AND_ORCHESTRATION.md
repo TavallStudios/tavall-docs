@@ -6,7 +6,7 @@
 
 The binding Project Novus dependency access patterns live directly in [`CODE_ARCHITECTURE.md`](../CODE_ARCHITECTURE.md#dependency-injection-patterns). This chapter owns only the runtime-scope and composition details that would make the primary architecture document needlessly swollen.
 
-Java examples are either shortened excerpts from linked production code or are explicitly labeled canonical adaptations derived from production. If an excerpt stops matching production, update the document rather than preserving architectural fan fiction for sentimental reasons.
+Java examples are either shortened excerpts from linked production code or explicitly labeled canonical examples. If an excerpt stops matching production, update the document rather than preserving architectural fan fiction for sentimental reasons.
 
 ## Module Registration Pattern
 
@@ -210,22 +210,7 @@ The consumer calls domain methods. The owning dependency decides how its state i
 | `*Builder` | Construct a typed value. Builders do not resolve dependencies or become service locators. |
 | `*Handler` / `*Service` | Invoke focused behavior through DI. Do not reach into another component's collections to perform that behavior manually. |
 
-### Production Reference Chain
-
-The default consumer pattern is not hypothetical. Its pieces already exist in production and can be followed directly:
-
-- [`AchievementProgressMutationHandler`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/handler/AchievementProgressMutationHandler.java) — four-dependency consumer using `DependencyAccess`.
-- [`AchievementPointSummaryHandler`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/points/AchievementPointSummaryHandler.java) — consumer of a registry, data handler, and resolver.
-- [`AchievementListRegistry`](https://github.com/TavallStudios/tavall-project-novus/blob/main/minecraft-framework/backend-api/src/main/java/org/tavall/api/minecraft/achievement/registry/AchievementListRegistry.java) and [`IAchievementListRegistry`](https://github.com/TavallStudios/tavall-project-novus/blob/main/minecraft-framework/backend-api/src/main/java/org/tavall/api/minecraft/achievement/registry/IAchievementListRegistry.java) — typed runtime registry surface.
-- [`PlayerAchievementDataHandler`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/data/handler/PlayerAchievementDataHandler.java) and [`IPlayerAchievementDataHandler`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/data/handler/interfaces/IPlayerAchievementDataHandler.java) — data boundary over cache/persistence workflow.
-- [`PlayerAchievementCache`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/cache/PlayerAchievementCache.java) — Tavall Cache-backed player data.
-- [`AchievementRuntimeBuilder`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/runtime/AchievementRuntimeBuilder.java) — composition/registration of the achievement runtime.
-
-Production is still carrying compatibility-era dependency-map constructors in some of these classes. Those constructors are migration artifacts, not a second approved dependency style. The useful production evidence is the ownership boundary and `DependencyAccess` behavior; the binding rule above remains authoritative where old composition code differs.
-
-### Exact Production Consumer Example
-
-[`AchievementProgressMutationHandler`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/handler/AchievementProgressMutationHandler.java) is already extremely close to the default consumer shape:
+[`AchievementProgressMutationHandler`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/handler/AchievementProgressMutationHandler.java) is a production consumer with four managed dependencies and no consumer-owned keyed store. The excerpt below is shortened from the class; the compatibility-era dependency-map constructor in the source is not part of the target pattern.
 
 ```java
 @DelegatesTo(IAchievementProgressMutationHandler.class)
@@ -299,9 +284,7 @@ public final class AchievementProgressMutationHandler
 }
 ```
 
-The excerpt is shortened, but the calls and dependency roles are production. The consumer has four declared managed dependencies, constructs typed event data, calls focused boundaries, and does not own a map as a substitute for any of them.
-
-[`AchievementPointSummaryHandler`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/points/AchievementPointSummaryHandler.java) provides the registry-facing half of the same pattern:
+The important shape is that the consumer declares its capabilities, builds typed operation data, invokes focused behavior, and lets the data/cache owners own storage. [`AchievementPointSummaryHandler`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/points/AchievementPointSummaryHandler.java) shows the registry-facing side of the same pattern:
 
 ```java
 PlayerAchievementData data = getDataHandler().load(playerId);
@@ -314,74 +297,7 @@ for (AchievementListData definition : getDefinitionRegistry().snapshot()) {
 }
 ```
 
-The consumer asks the data handler for player data and the registry for a snapshot. It does not own `Map<UUID, PlayerAchievementData>` or `Map<AchievementKey, AchievementListData>`.
-
-### Canonical Target Adaptation
-
-The following remains a **canonical adaptation**, not a verbatim production excerpt. It removes compatibility-era dependency-map construction and shows the stricter target consumer shape. The `IAchievementProgressMetaDataHandler` and typed request shown here define the metadata-handler seam; they are pattern examples, not a claim that those exact classes already exist in production.
-
-```java
-@DelegatesTo(IAchievementProgressMutationHandler.class)
-public final class AchievementProgressMutationHandler
-        implements IAchievementProgressMutationHandler,
-        DependencyAccess<
-                IAchievementListRegistry,
-                IPlayerAchievementDataHandler,
-                AchievementEventMutationAccess,
-                IAchievementProgressMetaDataHandler
-        > {
-
-    @Override
-    public AchievementProgressMutationResult applyProgress(
-            AchievementProgressMutationRequest request
-    ) {
-        IDependencyMap dependencies = getInstance();
-
-        AchievementListData definition = dependencies
-                .iAchievementListRegistry()
-                .find(request.achievementKey())
-                .orElse(null);
-
-        if (definition == null
-                || !definition.enabled()
-                || request.amount() <= 0L) {
-            return AchievementProgressMutationResult.rejected();
-        }
-
-        PlayerAchievementData playerData = dependencies
-                .iPlayerAchievementDataHandler()
-                .load(request.playerId());
-
-        if (playerData == null) {
-            return AchievementProgressMutationResult.playerNotFound();
-        }
-
-        AchievementProgressEventData eventData = dependencies
-                .iAchievementProgressMetaDataHandler()
-                .resolveEventData(
-                        new AchievementProgressMetaDataRequest(
-                                request,
-                                definition
-                        )
-                );
-
-        return dependencies
-                .achievementEventMutationAccess()
-                .applyEventProgressOnce(eventData, definition);
-    }
-}
-```
-
-The important part is not the exact achievement method names. The shape is the contract:
-
-1. The caller supplies typed operation input.
-2. The consumer resolves its declared Tavall dependencies through the owning DI map.
-3. A registry resolves typed runtime definitions through a domain method.
-4. A data handler owns domain data access rather than exposing repository/cache internals.
-5. A metadata handler derives a typed metadata/data value when derivation is real behavior.
-6. A focused mutation boundary performs the state transition.
-7. The consumer returns a typed result.
-8. No consumer-owned map is created as a shortcut for any of those systems.
+That consumer asks [`IPlayerAchievementDataHandler`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/data/handler/interfaces/IPlayerAchievementDataHandler.java) for player data and [`IAchievementListRegistry`](https://github.com/TavallStudios/tavall-project-novus/blob/main/minecraft-framework/backend-api/src/main/java/org/tavall/api/minecraft/achievement/registry/IAchievementListRegistry.java) for definitions. The underlying [`PlayerAchievementDataHandler`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/data/handler/PlayerAchievementDataHandler.java) coordinates [`PlayerAchievementCache`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/cache/PlayerAchievementCache.java) and persistence so the consumer does not reproduce that workflow.
 
 ### Data and Metadata Boundary
 
@@ -393,7 +309,7 @@ Bad:
 Map<UUID, Map<String, Object>> playerData;
 ```
 
-A real production counterexample is [`FFAActivePlayerSessionData`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-ffa/src/main/java/org/tavall/minecraft/ffa/player/session/FFAActivePlayerSessionData.java):
+[`FFAActivePlayerSessionData`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-ffa/src/main/java/org/tavall/minecraft/ffa/player/session/FFAActivePlayerSessionData.java) is the production counterexample: the session has primitive/platform identifiers, but the values remain one named domain type.
 
 ```java
 public record FFAActivePlayerSessionData(
@@ -406,19 +322,7 @@ public record FFAActivePlayerSessionData(
 }
 ```
 
-The session has primitive/platform identifiers, but its values are still modeled as one named domain type instead of `Map<UUID, Map<String, Object>>` or several parallel maps.
-
-If metadata must be derived from several sources, the derivation becomes a DI-managed handler. Canonical shape:
-
-```java
-public interface IPlayerActionMetaDataHandler {
-    PlayerActionMetaData resolve(PlayerActionMetaDataRequest request);
-}
-```
-
-If it is merely passive values already supplied by the caller, do not create a metadata handler. Use the data type directly.
-
-Known fields remain typed. A `Map<String, Object>` is not a substitute for deciding what the fields are.
+If metadata must be derived from several sources, the derivation becomes a DI-managed `*MetaDataHandler`. If it is merely passive values already supplied by the caller, use the typed metadata/data value directly. Known fields remain typed; `Map<String, Object>` is not a substitute for deciding what the fields are.
 
 ### Consumer-Owned Collection Rejection
 
@@ -433,7 +337,7 @@ public final class MatchHandler {
 }
 ```
 
-The production ownership pattern already exists in [`FFAActivePlayerSessionRegistry`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-ffa/src/main/java/org/tavall/minecraft/ffa/player/session/FFAActivePlayerSessionRegistry.java):
+[`FFAActivePlayerSessionRegistry`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-ffa/src/main/java/org/tavall/minecraft/ffa/player/session/FFAActivePlayerSessionRegistry.java) shows the production ownership pattern:
 
 ```java
 public final class FFAActivePlayerSessionRegistry
@@ -451,24 +355,16 @@ public final class FFAActivePlayerSessionRegistry
     public Optional<FFAActivePlayerSession> remove(UUID playerUUID) {
         return Optional.ofNullable(super.remove(playerUUID));
     }
-
-    public Collection<FFAActivePlayerSession> snapshot() {
-        return List.copyOf(values());
-    }
 }
 ```
 
-The registry owns collection semantics, duplicate policy, snapshots, replacement, indexing, and lifecycle. A consumer should receive the registry through the appropriate Tavall DI surface and call its domain methods instead of owning another `ConcurrentHashMap`.
+The registry owns collection semantics and lifecycle. A consumer calls the registry through the appropriate Tavall DI surface instead of embedding another `ConcurrentHashMap`.
 
-The same rule applies to caches, repositories, pending-operation state, and metadata: select the owning pattern first, then consume that pattern through DI rather than embedding a collection in the caller.
-
-See also [Application-Owned Mutable Maps](APPLICATION_OWNED_MUTABLE_MAPS.md) for production cache, indexed-registry, data-handler, and infrastructure examples.
+The same rule applies to caches, repositories, pending-operation state, and metadata: select the owning pattern first, then consume that pattern through DI. See [Application-Owned Mutable Maps](APPLICATION_OWNED_MUTABLE_MAPS.md) for the full ownership rule.
 
 ### More Than Four Dependencies
 
-The default consumer example intentionally stops at four managed dependencies.
-
-More than four remains a design-review signal. Do not respond by creating one giant `Dependencies` object or by hiding extra dependencies behind maps or static access.
+More than four managed dependencies remains a design-review signal. It is not a reason to hide dependencies behind a giant `Dependencies` object, a raw map, or static access.
 
 Choose among:
 
