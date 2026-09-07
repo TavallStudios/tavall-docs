@@ -23,66 +23,7 @@ Before introducing mutable keyed state, classify what the state actually is:
 
 If a collection represents something engineers can name, model the named thing instead of adding a mutable map.
 
-## Production Reference System
-
-The rule is already visible across production code. No single subsystem currently demonstrates every target convention perfectly, so this chapter deliberately uses several real classes whose responsibilities line up into the intended ownership model.
-
-| Responsibility | Production source | What it demonstrates |
-| --- | --- | --- |
-| Ordinary DI consumer | [`AchievementPointSummaryHandler`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/points/AchievementPointSummaryHandler.java) | Consumer resolves a registry, data handler, and resolver through `DependencyAccess` and calls domain methods instead of owning keyed state. |
-| Runtime registry | [`AchievementListRegistry`](https://github.com/TavallStudios/tavall-project-novus/blob/main/minecraft-framework/backend-api/src/main/java/org/tavall/api/minecraft/achievement/registry/AchievementListRegistry.java) | Achievement definitions live behind `AbstractRegistry<AchievementKey, AchievementListData>` and domain methods such as `find`, `save`, and `snapshot`. |
-| Cache | [`PlayerAchievementCache`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/cache/PlayerAchievementCache.java) | Player achievement state is owned by `AbstractCache<UUID, PlayerAchievementData>` with TTL, load, retain, remove, and cleanup behavior. |
-| Data/persistence boundary | [`PlayerAchievementDataHandler`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/data/handler/PlayerAchievementDataHandler.java) | Load/save workflow coordinates the cache and persistence access rather than exposing either backing store to consumers. |
-| Typed short-lived/session data | [`FFAActivePlayerSessionData`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-ffa/src/main/java/org/tavall/minecraft/ffa/player/session/FFAActivePlayerSessionData.java) | Session values are modeled as named typed fields instead of a primitive-keyed metadata map. |
-| Multiple secondary indexes | [`BattleInstanceRegistry`](https://github.com/TavallStudios/tavall-project-novus/blob/main/minecraft-kingdom-server/src/main/java/org/tavall/minecraft/server/battle/BattleInstanceRegistry.java) | Secondary maps exist inside an `AbstractIndexedRegistry`, where the registry owns validation, index/unindex behavior, and domain lookup methods. |
-| Registry infrastructure | [`AbstractRegistry`](https://github.com/TavallStudios/tavall-registry/blob/main/src/main/java/org/tavall/registry/AbstractRegistry.java) | Tavall Registry is itself the map-backed infrastructure boundary. |
-| Cache infrastructure | [`AbstractCache`](https://github.com/TavallStudios/tavall-cache/blob/main/abstract-cache-system/src/main/java/org/tavall/abstractcache/cache/AbstractCache.java) | Tavall Cache owns its internal concurrent map and adds cache semantics around it. |
-
-These sources are architectural evidence, not permission to copy compatibility-era details that conflict with newer Tavall DI guidance. When a production class contains older dependency-map construction or another migration artifact, use the current binding architecture rule for that concern and the production source only for the responsibility being demonstrated here.
-
-## Production Example: Consumer Calls Boundaries Instead of Owning Maps
-
-[`AchievementPointSummaryHandler`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/points/AchievementPointSummaryHandler.java) is a real consumer that declares the dependencies it needs and asks those dependencies for behavior:
-
-```java
-@DelegatesTo
-public final class AchievementPointSummaryHandler
-        implements DependencyAccess<
-                IAchievementListRegistry,
-                IPlayerAchievementDataHandler,
-                AchievementPointTitleResolver
-        > {
-
-    private IAchievementListRegistry getDefinitionRegistry() {
-        return getInstance().achievementListRegistry();
-    }
-
-    private IPlayerAchievementDataHandler getDataHandler() {
-        return getInstance().playerAchievementDataHandler();
-    }
-
-    public AchievementPointSummary summarize(
-            UUID playerId,
-            AchievementPointType pointType
-    ) {
-        PlayerAchievementData data = getDataHandler().load(playerId);
-
-        for (AchievementListData definition : getDefinitionRegistry().snapshot()) {
-            // domain calculation
-        }
-
-        // return typed summary
-    }
-}
-```
-
-The handler does not create a `Map<AchievementKey, AchievementListData>` or `Map<UUID, PlayerAchievementData>`. Definition ownership belongs to the registry. Player-data load/cache/persistence policy belongs to the data handler and cache.
-
-The current production class still carries compatibility-era dependency-map construction. That detail is not the pattern being endorsed here; the relevant production behavior is that the consumer declares Tavall dependencies and calls their domain surfaces instead of recreating their storage.
-
-## Production Example: Registry Owns Runtime Keyed State
-
-[`AchievementListRegistry`](https://github.com/TavallStudios/tavall-project-novus/blob/main/minecraft-framework/backend-api/src/main/java/org/tavall/api/minecraft/achievement/registry/AchievementListRegistry.java) owns the achievement-definition key space:
+The registry case already exists in production. [`AchievementListRegistry`](https://github.com/TavallStudios/tavall-project-novus/blob/main/minecraft-framework/backend-api/src/main/java/org/tavall/api/minecraft/achievement/registry/AchievementListRegistry.java) owns `AchievementKey -> AchievementListData` through `AbstractRegistry` and exposes domain methods rather than requiring consumers to own the key space themselves:
 
 ```java
 @DelegatesTo(IAchievementListRegistry.class)
@@ -107,21 +48,55 @@ public final class AchievementListRegistry
         persistAchievementDefinition(achievementListData);
         return achievementListData;
     }
+}
+```
 
-    @Override
-    public List<AchievementListData> snapshot() {
-        ArrayList<AchievementListData> achievements = new ArrayList<>(values());
-        // stable domain ordering
-        return List.copyOf(achievements);
+The source still contains compatibility-era dependency-map construction. That is not the behavior being endorsed here; the relevant production pattern is that keyed runtime ownership belongs to a registry and consumers call its domain surface.
+
+## Rejected Consumer Pattern
+
+```java
+public final class PlayerSessionHandler {
+    private final Map<UUID, PlayerSessionData> sessions =
+            new ConcurrentHashMap<>();
+}
+```
+
+This is a registry implemented locally inside a consumer. Thread safety does not change the ownership problem.
+
+Production already uses this ownership shape in [`FFAActivePlayerSessionRegistry`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-ffa/src/main/java/org/tavall/minecraft/ffa/player/session/FFAActivePlayerSessionRegistry.java):
+
+```java
+public final class FFAActivePlayerSessionRegistry
+        extends AbstractRegistry<UUID, FFAActivePlayerSession> {
+
+    public FFAActivePlayerSession save(FFAActivePlayerSession session) {
+        put(session.playerUUID(), session);
+        return session;
+    }
+
+    public Optional<FFAActivePlayerSession> find(UUID playerUUID) {
+        return Optional.ofNullable(getRegistryData(playerUUID));
+    }
+
+    public Optional<FFAActivePlayerSession> remove(UUID playerUUID) {
+        return Optional.ofNullable(super.remove(playerUUID));
     }
 }
 ```
 
-The important ownership decision is `AchievementKey -> AchievementListData` lives in a registry. Consumers ask `find(...)`, `save(...)`, or `snapshot()` rather than owning or receiving a mutable backing map.
+The registry owns collection semantics, duplicate policy, snapshots, replacement, indexing, and lifecycle. Consumers receive the registry through the appropriate Tavall DI surface and call domain methods rather than creating another mutable map.
 
-## Production Example: Cache Owns Expiring State
+## Cache-Shaped State
 
-[`PlayerAchievementCache`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/cache/PlayerAchievementCache.java) shows cache-shaped state routed through Tavall Cache:
+```java
+private final Map<UUID, CooldownData> cooldowns =
+        new ConcurrentHashMap<>();
+```
+
+is cache-shaped state. If entries expire, become stale, reload, or are disposable, use Tavall Cache rather than hand-rolling lifecycle and invalidation behavior.
+
+[`PlayerAchievementCache`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/cache/PlayerAchievementCache.java) shows the production shape:
 
 ```java
 @DelegatesTo(IPlayerAchievementCache.class)
@@ -152,11 +127,13 @@ public final class PlayerAchievementCache
 }
 ```
 
-A handler-level `ConcurrentHashMap<UUID, PlayerAchievementData>` would duplicate the ownership already provided here while losing TTL, cache-key metadata, cleanup, and lifecycle semantics.
+A consumer-level `ConcurrentHashMap<UUID, PlayerAchievementData>` would reproduce ownership already provided by Tavall Cache while losing TTL, cache-key metadata, cleanup, and cache lifecycle semantics.
 
-## Production Example: Data Handler Hides Cache and Persistence Coordination
+## Data and Persistence Ownership
 
-[`PlayerAchievementDataHandler`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/data/handler/PlayerAchievementDataHandler.java) demonstrates why consumers should usually call a data boundary instead of coordinating a repository and cache themselves:
+Consumers should not coordinate a cache and durable store merely because both happen to be keyed. The data handler or persistence boundary owns that workflow.
+
+[`PlayerAchievementDataHandler`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/data/handler/PlayerAchievementDataHandler.java) already hides cache-miss and persistence behavior behind `load(...)`:
 
 ```java
 @Override
@@ -177,11 +154,13 @@ public Optional<PlayerAchievementData> findCached(UUID playerId) {
 }
 ```
 
-The current class still uses constructor-captured managed dependencies, which is compatibility-era composition and not the target DI style. Its **data-boundary responsibility** is the useful production example: callers do not need to know how cache misses, persistence reads, save batching, or post-quit retention are implemented.
+The class currently contains constructor-captured managed dependencies, which is compatibility-era composition and not the target DI style. Its data-boundary responsibility is the production pattern: callers should not need to know how cache misses, persistence reads, save batching, or post-quit retention are implemented.
 
-## Production Example: Primitive Identity Does Not Require a Map
+## Data Is Not Runtime Ownership
 
-[`FFAActivePlayerSessionData`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-ffa/src/main/java/org/tavall/minecraft/ffa/player/session/FFAActivePlayerSessionData.java) is the simple-data case:
+Maps remain valid inside typed immutable or encapsulated data when the map itself is genuinely part of the value. Known fields should still become named fields instead of `Map<String, Object>`.
+
+[`FFAActivePlayerSessionData`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-ffa/src/main/java/org/tavall/minecraft/ffa/player/session/FFAActivePlayerSessionData.java) demonstrates the simple case where primitive and platform values become one named domain type rather than several maps:
 
 ```java
 public record FFAActivePlayerSessionData(
@@ -194,106 +173,21 @@ public record FFAActivePlayerSessionData(
 }
 ```
 
-Those values could have been hidden inside `Map<String, Object>` or split across several `Map<UUID, ...>` structures. They are instead one named domain value. Primitive/platform types such as `UUID`, `String`, `long`, and enums are perfectly valid fields and keys; they do not justify an untyped value model.
-
-## Production Example: Secondary Maps Belong Inside the Registry Owner
-
-[`BattleInstanceRegistry`](https://github.com/TavallStudios/tavall-project-novus/blob/main/minecraft-kingdom-server/src/main/java/org/tavall/minecraft/server/battle/BattleInstanceRegistry.java) is the important exception that proves the ownership rule:
+A map can still be legitimate data when the map itself is part of the value. [`RoundPerformanceGradeResult`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-ffa/src/main/java/org/tavall/minecraft/ffa/rating/grading/RoundPerformanceGradeResult.java) snapshots its component map rather than exposing mutable runtime ownership:
 
 ```java
-@DelegatesTo(IBattleInstanceRegistry.class)
-public final class BattleInstanceRegistry
-        extends AbstractIndexedRegistry<UUID, BattleInstance>
-        implements IBattleInstanceRegistry {
-
-    private final Map<UUID, UUID> battleIdByPlayerId =
-            new ConcurrentHashMap<>();
-    private final Map<UUID, BattleParticipant> participantByPlayerId =
-            new ConcurrentHashMap<>();
-
-    @Override
-    public Optional<BattleInstance> findBattleByPlayer(UUID playerId) {
-        return Optional.ofNullable(battleIdByPlayerId.get(playerId))
-                .flatMap(this::findBattle);
-    }
-
-    @Override
-    protected void index(UUID battleId, BattleInstance battleInstance) {
-        battleInstance.participants().forEach((playerId, participant) -> {
-            battleIdByPlayerId.put(playerId, battleId);
-            participantByPlayerId.put(playerId, participant);
-        });
-    }
-
-    @Override
-    protected void unindex(UUID battleId, BattleInstance battleInstance) {
-        battleInstance.participants().forEach((playerId, participant) -> {
-            battleIdByPlayerId.remove(playerId, battleId);
-            participantByPlayerId.remove(playerId, participant);
-        });
-    }
-}
-```
-
-Those mutable maps are allowed **because they are implementation indexes owned by the registry responsible for keeping them coherent**. Moving either map into a battle handler, listener, command, or service would violate the rule.
-
-This is the difference between a map being an implementation detail and a map becoming application architecture.
-
-## Rejected Consumer Pattern
-
-```java
-public final class PlayerSessionHandler {
-    private final Map<UUID, PlayerSessionData> sessions =
-            new ConcurrentHashMap<>();
-}
-```
-
-This is a registry implemented locally inside a consumer. Thread safety does not change the ownership problem.
-
-Prefer a typed registry boundary with domain methods:
-
-```java
-public interface IPlayerSessionRegistry {
-    Optional<PlayerSessionData> find(UUID playerId);
-
-    PlayerSessionData start(UUID playerId);
-
-    void end(UUID playerId);
-}
-```
-
-The registry owns the collection and its duplicate, replacement, lifecycle, snapshot, and cleanup semantics. Consumers receive the registry through Tavall DI and call domain methods.
-
-## Cache-Shaped State
-
-```java
-private final Map<UUID, CooldownData> cooldowns =
-        new ConcurrentHashMap<>();
-```
-
-is cache-shaped state. If entries expire, become stale, reload, or are disposable, use Tavall Cache rather than hand-rolling lifecycle and invalidation behavior.
-
-## Data Is Not Runtime Ownership
-
-Maps remain valid inside typed immutable or encapsulated data when the map itself is genuinely part of the value.
-
-Production examples include immutable map-bearing result/data types such as [`RoundPerformanceGradeResult`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-ffa/src/main/java/org/tavall/minecraft/ffa/rating/grading/RoundPerformanceGradeResult.java), which snapshots its component map with `Map.copyOf(...)`.
-
-Canonical shape:
-
-```java
-public record PlaceholderData(
-        Map<PlaceholderKey, String> values
+public record RoundPerformanceGradeResult(
+        FFALetterGrade letterGrade,
+        double score,
+        Map<FFARoundGradeComponent, Double> components
 ) {
-    public PlaceholderData {
-        values = Map.copyOf(values);
+    public RoundPerformanceGradeResult {
+        components = Map.copyOf(components);
     }
 }
 ```
 
 This is data, not a mutable runtime store.
-
-Known fields should still become named fields instead of `Map<String, Object>`.
 
 ## Method-Local Exception
 
@@ -320,6 +214,39 @@ Canonical infrastructure may own mutable maps as implementation details. Example
 
 Consumers should not depend on or mutate those backing maps directly.
 
+Secondary indexes are a concrete example. [`BattleInstanceRegistry`](https://github.com/TavallStudios/tavall-project-novus/blob/main/minecraft-kingdom-server/src/main/java/org/tavall/minecraft/server/battle/BattleInstanceRegistry.java) owns two mutable maps inside `AbstractIndexedRegistry` and keeps them coherent through `index(...)` and `unindex(...)`:
+
+```java
+@DelegatesTo(IBattleInstanceRegistry.class)
+public final class BattleInstanceRegistry
+        extends AbstractIndexedRegistry<UUID, BattleInstance>
+        implements IBattleInstanceRegistry {
+
+    private final Map<UUID, UUID> battleIdByPlayerId =
+            new ConcurrentHashMap<>();
+    private final Map<UUID, BattleParticipant> participantByPlayerId =
+            new ConcurrentHashMap<>();
+
+    @Override
+    protected void index(UUID battleId, BattleInstance battleInstance) {
+        battleInstance.participants().forEach((playerId, participant) -> {
+            battleIdByPlayerId.put(playerId, battleId);
+            participantByPlayerId.put(playerId, participant);
+        });
+    }
+
+    @Override
+    protected void unindex(UUID battleId, BattleInstance battleInstance) {
+        battleInstance.participants().forEach((playerId, participant) -> {
+            battleIdByPlayerId.remove(playerId, battleId);
+            participantByPlayerId.remove(playerId, participant);
+        });
+    }
+}
+```
+
+Those maps are allowed because they are implementation indexes owned by the registry responsible for their invariants. Moving either map into a battle handler, listener, command, or service would violate the rule.
+
 ## API Rule
 
 Do not expose map operations as the domain API.
@@ -332,13 +259,22 @@ cache.getMap().remove(playerId);
 state.compute(playerId, mutation);
 ```
 
-Preferred:
+Prefer focused methods such as `start(...)`, `find(...)`, `invalidate(...)`, `applyMutation(...)`, and typed snapshots.
+
+[`AchievementPointSummaryHandler`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/points/AchievementPointSummaryHandler.java) shows the consumer side of this rule. It asks the data handler for player data and the registry for a snapshot rather than owning either map:
 
 ```java
-sessionRegistry.start(playerId);
-playerCache.invalidate(playerId);
-playerStateHandler.applyMutation(request);
+PlayerAchievementData data = getDataHandler().load(playerId);
+
+for (AchievementListData definition : getDefinitionRegistry().snapshot()) {
+    if (!definition.enabled() || definition.pointType() != pointType) {
+        continue;
+    }
+    // calculate typed summary values
+}
 ```
+
+The current production class still carries compatibility-era dependency-map construction. The relevant pattern is the domain interaction: the consumer asks owners for behavior instead of manipulating their collections.
 
 Lookup, registration, replacement, mutation, invalidation, expiry, persistence, snapshotting, and cleanup belong behind focused methods on DI-managed boundaries.
 
