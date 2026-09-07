@@ -17,6 +17,10 @@ Project Novus documentation is part of the engineering contract.
 - Split a supporting document only when the main system document would become materially harder to read.
 - The main system document must summarize and link any delegated command, permission, format, message, schema, or integration document.
 
+Architecture and pattern documentation must explain both **what** the rule is and **why** the rule exists. A rule without its ownership, lifecycle, testing, failure-mode, or maintainability rationale is easy to copy mechanically and easy to misuse.
+
+For architecture pattern sections, use a concise `##### Why` subsection after a major rule or bad/good example when the rationale is not already obvious from the surrounding text. The rationale should explain the architectural consequence, not merely restate the rule. Production code references remain inline with the rule they support and link back to the source class rather than being collected into a separate evidence catalog.
+
 Documentation should reduce ambiguity. Producing three files that disagree with each other is merely distributed ambiguity with better filenames.
 
 ## 2. Document Lifecycle and Naming
@@ -250,5 +254,7 @@ Before accepting a documentation change, confirm:
 - [ ] Progress claims name evidence and an audited commit.
 - [ ] Delegated documents are summarized and linked by their owner.
 - [ ] Commands, permissions, formats, messages, schemas, and integrations are defined in the correct document.
+- [ ] Architecture pattern rules explain why the pattern exists instead of only prescribing a shape.
+- [ ] Production examples are linked inline to the source they demonstrate rather than copied into a competing reference catalog.
 - [ ] Links resolve and examples use current Project Novus names, packages, and modules.
 - [ ] Obsolete drafts are removed, archived, or clearly marked so they cannot compete with the accepted contract.
