@@ -227,6 +227,14 @@ public final class PlayerSessionHandler {
 }
 ```
 
+##### Why
+
+The handler has silently become the lifecycle owner for a registry-shaped store.
+
+That duplicates collection semantics inside behavior code, hides replacement and cleanup policy, and makes it easier for callers to treat generic map operations as the domain API.
+
+Routing the state through Registry, Cache, persistence, or typed operation data gives the state one explicit owner and lets consumers depend on behavior instead of storage mechanics.
+
 That is a registry implemented inside a consumer. Expiring or reloadable keyed state is cache-shaped, durable keyed state belongs behind persistence ownership, and short-lived operation values should use typed `*Data`, `*Request`, `*Result`, `*State`, or `*MetaData` rather than generic maps.
 
 The full ownership rule, including linked production code from Tavall Registry, Tavall Cache, Project Novus registries, data handlers, caches, and typed data objects, lives in [Application-Owned Mutable Maps](APPLICATION_OWNED_MUTABLE_MAPS.md).
