@@ -212,135 +212,45 @@ Runtime utility behavior should normally remain an injected instance dependency 
 
 When behavior needs replacement, lifecycle ownership, runtime configuration, deterministic testing, or access to Tavall-managed state, route it through DI.
 
-#### Loose or Untyped Map Pattern
+#### Application-Owned Mutable Map Pattern
 
-A loose map is a `Map`, `ConcurrentMap`, `HashMap`, `ConcurrentHashMap`, `Set`, or parallel keyed collection that is used as an unnamed domain model, storage system, runtime registry, cache, operation payload, or behavior API instead of a typed Tavall boundary.
+Application-owned mutable maps are prohibited by default.
 
-Loose maps are prohibited in ordinary production consumers such as handlers, services, orchestrators, routers, listeners, commands, controllers, gateways, and adapters.
+The problem is not that Java has a `Map` type. The problem is ordinary application code owning keyed mutable state that should belong to Tavall Registry, Tavall Cache, persistence, distributed-state infrastructure, or a typed operation/data boundary.
+
+This includes `Map`, `ConcurrentMap`, `HashMap`, `ConcurrentHashMap`, mutable `Set`, and parallel keyed collections used for domain state.
+
+The detailed binding rule lives in [Application-Owned Mutable Maps](APPLICATION_OWNED_MUTABLE_MAPS.md).
 
 Bad:
 
 ```java
 public final class PlayerSessionHandler {
-    private final Map<UUID, Map<String, Object>> sessions =
+    private final Map<UUID, PlayerSessionData> sessions =
             new ConcurrentHashMap<>();
-
-    public void put(UUID playerId, String key, Object value) {
-        sessions.computeIfAbsent(playerId, ignored -> new ConcurrentHashMap<>())
-                .put(key, value);
-    }
-
-    public Object get(UUID playerId, String key) {
-        Map<String, Object> data = sessions.get(playerId);
-        return data == null ? null : data.get(key);
-    }
 }
 ```
-
-This is rejected even when the collection is private, thread-safe, short-lived, or named `data`, `state`, `entries`, `sessions`, or `metadata`.
 
 ##### Why
 
-A loose map erases the architecture the collection is already implementing.
+That class is implementing a registry locally.
 
-The key type does not state the full identity contract. The value shape is not enforced. Duplicate, replacement, expiry, persistence, cleanup, indexing, and failure behavior become scattered `put`, `get`, `compute`, and `remove` calls. Consumers start owning state rather than consuming the boundary that owns it.
+Thread safety does not make the ownership correct. Private visibility does not make the ownership correct. A short lifetime does not make the ownership correct.
 
-Thread safety does not make a map a registry. A generic value type does not make a map metadata. A short lifetime does not make a map harmless.
+Classify the state instead:
 
-##### Required Replacement
+- runtime keyed state → Tavall Registry;
+- expiring/reloadable/stale-able state → Tavall Cache;
+- durable state → Repository plus the owning data handler or persistence workflow;
+- distributed/shared state → the owning Redis/distributed abstraction;
+- several indexes over one identity → `AbstractIndexedRegistry` or one typed aggregate;
+- operation payload/state/result → typed `*Data`, `*Request`, `*Result`, `*State`, or `*MetaData`.
 
-Classify the state before choosing a replacement:
+Normal consumers receive those boundaries through Tavall DI and call focused domain methods. They do not create, expose, mutate, or recreate backing maps.
 
-1. **Durable state** uses a repository and the owning data handler or persistence workflow.
-2. **Loaded definitions, providers, strategies, sessions, active runtime objects, or keyed process state** use a Tavall Registry.
-3. **Disposable, reloadable, stale-able, or expiring state** uses Tavall Cache.
-4. **Several indexes over one identity** use `AbstractIndexedRegistry` or one typed aggregate rather than parallel maps.
-5. **A short-lived operation payload or result** uses a typed `*Data`, `*Request`, `*Result`, `*State`, or `*MetaData` class.
-6. **Extensible integration metadata** may contain a typed map only inside the owning data or metadata type, and only when the external schema is intentionally open-ended.
-7. **Static lookup data** belongs in a dedicated immutable data/configuration/value type rather than mutable state inside a behavior class.
+Maps remain allowed inside canonical infrastructure implementations, immutable or encapsulated typed data, intentionally dynamic integration/serialization boundaries, and narrowly scoped method-local algorithmic transformations that do not represent domain ownership and do not escape the method.
 
-If the key is a primitive or platform value such as `UUID`, `String`, `long`, or an enum, that is not a reason to make the value loose. Give the value a domain type.
-
-Prefer:
-
-```java
-public record PlayerSessionData(
-        UUID playerId,
-        SessionId sessionId,
-        Instant startedAt,
-        PlayerSessionState state
-) {
-}
-```
-
-Then place keyed lifecycle behavior behind a registry:
-
-```java
-public interface IPlayerSessionRegistry {
-    Optional<PlayerSessionData> find(UUID playerId);
-
-    PlayerSessionData start(UUID playerId);
-
-    void end(UUID playerId);
-}
-```
-
-The registry owns the collection. Normal consumers receive the registry through Tavall DI and call domain methods. They do not receive, expose, mutate, or recreate the backing map.
-
-##### Collection Construction Rule
-
-Mutable map or set construction for domain state belongs only inside the dedicated data/storage boundary that owns that state, such as a registry, cache, repository substitute, indexed state implementation, or intentionally map-backed `*Data`/`*MetaData` type.
-
-Ordinary behavior consumers do not instantiate mutable maps to hold domain state. They consume typed dependencies through DI.
-
-A method-local map is allowed only for a bounded, non-domain algorithmic transformation when all of the following are true:
-
-- the key and value types are concrete and meaningful;
-- the collection never escapes the method;
-- it is not returned as an operation result;
-- it is not stored on an object;
-- it does not represent durable, cached, registry, session, lifecycle, or authorization state;
-- replacing it with a named data type would not improve the domain contract.
-
-This exception is intentionally narrow. If the map represents something engineers can name, model the named thing.
-
-##### API Rule
-
-Do not expose generic map behavior as the domain API.
-
-Bad:
-
-```java
-sessionRegistry.getSessions().put(playerId, session);
-metadata.put("region", regionId);
-state.compute(playerId, mutation);
-```
-
-Good:
-
-```java
-sessionRegistry.start(playerId);
-playerMetaDataHandler.resolve(request);
-playerStateHandler.applyMutation(request);
-```
-
-Behavior such as lookup, registration, replacement, mutation, invalidation, persistence, expiry, snapshotting, and cleanup belongs behind focused methods on DI-managed dependencies.
-
-Do not create `getMap()`, `entries()`, or mutable snapshot access merely to let consumers perform the behavior the owning boundary should provide itself.
-
-##### Metadata Rule
-
-`Map<String, Object>` is not a metadata model.
-
-Use a `*MetaData` type for known metadata. Add a `*MetaDataHandler` only when metadata needs derivation, normalization, validation, enrichment, or cross-source resolution. Passive metadata does not require a handler merely to satisfy a naming pattern.
-
-An intentionally extensible metadata map is permitted only at a real integration edge and remains encapsulated inside its owning metadata/data type. Core identity, authorization, lifecycle, state transitions, and behavior fields remain typed.
-
-##### Enforcement Rule
-
-Architecture review should treat a newly added mutable map/set field or `Map<String, Object>`-style API in production code as a violation candidate by default. The author must show that it fits one of the narrow allowed data/storage cases above rather than asking reviewers to infer that a generic collection is probably fine.
-
-The canonical architecture-test repository should encode enforceable cases as the static-analysis surface evolves. Documentation exceptions do not silently become code-generation defaults.
+`Map<String, Object>`, raw `Map`, nested arbitrary maps, and map-shaped behavior APIs are especially strong violation signals.
 
 #### Raw String Pattern
 
