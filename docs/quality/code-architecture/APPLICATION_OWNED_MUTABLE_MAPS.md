@@ -53,6 +53,12 @@ public final class AchievementListRegistry
 
 The source still contains compatibility-era dependency-map construction. That is not the behavior being endorsed here; the relevant production pattern is that keyed runtime ownership belongs to a registry and consumers call its domain surface.
 
+##### Why
+
+Classification prevents implementation details from deciding architecture by accident.
+
+A `ConcurrentHashMap` can technically hold sessions, cooldowns, durable records, or operation state, but those categories have different lifecycle, expiry, persistence, replacement, recovery, and test requirements. Naming the ownership category first routes the state into the system that already owns those semantics.
+
 ## Rejected Consumer Pattern
 
 ```java
@@ -86,6 +92,12 @@ public final class FFAActivePlayerSessionRegistry
 ```
 
 The registry owns collection semantics, duplicate policy, snapshots, replacement, indexing, and lifecycle. Consumers receive the registry through the appropriate Tavall DI surface and call domain methods rather than creating another mutable map.
+
+##### Why
+
+A consumer should own behavior, not silently become the storage primitive for that behavior.
+
+Keeping keyed state in a registry gives the state one lifecycle owner and one domain API. It also makes replacement, cleanup, indexing, snapshot behavior, and future migration visible instead of scattering map calls across whatever handlers happened to need the data first.
 
 ## Cache-Shaped State
 
@@ -129,6 +141,12 @@ public final class PlayerAchievementCache
 
 A consumer-level `ConcurrentHashMap<UUID, PlayerAchievementData>` would reproduce ownership already provided by Tavall Cache while losing TTL, cache-key metadata, cleanup, and cache lifecycle semantics.
 
+##### Why
+
+Cache behavior is more than fast lookup.
+
+Expiry, invalidation, stale handling, reload behavior, statistics, and cleanup all become duplicated policy when every consumer owns its own map. Tavall Cache keeps those rules in one replaceable boundary and leaves consumers responsible only for the behavior that needs cached data.
+
 ## Data and Persistence Ownership
 
 Consumers should not coordinate a cache and durable store merely because both happen to be keyed. The data handler or persistence boundary owns that workflow.
@@ -155,6 +173,12 @@ public Optional<PlayerAchievementData> findCached(UUID playerId) {
 ```
 
 The class currently contains constructor-captured managed dependencies, which is compatibility-era composition and not the target DI style. Its data-boundary responsibility is the production pattern: callers should not need to know how cache misses, persistence reads, save batching, or post-quit retention are implemented.
+
+##### Why
+
+Cache and persistence coordination is itself domain data behavior.
+
+If callers manually check a map, fall back to a repository, rebuild data, update dirty state, and refresh the cache, every caller can make a slightly different consistency decision. A data handler or persistence service gives the read/write path one owner and makes failure, retry, batching, and cache policy testable in one place.
 
 ## Data Is Not Runtime Ownership
 
@@ -189,6 +213,12 @@ public record RoundPerformanceGradeResult(
 
 This is data, not a mutable runtime store.
 
+##### Why
+
+Typed data describes a value at a point in time; runtime storage owns changing state across time.
+
+Keeping that distinction explicit lets records and results carry naturally map-shaped values without turning them into hidden registries. Immutable snapshots also prevent callers from mutating another component's state through a value object that only looked harmless.
+
 ## Method-Local Exception
 
 A method-local mutable map is allowed only for a bounded algorithmic transformation when all of the following are true:
@@ -200,6 +230,12 @@ A method-local mutable map is allowed only for a bounded algorithmic transformat
 - replacing it with a named type would not improve the domain contract.
 
 This exception is intentionally narrow.
+
+##### Why
+
+A local collection used to group, count, sort, or transform values has no independent lifecycle to architect.
+
+Promoting every temporary collection into a registry would be ceremony without ownership value. The exception stays narrow so temporary algorithmic state does not become the excuse by which long-lived application state quietly crawls back into consumers.
 
 ## Infrastructure Exception
 
@@ -247,6 +283,12 @@ public final class BattleInstanceRegistry
 
 Those maps are allowed because they are implementation indexes owned by the registry responsible for their invariants. Moving either map into a battle handler, listener, command, or service would violate the rule.
 
+##### Why
+
+Infrastructure boundaries exist specifically to own implementation mechanics such as maps, indexes, expiry structures, storage records, and serialization shapes.
+
+Keeping those mechanics inside the owner allows the owner to enforce invariants atomically. Secondary indexes are only safe when the same registry controls registration, replacement, and removal; exposing them to consumers would let the indexes drift apart from the primary state.
+
 ## API Rule
 
 Do not expose map operations as the domain API.
@@ -278,6 +320,12 @@ The current production class still carries compatibility-era dependency-map cons
 
 Lookup, registration, replacement, mutation, invalidation, expiry, persistence, snapshotting, and cleanup belong behind focused methods on DI-managed boundaries.
 
+##### Why
+
+Map methods describe storage mechanics, not domain intent.
+
+A call such as `put`, `compute`, or `remove` cannot express validation, duplicate policy, audit behavior, lifecycle transitions, persistence effects, or cache invalidation without making the caller understand the implementation. Domain methods preserve those rules behind the owning boundary and make call sites readable enough to review.
+
 ## Tavall Registry and Tavall Cache
 
 This rule matches the purpose of the shared infrastructure:
@@ -289,8 +337,20 @@ Application code should consume those boundaries rather than recreate their inte
 
 The current `tavall-registry` implementation still inherits directly from `ConcurrentHashMap`, which exposes raw map operations on concrete registries. That is an infrastructure encapsulation concern, not permission for application consumers to use raw map APIs. Domain-specific registry methods remain the preferred application surface.
 
+##### Why
+
+Shared infrastructure only pays for itself when application code stops reimplementing it.
+
+Routing keyed state through Tavall Registry and Tavall Cache centralizes semantics that would otherwise be repeated across handlers and services, and it gives architecture tests a stable boundary to enforce instead of trying to infer the intent of thousands of unrelated maps.
+
 ## Review Rule
 
 Any new mutable map/set field or parallel keyed collection in production application code requires architecture review and should be rejected unless it is clearly inside an allowed infrastructure/data boundary.
 
 `Map<String, Object>`, raw `Map`, nested arbitrary maps, and map-shaped behavior APIs are especially strong violation signals.
+
+##### Why
+
+Mutable keyed state is cheap to add and expensive to unwind once callers depend on its shape.
+
+Reviewing ownership at introduction time is far cheaper than later discovering that a convenient map has become the unofficial registry, cache, persistence layer, and API for half a subsystem.
