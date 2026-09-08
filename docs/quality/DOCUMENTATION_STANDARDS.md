@@ -23,6 +23,32 @@ For architecture pattern sections, use a concise `##### Why` subsection after a 
 
 Documentation should reduce ambiguity. Producing three files that disagree with each other is merely distributed ambiguity with better filenames.
 
+### 1.1 Canonical Implementation and Tool Authority
+
+When shared documentation describes an existing Tavall library, framework, runtime, or Java tool, the canonical owning repository is the source of truth for that tool's API shape, inheritance model, lifecycle semantics, supported low-level surfaces, and naming vocabulary.
+
+Before adding or materially changing architecture guidance for an existing Tavall tool:
+
+1. inspect the canonical repository at its current accepted revision;
+2. read its owning interfaces, implementation classes, tests, `AGENTS.md`, and system documentation where present;
+3. identify which behavior is intended for ordinary application consumers versus framework/tool implementation;
+4. preserve intentional library contracts and terminology in shared docs;
+5. treat a desired redesign as a separate upstream proposal or migration, not as documentation cleanup.
+
+Shared docs may classify **when** a Tavall tool should be used and may impose cross-project consumer rules, but they must not silently redesign the tool itself.
+
+Examples of prohibited documentation drift include:
+
+- replacing intentional collection inheritance with composition because composition is generically fashionable;
+- declaring an inherited API forbidden when the canonical tool intentionally supports it for framework or advanced use;
+- inventing a new abstraction or naming layer for behavior already represented by the canonical tool;
+- documenting a remembered or proposed API as if it were the current checked-in contract;
+- using one downstream consumer's wrapper as the source of truth for the shared tool.
+
+##### Why
+
+Shared architecture exists to make Tavall's real systems coherent. If documentation can redefine a canonical tool without inspecting that tool first, it stops being governance and becomes a parallel implementation written in Markdown.
+
 ## 2. Shared Quality Policy vs Repository/System Specialization
 
 Cross-project engineering policy belongs under `docs/quality`, including:
@@ -194,6 +220,8 @@ Before accepting a documentation change, confirm:
 - [ ] Delegated documents are summarized/linked by their owner.
 - [ ] Commands, permissions, formats, messages, schemas, and integrations are defined in the correct document.
 - [ ] Architecture pattern rules explain why the pattern exists rather than only prescribing shape.
+- [ ] Existing canonical Tavall tools were inspected before their API, inheritance, lifecycle, or naming patterns were documented or changed.
+- [ ] Shared docs preserve accepted tool contracts unless a separate upstream migration has changed the canonical owner first.
 - [ ] Production examples are linked inline to source instead of copied into a competing evidence catalog.
 - [ ] Links resolve and examples use current repository/module/class names.
 - [ ] Obsolete drafts are removed, archived, or clearly marked so they cannot compete with accepted contracts.
