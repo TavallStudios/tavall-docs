@@ -33,6 +33,9 @@ Before changing architecture:
 3. Read repository/module `AGENTS.md`, architecture tests, and local design rules.
 4. Inspect the current lifecycle/composition owner.
 5. Prefer current checked-in Tavall tool contracts over remembered API shapes.
+6. When the rule concerns an existing Tavall tool, inspect that canonical tool's interfaces, implementation, tests, and owning docs before changing shared guidance.
+
+Canonical Tavall tools own their own API shape, inheritance model, lifecycle semantics, supported low-level/framework surfaces, and naming vocabulary. Shared architecture may classify when a tool is used and may constrain ordinary application consumers, but it must not silently redesign the canonical tool itself. A desired redesign belongs in the owning tool first and in shared docs only after that change becomes the accepted tool contract.
 
 Architecture review is required for a new persistence/cache authority, lifecycle owner, global registry, cross-module dependency, distributed fallback, reflective/static dependency lookup, direct thread/executor ownership, or a class with more than four managed dependencies.
 
@@ -272,9 +275,13 @@ Every key family defines owner, prefix, value schema, TTL/staleness behavior, mi
 
 ## Registries
 
-Use `tavall-registry` for typed runtime lookup ownership: loaded definitions, providers/strategies, active runtime objects, sessions without cache semantics, and synchronized indexes.
+Use `tavall-registry` for typed runtime lookup ownership: loaded definitions, providers/strategies, active runtime objects, and sessions without cache semantics.
 
-Registries expose domain methods and immutable snapshots. Callers do not use backing-map operations as the domain API. Use `AbstractIndexedRegistry` when secondary indexes must remain synchronized.
+The canonical Registry model intentionally preserves Java collection behavior: `AbstractRegistry<K, V>` extends `ConcurrentHashMap<K, V>` and layers the `IAbstractRegistry<K, V>` registry vocabulary over it. Ordinary consumers should prefer the registry-named methods when they express the operation cleanly. Registry subclasses and framework code may use inherited `Map` / `ConcurrentMap` operations when the canonical tool contract supports them.
+
+Do not treat collection inheritance itself as a defect or require composition merely to hide inherited operations. If a specialized registry adds additional lookup structures or invariants, those invariants must remain coherent across every mutation path that the registry continues to support.
+
+Do not make `AbstractIndexedRegistry` a blanket architecture requirement. Several lookup dimensions still have one Registry owner; first use the current canonical `tavall-registry` vocabulary and only add specialized lookup machinery when the owning registry genuinely requires it.
 
 ## Caches
 
@@ -289,7 +296,7 @@ Application-owned mutable maps/sets are prohibited by default. Classify keyed st
 1. durable state -> Tavall Database entity model/current entity contract;
 2. expiring/reloadable/stale-able state -> Tavall Cache;
 3. runtime identity/definitions/providers/sessions -> Tavall Registry;
-4. parallel indexes -> indexed registry or typed aggregate;
+4. several lookup dimensions over one runtime identity -> one Registry owner using the current canonical registry contract, with any additional lookup structures owned coherently by that registry;
 5. in-flight futures/tasks/retries/cancellation -> dedicated typed operation/runtime owner;
 6. method-local bounded transformations -> local collection when it never escapes;
 7. immutable lookup/data snapshots -> immutable typed collections.
@@ -328,7 +335,7 @@ Expected rejections use typed results. Infrastructure failures propagate operati
 Test real behavior at the narrowest meaningful boundary.
 
 - Unit: policies, resolvers, builders, typed transitions, validation, serialization.
-- Integration: Tavall Database entity behavior, PostgreSQL-specific contracts, Redis, DI registration/cleanup, registry indexes, cache TTL/invalidation, module lifecycle.
+- Integration: Tavall Database entity behavior, PostgreSQL-specific contracts, Redis, DI registration/cleanup, Registry behavior and any specialized lookup invariants, cache TTL/invalidation, module lifecycle.
 - Simulation/E2E: complete runtime flows, retries, cleanup, routing, reconnect/transfer, and user interaction where applicable.
 
 Test package/class names mirror production. Validation reports exactly what ran and what remains untested.
@@ -355,6 +362,7 @@ Before accepting a change, confirm:
 - [ ] Builders construct typed output and do not wire managed behavior.
 - [ ] Handler/Service/Orchestrator/Router responsibilities remain distinct.
 - [ ] Tavall tools are reused rather than recreated.
+- [ ] Shared docs and application rules were checked against the current canonical Tavall tool contract before changing that tool's API, inheritance, lifecycle, or naming assumptions.
 - [ ] Production Java locals use explicit declared types rather than `var`.
 - [ ] Off-thread application work uses Tavall concurrency/owning platform schedulers rather than direct thread ownership.
 - [ ] Any direct `Thread` creation has an explicit infrastructure/JVM/platform reason and lifecycle owner.
@@ -363,6 +371,7 @@ Before accepting a change, confirm:
 - [ ] Shared application docs do not freeze a concrete Tavall Database accessor.
 - [ ] Application code does not own JPA/JDBC/transaction/factory lifecycle.
 - [ ] Runtime keyed state is Registry/Cache/typed operation state, not consumer-owned maps.
+- [ ] Canonical tool collection inheritance is not rejected merely for exposing supported Java collection behavior.
 - [ ] Cross-storage authority, ordering, recovery, and reconciliation are explicit.
 - [ ] Async/lifecycle cleanup is explicit.
 - [ ] Requests/results/keys/state are typed.
