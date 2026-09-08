@@ -1,469 +1,286 @@
-# Project Novus Method Rules
+# Tavall Method Rules
 
 > **Status:** Active  
-> **Authority:** Binding chapter of [Project Novus Code Architecture](../CODE_ARCHITECTURE.md)  
-> **Applies to:** All Project Novus modules, contributors, automation, generated code, and AI-assisted development
+> **Authority:** Binding chapter of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
+> **Applies to:** Tavall production modules, contributors, automation, generated code, reviews, and AI-assisted development
 
-This chapter is separated for navigation only. Its rules are part of the authoritative Project Novus code architecture and are not optional supplemental guidance.
+## Method Rules
 
-## Methods
-
-### Method Rules
-
-Methods should be easy to read from top to bottom.
-
-A method should have one clear job. If the method starts doing setup, validation, storage, formatting, cache mutation, and command output all at once, congratulations, we made soup again.
+Methods should be readable top to bottom and perform one coherent operation.
 
 Rules:
 
-* Method names should explain the action.
-* Method bodies should be readable without guessing.
-* Important values should be extracted into local variables.
-* Avoid hiding logic inside chained calls.
-* Keep command/event methods focused on receiving input and delegating work.
-* Keep data methods focused on moving data.
-* Keep builder methods focused on creating objects.
-* Keep utility methods stateless.
-* Keep database methods persistence-only.
-* Keep cache methods cache-only.
+- Method names explain the action.
+- Important values are extracted into named locals when that improves ownership/debugging.
+- Avoid hiding meaningful logic inside deep chained calls.
+- Input-adapter methods receive input and delegate.
+- Domain-handler methods perform one focused behavior.
+- Data methods move/transform data policy without absorbing unrelated product rules.
+- Builder methods construct typed output only.
+- Pure utility methods remain stateless.
+- Cache methods own cache behavior only.
+- Durable application operations use Tavall Database entity/typed operations rather than local transaction/database helper methods.
 
 ##### Why
 
 Methods are the smallest unit where ownership can become unclear. A method that validates, persists, mutates cache state, formats output, and performs delivery makes every caller depend on all of those concerns at once.
 
-Keeping one coherent action per method makes failure paths visible, lets behavior be reused at the correct layer, and keeps refactoring from turning one innocent call into a hidden workflow.
+## Method Naming
 
-### Method Naming
+The class name explains ownership. The method name explains the action.
 
-Method names should describe the actual action being performed.
+Avoid:
 
-Do not name methods after the class role.
+```text
+handlePlayerJoin()
+handleRankUpdate()
+process()
+run()
+doThing()
+update()
+```
 
-Bad:
+Prefer:
 
-handlePlayerJoin();
-handleRankUpdate();
-process();
-run();
-doThing();
-update();
+```text
+loadPlayerAccountData()
+buildPlayerRankMetaData()
+sendWelcomeMessage()
+refreshPlayerTabFormat()
+savePunishmentData()
+refreshPlayerAccountCache()
+```
+
+Boolean methods read like questions:
+
+```text
+hasPermission()
+canPunish()
+isVanished()
+shouldSendWelcomeMessage()
+```
 
 ##### Why
 
-"PlayerJoinHandler#handlePlayerJoin()" repeats the class name instead of explaining the work being done.
+`PlayerJoinHandler#handlePlayerJoin()` repeats the class name instead of explaining the work. Precise method names make call sites and stack traces describe the actual operation.
 
-The class already tells us this is handling player join behavior. The method should tell us what part of the behavior is happening.
+## Parameters and Requests
 
-Good:
-
-loadPlayerAccountData();
-buildPlayerRankMetaData();
-sendWelcomeMessage();
-refreshPlayerTabFormat();
-savePunishmentData();
-refreshPlayerAccountCache();
-
-Boolean methods should read like a question.
-
-Good:
-
-hasPermission();
-canPunish();
-isVanished();
-shouldSendWelcomeMessage();
-
-#### Rule
-
-The class name explains the ownership.
-
-The method name explains the action.
-
-Example:
-
-public final class PlayerJoinHandler {
-
-    public void loadPlayerAccountData(Player player) {
-    }
-
-    public void sendWelcomeMessage(Player player) {
-    }
-
-    public void refreshPlayerTabFormat(Player player) {
-    }
-}
+Use specific typed parameters. Prefer a request object when several values belong to one operation.
 
 Bad:
 
-public final class PlayerJoinHandler {
-
-    public void handlePlayerJoin(Player player) {
-    }
-}
-
-The bad version tells us almost nothing. Spectacularly brave of it.
-
-### Method Parameters
-
-Method parameters should be specific and typed.
-
-Bad:
-
+```java
 ban(String player, String reason);
 set(String key, Object value);
+```
 
 Good:
 
-banPlayer(PunishmentRequest punishmentRequest);
-updatePlayerRank(PlayerRankUpdateRequest rankUpdateRequest);
+```java
+banPlayer(PunishmentRequest request);
+updatePlayerRank(PlayerRankUpdateRequest request);
+```
 
-Prefer request objects when a method needs several related values.
-
-Example:
-
-public PunishmentResult banPlayer(PunishmentRequest punishmentRequest) {
-    UUID staffUUID = punishmentRequest.getStaffUUID();
-    UUID targetUUID = punishmentRequest.getTargetUUID();
-    String reason = punishmentRequest.getReason();
-
-    PunishmentResult punishmentResult = punishmentHandler.banPlayer(
-        staffUUID,
-        targetUUID,
-        reason
-    );
-
-    return punishmentResult;
-}
-
-Use raw values only when the method is very small and the meaning is obvious.
+Raw values are fine when the method is tiny and their meaning is obvious.
 
 ##### Why
 
-Typed parameters make invalid combinations harder to express and give related values one named contract. A long list of primitive or string parameters pushes meaning into parameter order and caller memory instead of the type system.
+Typed parameters make invalid combinations harder to express. Request objects give related values one named contract and let the operation evolve without turning every caller into a synchronized signature-editing exercise.
 
-Request objects also let validation and future fields evolve without turning every call site into a synchronized signature-editing exercise.
+## Local Variables
 
-### Method Local Variables
-
-Important values should be extracted into local variables before use.
+Extract meaningful intermediate values before nested calls when they help reading, debugging, validation, or failure diagnosis.
 
 Bad:
 
-rankMetaDataHandler.refresh(playerAccountDataHandler.load(player.getUniqueId()));
+```java
+rankMetaDataHandler.refresh(
+        playerAccountDataHandler.load(player.getUniqueId())
+);
+```
 
 Good:
 
+```java
 UUID playerUUID = player.getUniqueId();
-PlayerAccountData playerAccountData = playerAccountDataHandler.load(playerUUID);
+PlayerAccountData playerAccountData =
+        playerAccountDataHandler.load(playerUUID);
 
 rankMetaDataHandler.refresh(playerAccountData);
-
-This keeps stack traces, debugging, and reading from turning into ritual suffering.
-
-##### Why
-
-Named locals expose intermediate domain values and failure points. Deep chains hide which operation returned an unexpected value and make breakpoints, logging, stack inspection, and future validation harder to insert cleanly.
-
-The goal is not ceremonial variable creation; it is making meaningful steps visible when those steps matter to ownership or debugging.
-
-### Method Size
-
-Methods should stay small enough to understand quickly.
-
-A method is probably too large when:
-
-* It has multiple unrelated responsibilities.
-* It has several levels of nested logic.
-* It creates data, validates it, saves it, caches it, and sends messages.
-* It is hard to name without using "and".
-
-Split large methods by responsibility.
-
-Good split:
-
-receive command input
-  -> build request
-  -> delegate to handler
-  -> send result message
+```
 
 ##### Why
 
-Method size is a symptom, not a line-count contest. A large method usually matters because it has accumulated several reasons to change or several owners' responsibilities.
+Named locals expose domain values and failure points. The goal is not ceremonial variables; it is making meaningful steps visible.
 
-Splitting by responsibility makes each phase independently testable and lets storage, validation, formatting, and delivery evolve without forcing every change through one giant method.
+## Method Size
 
-### Handler Methods
+A method is probably too large when it:
 
-Handler methods receive input, coordinate behavior, and delegate work.
+- owns multiple unrelated responsibilities;
+- has several levels of nested policy;
+- creates data, validates it, persists it, caches it, and sends output itself;
+- is hard to name without using “and.”
 
-Handlers are the default place for game behavior.
+Split by responsibility, not arbitrary line count.
 
-Example:
+##### Why
 
-public CommandResult updatePlayerRank(RankUpdateRequest rankUpdateRequest) {
-    UUID staffUUID = rankUpdateRequest.getStaffUUID();
-    UUID targetUUID = rankUpdateRequest.getTargetUUID();
+Method size matters because it often reveals several reasons to change. Extracting real phases makes behavior independently testable; private one-line wrappers created only to reduce line count accomplish nothing except vertical scrolling.
 
-    PlayerAccountData staffAccountData = playerAccountDataHandler.load(staffUUID);
-    PlayerAccountData targetAccountData = playerAccountDataHandler.load(targetUUID);
+## Domain Handler Methods
 
-    boolean canRankEdit = powerLevelHandler.canRankEdit(
-        staffAccountData,
-        targetAccountData
-    );
+A domain handler method may own the focused rule it exists to implement.
 
-    if (!canRankEdit) {
-        return CommandResult.targetTooPowerful();
+Example shape:
+
+```java
+public RankUpdateResult updatePlayerRank(
+        RankUpdateRequest request
+) {
+    PlayerAccountData staff = getDataHandler().load(request.staffUUID());
+    PlayerAccountData target = getDataHandler().load(request.targetUUID());
+
+    if (!getPowerLevelHandler().canRankEdit(staff, target)) {
+        return RankUpdateResult.targetTooPowerful();
     }
 
-    playerRankDataHandler.updatePlayerRankData(rankUpdateRequest);
-    playerAccountCache.refreshPlayerAccountData(targetUUID);
-
-    return CommandResult.success();
+    getRankDataHandler().updatePlayerRankData(request);
+    return RankUpdateResult.success();
 }
+```
 
-Handlers may use:
-
-Data handlers
-Metadata handlers
-Builders
-Caches
-Databases
-Other handlers
-
-Handlers should not become storage classes.
+The handler may coordinate focused dependencies through Tavall DI. It does not own their backing maps, transaction callbacks, or unrelated rules.
 
 ##### Why
 
-A handler is an operation owner, not a data structure owner. It may coordinate the dependencies needed for one behavior, but storing durable or keyed runtime state inside the handler gives the input-facing class a second lifecycle responsibility.
+A handler is an operation owner, not a storage/runtime-container owner. Domain rules can live there while persistence/cache/registry mechanics stay behind the dependencies designed to own them.
 
-Delegating storage and reusable rules keeps the handler focused and allows the same domain behavior to be invoked from commands, events, web, Discord, or tests without copying implementation details.
+## Input Adapter Methods
 
-### Data Handler Methods
+Commands, listeners, controllers, and other external-input methods should:
 
-Data handler methods move normal data between storage and the codebase.
+1. read/validate transport input;
+2. resolve/build typed operation input;
+3. call the domain handler/service/orchestrator;
+4. adapt the typed result back to the transport.
 
-Examples:
+They should not become the reusable domain rule simply because the event arrived there first.
 
-loadPlayerAccountData();
-savePlayerAccountData();
-updatePlayerRankData();
-deleteExpiredPunishmentData();
+##### Why
 
-Data handlers may call database classes.
+Platform syntax and lifecycle change for different reasons than domain behavior. Thin adapters let one rule serve multiple surfaces.
 
-They should not own gameplay rules.
+## Data Handler Methods
 
-Good:
+A data handler is useful when several callers need the same data policy, such as Tavall Database + cache coordination, mapping, batching, retry, or retention.
 
+```java
 public PlayerAccountData loadPlayerAccountData(UUID playerUUID) {
-    PlayerAccountEntity playerAccountEntity = playerAccountDatabase.find(playerUUID);
+    Optional<PlayerAccountEntity> entity =
+            getDatabase().entities().find(
+                    PlayerAccountEntity.class,
+                    playerUUID
+            );
 
-    PlayerAccountData playerAccountData = playerAccountDataBuilder.buildPlayerAccountData(
-        playerAccountEntity
-    );
-
-    return playerAccountData;
+    return entity
+            .map(playerAccountDataBuilder::buildPlayerAccountData)
+            .orElse(null);
 }
+```
+
+A data handler is not mandatory ceremony around every entity operation. It should not decide unrelated product authorization rules.
 
 ##### Why
 
-Data-handler methods give storage translation and consistency behavior one reusable boundary. Gameplay rules change because product behavior changes; persistence mapping changes because storage changes. Combining them makes either kind of change unnecessarily risky.
+Data policy deserves one reusable owner when policy actually exists. A wrapper that only forwards `entities().find()` adds no ownership value.
 
-A data handler may coordinate repository/cache mechanics when that coordination is part of data access policy, but it should not decide whether the gameplay operation itself is allowed.
+## Builder Methods
 
-### Builder Methods
-
-Builder methods create objects.
-
-They should not save, cache, send messages, or run permission checks.
+Builder methods construct typed values. They do not persist, cache, register managed behavior, schedule, authorize, or resolve Tavall-managed dependencies.
 
 ##### Why
 
-A build call should be predictable from its explicit inputs. If building performs persistence, cache mutation, permission resolution, or delivery, construction gains hidden side effects and failure modes.
+A build call should be predictable from explicit inputs. Hidden runtime effects turn construction into an undocumented workflow.
 
-Keeping builders pure enough to construct values makes them safe in tests, migrations, handlers, repositories, and other composition paths.
+## Data and Metadata Builder Methods
 
-### Data Builder Methods
+Data builders convert one explicit value shape to another.
 
-Data builder methods create normal data objects.
-
-Good:
-
-public PlayerAccountData buildPlayerAccountData(PlayerAccountEntity playerAccountEntity) {
-    UUID playerUUID = playerAccountEntity.getPlayerUUID();
-    String playerName = playerAccountEntity.getPlayerName();
-    RankKey rankKey = playerAccountEntity.getRankKey();
-
-    PlayerAccountData playerAccountData = new PlayerAccountData(
-        playerUUID,
-        playerName,
-        rankKey
-    );
-
-    return playerAccountData;
-}
-
-### Meta Data Builder Methods
-
-Metadata builder methods create resolved or display-ready metadata from normal data.
-
-Good:
-
-public PlayerRankMetaData buildPlayerRankMetaData(
-    PlayerAccountData playerAccountData,
-    RankDefinition rankDefinition
+```java
+public PlayerAccountData buildPlayerAccountData(
+        PlayerAccountEntity entity
 ) {
-    RankKey rankKey = playerAccountData.getRankKey();
-    String displayName = rankDefinition.getDisplayName();
-    String legacyColor = rankDefinition.getLegacyColor();
-
-    PlayerRankMetaData playerRankMetaData = new PlayerRankMetaData(
-        rankKey,
-        displayName,
-        legacyColor
+    return new PlayerAccountData(
+            entity.getPlayerUUID(),
+            entity.getPlayerName(),
+            entity.getRankKey()
     );
-
-    return playerRankMetaData;
 }
+```
+
+Metadata builders produce derived/display-ready values from already-provided source data/definitions.
 
 ##### Why
 
-Separating source-data construction from metadata construction keeps persisted/runtime truth distinct from derived or presentation-ready values. The two types often have different rebuild and invalidation rules even when one is produced from the other.
+Construction stays separate from lookup/persistence ownership, and derived metadata remains easy to rebuild when source definitions change.
 
-That separation prevents convenience metadata from leaking back into durable schemas simply because one builder happened to know both shapes.
+## Pure Utility Methods
 
-### Utility Methods
+Pure static utility methods may transform explicit inputs without hidden runtime state.
 
-Utility methods should be focused and stateless.
-
-Good:
-
-public static String translateLegacyColors(String message) {
-    String translatedMessage = ChatColor.translateAlternateColorCodes(
-        '&',
-        message
-    );
-
-    return translatedMessage;
-}
-
-Utility methods should not touch:
-
-Databases
-Caches
-Commands
-Paper events
-Player state
-
-If a utility needs system state, it probably is not a utility. Wild concept, I know.
+They must not access Tavall-managed services, persistence, caches, registries, schedulers, platform state, or global mutable state.
 
 ##### Why
 
-Utility methods are safe to call broadly only when their result depends on explicit input rather than hidden runtime state. Once a utility touches caches, persistence, players, scheduling, or events, it acquires lifecycle and substitution requirements that static helper syntax cannot express.
+Pure helpers are broadly safe because their result depends only on explicit input. Runtime behavior needs DI/lifecycle ownership and therefore is not a pure utility.
 
-Stateful runtime behavior belongs behind DI-managed classes where ownership and replacement remain visible.
+## Tavall Database Methods
 
-### Database Methods
+Application code does **not** own `EntityManager`, transaction callbacks, or generic database helper classes for ordinary persistence.
 
-Database methods own persistence access.
+Use:
 
-Project Novus persistence classes should use `tavall-database` and JPA where they fit the owning schema and query model. Explicit SQL remains valid for migrations, performance-sensitive queries, JSONB operations, and storage behavior that JPA cannot express cleanly.
+```java
+Optional<PlayerAccountEntity> entity =
+        getDatabase().entities().find(
+                PlayerAccountEntity.class,
+                playerUUID
+        );
 
-Project Novus targets Java 21. Records, sealed types, pattern matching, virtual threads, and other modern features may be used when they improve ownership and clarity rather than merely shortening syntax.
+getDatabase().entities().save(playerAccountEntity);
+```
 
-Database methods should:
+For multi-entity transaction semantics, use/add a typed Tavall Database operation rather than writing a local callback wrapper.
 
-* Read entities.
-* Save entities.
-* Update entities.
-* Delete entities.
-* Use typed entity classes.
-* Keep gameplay rules out.
-
-Example find method:
-
-public PlayerAccountEntity find(UUID playerUUID) {
-    EntityManager entityManager = entityManagerProvider.getEntityManager();
-
-    PlayerAccountEntity playerAccountEntity = entityManager.find(
-        PlayerAccountEntity.class,
-        playerUUID
-    );
-
-    return playerAccountEntity;
-}
-
-Example save method:
-
-public void save(PlayerAccountEntity playerAccountEntity) {
-    EntityManager entityManager = entityManagerProvider.getEntityManager();
-    EntityTransaction entityTransaction = entityManager.getTransaction();
-
-    entityTransaction.begin();
-
-    entityManager.persist(playerAccountEntity);
-
-    entityTransaction.commit();
-}
-
-Database classes should not decide whether a staff member can punish someone, whether a rank change is allowed, or whether a command should succeed.
-
-That belongs in handlers.
+Native PostgreSQL behavior remains at the mapped entity/typed Tavall Database boundary with an explicit `Native SQL reason:`.
 
 ##### Why
 
-Persistence methods should be reusable for every caller that needs the same durable operation. Embedding gameplay authorization or command outcomes into database methods ties domain behavior to one storage implementation and makes transactions responsible for decisions they do not own.
+Transaction and entity-manager lifecycle belong to Tavall Database. A local `find()` method that manually grabs an `EntityManager` recreates the persistence runtime inside application code and is precisely the architecture being removed.
 
-Keeping database methods persistence-only also makes retries, migrations, transaction tests, and alternate storage implementations possible without duplicating game rules.
+## Cache Methods
 
-### Cache Methods
+Cache methods own disposable fast-access behavior such as lookup, put, invalidation, TTL refresh, grouped removal, and snapshots through Tavall Cache.
 
-Cache methods own temporary fast-access state.
-
-Good method names:
-
-putPlayerAccountData();
-getPlayerAccountData();
-removePlayerAccountData();
-refreshPlayerAccountData();
-containsPlayerAccountData();
-
-Example:
-
-public void refreshPlayerAccountData(UUID playerUUID) {
-    PlayerAccountData playerAccountData = playerAccountDataHandler.loadPlayerAccountData(
-        playerUUID
-    );
-
-    playerAccountCache.putPlayerAccountData(
-        playerUUID,
-        playerAccountData
-    );
-}
-
-Cache methods should not be treated as the permanent source of truth unless that system explicitly says so.
+They do not become durable writes or authoritative reads by convenience.
 
 ##### Why
 
-Cache operations describe disposable state with explicit invalidation and lifetime semantics. Treating cache methods as durable writes or authoritative reads makes eviction and restart indistinguishable from data loss.
+Eviction, expiration, restart, and invalidation must remain safe. If a cache operation is the only permanent write, the boundary is misclassified.
 
-Keeping cache behavior narrow allows callers to reason about misses, reloads, TTL, and invalidation without pretending the fast path is also the persistence model.
+## Test Methods
 
-### Test Methods
+Test method names describe the behavior being tested:
 
-Test method rules are defined in the "Testing" section of this document.
-
-Do not duplicate the full testing rules here.
-
-For method naming, test methods should describe the behavior being tested.
-
-Good:
-
-modCannotPunishAdmin();
-ownerCanPunishManager();
-rankUpdateRefreshesPlayerAccountCache();
-missingPlayerAccountReturnsFallbackData();
+```text
+modCannotPunishAdmin()
+ownerCanPunishManager()
+rankUpdateRefreshesPlayerAccountCache()
+missingPlayerAccountReturnsFallbackData()
+```
 
 ##### Why
 
-Behavior-oriented test names document the contract that failed, not merely the method that happened to execute. That makes regressions readable in CI and avoids generic names such as `testUpdate()` that require opening the test just to learn what broke.
+Behavior-oriented names make CI failures explain the contract that broke rather than forcing readers to open `testUpdate()` and conduct archaeology.
