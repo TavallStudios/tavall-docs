@@ -6,7 +6,7 @@
 
 ## 1. Applicability and precedence
 
-This document is the shared Tavall Studios repository workflow.
+This document owns shared Git review, PR topology, integration, and promotion policy for all Tavall and personal projects. Repository runbooks own deployment mechanics; this workflow does not redefine product architecture or claim implementation status.
 
 Repository-specific files such as `AGENTS.md`, `CONTRIBUTING.md`, release procedures, synchronization contracts, staging manifests, and deployment runbooks may impose stricter requirements. Stricter repository-specific rules take precedence when they protect public source-of-truth history, automated synchronization, release integrity, security, or production safety.
 
@@ -58,16 +58,17 @@ Independent work:
 
 ```text
 remote working branch <-> open PR
--> optional staging/integration target
--> main promotion
+-> active Sub-Staging/Staging PR ancestry
+-> exact-head integrated validation at every staging tier
 -> accountable review
+-> explicit repository/release staging promotion to main
 -> manual production deployment
 ```
 
 Stacked dependent work:
 
 ```text
-PR A: architecture branch -> integration target
+PR A: architecture branch -> active Sub-Staging/Staging PR branch
 PR B: behavior branch -> PR A branch
 PR C: follow-up branch -> PR B branch
 
@@ -108,7 +109,7 @@ working branch <-> pull request
         |            |
         |            +-> may target another PR branch when stacked
         |
-        +-> staging/integration state -> main
+        +-> active Sub-Staging PR (when used) -> active repository/release Staging PR -> main
 ```
 
 A repository-specific contribution or synchronization workflow may use `working/**`, personal-fork branches, `sync/**`, `upstream/**`, `staging/**`, or another documented path while preserving the same review and production boundaries.
@@ -146,27 +147,17 @@ An authorized repository owner may work directly on `main` when another branch p
 
 ### 3.2 Staging state, staging files, and staging branches
 
-Staging is integration state, not a commandment that every unit of work must pass through one permanent branch.
+Staging is persistent integration state represented by active Sub-Staging and Staging pull requests and their branches. Every active normal PR must reach this graph through its dependency ancestry. A staging file or manifest records composition and evidence; it does not substitute for an active integration PR.
 
-Repositories may represent staging with one or both of:
+- **Sub-Staging PRs** integrate a coherent domain, dependency stack, or subsystem and target the next active integration tier.
+- **Repository/release Staging PRs** form the top-level integration and normal promotion boundary toward `main`.
+- **Staging files or manifests**, when used, record intended composition, parent relationships, exact source heads, conflicts, validation, supersession, and promotion decisions. GitHub PRs remain the authoritative work surfaces.
 
-- **staging files or manifests** that record intended PR composition, dependencies, stack relationships, validation state, conflicts, blocked promotions, and integration decisions;
-- **`staging/*` branches** when an actual combined Git tree is useful for integrated builds, runtime validation, release candidates, or synchronization.
+Reuse the appropriate persistent integration PR rather than recreating it for each feature. Keep integration roots in Draft while they are continuously collecting or validating work; readiness for an authorized promotion is a separate transition. A green child does not authorize merging a persistent root into `main`.
 
-A staging file should describe the state that automation needs to reason about. It should not become a shadow issue tracker or a second source of truth for code. GitHub PRs remain the authoritative work surfaces; staging files describe how those work surfaces compose.
+Every active staging branch must have a corresponding active staging PR. Integration trees must remain coherent and independently testable. Superseded staging lines must identify their replacement, reconnect active descendants, and reconcile metadata before retirement. Do not leave closed roots with active dependents or retain competing active roots without an unambiguous scope boundary.
 
-Staging state should make it possible for agents to answer questions such as:
-
-- Which PRs are intended to integrate together?
-- Which PR depends on which parent PR?
-- Which PR supersedes or conflicts with another?
-- Which exact PR heads were validated together?
-- Which stack member must merge before another can be retargeted?
-- Which integration failures are local to one PR versus produced only by composition?
-
-When a `staging/*` branch is used, it must remain coherent enough to validate as one integrated change. It is not a permanent junk drawer for every branch that happened to compile on a Tuesday.
-
-Production-promotion pull requests from staging branches receive the full production review described here. Repositories that promote directly from individual or stacked PR branches must preserve equivalent staging evidence and review boundaries.
+Normal focused PRs do not promote directly to `main`. Repository/release staging promotion receives the full accountable production review defined here. The narrow explicit owner and incident exceptions in Sections 3.4, 3.5, and 11 retain their authority; they are not a default path for contributors or automation.
 
 ### 3.3 `main`
 
@@ -221,6 +212,43 @@ An authorized repository owner may apply the correction directly to `main` where
 
 ## 4. Code review and pull-request flow
 
+### PR Flow: mandatory active staging ancestry
+
+Every active normal pull request MUST always have a valid transitive path into an active Sub-Staging or Staging PR, continuing through every Sub-Staging tier to one unambiguous active repository/release staging root. This includes feature, fix, architecture, infrastructure, agent, documentation, and dependency work, including Draft PRs and PRs that implement this policy. There is no staging-less grace period.
+
+A valid path uses current open PRs, their actual base/head branches, and the repository's authoritative staging relationships. Branch naming, a body link, a historical merge, or stale manifest membership alone does not establish a valid path. A dependency child may target its parent's working branch; only the appropriate stack root needs direct staging attachment. Preserve dependency ordering and review boundaries rather than retargeting every child directly to staging.
+
+For example:
+
+```text
+feature follow-up PR -> feature PR -> foundation PR
+                     -> domain Sub-Staging PR
+                     -> repository/release Staging PR -> main
+```
+
+The final edge to `main` identifies the authorized promotion boundary. It does not exempt intermediate Sub-Staging PRs from active upward ancestry or permit ordinary focused PRs to bypass staging.
+
+#### Creation, update, and recovery
+
+PR tooling and agents own resolving and validating staging ancestry as part of the PR operation. Humans must not need a second manual attachment ritual.
+
+1. Resolve the authorized repository, existing same-scope PR, dependency parents, current exact heads, and correct active integration root before mutation. Reuse coherent existing work and reject conflicting active ownership or ambiguous staging destinations.
+2. Ensure the correct persistent Draft integration PR and its upward ancestry first when missing, following repository authority. Do not create a replacement root merely because the existing root is inconvenient.
+3. Create or update the focused PR and its staging membership as one recoverable workflow. Preserve the existing stack, record expected source and target heads, and fail closed if they change concurrently.
+4. Re-read GitHub and authoritative staging state, verify the complete resulting ancestry and exact heads, and only then report success.
+
+GitHub and staging storage are not one atomic database transaction. Tooling must persist operation identity, intended changes, completed effects, and a bounded retry or compensation plan before a multi-step mutation. Retries must resume idempotently without duplicate PRs or roots. A partial failure is incomplete and not accepted as a valid PR workflow; it must report the actual surviving PRs, branches, heads, and metadata, block integration/promotion, and repair or safely compensate immediately. Do not describe a partially created orphan as successful or leave it awaiting an unspecified future attachment pass. If recovery requires unavailable external authority, report that concrete blocker and retain durable recovery evidence.
+
+Retarget, merge, close, rotate, supersede, and rebase operations must plan and preserve the ancestry of all affected descendants. Establish replacement ancestry before retiring a parent; revalidate after every transition. Never close a parent or delete a branch while active children still rely on it without completing their reconnection. Concurrent mutations require repository-scoped coordination and current-head guards rather than overwriting newer work.
+
+#### Exact-head integration acceptance
+
+Feature, Sub-Staging, and repository/release Staging validation must identify their exact current heads, composition, execution result, and evidence. A head or composition change invalidates prior acceptance for the changed integration state and affected higher tiers. Run relevant integrated build, architecture, regression, and runtime checks at every changed staging tier. Passing child tests do not replace testing the composed head, and intended membership must not be reported as integrated until the current integration tree actually contains the accepted work.
+
+GitHub is SCM, review, checks, and reporting. Tavall/local execution remains the authoritative build, test, and runtime execution surface according to repository policy; GitHub-hosted Actions are not the primary execution infrastructure. Publish truthful evidence for the exact source that ran. Distinguish source failures from provider, infrastructure, timeout, termination, stale-head, and missing-evidence failures.
+
+Topology validation must detect orphan normal PRs and stack roots, orphan Sub-Staging PRs, active staging branches without active staging PRs, cycles, incompatible or ambiguous roots, closed/superseded parents with active descendants, deleted PR references, stale metadata or head mismatches, incorrectly flattened dependency stacks, false integration membership, and stale acceptance. Ordinary PR creation and maintenance are valid only when these checks pass; explicitly authorized narrow exceptions remain attributable and reviewable under Section 11.
+
 ### 4.1 Before implementation
 
 - Read `AGENTS.md`, this workflow, `CODE_ARCHITECTURE.md`, and relevant quality, design, progression, and operational documents.
@@ -272,7 +300,7 @@ Scale is managed by making each PR legible:
 - explicit parent and child relationships for stacks;
 - current validation status;
 - linked issues and design decisions;
-- staging-file membership when relevant;
+- valid transitive active staging ancestry and current composition metadata;
 - supersession or conflict metadata when another PR changes its assumptions.
 
 The goal is not a small PR list. The goal is a truthful dependency graph.
@@ -315,7 +343,7 @@ Use a stack when one reviewable change logically depends on another unmerged cha
 A typical stack is:
 
 ```text
-main or integration target
+active Sub-Staging/Staging PR branch
 └── PR A: architecture/foundation
     └── PR B: behavior using PR A
         └── PR C: follow-up or integration using PR B
@@ -326,7 +354,7 @@ Mechanically, the child PR targets the parent PR's branch. The PR body and stagi
 When a parent merges:
 
 1. update the child branch from the parent's new destination;
-2. retarget the child PR to the appropriate integration branch or `main`;
+2. retarget the child PR to the appropriate active parent or Sub-Staging/Staging PR branch, preserving its path to the repository/release staging root;
 3. verify that the child diff now contains only its intended changes;
 4. rerun affected validation;
 5. update the staging file or dependency metadata;
@@ -621,7 +649,8 @@ Record rejected approaches, link implementation work, and close issues only when
 - [ ] Existing PRs were checked for same-scope or dependency relationships.
 - [ ] Existing same-scope PR was reused instead of duplicated.
 - [ ] Stack parent/child relationships are explicit when applicable.
-- [ ] Staging state is current when the repository uses staging files or manifests.
+- [ ] Every active normal PR has valid transitive ancestry to an active repository/release staging root; any manifests match the current graph and exact heads.
+- [ ] Every changed integration tier has its own exact-head validation; child acceptance is not substituted for integrated acceptance.
 - [ ] Complete diff was self-reviewed.
 - [ ] Scope is focused.
 - [ ] Relevant issues, architecture, and quality documents were reviewed.
@@ -668,7 +697,8 @@ Record rejected approaches, link implementation work, and close issues only when
 ### Staging state and `staging/*`
 
 - Keep repository-defined staging files or manifests authoritative for intended integration composition when that mechanism is enabled.
-- Use `staging/*` branches when a combined Git tree is needed for integrated validation or promotion; do not require them merely for ceremony.
+- Maintain a corresponding active persistent Draft integration PR for every active staging branch. Reuse the correct root and connect every Sub-Staging tier upward.
+- Enforce the mandatory PR Flow invariant on creation and every topology transition; reject ambiguous roots and stale head/metadata matches.
 - Allow trusted owner integration where repository-specific rules permit it.
 - Run configured checks and automatic Codex review on reviewable promotion diffs.
 - Block deletion of active shared staging branches and discourage uncoordinated history rewrites.
@@ -691,7 +721,7 @@ Record rejected approaches, link implementation work, and close issues only when
 - Treat `@codex review` as the explicit fallback when automatic review does not appear on a reviewable pull request.
 - Link this workflow, `CODE_ARCHITECTURE.md`, and relevant quality and system documents from `AGENTS.md`.
 - Keep repository-specific review priorities in `AGENTS.md`.
-- Teach implementation agents to inspect active PRs, staging state, and stack relationships before choosing a base.
+- Teach implementation agents to inspect active PRs, staging state, and stack relationships before choosing a base, preserve dependency stacks, and establish or repair active staging ancestry as part of creating or updating the PR.
 - Require agents to push coherent implementation checkpoints to the remote PR branch while working.
 - Treat Codex-authored fixes as new reviewable changes.
 - Do not treat automated review as independent approval.
