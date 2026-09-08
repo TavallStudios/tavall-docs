@@ -1,356 +1,156 @@
-# Tavall Registries, Caches, and Durable State
+# Tavall Registries, Caches, and Persistence
 
 > **Status:** Active  
 > **Authority:** Detailed chapter of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
 > **Applies to:** Tavall application modules, contributors, automation, generated code, reviews, and AI-assisted development
 
-This chapter explains how keyed and durable state is classified. Storage names are not decoration. They state authority, lifetime, replacement, recovery, and cleanup behavior.
+This chapter classifies runtime, cached, distributed, operation, and durable state. The file name retains `REPOSITORIES` only for link/history compatibility. **Repository is not an approved Tavall application class role.**
 
-Project Novus production classes are used as concrete examples because they exercise these boundaries heavily. The ownership rules are shared Tavall rules.
+## Classify State Before Naming It
 
-# Classify State Before Naming It
-
-Use the behavior of the state, not the current field name.
-
-| Boundary | Use it when | Authority | Normal lifetime |
+| Boundary | Use it when | Authority | Lifetime |
 | --- | --- | --- | --- |
-| Tavall Registry | Typed definitions, providers, strategies, active runtime ownership, or keyed session state need domain lookup | Process/generation runtime only unless explicitly projected from durable state | Owning runtime generation |
-| Tavall Cache | State is disposable, reloadable, stale-able, or time-limited and exists to avoid work | Never durable authority | Entry TTL and owning generation |
-| Tavall Database entity / typed operation | State must survive restart and is durable application truth | Authoritative durable store | Database lifecycle |
-| Redis / distributed-state boundary | State coordinates processes, streams, leases, locks, sessions, or distributed projections | Only when explicitly assigned | Cross-process key policy |
-| Typed operation/runtime owner | Futures, scheduled tasks, pending writes, cancellation handles, retries, or other in-flight state need lifecycle ownership | Operation/runtime only | Until completion, cancellation, or owner teardown |
-| Immutable value/snapshot | A built value is passed to consumers and never mutated through that value | Source that built it | Value/snapshot owner |
-| Repository | A real stable domain persistence/substitution contract exists beyond ordinary Tavall Database entity CRUD | Contract-dependent | Contract owner |
+| Tavall Registry | Typed definitions, providers, strategies, active objects, sessions, keyed runtime identity | Runtime only | Owning runtime/generation |
+| Tavall Cache | State is disposable, reloadable, stale-able, expiring, or exists to avoid work | Never durable authority | TTL + owning lifecycle |
+| Tavall Database entity model | State must survive restart and is durable application truth | Durable authority | Database lifecycle |
+| Redis/distributed-state boundary | State coordinates processes, streams, leases, locks, sessions, projections | Only when explicitly assigned | Key-family policy |
+| Typed operation/runtime owner | Futures, scheduled tasks, in-flight writes, retries, cancellation state | Operation owner | Completion/cancellation |
+| Immutable value/snapshot | Built value observed by consumers | Source that built it | Value owner |
 
 ##### Why
 
-The same `Map<K,V>` can technically hold every category in this table, but the categories have different authority, lifetime, failure, cleanup, and recovery semantics. Choosing the boundary from behavior first prevents the collection implementation from silently deciding the architecture.
+A collection implementation cannot tell us whether loss means a cache miss, runtime reconstruction, cancelled work, or durable data loss. Classifying semantics first gives state the correct lifecycle and recovery owner.
 
-Losing a cache entry is a miss. Losing registry state may require runtime reconstruction. Losing Tavall Database state is durable data loss. Cancelling an operation should clear its in-flight state. Those are not interchangeable events merely because all four can be keyed.
+## Loose Map Classification
 
-## Keyed-State Classification Test
+Before adding or preserving a mutable keyed collection, ask:
 
-When a class contains a mutable `Map`, `Set`, or parallel keyed collections, answer these questions in order:
+1. Must it survive restart? Use the Tavall Database entity model/current entity contract.
+2. Can it be discarded/rebuilt or expire? Use Tavall Cache.
+3. Does it represent active keyed runtime identity/definitions/providers/sessions? Use Tavall Registry.
+4. Do several indexes describe one identity? Use an indexed registry or typed aggregate.
+5. Is it in-flight work? Give it a typed operation/runtime owner with teardown.
+6. Is it a bounded method-local transform? Keep it local if it never escapes.
+7. Is it a value snapshot? Make it immutable.
 
-1. **Must the value survive restart?** Use a mapped entity or typed durable operation through Tavall Database, or another explicitly selected durable provider.
-2. **Can the value be discarded and rebuilt?** Use Tavall Cache when expiry, misses, or stale values are meaningful.
-3. **Does the value represent loaded definitions, provider ownership, or active keyed runtime identity?** Use Tavall Registry.
-4. **Do several indexes address the same runtime value?** Use `AbstractIndexedRegistry` or one typed aggregate.
-5. **Is it an in-flight future, task, pending write, queue item, cancellation handle, or retry?** Give it a dedicated typed operation/runtime owner with explicit teardown. Do not hide it in an ordinary consumer.
-6. **Is it a bounded immutable snapshot or static constant table?** Keep it immutable.
-7. **Is there genuinely a persistence substitution/domain contract beyond Tavall Database entity CRUD?** A repository may own that contract. Do not create one merely because persistence exists.
+Do not route durable state into a new `*Repository` merely because the state is keyed.
 
-A map named `data`, `state`, `entries`, `sessions`, `operations`, or `pending` still receives this review. Renaming the evidence has yet to defeat architecture.
+## Tavall Registry
 
-##### Why
+Use `tavall-registry` for runtime lookup ownership.
 
-The test forces ownership questions before implementation convenience. Without it, temporary state becomes a cache, caches become unofficial truth, operation maps become permanent runtime registries, and ordinary CRUD gets wrapped in application repositories because someone wanted another class between the caller and the database.
+Rules:
 
-## Narrow Non-Owner Collections
+- typed keys/values;
+- domain methods rather than backing-map APIs;
+- duplicate/replacement policy;
+- immutable snapshots;
+- generation cleanup;
+- `AbstractIndexedRegistry` when secondary indexes must remain coherent;
+- aggregate parallel maps when they represent one lifecycle.
 
-The application-owned mutable-map rule does not require turning every temporary collection into infrastructure.
-
-Allowed narrow cases include:
-
-- method-local grouping or transformation maps that never escape the method;
-- immutable DTO/record metadata where the map itself is genuinely part of the value;
-- static immutable lookup tables;
-- internal indexes inside a dedicated Registry/Cache/Tavall Database/distributed-state implementation;
-- typed operation/runtime owners whose in-flight collections exist solely to manage that owner's lifecycle.
-
-An ordinary handler, service, orchestrator, listener, command, controller, or adapter does **not** gain a raw-map exception merely by calling the field `pendingOperations`.
+Infrastructure registries may own maps internally. Consumers do not.
 
 ##### Why
 
-Local algorithmic collections have no independent lifecycle. Dedicated runtime owners do. The distinction prevents ceremony for harmless local work while still stopping long-lived keyed state from leaking back into consumers through a newly fashionable noun.
+A registry is a lifecycle/identity owner, not a prettier `Map`. Domain methods let one owner preserve indexing, replacement, validation, snapshot, and unload invariants.
 
-# Tavall Registry
+## Tavall Cache
 
-Tavall runtime lookup state uses `tavall-registry`. Normal consumers call domain methods, not inherited map methods.
-
-## Simple Typed Registry
-
-Use `AbstractRegistry<K,V>` when one primary key owns one runtime value and no secondary index must remain synchronized.
-
-Project Novus production source: [`AccountProviderRegistry`](https://github.com/TavallStudios/tavall-project-novus/blob/main/minecraft-framework/backend-api/src/main/java/org/tavall/api/minecraft/backend/account/provider/AccountProviderRegistry.java)
-
-```java
-public final class AccountProviderRegistry
-        extends AbstractRegistry<AccountProviderType, AccountProviderAdapter> {
-
-    public Optional<AccountProviderAdapter> find(
-            AccountProviderType providerType
-    ) {
-        return Optional.ofNullable(getRegistryData(providerType));
-    }
-}
-```
-
-##### Why
-
-A registry represents runtime ownership, not merely fast lookup. Publishing one validated key-to-value relation gives duplicate policy, replacement, snapshots, and unload cleanup one owner.
-
-Domain lookup methods also prevent ordinary consumers from depending on backing-collection mechanics.
-
-## Aggregate Parallel State
-
-Several maps keyed by the same identity usually represent one aggregate.
-
-Project Novus production source: [`ResourceGameplayStateTracker`](https://github.com/TavallStudios/tavall-project-novus/blob/main/minecraft-kingdom-server/src/main/java/org/tavall/minecraft/server/resource/gameplay/ResourceGameplayStateTracker.java)
-
-The production registry stores a typed `ResourceGameplaySession` rather than publishing selected-node, operation, and assignment maps independently.
-
-##### Why
-
-Parallel maps allow one logical state to be partly updated or partly cleared. A typed aggregate gives mutation, snapshotting, validation, and cleanup one coherent value.
-
-## Atomic Secondary Indexes
-
-Use `AbstractIndexedRegistry<K,V>` when one runtime value is found through several keys. Validate first, then publish the primary value and secondary indexes through one lifecycle.
-
-Project Novus production source: [`BattleInstanceRegistry`](https://github.com/TavallStudios/tavall-project-novus/blob/main/minecraft-kingdom-server/src/main/java/org/tavall/minecraft/server/battle/BattleInstanceRegistry.java)
-
-`BattleInstanceRegistry` owns secondary `battleIdByPlayerId` and `participantByPlayerId` maps internally. Those maps are allowed because the registry owns their invariants and updates them with primary registration/removal.
-
-##### Why
-
-Secondary indexes are only correct while they agree with the primary value. Independent map mutation creates contradictory lookup results. One indexed-registry lifecycle can validate, publish, roll back, and remove all indexes atomically.
-
-## Registry Rules
-
-- Return immutable snapshots.
-- Sort snapshots when order is part of the caller contract.
-- Define duplicate and replacement policy.
-- Clear generation-owned state on unload.
-- Remove secondary indexes through the same lifecycle as primary state.
-- A registry may project durable data, but it does not become durable authority.
-- Register the concrete/interface through Tavall DI when other components consume it.
-- Consumers call domain methods; they do not treat the registry as a generic `Map` API.
-
-Do not:
-
-- maintain indexes through unrelated `put()` calls;
-- expose mutable internal maps or collections;
-- use raw composite strings when a typed key exists;
-- quietly replace another module's provider/strategy;
-- store TTL-shaped data indefinitely because the class already says `Registry`.
-
-##### Why
-
-A registry is useful only while one owner controls runtime identity coherently. Raw mutation, hidden indexes, or TTL drift creates alternate write/lifecycle paths that invalidate that promise.
-
-# Tavall Cache
-
-Process-local cache state uses `tavall-cache`. A cache improves access; it does not decide durable truth.
-
-Project Novus production source: [`PlayerAchievementCache`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/cache/PlayerAchievementCache.java)
-
-```java
-public PlayerAchievementData getOrLoad(
-        UUID playerId,
-        Function<UUID, PlayerAchievementData> loader
-) {
-    ICacheKey<UUID> key = cacheKey(playerId);
-    return get(key, ignored -> loader.apply(playerId), onlineTtlMillis);
-}
-```
-
-The loader reads authoritative persistence. It does not recursively call the cache.
-
-## Cache Rules
+Use `tavall-cache` for disposable/reloadable/expiring/stale-able fast state.
 
 A cache defines:
 
-- authoritative source;
-- hit, miss, stale, and negative-cache behavior;
-- TTL and any per-state variation;
-- quit/reconnect/reload/shutdown behavior where applicable;
-- dirty-state/retry restoration when a durable write fails;
-- group invalidation without shadow key maps;
+- authority/source;
+- hit/miss/stale/negative-cache behavior;
+- key dimensions;
+- TTL;
+- invalidation/group removal;
+- reconnect/reload/shutdown behavior;
+- failed durable-write recovery;
 - one lifecycle owner.
 
-Use typed key dimensions where domain, type, source, or version distinguish meaning.
-
-Use Tavall Cache live snapshots/filtered invalidation instead of maintaining a second key collection merely for iteration.
-
-Do not:
-
-- cache `null` without explicit negative-cache policy;
-- treat process lifetime as a replacement for generation lifetime;
-- treat Redis or local cache data as durable truth by convenience;
-- hide an unbounded cache-shaped map in a handler;
-- duplicate cache entries into a second mutable map for iteration.
+Do not maintain shadow key maps for cache iteration when Tavall Cache already owns live snapshots/filtering.
 
 ##### Why
 
-A cache is defined as much by miss, expiry, invalidation, and cleanup as by lookup. Centralizing those mechanics keeps stale/reload behavior consistent and preserves the core property that cached state can disappear without changing durable truth.
+Cache semantics are expiry and recovery semantics, not merely lookup. Centralizing them prevents callers from inventing inconsistent stale/miss policies.
 
-# Tavall Database and Durable State
+## Tavall Database Durable State
 
-For PostgreSQL-backed Tavall applications, **Tavall Database is the durable persistence runtime**.
+For PostgreSQL/JPA-backed Tavall applications, Tavall Database owns durable persistence.
 
-Ordinary durable operations use mapped entities and the typed Tavall Database entity boundary:
+Application code uses **entity classes and the entity persistence contract defined by the checked-in `tavall-database` version**. This chapter intentionally does not name a concrete accessor or reproduce Tavall Database's API.
 
-```java
-Optional<MyEntity> entity = database.entities().find(MyEntity.class, id);
-database.entities().save(entityToSave);
-```
+Application code must not own:
 
-Application code must not use `database.jpa().read(...)`, `database.jpa().write(...)`, `IPostgresJpaContext` callbacks, `EntityManager` callbacks, raw JDBC, or local transaction wrappers.
+- `EntityManager`/factory lifecycle;
+- transaction callbacks/lifecycle;
+- raw JDBC transaction wrappers;
+- duplicate entity discovery/bootstrap;
+- generic CRUD wrappers;
+- new Tavall-owned production types ending in `Repository`.
 
-Mapped entities own normal query definitions through named JPQL. Named native operations are reserved for documented PostgreSQL contracts such as `ON CONFLICT`, JSONB operators, locking, bulk mutation, or aggregation that JPA cannot express cleanly.
-
-For multi-entity transaction behavior, add/use a typed Tavall Database operation. Do not recreate callback ownership in application code.
-
-Detailed rules: [Entity Persistence](ENTITY_PERSISTENCE.md).
+If a durable capability is missing, extend `tavall-database` rather than creating another persistence layer in the consumer repository.
 
 ##### Why
 
-Provider bootstrap, entity discovery, transactions, entity managers, operation draining, and shutdown are one infrastructure lifecycle. Feature code should request durable behavior, not become a miniature persistence runtime.
+The persistence module is the source of truth for its own entity API. Duplicating that API in application docs makes application architecture stale and preserves abstractions after the underlying module changes.
 
-# Repository Exception
+## `*Repository` Is Migration Debt
 
-Repositories are not Tavall's default persistence layer.
+New Tavall-owned production declared types ending in `Repository` are prohibited.
 
-Do **not** create `Postgres*Repository`, `*Database`, `*Store`, or equivalent ordinary CRUD wrappers around `database.entities()`.
-
-A repository is valid only when there is a genuine stable domain persistence/substitution contract beyond ordinary entity CRUD, such as:
-
-- an external provider family;
-- multiple interchangeable persistence implementations;
-- a cohesive persistence capability whose contract has domain semantics not equivalent to generic `find/save/delete`.
-
-Even then:
-
-- consume typed Tavall Database/provider operations;
-- do not own `EntityManager`, JPA callbacks, JDBC, schema creation, or shared factory lifecycle;
-- expose domain persistence methods rather than generic storage plumbing;
-- keep unrelated product rules outside the repository.
-
-In-memory repository implementations remain valid test/development substitutes **only when the production architecture genuinely has that repository contract**. They are not a reason to invent a repository around ordinary entity CRUD.
-
-##### Why
-
-A pass-through repository duplicates Tavall Database and immediately creates another place for query, transaction, failure, and mapping policy to diverge. Repository abstraction earns its existence only when there is an actual contract to substitute.
-
-# Redis and Distributed State
-
-Redis may own explicitly assigned distributed runtime semantics such as hot projections, streams, leases, locks, short-lived distributed sessions, coordination, routing state, or bounded counters.
-
-Every Redis key family defines:
-
-- owner/prefix;
-- value schema;
-- TTL where relevant;
-- stale/missing behavior;
-- reconciliation source;
-- whether Redis is authority or projection.
-
-Do not turn a failed required Tavall Database write into success because Redis accepted a value.
-
-##### Why
-
-Redis availability and PostgreSQL durability answer different questions. Explicit authority prevents a convenient projection from becoming an accidental source of truth during failure.
-
-# Cross-Storage Ordering and Failure
-
-For PostgreSQL-authoritative mutation, the normal order is:
-
-```text
-validate
-  -> commit through Tavall Database
-  -> invalidate/update Redis/cache/registry
-  -> publish typed result/event
-```
-
-Any different order documents:
-
-- source of truth;
-- idempotency key;
-- durable commit boundary;
-- retry owner/lifetime;
-- caller-visible partial-failure behavior;
-- cache/registry restoration;
-- reconciliation source/order;
-- audit/rollback behavior.
-
-A fallback cannot turn a failed required durable write into apparent success. An in-memory recovery buffer is named, bounded, observable, and reconciled; it is not a second authority hidden behind an exception handler.
-
-##### Why
-
-Cross-storage failures create the hardest state bugs because each system can individually be healthy while disagreeing with another. Explicit commit/recovery ordering gives reconciliation one known truth instead of asking runtime timing to decide.
-
-# Migration Debt
-
-Existing application `.jpa()` callback owners, raw JDBC, generic CRUD repositories/database/store wrappers, runtime DDL, and consumer-owned loose keyed stores are migration debt.
+Existing `*Repository` types may remain temporarily only as explicitly grandfathered migration debt. They are not examples, extension points, substitution templates, or justification for another repository.
 
 Migration rules:
 
-- existing debt may decline;
-- new debt must not be added to a baseline;
-- when a missing typed Tavall Database operation blocks migration, add it upstream first;
-- when a repository adds no domain contract beyond entity CRUD, remove it rather than modernizing its wrapper internals;
-- migrate touched code and adjacent coherent paths when practical rather than preserving obsolete examples as templates.
+- no new `*Repository` declaration;
+- no new `I*Repository` interface;
+- no replacement `RepositoryImpl`/`RepositoryAdapter`/`RepositoryStore` layer;
+- move ordinary durable behavior to Tavall Database entities/current entity contract;
+- move real domain behavior to a correctly named Handler/Service/Orchestrator/Reader/Writer/Gateway/etc. based on its actual responsibility;
+- remove legacy types and shrink the executable debt ratchet as migrations land.
 
-# Testing Requirements
+##### Why
 
-## Registry Tests
+Grandfathering is for migration, not design. The debt set has one legal direction: down.
 
-Verify:
+## Redis and Distributed State
 
-- typed lookup;
-- duplicate-owner rejection before mutation;
-- secondary-index replacement/removal;
-- rollback after failed index publication;
-- immutable/deterministic snapshots where order matters;
-- generation cleanup.
+Redis is not durable authority by convenience.
 
-## Cache Tests
+Every key family defines owner, schema, prefix, TTL/staleness, missing-key behavior, idempotency where relevant, and reconciliation source. Required durable writes do not become successful merely because Redis accepted a projection.
 
-Verify:
+## Operation State
 
-- hit/miss/loader count;
-- TTL and logical-clock behavior;
-- grouped invalidation;
-- live snapshots;
-- dirty-state restoration after durable failure;
-- close/unload cleanup.
+Futures, tasks, retries, pending writes, queues, and cancellation handles are not automatically caches or registries.
 
-## Tavall Database Tests
+When they need keyed mutable ownership, place them inside a dedicated typed operation/runtime owner with explicit teardown. Ordinary handlers/services/orchestrators do not receive a raw-map exception simply because the values are temporary.
 
-Verify:
+## Cross-Storage Mutation
 
-- empty/populated entity reads;
-- save/update/delete behavior;
-- transaction rollback through typed operations;
-- duplicate/concurrency behavior;
-- JSONB/UUID/timestamp/enum mapping;
-- PostgreSQL-specific semantics for native operations and migrations;
-- application code does not own callbacks/factories/JDBC.
+For PostgreSQL-authoritative state, the normal order is:
 
-## Operation Runtime Tests
+```text
+validate
+  -> commit through the current Tavall Database entity contract
+  -> update/invalidate Redis/cache/registry projections
+  -> publish typed result/event
+```
 
-When a runtime owner manages futures/tasks/pending work, verify:
+Any different order documents authority, idempotency, durable commit boundary, retry ownership, partial-failure visibility, restoration, reconciliation, audit, and rollback.
 
-- registration/removal;
-- cancellation;
-- completion cleanup;
-- shutdown/unload teardown;
-- no in-flight collection escapes as a general application map API.
+## Testing
 
-# Review Checklist
+Cover:
 
-- [ ] Every keyed mutable field is classified by behavior, not its field name.
-- [ ] Registry keys/values are typed and consumers use domain methods.
-- [ ] Parallel runtime state is aggregated or indexed atomically.
-- [ ] Cache authority, TTL, misses, invalidation, and lifecycle are explicit.
-- [ ] Operation/task collections live only in a dedicated typed runtime owner with teardown.
-- [ ] Ordinary PostgreSQL CRUD uses Tavall Database entities/typed operations.
-- [ ] Application code does not call `.jpa()` callbacks or own `EntityManager`/JDBC/transactions.
-- [ ] Generic CRUD repository/database/store wrappers are not added.
-- [ ] Any remaining repository represents a real domain persistence/substitution contract.
-- [ ] Native PostgreSQL behavior has an explicit reason and focused integration coverage.
-- [ ] Runtime code does not create production schema.
-- [ ] Cross-storage ordering, retry, rollback, and reconciliation are defined.
-- [ ] Tests cover failure and cleanup, not merely successful lookup.
-- [ ] Validation states exactly what ran and what remains unverified.
+- registry duplicate/replacement/index rollback;
+- immutable snapshots and unload cleanup;
+- cache hit/miss/TTL/stale/invalidation/cleanup;
+- Tavall Database entity behavior and database-specific contracts using the current module test surface;
+- Redis/distributed partial failures and reconciliation;
+- operation cancellation/shutdown;
+- migration enforcement preventing new `*Repository` production types.
+
+A test that requires persistence substitution should use the test/entity facilities provided by the current Tavall Database module or a correctly named domain-capability fake. Do not create an `InMemory*Repository` merely to make a test convenient.
