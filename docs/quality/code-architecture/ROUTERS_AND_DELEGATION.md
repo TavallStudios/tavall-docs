@@ -1,213 +1,131 @@
-# Project Novus Routers and Delegation
+# Tavall Routers and Delegation
 
 > **Status:** Active  
-> **Authority:** Binding chapter of [Project Novus Code Architecture](../CODE_ARCHITECTURE.md)  
-> **Applies to:** All Project Novus modules, contributors, automation, generated code, and AI-assisted development
+> **Authority:** Binding chapter of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
+> **Applies to:** Tavall production modules, contributors, automation, generated code, reviews, and AI-assisted development
 
-This chapter is separated for navigation only. Its rules are part of the authoritative Project Novus code architecture and are not optional supplemental guidance.
+## Router Pattern
 
-### Event Router Pattern
+A Router selects one or more focused handlers/capabilities and delegates. It does not become the behavior being routed.
 
-Event routers receive Paper events and route them to one or more handlers.
+Routers should:
 
-Event routers should stay thin.
+- receive typed/platform input;
+- select/delegate intentionally;
+- define ordering where multiple targets run;
+- define duplicate/unknown-route behavior;
+- remain easy to test;
+- avoid durable persistence, cache/registry ownership, and unrelated domain rules.
 
-They should not own game rules.
+##### Why
 
-They should not become event handlers with a fake mustache.
+Routing is selection and ordering. Once the router owns the rule, storage, and output, the selection boundary disappears and the class becomes an oversized Handler wearing a fake mustache.
 
-#### Bad Event Router Pattern
+## Event Router Pattern
+
+Platform event routers adapt events to focused handlers.
+
+Bad:
 
 ```java
-public final class PlayerInteractRouter {
-
-    public void onPlayerInteract(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
-
-        if (player.hasPermission("admin")) {
-            event.setCancelled(false);
-            return;
-        }
-
+public void onPlayerInteract(PlayerInteractEvent event) {
+    if (!event.getPlayer().hasPermission("admin")) {
         event.setCancelled(true);
     }
 }
 ```
 
-##### Why
-
-The router owns the rule.
-
-The permission is a raw string.
-
-The router is no longer routing.
-
-#### Good Event Router Pattern
+Good shape:
 
 ```java
-public final class PlayerInteractRouter {
+@DelegatesTo(IPlayerInteractRouter.class)
+public final class PlayerInteractRouter
+        implements IPlayerInteractRouter,
+        DependencyAccess<
+                IFlagInteractHandler,
+                IStaffToolInteractHandler
+        > {
 
-    private final FlagInteractHandler flagInteractHandler;
-    private final StaffToolInteractHandler staffToolInteractHandler;
-
-    public void onPlayerInteract(PlayerInteractEvent event) {
-        flagInteractHandler.onPlayerInteract(event);
-        staffToolInteractHandler.onPlayerInteract(event);
+    @Override
+    public void route(PlayerInteractEvent event) {
+        IDependencyMap dependencies = getInstance();
+        dependencies.iFlagInteractHandler().onPlayerInteract(event);
+        dependencies.iStaffToolInteractHandler().onPlayerInteract(event);
     }
 }
 ```
 
 ##### Why
 
-The router receives the event.
+The event router owns which handlers receive the event and in what order. The handlers own their focused behavior. Managed collaborators stay visible through Tavall DI rather than constructor-captured fields.
 
-The router delegates to the handlers that own behavior.
+## Command/Controller Delegation
 
-Multiple handlers can subscribe to the same Paper event without stuffing everything into one listener.
-
-#### Event Router Rules
-
-Event routers should:
-
-* Receive Paper events.
-* Delegate to one or more handlers.
-* Keep ordering intentional.
-* Stay easy to test.
-* Avoid gameplay rules.
-* Avoid database work.
-* Avoid cache mutation unless the router is explicitly designed for a tiny routing-only cache concern.
-
-### Command Delegation Pattern
-
-Command classes should parse command input and delegate behavior.
-
-They should not own core system rules.
-
-#### Bad Command Delegation Pattern
+Commands, web controllers, Discord actions, and other external-input adapters should parse/validate transport input and delegate one typed operation.
 
 ```java
-public final class BanCommand {
+public void execute(CommandSender sender, String[] args) {
+    RankUpdateRequest request = parseRankUpdateRequest(sender, args);
+    RankUpdateResult result = getRankUpdateHandler().updatePlayerRank(request);
+    sendRankUpdateResult(sender, result);
+}
+```
 
-    public void execute(CommandSender sender, String[] args) {
-        Player target = server.getPlayer(args[0]);
+Transport parsing and output adaptation remain at the edge; reusable rank-update policy remains in the domain handler/service/orchestrator.
 
-        target.banPlayer(args[1]);
+##### Why
+
+Input syntax changes independently from domain behavior. Typed delegation lets one domain operation serve commands, web, Discord, jobs, tests, or future surfaces without copying the rule.
+
+## Listener Delegation
+
+Listeners receive platform events and delegate. They should not perform durable I/O, generic CRUD, cache ownership, or reusable domain policy directly.
+
+Good shape:
+
+```java
+@DelegatesTo(IChatListener.class)
+public final class ChatListener
+        implements IChatListener,
+        DependencyAccess<IChatMessageHandler> {
+
+    public void onChat(ChatEvent event) {
+        ChatMessageRequest request = new ChatMessageRequest(
+                event.playerId(),
+                event.message()
+        );
+
+        ChatMessageResult result = getInstance().process(request);
+        applyResult(event, result);
     }
 }
 ```
 
 ##### Why
 
-The command directly finds the target, assumes arguments are valid, and applies punishment.
+A listener is a platform lifecycle adapter. Keeping domain behavior elsewhere makes the rule testable without constructing the platform event and keeps asynchronous/thread rules at the correct edge.
 
-No request object.
+## Persistence and State Rejections
 
-No result object.
+Routers/listeners/commands/controllers do not:
 
-No permission flow.
+- open JDBC/EntityManager/JPA callbacks;
+- create `Postgres*Repository`, `*Database`, or `*Store` wrappers for ordinary entity CRUD;
+- own mutable keyed runtime/cache state;
+- maintain operation task maps;
+- statically locate managed dependencies.
 
-No power-level flow.
-
-No dignity.
-
-#### Good Command Delegation Pattern
-
-```java
-public final class BanCommand {
-
-    private final PunishmentRequestBuilder punishmentRequestBuilder;
-    private final PunishmentHandler punishmentHandler;
-    private final PunishmentResultMessageHandler punishmentResultMessageHandler;
-
-    public void execute(CommandSender sender, String[] args) {
-        PunishmentRequest punishmentRequest = punishmentRequestBuilder.buildPunishmentRequest(
-            sender,
-            args
-        );
-
-        PunishmentResult punishmentResult = punishmentHandler.banPlayer(
-            punishmentRequest
-        );
-
-        punishmentResultMessageHandler.sendPunishmentResultMessage(
-            sender,
-            punishmentResult
-        );
-    }
-}
-```
+Durable work goes through Tavall Database/owning data policy. Runtime keyed state goes through Registry/Cache/dedicated runtime owners.
 
 ##### Why
 
-The command builds a request.
+Routing/input surfaces are invoked because something happened externally. Giving them storage ownership couples authority/lifetime to event delivery frequency rather than the domain system that actually owns the state.
 
-The handler owns punishment behavior.
+## Review Checklist
 
-The result controls output.
-
-### Event Delegation Pattern
-
-Paper event listeners should receive the event and delegate behavior.
-
-They should not own system rules.
-
-#### Bad Event Delegation Pattern
-
-```java
-public final class AsyncPlayerChatListener {
-
-    public void onChat(AsyncPlayerChatEvent event) {
-        Player player = event.getPlayer();
-        String message = event.getMessage();
-
-        if (message.contains("&k")) {
-            event.setCancelled(true);
-        }
-
-        event.setFormat(player.getName() + ": " + message);
-    }
-}
-```
-
-##### Why
-
-The listener owns formatting rules, color rules, and event mutation.
-
-That logic will grow fast because chat systems are apparently born feral.
-
-#### Good Event Delegation Pattern
-
-```java
-public final class AsyncPlayerChatListener {
-
-    private final ChatMessageHandler chatMessageHandler;
-
-    public void onChat(AsyncPlayerChatEvent event) {
-        Player player = event.getPlayer();
-        String rawMessage = event.getMessage();
-
-        ChatMessageRequest chatMessageRequest = new ChatMessageRequest(
-            player,
-            rawMessage
-        );
-
-        ChatMessageResult chatMessageResult = chatMessageHandler.processChatMessage(
-            chatMessageRequest
-        );
-
-        boolean cancelled = chatMessageResult.isCancelled();
-        String formattedMessage = chatMessageResult.getFormattedMessage();
-
-        event.setCancelled(cancelled);
-        event.setFormat(formattedMessage);
-    }
-}
-```
-
-##### Why
-
-The listener receives the event.
-
-The handler processes the chat message.
-
-The result tells the listener what to do.
+- [ ] The router selects/delegates rather than implementing domain behavior.
+- [ ] Ordering/unknown-route behavior is explicit.
+- [ ] External-input adapters build/resolve typed requests and adapt typed results.
+- [ ] Managed collaborators use Tavall DI.
+- [ ] Routers/listeners/controllers own no durable or keyed runtime storage.
+- [ ] Platform/input behavior does not duplicate reusable domain rules.
