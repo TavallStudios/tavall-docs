@@ -1,10 +1,10 @@
-# Project Novus Entity Persistence
+# Tavall Database Entity Persistence
 
 > **Status:** Active  
-> **Authority:** Binding persistence specialization of [Project Novus Code Architecture](../CODE_ARCHITECTURE.md)  
-> **Applies to:** All production Project Novus modules, generated code, automation, and AI-assisted changes
+> **Authority:** Binding persistence specialization of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
+> **Applies to:** Production Tavall application code, generated code, automation, reviews, and AI-assisted changes
 
-Project modules declare mapped JPA entities. Tavall Database owns the persistence runtime and exposes entity-oriented operations. Feature code does not own an `EntityManager`, transaction callback, factory, connection, prepared statement, or generic CRUD repository.
+Application modules declare mapped JPA entities. Tavall Database owns the persistence runtime and exposes entity-oriented and other typed database operations. Feature code does not own an `EntityManager`, transaction callback, factory, connection, prepared statement, or generic CRUD repository.
 
 ## Binding Rule
 
@@ -52,7 +52,7 @@ The entity owns:
 
 The entity does not own:
 
-- gameplay orchestration;
+- product/gameplay orchestration;
 - command or controller behavior;
 - caches or registries;
 - network delivery;
@@ -61,31 +61,33 @@ The entity does not own:
 
 ##### Why
 
-An entity defines how durable data maps to storage; it should not become the application behavior that happens to use that data. Mixing gameplay or delivery into entities couples persistence shape to product rules and makes migrations responsible for unrelated behavior.
+An entity defines how durable data maps to storage; it should not become the application behavior that happens to use that data. Mixing product behavior or delivery into entities couples persistence shape to unrelated rules and makes migrations responsible for concerns they do not own.
 
-Keeping entity ownership narrow also lets the same durable representation serve handlers, jobs, web, Discord, and tests without dragging those surfaces into the persistence model.
+Keeping entity ownership narrow also lets the same durable representation serve handlers, jobs, web, Discord, game runtimes, and tests without dragging those surfaces into the persistence model.
 
-## Repository Removal
+## Ordinary Repository and Database Wrapper Removal
 
-Do not create a `Postgres*Repository` for ordinary entity lookup, save, update, or delete.
+Do not create `Postgres*Repository`, `*Database`, `*Store`, or equivalent application classes for ordinary entity lookup, save, update, or delete.
 
-When migrating an existing repository:
+A `*Repository` is valid only when it represents a real stable persistence/substitution contract beyond ordinary Tavall Database entity CRUD, such as an external provider family or cohesive persistence behavior with domain semantics of its own. Even then, the repository consumes typed Tavall Database or provider operations; it does not own JPA callbacks or JDBC.
+
+When migrating an existing generic CRUD wrapper:
 
 1. Add or complete the mapped entity.
 2. Move query definitions onto that entity as named queries.
-3. Route operations through `IPostgresDatabase.entities()`.
-4. Move domain sequencing into a service or handler only when sequencing is real business behavior.
-5. Reduce the old repository to a temporary compatibility adapter when callers cannot move atomically.
-6. Delete the adapter and its DI token once callers use the entity boundary.
+3. Route ordinary operations through `IPostgresDatabase.entities()`.
+4. Move domain sequencing into a handler, service, or orchestrator only when sequencing is real application behavior.
+5. Reduce the old wrapper to a temporary compatibility adapter when callers cannot move atomically.
+6. Delete the adapter and its DI token once callers use the entity/typed operation boundary.
 7. Remove the old class from the storage debt baseline in the same coherent migration.
 
-A compatibility adapter may translate domain records and exceptions. It must not contain SQL, JPQL, an `EntityManager`, a transaction callback, or lifecycle ownership.
+A compatibility adapter may translate domain records and exceptions. It must not contain SQL, JPQL strings, an `EntityManager`, a transaction callback, or lifecycle ownership.
 
 ##### Why
 
-A repository that merely forwards generic CRUD to JPA duplicates an abstraction Tavall Database already owns. Each duplicate becomes another place to invent transaction behavior, exception handling, query strings, and lifecycle policy.
+A class that merely forwards generic CRUD to Tavall Database duplicates an abstraction Tavall Database already owns. Each duplicate becomes another place to invent transaction behavior, exception handling, query strings, and lifecycle policy.
 
-Removing pass-through repositories leaves repositories or handlers only where they add real domain or persistence policy, instead of preserving a class layer whose main achievement is making `save()` travel farther.
+Removing pass-through wrappers leaves repositories only where they add an actual contract, instead of preserving a class layer whose main achievement is making `save()` travel farther.
 
 ## Query Rules
 
@@ -106,7 +108,7 @@ Prefer named JPQL queries on the entity:
 
 Use named native queries only for a documented PostgreSQL contract such as atomic `ON CONFLICT`, JSONB operators, advisory locking, bulk mutation, or aggregation that JPA cannot express cleanly. Include a nearby `Native SQL reason:` comment.
 
-Ad hoc query strings inside services, handlers, controllers, listeners, and compatibility adapters are forbidden.
+Ad hoc query strings inside services, handlers, orchestrators, controllers, listeners, compatibility adapters, and generic CRUD wrappers are forbidden.
 
 ##### Why
 
@@ -124,9 +126,9 @@ Tavall Database owns:
 - operation draining and database shutdown;
 - provider bootstrap and entity discovery.
 
-A Project Novus class may request an entity operation. It may not receive an `EntityManager` callback and become the transaction owner by accident.
+Application code may request an entity or typed database operation. It may not receive an `EntityManager` callback and become the transaction owner by accident.
 
-Multi-entity business changes require an explicit Tavall Database operation type supplied by the database module. Do not recreate transaction callbacks in Project Novus while waiting for that operation to exist. Add the missing typed operation upstream first.
+Multi-entity business changes require an explicit Tavall Database operation type supplied by the database module. Do not recreate transaction callbacks in feature code while waiting for that operation to exist. Add the missing typed operation upstream first.
 
 ##### Why
 
@@ -136,7 +138,7 @@ Typed database operations make the transaction boundary explicit while preservin
 
 ## Discovery and Composition
 
-Tavall Database discovers available first-party mapped types beneath `org.tavall` before its lazy entity runtime initializes. Project modules contribute `@Entity`, `@Embeddable`, `@MappedSuperclass`, and `@Converter` classes by placing them in their owning domain packages. They do not maintain parallel package lists in Bukkit, Velocity, web, Discord, or FFA composition roots.
+Tavall Database discovers available first-party mapped types beneath `org.tavall` before its lazy entity runtime initializes. Application modules contribute `@Entity`, `@Embeddable`, `@MappedSuperclass`, and `@Converter` classes by placing them in their owning domain packages. They do not maintain parallel package lists in Paper, Velocity, web, Discord, FFA, or other feature composition roots.
 
 Explicit package registration remains available for non-Tavall integration types. The entity scanner may skip unrelated optional classes that cannot load in the current process, but an available mapped entity must be discovered and validated by focused integration coverage.
 
@@ -145,7 +147,7 @@ Do not:
 - initialize a second entity factory for one feature;
 - borrow a shared factory into a module-local transaction wrapper;
 - maintain feature-specific entity-package registries for first-party types;
-- let Discord, web, Velocity, Bukkit, or FFA own separate transaction mechanics.
+- let web, Discord, Paper, Velocity, game modes, or other product surfaces own separate transaction mechanics.
 
 ##### Why
 
@@ -155,9 +157,9 @@ One discovery path also prevents each platform from bootstrapping its own entity
 
 ## Enforcement
 
-`.github/scripts/audit_storage_architecture.py` fails on direct `.jpa().read(...)` and `.jpa().write(...)` calls in production source. Existing callback wrappers are printed as migration debt and must decline over time.
+Repository architecture tests or storage audits should fail direct `.jpa().read(...)` and `.jpa().write(...)` calls in production application source and report existing callback wrappers/generic CRUD wrappers as migration debt that must decline over time.
 
-A pull request may not add a callback owner to a baseline. It must either use mapped entities through Tavall Database or extend Tavall Database with the missing typed entity operation first.
+A pull request may not add a callback owner or ordinary CRUD wrapper to a baseline. It must either use mapped entities through Tavall Database or extend Tavall Database with the missing typed operation first.
 
 ##### Why
 
