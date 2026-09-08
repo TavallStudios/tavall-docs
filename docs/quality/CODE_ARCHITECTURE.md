@@ -34,7 +34,7 @@ Before changing architecture:
 4. Inspect the current lifecycle/composition owner.
 5. Prefer current checked-in Tavall tool contracts over remembered API shapes.
 
-Architecture review is required for a new persistence/cache authority, lifecycle owner, global registry, cross-module dependency, distributed fallback, reflective/static dependency lookup, or a class with more than four managed dependencies.
+Architecture review is required for a new persistence/cache authority, lifecycle owner, global registry, cross-module dependency, distributed fallback, reflective/static dependency lookup, direct thread/executor ownership, or a class with more than four managed dependencies.
 
 ## Package Ownership
 
@@ -115,9 +115,7 @@ Third-party APIs may expose externally owned types named `Repository`. Tavall co
 
 ##### Why
 
-`Repository` repeatedly became a default wrapper around whatever persistence API happened to exist that year. That kept obsolete persistence mechanics alive, produced one forwarding layer per entity family, and gave generators a familiar-looking place to reintroduce transaction and CRUD ownership.
-
-Banning the Tavall-owned production name removes that escape hatch. Real behavior must identify its actual responsibility, while ordinary entity persistence remains owned by Tavall Database.
+`Repository` repeatedly became a default wrapper around whatever persistence API happened to exist that year. Banning the Tavall-owned production name removes that escape hatch and forces real behavior to state its actual responsibility.
 
 Avoid `Manager` as well unless maintaining an external API that cannot be changed.
 
@@ -163,7 +161,7 @@ Do not use a builder to hide a long Tavall-managed constructor dependency list.
 - **Router:** selects/delegates. It does not become the implementation or durable owner.
 - **Listener/command/controller:** adapts external input and delegates; it does not acquire reusable domain rules merely because input arrived there first.
 
-## Data, Requests, Results, and Keys
+## Data, Requests, Results, Keys, and Local Types
 
 Use typed immutable values when value semantics fit.
 
@@ -172,8 +170,15 @@ Use typed immutable values when value semantics fit.
 - `*Data` / `*State` carries named values, not arbitrary mutable storage.
 - `*MetaData` represents known derived/display-ready values.
 - Typed keys represent registry/cache/message/timer/distributed identity.
+- Production Java local variables use explicit declared types; `var` is prohibited under `src/main/java`.
 
 Extensible metadata maps are allowed only at real dynamic integration/serialization edges. Core identity and behavior remain typed.
+
+Detailed local-variable examples: [Namespaces, Variables, OOP, DRY, and Type Safety](code-architecture/NAMESPACES_VARIABLES_AND_OOP.md#local-variables).
+
+##### Why
+
+Tavall uses types as architecture documentation. `var` retains compiler typing but hides the type at the use site, making data and API boundaries less visible during review and refactoring.
 
 ## Validation and Mutation Ordering
 
@@ -197,7 +202,43 @@ A different order must document authority, partial-failure behavior, retry owner
 
 Use Tavall concurrency tools and owning platform schedulers. Do not block latency-sensitive platform threads with database, Redis, network, filesystem, or long computation work.
 
-Every async/scheduled operation has explicit lifecycle/cancellation ownership. A dedicated operation/runtime owner may internally own in-flight futures/tasks/cancellation state. That does **not** permit arbitrary mutable maps inside ordinary handlers, services, listeners, controllers, or orchestrators.
+For ordinary off-thread application work, use the shared Tavall concurrency abstraction. The current checked-in [`AsyncTask`](https://github.com/TavallStudios/TavallMonoRepo/blob/8d3891ec9620e008405f9367b80b0e5c7bd0ab34/tavall-java-tools/tavall-concurrency/src/main/java/org/tavall/internal/utils/concurrent/AsyncTask.java) runs work on a virtual-thread-per-task executor and exposes `CompletableFuture` completion.
+
+Rules:
+
+- ordinary production application code does not create worker threads directly with `new Thread(...)`, `Thread.startVirtualThread(...)`, `Thread.ofVirtual()`, or `Thread.ofPlatform()`;
+- ordinary feature code does not create private executors merely to obtain its own thread pool;
+- use `AsyncTask` for off-thread Tavall work and the owning platform scheduler for thread-affine platform mutation;
+- retain an explicitly typed `CompletableFuture<T>` only when completion is part of the caller's contract;
+- direct `Thread` creation is reserved for canonical concurrency infrastructure or a JVM/platform/integration API that structurally requires a `Thread` object, with an explicit reason and lifecycle owner;
+- `Thread.currentThread()` inspection, interrupt restoration, and equivalent operations on an already-owning thread are not thread creation;
+- every async/scheduled operation has explicit lifecycle/cancellation ownership;
+- a dedicated operation/runtime owner may internally own in-flight futures/tasks/cancellation state; ordinary handlers/services/listeners/controllers/orchestrators do not gain arbitrary mutable operation maps.
+
+Project Novus production [`FFARegionControlService`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-ffa/src/main/java/org/tavall/minecraft/ffa/region/FFARegionControlService.java) routes off-thread population/routing work through `AsyncTask` and returns Bukkit-affine work to the Bukkit scheduler. [`NovusDiscordCoreApplication`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-discord/novus-discord-core/src/main/java/org/tavall/discord/core/NovusDiscordCoreApplication.java) is a narrow direct-`Thread` exception because `Runtime.addShutdownHook(...)` structurally requires a `Thread` object.
+
+Detailed anti-pattern: [Direct Thread Ownership](code-architecture/VALIDATION_FALLBACKS_AND_ANTI_PATTERNS.md#direct-thread-ownership-pattern).
+
+##### Why
+
+Centralized concurrency keeps virtual-thread policy, lifecycle, diagnostics, and future resource balancing behind one owner instead of scattering thread creation across features.
+
+### TODO: ThreadRegistry and CPU/Core Inspection
+
+Build a Tavall concurrency/runtime ownership layer that can account for work across services and machine resources rather than merely launch tasks.
+
+Required direction:
+
+- add a typed `ThreadRegistry` or successor runtime-work registry for Tavall-owned concurrent operations;
+- identify work by service/domain/runtime owner instead of only raw JVM thread name;
+- expose active work, lifecycle state, cancellation ownership, virtual/platform thread kind, and useful timing/diagnostic data;
+- inspect effective processor/core capacity, including container/cgroup limits where applicable;
+- collect JVM/thread CPU-time and scheduling evidence where the runtime exposes reliable data;
+- support per-service accounting, prioritization, load shedding, and CPU-capacity/time balancing;
+- integrate the ownership model into `AsyncTask`/Tavall concurrency rather than asking every service to register raw threads manually;
+- preserve platform-thread affinity rules for Paper, UI/event loops, and other runtimes that require a specific scheduler.
+
+This is **planned infrastructure, not current behavior**. Until it exists, application code must still route work through Tavall concurrency so the eventual registry/balancer has one boundary to instrument.
 
 ## Tavall Database and Durable Persistence
 
@@ -221,9 +262,7 @@ Detailed binding rules: [Entity Persistence](code-architecture/ENTITY_PERSISTENC
 
 ##### Why
 
-Tavall Database is itself an evolving shared module. Freezing one of its accessors into global application architecture guarantees that the global docs become stale the next time the module improves. The durable contract belongs with the module that implements and tests it.
-
-The application rule is therefore about **ownership**, not punctuation: use Tavall Database entities and its current entity contract; do not rebuild the persistence runtime downstream.
+Tavall Database is itself an evolving shared module. The application rule is about ownership: use Tavall Database entities and its current entity contract; do not rebuild or freeze the persistence runtime downstream.
 
 ## Redis
 
@@ -316,6 +355,10 @@ Before accepting a change, confirm:
 - [ ] Builders construct typed output and do not wire managed behavior.
 - [ ] Handler/Service/Orchestrator/Router responsibilities remain distinct.
 - [ ] Tavall tools are reused rather than recreated.
+- [ ] Production Java locals use explicit declared types rather than `var`.
+- [ ] Off-thread application work uses Tavall concurrency/owning platform schedulers rather than direct thread ownership.
+- [ ] Any direct `Thread` creation has an explicit infrastructure/JVM/platform reason and lifecycle owner.
+- [ ] `CompletableFuture<T>` is retained only when completion is actually part of the caller's contract.
 - [ ] Durable persistence follows Tavall Database entity classes and the entity contract defined by the checked-in Tavall Database version.
 - [ ] Shared application docs do not freeze a concrete Tavall Database accessor.
 - [ ] Application code does not own JPA/JDBC/transaction/factory lifecycle.
