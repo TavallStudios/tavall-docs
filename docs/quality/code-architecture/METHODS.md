@@ -12,6 +12,7 @@ Rules:
 
 - Method names explain the action.
 - Important values are extracted into named locals when that improves ownership/debugging.
+- Production local variables use explicit Java types rather than `var`.
 - Avoid hiding meaningful logic inside deep chained calls.
 - Input-adapter methods receive input and delegate.
 - Domain-handler methods perform one focused behavior.
@@ -19,7 +20,7 @@ Rules:
 - Builder methods construct typed output only.
 - Pure utility methods remain stateless.
 - Cache methods own cache behavior only.
-- Durable application operations use Tavall Database entity/typed operations rather than local transaction/database helper methods.
+- Durable application operations follow Tavall Database entity classes/current typed contract rather than local transaction/database helper methods.
 
 ##### Why
 
@@ -90,7 +91,7 @@ Typed parameters make invalid combinations harder to express. Request objects gi
 
 ## Local Variables
 
-Extract meaningful intermediate values before nested calls when they help reading, debugging, validation, or failure diagnosis.
+Extract meaningful intermediate values before nested calls when they help reading, debugging, validation, or failure diagnosis. Production source uses explicit local types; detailed `var` rules live in [Namespaces, Variables, OOP, DRY, and Type Safety](NAMESPACES_VARIABLES_AND_OOP.md#local-variables).
 
 Bad:
 
@@ -176,25 +177,13 @@ Platform syntax and lifecycle change for different reasons than domain behavior.
 
 A data handler is useful when several callers need the same data policy, such as Tavall Database + cache coordination, mapping, batching, retry, or retention.
 
-```java
-public PlayerAccountData loadPlayerAccountData(UUID playerUUID) {
-    Optional<PlayerAccountEntity> entity =
-            getDatabase().entities().find(
-                    PlayerAccountEntity.class,
-                    playerUUID
-            );
+When it touches durable entities, it consumes the entity classes and entity persistence contract defined by the checked-in `tavall-database` module. This shared chapter intentionally does not copy a concrete Tavall Database accessor into application examples.
 
-    return entity
-            .map(playerAccountDataBuilder::buildPlayerAccountData)
-            .orElse(null);
-}
-```
-
-A data handler is not mandatory ceremony around every entity operation. It should not decide unrelated product authorization rules.
+A data handler is not mandatory ceremony around every entity operation. It should not decide unrelated product authorization rules and must not recreate a `*Repository` layer.
 
 ##### Why
 
-Data policy deserves one reusable owner when policy actually exists. A wrapper that only forwards `entities().find()` adds no ownership value.
+Data policy deserves one reusable owner when policy actually exists. A forwarding wrapper around one Tavall Database call adds no ownership value.
 
 ## Builder Methods
 
@@ -238,27 +227,15 @@ Pure helpers are broadly safe because their result depends only on explicit inpu
 
 ## Tavall Database Methods
 
-Application code does **not** own `EntityManager`, transaction callbacks, or generic database helper classes for ordinary persistence.
+Application code does **not** own `EntityManager`, transaction callbacks, JDBC lifecycle, generic database helper classes, or `*Repository` types for ordinary persistence.
 
-Use:
+Application methods use the Tavall Database entity classes and the entity persistence/operation contract exposed by the checked-in module. If a required multi-entity transaction or durable operation is missing, add the typed capability upstream to Tavall Database rather than introducing a local callback or wrapper.
 
-```java
-Optional<PlayerAccountEntity> entity =
-        getDatabase().entities().find(
-                PlayerAccountEntity.class,
-                playerUUID
-        );
-
-getDatabase().entities().save(playerAccountEntity);
-```
-
-For multi-entity transaction semantics, use/add a typed Tavall Database operation rather than writing a local callback wrapper.
-
-Native PostgreSQL behavior remains at the mapped entity/typed Tavall Database boundary with an explicit `Native SQL reason:`.
+Native PostgreSQL behavior remains at the mapped entity/typed Tavall Database boundary with an explicit database-specific reason according to Tavall Database policy.
 
 ##### Why
 
-Transaction and entity-manager lifecycle belong to Tavall Database. A local `find()` method that manually grabs an `EntityManager` recreates the persistence runtime inside application code and is precisely the architecture being removed.
+Persistence runtime and transaction lifecycle belong to Tavall Database. Shared application docs should preserve that ownership without freezing whichever accessor the module happens to expose today.
 
 ## Cache Methods
 
