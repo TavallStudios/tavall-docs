@@ -52,14 +52,14 @@ Role expectations:
 - `Cache`: owns disposable/expiring fast-access state.
 - `Service`: cohesive reusable domain capability shared by consumers.
 - `Orchestrator`: ordered cross-boundary workflow/lifecycle coordination.
-- `Repository`: exceptional domain persistence/substitution contract beyond ordinary Tavall Database entity CRUD.
+- `Repository`: prohibited for new Tavall-owned production declared types; existing names are shrinking migration debt only.
 - `Util`: focused pure/stateless helper, or a clearly named DI-managed platform adapter where the existing utility convention applies.
 
-Do not use generic application `*Database` classes as the normal persistence role. Tavall Database owns ordinary PostgreSQL/JPA persistence mechanics.
+Do not use generic application `*Database` classes as the normal persistence role. Tavall Database owns ordinary PostgreSQL/JPA persistence mechanics. Do not replace them with a new `*Repository` layer.
 
 ##### Why
 
-Precise suffixes give reviewers and architecture tests a usable contract. `Service` is about reusable capability, not how many minutes the object stays alive. `Repository` is about a real persistence contract, not permission to wrap `database.entities().save()` in another class.
+Precise suffixes give reviewers and architecture tests a usable contract. `Service` is about reusable capability, not how many minutes the object stays alive, and `Repository` no longer exists as an approved Tavall application role.
 
 ## Variables and Fields
 
@@ -67,12 +67,31 @@ Precise suffixes give reviewers and architecture tests a usable contract. `Servi
 
 Extract important domain values into named locals when it improves reading, debugging, validation, or failure diagnosis.
 
-Good:
+#### Bad
 
 ```java
-UUID playerUUID = player.getUniqueId();
-PlayerAccountData playerAccountData = dataHandler.load(playerUUID);
+var currentPlan = populationGateway.routingPlan(serverData.getServerId());
+var destination = populationGateway.snapshot(offer.destination().serverId());
+var target = destination.get();
+var valid = target.online() && target.spareCapacity() > 0;
 ```
+
+#### Good
+
+```java
+Optional<FFARegionRoutingPlan> currentPlan =
+        populationGateway.routingPlan(serverData.getServerId());
+Optional<FFARegionServerSnapshot> destination =
+        populationGateway.snapshot(offer.destination().serverId());
+FFARegionServerSnapshot target = destination.get();
+boolean valid = target.online() && target.spareCapacity() > 0;
+```
+
+Project Novus production source [`FFARegionControlService`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-ffa/src/main/java/org/tavall/minecraft/ffa/region/FFARegionControlService.java) uses explicit local types across routing, snapshot, candidate, state, and validation flows.
+
+Production Tavall Java code under `src/main/java` uses explicit local variable types. Do not use Java `var` in production source, including loop variables, generic results, builder results, DI-backed values, entity/data values, optionals, collections, or operation results.
+
+Tests, fixtures, generated source, and tooling may define narrower rules independently; this production rule does not silently expand into those surfaces.
 
 Naming rules:
 
@@ -84,7 +103,7 @@ Naming rules:
 
 ##### Why
 
-Readable locals expose meaningful intermediate values and make breakpoints/logging/stack inspection useful without forcing every expression into a one-liner competition nobody entered.
+`var` keeps compiler type safety but removes type visibility from source. Explicit locals keep domain and API boundaries obvious in reviews and make type-changing refactors surface at the use site.
 
 ### Fields
 
@@ -220,7 +239,9 @@ Typed values are searchable/refactorable and let the compiler reject invalid cat
 - [ ] Packages describe domain + role rather than broad buckets.
 - [ ] Class suffixes match current Tavall role definitions.
 - [ ] Services represent reusable cohesive capabilities, not merely long-lived objects.
-- [ ] Generic application `*Database`/CRUD repository wrappers are not introduced.
+- [ ] No new Tavall-owned production type ends in `Repository`.
+- [ ] Generic application `*Database` wrappers are not introduced as a replacement persistence layer.
+- [ ] Production locals use explicit Java types rather than `var`.
 - [ ] Fields have explicit state/lifecycle ownership.
 - [ ] Tavall-managed dependencies are not constructor-captured in ordinary managed behavior.
 - [ ] Constants represent code invariants rather than operational secrets/configuration.

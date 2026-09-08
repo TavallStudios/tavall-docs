@@ -134,17 +134,61 @@ Route state by semantics:
 
 - runtime identity/session/definitions -> Tavall Registry;
 - expiring/reloadable/disposable state -> Tavall Cache;
-- durable state -> Tavall Database mapped entity/typed operation;
+- durable state -> Tavall Database entity model/current entity contract;
 - distributed runtime state -> owning Redis/distributed boundary;
 - in-flight tasks/futures/retries -> dedicated typed operation/runtime owner;
-- immutable value/snapshot -> typed data;
-- repository -> only a real persistence/substitution contract beyond ordinary entity CRUD.
+- immutable value/snapshot -> typed data.
 
 Full rule: [Application-Owned Mutable Maps](APPLICATION_OWNED_MUTABLE_MAPS.md).
 
 ##### Why
 
 A thread-safe map still has authority/lifecycle semantics. Putting it in an ordinary consumer silently makes that consumer the registry/cache/runtime/persistence owner.
+
+## Direct Thread Ownership Pattern
+
+Ordinary Tavall production application code must not create or own worker threads directly. Do not introduce application work through `new Thread(...)`, `Thread.startVirtualThread(...)`, `Thread.ofVirtual()`, `Thread.ofPlatform()`, or a feature-local executor merely to obtain a thread.
+
+Use Tavall concurrency infrastructure for off-thread work and the owning platform scheduler for thread-affine platform mutation. The checked-in [`AsyncTask`](https://github.com/TavallStudios/TavallMonoRepo/blob/8d3891ec9620e008405f9367b80b0e5c7bd0ab34/tavall-java-tools/tavall-concurrency/src/main/java/org/tavall/internal/utils/concurrent/AsyncTask.java) implementation uses a virtual-thread-per-task executor and returns `CompletableFuture` from `runAsync`/`supplyAsync`.
+
+#### Bad
+
+```java
+Thread workerThread = new Thread(this::runControlLoop, "region-control");
+workerThread.start();
+```
+
+#### Good: Async work without retained completion
+
+```java
+AsyncTask.runAsync(() -> populationGateway.publishCurrentPopulation(
+        playerCount,
+        maximumPlayerCount
+));
+```
+
+Project Novus production source [`FFARegionControlService`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-ffa/src/main/java/org/tavall/minecraft/ffa/region/FFARegionControlService.java) routes off-thread work through `AsyncTask` and returns Bukkit-affine mutation to the Bukkit scheduler.
+
+#### Good: Completion is part of the caller contract
+
+```java
+CompletableFuture<RoutingPlanData> routingFuture =
+        AsyncTask.supplyAsync(this::loadRoutingPlanData);
+```
+
+Keep the `CompletableFuture<T>` only when the caller actually owns, chains, awaits, cancels, or records completion. Do not retain a future merely because `AsyncTask` returns one.
+
+#### Allowed exceptional Thread API
+
+Direct `Thread` creation is allowed only when a JVM/platform/integration API structurally requires a `Thread` object or canonical concurrency infrastructure itself owns thread construction. The reason and lifecycle must be explicit.
+
+Project Novus production source [`NovusDiscordCoreApplication`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-discord/novus-discord-core/src/main/java/org/tavall/discord/core/NovusDiscordCoreApplication.java) constructs a `Thread` specifically because `Runtime.addShutdownHook(...)` requires one; the JVM owns when that hook starts. Tavall concurrency infrastructure may likewise use `Thread.ofVirtual()` internally to implement the shared abstraction.
+
+`Thread.currentThread()` inspection, interrupt restoration, and equivalent operations on the already-owning thread are not thread creation and are not prohibited by this rule.
+
+##### Why
+
+Direct thread creation bypasses Tavall concurrency ownership, virtual-thread policy, observability, and future resource balancing. Centralizing creation lets application code express work while infrastructure owns how that work receives CPU time.
 
 ## Raw String Pattern
 
@@ -185,27 +229,26 @@ Prefer explicit actions with honest names and owners.
 
 Callers reason from method contracts. Hidden cache/presentation/persistence effects turn innocent reads into workflows and make retry/error behavior impossible to infer.
 
-## Generic CRUD Wrapper Pattern
+## Repository Type Pattern
 
-Bad:
+New Tavall-owned production declared types ending in `Repository` are prohibited.
 
-```java
-public final class PostgresPlayerRepository {
-    public Optional<PlayerEntity> find(UUID id) {
-        return database.entities().find(PlayerEntity.class, id);
-    }
+#### Bad
 
-    public void save(PlayerEntity entity) {
-        database.entities().save(entity);
-    }
-}
+```text
+PlayerRepository
+IPlayerRepository
+PostgresPlayerRepository
+PlayerRepositoryAdapter
 ```
 
-Ordinary Tavall Database entity CRUD does not need this wrapper.
+#### Good
+
+Name the behavior that actually exists, such as a `PlayerDataHandler`, `PlayerHistoryWriter`, `AccountLinkGateway`, or another precise capability. Ordinary durable entity persistence follows Tavall Database entity classes and the current checked-in Tavall Database contract without a new application Repository layer.
 
 ##### Why
 
-The class adds no domain persistence contract and creates another place for transaction/query/failure behavior to drift. Use the Tavall Database entity boundary directly from the owning behavior/data policy.
+`Repository` repeatedly recreated a generic persistence wrapper and kept obsolete mechanics alive. The ban forces persistence behavior either into Tavall Database or into a precisely named capability with real semantics.
 
 ## JPA Callback Ownership Pattern
 
@@ -220,7 +263,7 @@ database.jpa().write(...)
 raw JDBC transaction wrappers
 ```
 
-Use mapped entities/typed Tavall Database operations. Add missing multi-entity operations upstream to Tavall Database instead of recreating callbacks downstream.
+Use Tavall Database entity classes and the entity persistence contract defined by the checked-in module. Add missing multi-entity operations upstream to Tavall Database instead of recreating callbacks downstream.
 
 ##### Why
 
@@ -233,7 +276,9 @@ Transaction/entity-manager lifecycle is infrastructure-wide ownership. Local cal
 - [ ] No God/Manager/Helper bucket hides unrelated behavior.
 - [ ] Static methods do not locate Tavall-managed runtime dependencies.
 - [ ] Mutable keyed state has Registry/Cache/Tavall Database/distributed/runtime ownership.
+- [ ] Worker/concurrent application work uses Tavall concurrency or an owning platform scheduler rather than direct Thread creation.
+- [ ] Any direct Thread construction has an explicit JVM/platform/infrastructure reason and lifecycle owner.
 - [ ] Stable keys/values use typed representations rather than raw strings/maps.
 - [ ] Method names disclose side effects.
-- [ ] Ordinary Tavall Database CRUD is not wrapped in generic repositories/databases/stores.
+- [ ] No new Tavall-owned production type ends in `Repository`.
 - [ ] Application code owns no JPA callbacks/JDBC transaction lifecycle.
