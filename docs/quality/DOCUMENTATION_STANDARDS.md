@@ -17,6 +17,25 @@ Documentation is part of the engineering contract.
 - Split a supporting document only when the main owning document would become materially harder to read.
 - The main system document must summarize and link any delegated command, permission, format, message, schema, or integration document.
 
+### Delegated Architecture Documentation
+
+When one architecture document delegates a topic to a specialized chapter:
+
+- put the routing/index information **before** enough topic detail exists for a reader to reasonably stop;
+- the root/owning document defines shared invariants, precedence, and routing;
+- the delegated chapter owns detailed mechanics, examples, exceptions, and topic-specific review criteria;
+- the root may summarize a delegated rule, but it must not become a competing mini-chapter that can drift independently;
+- readers and agents must read every delegated chapter relevant to the code being changed; a root summary is not a substitute;
+- multi-boundary work may require several delegated chapters;
+- delegated chapters link back to the root and state their specialization scope;
+- a direct contradiction between root and delegated guidance is a documentation defect and must not be silently resolved by choosing the more convenient paragraph.
+
+Until a discovered contradiction is reconciled, the owning/root invariant controls unless a narrower repository/module authority explicitly and validly strengthens it.
+
+##### Why
+
+Early routing preserves context budget for the document that actually owns the detail. Keeping examples and mechanics in one specialized owner also reduces duplicate policy that can drift into contradictory instructions.
+
 Architecture and pattern documentation must explain both **what** the rule is and **why** the rule exists. A rule without its ownership, lifecycle, testing, failure-mode, or maintainability rationale is easy to copy mechanically and easy to misuse.
 
 For architecture pattern sections, use a concise `##### Why` subsection after a major rule or bad/good example when the rationale is not already obvious from the surrounding text. The rationale should explain the architectural consequence, not merely restate the rule. Production code references remain inline with the rule they support and link back to the source class rather than being collected into a separate evidence catalog.
@@ -186,6 +205,9 @@ Before accepting a documentation change, confirm:
 
 - [ ] Document type/lifecycle/authority are explicit.
 - [ ] Shared quality policy and repository/system specialization have correct precedence.
+- [ ] Root/delegated routing appears before enough duplicate detail for readers to stop early.
+- [ ] A root summary does not compete with a delegated chapter for the same mechanics/examples.
+- [ ] Multi-topic architecture guidance names every specialized chapter readers must inspect.
 - [ ] The owning system/folder are correct.
 - [ ] The document does not duplicate another source of truth.
 - [ ] Proposed behavior is not presented as implemented behavior.
