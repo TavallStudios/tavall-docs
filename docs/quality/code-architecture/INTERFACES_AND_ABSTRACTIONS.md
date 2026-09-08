@@ -1,215 +1,76 @@
-# Project Novus Interfaces and Abstractions
+# Tavall Interfaces and Abstractions
 
 > **Status:** Active  
-> **Authority:** Binding chapter of [Project Novus Code Architecture](../CODE_ARCHITECTURE.md)  
-> **Applies to:** All Project Novus modules, contributors, automation, generated code, and AI-assisted development
+> **Authority:** Binding chapter of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
+> **Applies to:** Tavall production modules, contributors, automation, generated code, reviews, and AI-assisted development
 
-This chapter is separated for navigation only. Its rules are part of the authoritative Project Novus code architecture and are not optional supplemental guidance.
+Interfaces exist to describe stable capabilities and substitution boundaries. They are not a tax every class pays for existing.
 
-### Abstracts
+## Interface Rule
 
-This codebase uses an interface-first design.
+Use an interface when at least one real contract boundary exists, including:
 
-Most service, repository, cache, resolver, registry, command, and handler classes should have an interface. Dependencies should be wired against interfaces, not concrete classes.
+- a Tavall DI-managed capability exposed through `@DelegatesTo`;
+- a module boundary;
+- a platform adapter;
+- an external provider family;
+- a strategy/policy family;
+- local versus distributed implementations;
+- a real persistence substitution boundary beyond ordinary Tavall Database entity CRUD;
+- a test fake that represents the same production contract.
 
-The goal is decoupling, safer refactors, cleaner testing, easier replacement, and better control over dependency wiring.
-
-#### Interfaces
-
-Interfaces define what a class provides without forcing callers to care about how that behavior is implemented.
-
-Use interfaces for:
-
-* Services
-* Repositories
-* Caches
-* Resolvers
-* Registries
-* Commands
-* Handlers
-* Formatters
-* Loaders
-* Writers
-* Readers
-
-An interface with one current implementation is still valid when it is part of the dependency graph. The interface is the contract. The concrete class is just the current implementation.
-
-##### Interface Naming
-
-Interfaces should be named after their concrete class or describe the role or contract.
-
-Preferred: matching the concrete class name with `I` before the name.
-
-Example:
-`PermissionService` → `IPermissionService`
-
-This makes it easy to tell what is and is not an interface by name alone, because apparently opening the file was too much cardio.
-
-#### Bad Abstraction: Depending on Concrete Classes
-
-```java
-public final class PunishmentCommand {
-
-    private final PermissionService permissionHandler;
-    private final PunishmentService punishmentService;
-    private final MessageResolver messageResolver;
-
-    public PunishmentCommand(
-        PermissionService permissionHandler,
-        PunishmentService punishmentService,
-        MessageResolver messageResolver
-    ) {
-        this.permissionHandler = permissionHandler;
-        this.punishmentService = punishmentService;
-        this.messageResolver = messageResolver;
-    }
-}
-```
+A single current implementation may still justify an interface when the interface is the stable DI/module contract. Tiny data values, records, implementation-private helpers, and concrete classes with no substitution boundary generally do not need one.
 
 ##### Why
 
-This command is locked directly to concrete classes.
+Interfaces are useful when callers should depend on **what can be done** while implementation identity may change. Creating one automatically for every concrete class adds navigation and maintenance cost without creating a meaningful boundary.
 
-If the implementation changes, the command has to change too. That defeats the point of using an interface-first dependency system.
+The goal is explicit substitution, not abstraction cosplay.
 
-#### Good Abstraction: Depending on Interfaces
+## Naming
 
-```java
-public interface IPermissionService {
+Where the owning codebase uses Tavall's standard interface naming, use `I` followed by the concrete/capability name:
 
-    boolean has(PermissionProfile profile, PermissionNode node);
-
-    boolean canPunish(PermissionProfile staffProfile, PermissionProfile targetProfile);
-}
+```text
+PermissionService -> IPermissionService
+PlayerAchievementCache -> IPlayerAchievementCache
+AchievementListRegistry -> IAchievementListRegistry
 ```
 
-```java
-public interface IPunishmentService {
-
-    PunishmentResult ban(PunishmentRequest request);
-
-    PunishmentResult mute(PunishmentRequest request);
-}
-```
-
-```java
-public interface IMessageResolver {
-
-    String resolve(MessageKey key);
-
-    String resolve(MessageKey key, Map<String, String> placeholders);
-}
-```
-
-```java
-public final class PermissionService implements IPermissionService {
-
-    @Override
-    public boolean has(PermissionProfile profile, PermissionNode node) {
-        return profile.has(node);
-    }
-
-    @Override
-    public boolean canPunish(PermissionProfile staffProfile, PermissionProfile targetProfile) {
-        return staffProfile.powerLevel() > targetProfile.powerLevel();
-    }
-}
-```
-
-```java
-public final class PunishmentCommand {
-
-    private final IPermissionService permissionHandler;
-    private final IPunishmentService punishmentService;
-    private final IMessageResolver messageResolver;
-
-    public PunishmentCommand(
-        IPermissionService permissionHandler,
-        IPunishmentService punishmentService,
-        IMessageResolver messageResolver
-    ) {
-        this.permissionHandler = permissionHandler;
-        this.punishmentService = punishmentService;
-        this.messageResolver = messageResolver;
-    }
-}
-```
+The name should describe the same capability as the implementation. Do not invent different nouns merely to make the interface sound more abstract.
 
 ##### Why
 
-The command depends on contracts, not implementations.
+Matching names make DI aliases and implementations easy to pair during review, generation, and diagnostics. Different nouns for the same capability force readers to rediscover relationships that the type system could have made obvious.
 
-It does not care how permissions are checked, how punishments are stored, or how messages are resolved. It only cares that those behaviors exist.
+## Tavall DI Consumption
 
-That keeps command logic clean and lets the underlying systems change without dragging every caller into the mud.
-
-#### Data Handler Example
+Managed behavior depends on interface contracts through Tavall DI, not constructor-captured managed dependencies.
 
 ```java
-public interface IPunishmentDataHandler {
-
-    void save(Punishment punishment);
-
-    Optional<Punishment> findActiveByTarget(UUID targetId, PunishmentType type);
-}
-```
-
-```java
-public final class PunishmentDataHandler implements IPunishmentDataHandler {
-
-    @Override
-    public void save(Punishment punishment) {
-        // write punishment to Postgres
-    }
-
-    @Override
-    public Optional<Punishment> findActiveByTarget(UUID targetId, PunishmentType type) {
-        // read active punishment from Postgres
-        return Optional.empty();
-    }
-}
-```
-
-```java
-public final class PunishmentHandler implements IPunishmentService {
-
-    private final IPunishmentRepository punishmentRepository;
-    private final IPermissionHandler permissionHandler;
-
-    public PunishmentHandler(
-        IPunishmentRepository punishmentRepository,
-        IPermissionHandler permissionHandler
-    ) {
-        this.punishmentRepository = punishmentRepository;
-        this.permissionHandler = permissionHandler;
-    }
+@DelegatesTo(IPunishmentHandler.class)
+public final class PunishmentHandler
+        implements IPunishmentHandler,
+        DependencyAccess<
+                IPermissionHandler,
+                IPostgresDatabase
+        > {
 
     @Override
     public PunishmentResult ban(PunishmentRequest request) {
-        PermissionProfile staffProfile = request.staffProfile();
-        PermissionProfile targetProfile = request.targetProfile();
+        IDependencyMap dependencies = getInstance();
+        IPermissionHandler permissionHandler = dependencies.iPermissionHandler();
+        IPostgresDatabase database = dependencies.iPostgresDatabase();
 
-        if (!permissionHandler.canPunish(staffProfile, targetProfile)) {
+        if (!permissionHandler.canPunish(
+                request.staffProfile(),
+                request.targetProfile()
+        )) {
             return PunishmentResult.denied();
         }
 
-        Punishment punishment = Punishment.ban(request);
-        punishmentRepository.save(punishment);
-
-        return PunishmentResult.success();
-    }
-
-    @Override
-    public PunishmentResult mute(PunishmentRequest request) {
-        PermissionProfile staffProfile = request.staffProfile();
-        PermissionProfile targetProfile = request.targetProfile();
-
-        if (!permissionHandler.canPunish(staffProfile, targetProfile)) {
-            return PunishmentResult.denied();
-        }
-
-        Punishment punishment = Punishment.mute(request);
-        punishmentRepository.save(punishment);
+        PunishmentEntity entity = PunishmentEntity.from(request);
+        database.entities().save(entity);
 
         return PunishmentResult.success();
     }
@@ -218,93 +79,97 @@ public final class PunishmentHandler implements IPunishmentService {
 
 ##### Why
 
-The service uses repository and permission interfaces instead of concrete implementations.
+The handler declares the contracts it needs while the owning `IDependencyMap` retains replacement and lifecycle ownership. Constructor injection would move graph ownership into callers and can capture stale generation objects.
 
-That means the persistence layer can change without changing punishment logic. Postgres, memory, test fake, or some future storage crime scene can all implement the same interface.
+The persistence example also demonstrates the Tavall Database rule: ordinary entity persistence does not require inventing `IPunishmentRepository` merely to wrap `save()`.
 
-#### Abstract Classes
+## Depending on Concrete Classes
 
-Interfaces are for contracts.
+Depending on a concrete class is acceptable when the concrete type itself is the intended non-substitutable value/implementation boundary.
 
-Abstract classes are for shared behavior.
+It is suspicious when:
 
-Use abstract classes only when multiple implementations truly share logic, state, or lifecycle.
+- the class is Tavall DI-managed under an interface alias;
+- callers should survive implementation replacement;
+- platform/provider/test substitution is expected;
+- the concrete type exposes implementation details the caller does not need.
 
-```java
-public interface IRegistry<KeyType, ValueType> {
-
-    void register(KeyType key, ValueType value);
-
-    Optional<ValueType> find(KeyType key);
-}
-```
-
-```java
-public abstract class AbstractRegistry<KeyType, ValueType> implements IRegistry<KeyType, ValueType> {
-
-    private final Map<KeyType, ValueType> values = new HashMap<>();
-
-    @Override
-    public void register(KeyType key, ValueType value) {
-        validateKey(key);
-        validateValue(value);
-
-        values.put(key, value);
-    }
-
-    @Override
-    public Optional<ValueType> find(KeyType key) {
-        return Optional.ofNullable(values.get(key));
-    }
-
-    protected abstract void validateKey(KeyType key);
-
-    protected abstract void validateValue(ValueType value);
-}
-```
-
-```java
-public interface IPermissionNodeRegistry extends IRegistry<PermissionNode, PermissionDefinition> {
-}
-```
-
-```java
-public final class PermissionNodeRegistry
-    extends AbstractRegistry<PermissionNode, PermissionDefinition>
-    implements IPermissionNodeRegistry {
-
-    @Override
-    protected void validateKey(PermissionNode node) {
-        if (node == null) {
-            throw new IllegalArgumentException("Permission node cannot be null.");
-        }
-    }
-
-    @Override
-    protected void validateValue(PermissionDefinition definition) {
-        if (definition == null) {
-            throw new IllegalArgumentException("Permission definition cannot be null.");
-        }
-    }
-}
-```
+Do not create an interface retroactively just to silence a stylistic preference. Identify the actual contract first.
 
 ##### Why
 
-The interface gives the dependency graph a clean contract.
+“Always interface” and “never interface” are both lazy rules. The correct question is whether callers need a stable capability independent of implementation identity.
 
-The abstract class provides shared registry behavior.
+## Persistence Interfaces
 
-The concrete class provides the domain-specific validation.
+Ordinary Tavall Database entity CRUD does **not** justify an application repository interface.
 
-This keeps the code decoupled without turning it into inheritance lasagna, which is somehow less delicious than regular lasagna and much harder to debug.
+Bad:
 
-#### Rule
+```java
+public interface IPlayerRepository {
+    Optional<PlayerEntity> find(UUID playerId);
+    void save(PlayerEntity entity);
+}
+```
 
-Use interfaces by default for dependency-injected classes.
+when the implementation only forwards those calls to:
 
-Depend on interfaces, not concrete implementations.
+```java
+database.entities().find(PlayerEntity.class, playerId);
+database.entities().save(entity);
+```
 
-Use abstract classes only when shared implementation logic actually exists.
+Use a repository interface only when there is a genuine domain persistence/substitution contract beyond ordinary entity CRUD, such as multiple provider families or persistence behavior with independent domain semantics.
 
-Interfaces define the contract. Concrete classes provide the implementation. Abstract classes share mechanics when reuse is real.
+##### Why
+
+A pass-through repository interface duplicates Tavall Database without adding a contract. It creates more DI tokens, more files, and another place for persistence behavior to drift while accomplishing exactly the same entity operation.
+
+## Data and Value Types
+
+Do not create interfaces for passive data merely because behavior classes use interfaces.
+
+Prefer typed records/classes:
+
+```java
+public record RankUpdateRequest(
+        UUID staffUUID,
+        UUID targetUUID,
+        RankKey rankKey
+) {
+}
+```
+
+An interface is justified only when the value itself represents a polymorphic contract with multiple meaningful implementations.
+
+##### Why
+
+Data values already communicate their schema through their fields and type. Adding `IRankUpdateRequest` to one immutable record provides no substitution value and makes construction/serialization needlessly indirect.
+
+## Abstract Classes
+
+Interfaces define contracts. Abstract classes share implementation mechanics or lifecycle.
+
+Use an abstract class only when multiple implementations genuinely share:
+
+- state whose ownership is part of the abstraction;
+- lifecycle behavior;
+- validated mutation mechanics;
+- reusable algorithmic implementation that subclasses specialize narrowly.
+
+Tavall Registry and Tavall Cache base classes are examples of legitimate shared mechanics. Application code should not create a new abstract base merely to avoid a few repeated lines.
+
+##### Why
+
+Inheritance couples implementations to one shared state/lifecycle model. That is valuable when the shared mechanics are real, but expensive when the only goal was code deduplication.
+
+## Review Checklist
+
+- [ ] The interface represents a real DI/module/substitution contract.
+- [ ] A single implementation is justified by a stable contract, not by habit.
+- [ ] Passive data/value types are not given interfaces without polymorphic need.
+- [ ] Managed behavior resolves interface contracts through Tavall DI rather than constructor injection.
+- [ ] Ordinary Tavall Database entity CRUD is not wrapped in a repository interface.
+- [ ] Concrete dependencies are used only when concrete identity is intentionally part of the contract.
+- [ ] Abstract classes share real mechanics/state/lifecycle rather than naming prestige.

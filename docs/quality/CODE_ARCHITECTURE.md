@@ -1,16 +1,18 @@
-# Project Novus Code Architecture
+# Tavall Studios Code Architecture
 
 > **Status:** Active  
-> **Authority:** Binding for all Project Novus code, reviews, generation, and refactoring  
-> **Applies to:** All modules, contributors, automation, and AI-assisted development
+> **Authority:** Binding shared default for Tavall Studios and projects that consume `tavall-docs`  
+> **Applies to:** Production modules, contributors, automation, generated code, reviews, and AI-assisted development
 
-This document defines the required code architecture for Project Novus.
+This document defines the required shared code architecture for Tavall projects. Repository- and module-specific architecture may strengthen these rules when a narrower runtime or product boundary needs more specific constraints, but it must not silently weaken them.
 
-The files under [`docs/quality/code-architecture/`](code-architecture/README.md) may retain extended examples, specialized rules, and historical explanation. This file remains the primary document that engineers and AI agents must read before changing code.
+Project Novus is used heavily for production examples because it exercises Paper, Velocity, Spring web, Discord, PostgreSQL, Redis, module runtimes, and distributed Cloud components in one codebase. Those examples demonstrate the shared Tavall rules; they do not make this document Project Novus-only.
+
+The files under [`docs/quality/code-architecture/`](code-architecture/) retain extended examples and specialized rules. This file remains the primary shared architecture document that engineers and AI agents must read before changing code.
 
 ## Purpose
 
-Project Novus spans shared Java APIs, Paper, Velocity, Spring web, Discord, PostgreSQL, Redis, module runtimes, and distributed Cloud components. Architecture must make ownership and data flow obvious across those boundaries.
+Tavall projects span shared Java APIs, game runtimes, web services, Discord, PostgreSQL, Redis, module runtimes, Cloud components, and standalone tooling. Architecture must make ownership and data flow obvious across those boundaries.
 
 The goal is not maximum abstraction. The goal is:
 
@@ -30,14 +32,14 @@ Before changing code:
 
 1. Read this entire file.
 2. Read the relevant detailed chapter when the change touches a specialized boundary.
-3. Read module-local documentation and tests.
+3. Read repository- and module-local documentation and tests.
 4. Inspect the current composition root and lifecycle owner.
 5. Reuse real checked-in production patterns.
 
 When rules conflict:
 
-1. This file wins over detailed chapters.
-2. A narrower module rule may strengthen this file but may not weaken it silently.
+1. This file wins over detailed shared chapters.
+2. A narrower repository or module rule may strengthen this file but may not weaken it silently.
 3. Tests document behavior but do not override an explicit architecture rule.
 4. Temporary compatibility seams must be labeled and owned.
 
@@ -50,18 +52,17 @@ Architecture review is required when a change introduces:
 - A new distributed fallback.
 - More than four managed dependencies in one class.
 - A new reflective or static dependency lookup.
-- A new bridge across Paper, Velocity, web, Discord, or Cloud.
+- A new bridge across platform or process boundaries.
 
 ## Module and Package Ownership
 
 ### Module Rules
 
 - Shared contracts belong in shared API modules.
-- Paper classes stay in Paper/server modules.
-- Velocity classes stay in proxy modules.
+- Platform-specific classes stay in their platform modules.
 - Web classes stay in web modules.
 - Discord classes stay in Discord modules.
-- Mode-specific code stays in the owning mode module.
+- Product- or mode-specific code stays in the owning product/module.
 - A module does not import a platform adapter merely because that adapter currently provides the only implementation.
 - Cross-module access goes through a stable interface or typed request/result boundary.
 - Runtime module classes must not leak into stable parent code unless the parent explicitly owns that contract.
@@ -78,6 +79,7 @@ Preferred package shapes:
 <domain>/result
 <domain>/handler
 <domain>/service
+<domain>/orchestrator
 <domain>/resolver
 <domain>/router
 <domain>/registry
@@ -96,12 +98,14 @@ Preferred package shapes:
 <domain>/writer
 ```
 
+`repository` is optional and exists only when a real persistence substitution/domain boundary is required. Ordinary Tavall Database entity CRUD does not need an application repository wrapper.
+
 Rules:
 
 - Avoid broad packages such as `util`, `misc`, `common`, or `manager` for new code.
 - Place an interface in the same owning domain as its implementation or in an `interfaces` child package when the domain already uses that shape consistently.
 - Package names do not repeat redundant hierarchy.
-- Data and implementation packages do not import platform adapters.
+- Data and implementation packages do not import unrelated platform adapters.
 - A package should not become a dumping ground for unrelated lifecycle phases.
 
 ## Naming and Class Roles
@@ -110,15 +114,15 @@ Use names that state the exact job.
 
 | Suffix | Role |
 | --- | --- |
-| `Handler` | Performs focused domain behavior or handles one input family |
-| `Service` | Coordinates a cohesive domain capability |
-| `Orchestrator` | Coordinates several focused collaborators across a workflow |
+| `Handler` | Performs one focused domain behavior or owns one input/operation family |
+| `Service` | Provides a cohesive reusable domain capability |
+| `Orchestrator` | Coordinates several focused collaborators across an ordered workflow/lifecycle |
 | `Router` | Selects and delegates to handlers |
 | `Resolver` | Derives one typed answer from inputs |
 | `Registry` | Owns typed runtime lookup state |
 | `Cache` | Owns bounded or expiring fast-access state |
-| `Repository` | Owns persistence access |
-| `Builder` | Assembles or builds a result; does not become a service locator |
+| `Repository` | Optional domain persistence/substitution boundary; not a default CRUD wrapper around Tavall Database |
+| `Builder` | Constructs a typed value/definition/result; does not wire Tavall-managed behavior or become a service locator |
 | `Mapper` | Converts between representations |
 | `Serializer` | Converts typed data to a serialized representation |
 | `Reader` | Reads a source |
@@ -134,7 +138,7 @@ Avoid `Manager` unless maintaining an external established API that cannot be ch
 
 ### One Class, One Coherent Reason to Change
 
-A class may coordinate several collaborators when they belong to one workflow. It should not own unrelated domains because they happen to run on the same thread or share a player UUID.
+A class may coordinate several collaborators when they belong to one workflow. It should not own unrelated domains because they happen to run on the same thread or share one identifier.
 
 Split when a class mixes:
 
@@ -150,17 +154,18 @@ Do not split by creating forwarding wrappers with no independent policy, behavio
 
 ## Interfaces and Abstraction
 
-Use an interface when there is a real substitution boundary:
+Use an interface when there is a real contract/substitution boundary, including:
 
+- A Tavall DI-managed capability consumed through an alias contract.
 - Platform adapter.
-- Persistence implementation.
+- Persistence implementation where more than ordinary Tavall Database entity access is being abstracted.
 - Distributed versus local implementation.
 - Test fake.
 - Module boundary.
 - External provider.
 - Strategy or policy family.
 
-Do not create an interface solely because a class exists. Interfaces should communicate stable capabilities.
+Do not create an interface solely because a class exists. A single managed implementation may still have an interface when that interface is the stable DI or module contract; tiny passive data values and implementation-private helpers generally do not need one.
 
 Rules:
 
@@ -172,13 +177,13 @@ Rules:
 
 ## Dependency Injection
 
-Project Novus uses `tavall-di` as the default runtime composition system.
+Tavall projects use `tavall-di` as the default runtime composition system unless a narrower repository explicitly defines another composition boundary.
 
 ### Direct Typed Access
 
 For ordinary classes with a small coherent dependency set, use expanded `DependencyAccess`.
 
-Production source: [`MessageRenderHandler`](minecraft-framework/backend-api/src/main/java/org/tavall/api/minecraft/backend/message/render/MessageRenderHandler.java)
+Project Novus production source: [`MessageRenderHandler`](https://github.com/TavallStudios/tavall-project-novus/blob/main/minecraft-framework/backend-api/src/main/java/org/tavall/api/minecraft/backend/message/render/MessageRenderHandler.java)
 
 ```java
 @DelegatesTo(IMessageRenderHandler.class)
@@ -217,25 +222,7 @@ Choose one of these patterns:
 
 #### Keep Expanded Direct Access
 
-Use when the class remains cohesive and the dependencies all serve one narrow behavior.
-
-Production source: [`MessageSynchronizationHandler`](minecraft-framework/backend-api/src/main/java/org/tavall/api/minecraft/backend/message/sync/MessageSynchronizationHandler.java)
-
-```java
-@DelegatesTo(IMessageSynchronizationHandler.class)
-public final class MessageSynchronizationHandler
-        implements IMessageSynchronizationHandler,
-        DependencyAccess<
-                IMessagePostgresRepository,
-                IMessageRedisProjectionHandler,
-                IMessageRedisSnapshotHydrationHandler,
-                IMessageRegistryHandler,
-                IMessageRedisUpdatePublisher,
-                IMessageKeyBootstrapHandler
-        > {
-    // one synchronization workflow
-}
-```
+Use when the class remains cohesive and the dependencies all serve one narrow behavior. Do not hide a high dependency count inside a builder or constructor merely to make the declaration look shorter.
 
 #### Use a Domain Bundle
 
@@ -266,7 +253,7 @@ A bundle must not be named `Dependencies`, `Services`, or `Context` without a re
 
 Split when the class owns several distinct behaviors or lifecycle phases.
 
-Production source: [`BuildingInteractionService`](minecraft-kingdom-server/src/main/java/org/tavall/minecraft/server/building/BuildingInteractionService.java)
+Project Novus production source: [`BuildingInteractionService`](https://github.com/TavallStudios/tavall-project-novus/blob/main/minecraft-kingdom-server/src/main/java/org/tavall/minecraft/server/building/BuildingInteractionService.java)
 
 The service delegates debug permission, selection, state mutation, and UI rendering to focused collaborators rather than retaining one giant dependency surface.
 
@@ -355,7 +342,7 @@ public final class MessageRenderHandler
 }
 ```
 
-Constructors are still normal Java construction tools for immutable object state, configuration, builder inputs, and externally owned platform handles that are not Tavall-managed application dependencies. Builders and composition objects may use constructors while assembling objects; they must not turn constructor injection into a parallel application dependency system.
+Constructors are still normal Java construction tools for immutable object state, configuration, builder inputs, and externally owned platform handles that are not Tavall-managed application dependencies. Bootstrap/composition code may use constructors where the constructed object's inputs are not Tavall-managed dependencies; it must not use a builder or constructor as a parallel application dependency graph.
 
 #### Static Dependency Access
 
@@ -388,7 +375,7 @@ Detailed examples: [Dependency Injection and Orchestration](code-architecture/DE
 
 ## Builders
 
-Builders assemble typed output. They do not become services, repositories, or dependency containers.
+Builders construct typed values, definitions, requests, results, configuration, or other explicit output. They do not become services, persistence workflows, registries, composition roots, or dependency containers.
 
 Use a builder when:
 
@@ -399,32 +386,31 @@ Use a builder when:
 
 Rules:
 
-- Builder methods return the builder.
+- Builder methods return the builder where fluent construction is useful.
 - The build method returns the final typed result.
 - Validation happens before publication.
 - Required values fail clearly.
 - Defaults are tested.
-- A builder does not save to a repository unless the class is explicitly a persistence workflow builder and the name states that role.
-- A builder does not resolve arbitrary dependencies.
+- A builder does not perform persistence, cache mutation, authorization, registration, scheduling, or dependency lookup.
+- A builder does not accept Tavall-managed dependencies merely to constructor-inject them into a behavior class.
 
-Do not create a builder for a two-field record with one obvious constructor.
+Do not create a builder for a tiny value with one obvious constructor. Do not rename runtime bootstrap/composition to `*Builder` merely because it constructs several managed objects.
 
 ## Handlers, Services, Orchestrators, and Routers
 
 ### Handler
 
-A handler owns one focused behavior or input family.
+A domain handler owns one focused behavior or operation family. A platform listener/command/controller may adapt input into that handler but does not own reusable domain rules merely because it received the input first.
 
 Examples:
 
 - `MessageRenderHandler`
 - `ResourceAssignmentHandler`
 - `BuildingUpgradeTimerHandler`
-- `ResourcePackStatusListener`
 
 ### Service
 
-A service coordinates a cohesive domain capability.
+A service provides a cohesive reusable domain capability. Longevity is not the defining rule; a service is justified when several consumers need the same coherent capability and that capability is broader than one input/operation family.
 
 Examples:
 
@@ -449,7 +435,7 @@ A router chooses a handler and delegates.
 
 Rules:
 
-- Paper and Velocity events route through the event router.
+- Platform events route through the owning event router where that architecture exists.
 - Command routers select command families; they do not implement every command.
 - A router does not own durable state.
 - Unknown routes return an explicit result or documented no-op.
@@ -457,7 +443,7 @@ Rules:
 
 ## Data, Requests, Results, and Typed Keys
 
-Use immutable records for data transfer and operation boundaries.
+Use immutable records for data transfer and operation boundaries when the value semantics fit.
 
 ### Requests
 
@@ -529,7 +515,7 @@ Methods should:
 - Keep validation near the entry boundary.
 - Return typed results.
 - Avoid hidden global mutation.
-- Keep blocking I/O away from Paper and Velocity event threads.
+- Keep blocking I/O away from platform event threads.
 
 Prefer:
 
@@ -562,7 +548,7 @@ For multi-step mutation:
 2. Resolve required dependencies.
 3. Check authorization and invariants.
 4. Prepare durable mutation.
-5. Commit the authoritative store.
+5. Commit through the authoritative Tavall Database/entity or other explicitly owned durable boundary.
 6. Update caches and registries.
 7. Publish events or projections.
 8. Return a typed result.
@@ -573,26 +559,28 @@ Do not publish partial state when one duplicate key, missing dependency, or inva
 
 ## Concurrency and Async Work
 
-Project Novus uses Tavall concurrency tools and platform schedulers according to ownership.
+Tavall projects use Tavall concurrency tools and platform schedulers according to ownership.
 
 Rules:
 
-- Do not block Paper or Velocity event threads with database, Redis, network, filesystem, or long computation work.
-- Use `AsyncTask` or the owning scheduler abstraction for asynchronous work.
+- Do not block latency-sensitive platform/event threads with database, Redis, network, filesystem, or long computation work.
+- Use `AsyncTask` or the owning scheduler abstraction for asynchronous work where available.
 - Use virtual-thread-compatible blocking I/O where the owning tool expects it.
-- Return to the platform thread before mutating Bukkit or proxy state that requires it.
+- Return to the platform thread before mutating state that requires it.
 - Every scheduled or async operation has cancellation or lifecycle ownership.
 - Module unload cancels generation-owned work.
 - Futures and tasks are not automatically caches or registries.
 - Cross-thread mutable state uses thread-safe structures or one-thread ownership.
 
+A dedicated operation/runtime owner may internally own the in-flight future/task/cancellation collection required to manage its operations. That exception does not permit an ordinary handler, service, listener, controller, or orchestrator to grow an arbitrary mutable map of operational state; when the state has an independent lifecycle, give it a typed operation/runtime owner.
+
 Do not add arbitrary executors to individual handlers. Reuse the owning concurrency boundary.
 
 ## Events and Data Flow
 
-### Paper and Velocity Events
+### Platform Events
 
-- Route through the project event router.
+- Route through the owning event router where required by the repository/runtime.
 - Listeners adapt platform events into typed domain calls.
 - Listeners do not perform durable I/O directly.
 - Cancellation and priority policy are explicit.
@@ -608,9 +596,9 @@ Do not add arbitrary executors to individual handlers. Reuse the owning concurre
 
 ### User-Facing Messages
 
-All user-facing messages route through the message system unless the architecture explicitly defines a bootstrap or fatal-fallback exception.
+User-facing messages route through the owning message/presentation system unless the architecture explicitly defines a bootstrap or fatal-fallback exception.
 
-Do not hardcode player-facing strings inside domain services.
+Do not hardcode user-facing strings inside reusable domain services when an owning message system exists.
 
 ## Schemas
 
@@ -620,8 +608,8 @@ Schemas encode contracts between code, persistence, cache, messages, and distrib
 
 | Category | Purpose | Example |
 | --- | --- | --- |
-| Definition | Configurable rules and presentation | `chat_formats`, `message_config`, achievement definitions |
-| State | Current durable gameplay or account state | player profile, currency, castle state |
+| Definition | Configurable rules and presentation | message definitions, achievement definitions |
+| State | Current durable gameplay or account state | player profile, currency, domain state |
 | Audit | Append-oriented history | purchase events, rating events, timer audits |
 | Projection | Derived read model | Redis server state, Discord feed projection |
 | Runtime | Ephemeral active state | in-memory registry entries, active offers |
@@ -656,13 +644,13 @@ CREATE TABLE chat_formats (
 
 ### `message_config`
 
-The message system is a first-class schema domain.
+The message system is a first-class schema domain where used.
 
 Rules:
 
 - Message identity is typed by key, locale, and platform.
 - Delivery, style, content, placeholder schema, metadata, hash, and timestamps are explicit.
-- PostgreSQL owns durable definitions.
+- PostgreSQL owns durable definitions when the system uses PostgreSQL.
 - Redis may project hot message state.
 - Registry state is a runtime projection.
 - Message synchronization defines durable and projection ordering.
@@ -676,50 +664,30 @@ Rules:
 
 ## PostgreSQL, JPA, and Tavall Database
 
-JPA through `tavall-database` is the normal PostgreSQL repository boundary.
+`tavall-database` owns the PostgreSQL/JPA runtime. Production application code consumes its **entity boundary** or another typed Tavall Database operation; it does not become an `EntityManager`/transaction owner and does not create an application CRUD repository merely to wrap Tavall Database.
 
-Rules:
+Binding rules:
 
-- Configure every managed entity package in the owning database composition.
-- Repositories consume `IPostgresDatabase.jpa()` or `IPostgresJpaContext`.
-- `tavall-database` owns provider bootstrap, transactions, entity managers, read-only enforcement, operation draining, and shared factory lifecycle.
-- Repositories return domain data or explicit persistence results, not entities to normal handlers.
-- Ordinary lookup, insert, update, and delete use typed JPA entities and queries.
-- Native SQL is reserved for database-specific contracts such as PostgreSQL `ON CONFLICT`, JSONB operators, locking, bulk mutation, or aggregation that JPA cannot express cleanly.
-- Every native query has a nearby `Native SQL reason:` comment.
-- Repositories do not create or close shared `EntityManagerFactory` instances.
-- Commands, listeners, controllers, runtime support classes, and gameplay services never open JDBC connections.
-- Production schema changes are migrations; `generateSchema(true)` is test or development behavior only.
+- Project modules declare mapped JPA entities in their owning domain packages.
+- Ordinary entity lookup, save, update, and delete use `IPostgresDatabase.entities()` or the current typed Tavall Database entity surface.
+- Application code must not call `database.jpa().read(...)`, `database.jpa().write(...)`, `IPostgresJpaContext` callbacks, or local equivalents.
+- `tavall-database` owns provider bootstrap, entity discovery, `EntityManager` creation/closure, transaction begin/flush/commit/rollback, locked reads, operation draining, and shared factory lifecycle.
+- Mapped entities own identity, column mapping, typed enum/JSON/timestamp mapping, and named JPQL queries for ordinary domain lookup.
+- Named native operations are allowed only for a documented PostgreSQL contract such as `ON CONFLICT`, JSONB operators, locking, bulk mutation, or aggregation that JPA cannot express cleanly.
+- Every native operation has a nearby `Native SQL reason:` explanation.
+- Multi-entity business changes use an explicit typed Tavall Database operation. If the required operation does not exist, add it to `tavall-database` instead of recreating transaction callbacks in application code.
+- Commands, listeners, controllers, runtime support classes, and gameplay/domain services never open JDBC connections or own transaction callbacks.
+- Production schema changes are migrations; `generateSchema(true)` is test/development behavior only.
 - Runtime `CREATE TABLE IF NOT EXISTS` is prohibited outside explicitly baselined migration debt.
 - PostgreSQL-specific behavior receives PostgreSQL integration coverage.
 
-Production entity: [`NovusWebContentDocumentEntity`](novus-web/src/main/java/org/tavall/novus/web/content/entity/NovusWebContentDocumentEntity.java)
+Application repository rule:
 
-```java
-@Entity
-@Table(name = "novus_web_content_document")
-public class NovusWebContentDocumentEntity {
-    @Id
-    private String documentKey;
+- Do **not** create `Postgres*Repository`, `*Database`, `*Store`, or similar ordinary CRUD wrappers whose only job is forwarding entity lookup/save/update/delete into Tavall Database.
+- A `*Repository` remains valid only when it is a real stable persistence contract beyond ordinary entity CRUD, such as an external provider/substitution boundary or cohesive persistence behavior with its own domain semantics. Even then, it consumes typed Tavall Database operations rather than `.jpa()` callbacks.
+- Existing raw JPA callback wrappers and generic CRUD repositories are migration debt, not production templates.
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb")
-    private JsonNode documentJson;
-}
-```
-
-Production repository boundary: [`PostgresNovusWebContentStore`](novus-web/src/main/java/org/tavall/novus/web/content/PostgresNovusWebContentStore.java)
-
-```java
-return database.jpa().read(entityManager -> Optional.ofNullable(
-        entityManager.find(
-                NovusWebContentDocumentEntity.class,
-                documentKey
-        )
-));
-```
-
-The storage audit baseline tracks existing JDBC, DDL, factory-owner, and native-query debt. Existing debt may shrink; new unapproved debt fails validation.
+Detailed binding rules: [Entity Persistence](code-architecture/ENTITY_PERSISTENCE.md)
 
 ## Redis
 
@@ -771,9 +739,9 @@ Rules:
 - Clear generation-owned state on unload.
 - Callers do not use inherited generic map methods as the domain API.
 
-Production simple registry: [`AccountProviderRegistry`](minecraft-framework/backend-api/src/main/java/org/tavall/api/minecraft/backend/account/provider/AccountProviderRegistry.java)
+Project Novus production simple registry: [`AccountProviderRegistry`](https://github.com/TavallStudios/tavall-project-novus/blob/main/minecraft-framework/backend-api/src/main/java/org/tavall/api/minecraft/backend/account/provider/AccountProviderRegistry.java)
 
-Production indexed registry: [`BattleInstanceRegistry`](minecraft-kingdom-server/src/main/java/org/tavall/minecraft/server/battle/BattleInstanceRegistry.java)
+Project Novus production indexed registry: [`BattleInstanceRegistry`](https://github.com/TavallStudios/tavall-project-novus/blob/main/minecraft-kingdom-server/src/main/java/org/tavall/minecraft/server/battle/BattleInstanceRegistry.java)
 
 Do not:
 
@@ -798,28 +766,29 @@ Rules:
 - Use Tavall Cache live snapshots and filtered invalidation for grouped state instead of maintaining a shadow key map.
 - A cache never becomes durable authority by convenience.
 
-Production TTL cache: [`FFARegionPromptCooldownCache`](novus-ffa/src/main/java/org/tavall/minecraft/ffa/region/cache/FFARegionPromptCooldownCache.java)
+Project Novus production TTL cache: [`FFARegionPromptCooldownCache`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-ffa/src/main/java/org/tavall/minecraft/ffa/region/cache/FFARegionPromptCooldownCache.java)
 
-Production typed grouped cache: [`BattleAbilityCooldownCache`](minecraft-kingdom-server/src/main/java/org/tavall/minecraft/server/battle/BattleAbilityCooldownCache.java)
+Project Novus production typed grouped cache: [`BattleAbilityCooldownCache`](https://github.com/TavallStudios/tavall-project-novus/blob/main/minecraft-kingdom-server/src/main/java/org/tavall/minecraft/server/battle/BattleAbilityCooldownCache.java)
 
-Small bounded helper indexes may remain focused helpers when they have explicit add, remove, and snapshot ownership and store no durable identity. [`OnlinePlayerNameCompletionCache`](minecraft-framework/backend-api/src/main/java/org/tavall/api/minecraft/backend/identity/OnlinePlayerNameCompletionCache.java) is the current narrow example.
+Small bounded helper indexes may remain focused helpers when they have explicit add, remove, and snapshot ownership and store no durable identity. [`OnlinePlayerNameCompletionCache`](https://github.com/TavallStudios/tavall-project-novus/blob/main/minecraft-framework/backend-api/src/main/java/org/tavall/api/minecraft/backend/identity/OnlinePlayerNameCompletionCache.java) is the current narrow example.
 
 Do not hide an unbounded map inside a handler and call it temporary.
 
 ## Repositories
 
-Repositories own persistence mechanics.
+Repositories are **exceptional domain persistence contracts**, not Tavall's default persistence mechanics.
+
+Use a repository only when the application genuinely needs a stable persistence substitution/domain boundary beyond ordinary Tavall Database entity operations, for example an external provider family or a cohesive persistence capability with meaning that is not equivalent to generic CRUD.
 
 Rules:
 
-- Depend on repository interfaces across substitution boundaries.
-- Use Tavall Database-provided JPA and lifecycle.
-- Own transactions, queries, entity mapping, idempotency, and failure translation.
-- Keep database-specific native operations narrow and documented.
+- Ordinary PostgreSQL entity CRUD goes directly through the typed Tavall Database entity boundary from the owning data/persistence behavior.
+- Do not create a repository merely to wrap `find`, `save`, `update`, or `delete` on `IPostgresDatabase.entities()`.
+- A real repository consumes typed Tavall Database or external-provider operations; it does not own `EntityManager`, transaction callbacks, JDBC, schema creation, or shared factory lifecycle.
+- Repository methods expose domain persistence behavior, not generic storage mechanics.
+- Keep database-specific native operations narrow, typed, and documented upstream at the Tavall Database/entity boundary.
 - Return domain data or explicit persistence results.
-- Do not send messages, mutate Bukkit objects, or decide gameplay outcomes.
-- Do not own shared factory shutdown.
-- Do not create schema at runtime.
+- Do not send messages, mutate platform objects, or decide unrelated gameplay/product outcomes.
 
 ## Files
 
@@ -841,17 +810,17 @@ Rules:
 
 ## Storage Classification
 
-Every map-like field is classified by behavior:
+Every map-like or keyed-state field is classified by behavior:
 
-1. State that must survive restart uses a repository.
+1. State that must survive restart uses a mapped entity or typed durable operation through Tavall Database (or another explicitly selected durable provider).
 2. Disposable or reloadable state with expiry, misses, or staleness uses a cache.
 3. Loaded definitions, providers, strategies, sessions, or current runtime ownership use a registry.
 4. Parallel indexes use an indexed registry or one aggregate.
-5. Futures, scheduled tasks, pending writes, queues, and cancellation handles remain operation state with explicit teardown.
+5. Futures, scheduled tasks, pending writes, queues, and cancellation handles remain typed operation/runtime state with explicit teardown; they do not gain an ordinary-consumer raw-map exception.
 6. Static immutable lookup tables and DTO metadata remain immutable collections.
-7. In-memory repository substitutes remain repositories.
+7. In-memory repository substitutes remain repositories only when a real repository contract exists; they are not a reason to create a repository around ordinary Tavall Database entity CRUD.
 
-The validation runner prints loose map candidates as cache-shaped, registry-shaped, operation state, or review-required state.
+The validation runner may print loose map candidates as cache-shaped, registry-shaped, operation state, durable-state, or review-required state.
 
 ## Cross-Storage Mutation
 
@@ -859,7 +828,7 @@ For PostgreSQL-authoritative mutation, the normal order is:
 
 ```text
 validate
-  -> commit PostgreSQL
+  -> commit through Tavall Database
   -> update or invalidate Redis/cache/registry
   -> publish typed result or event
 ```
@@ -989,23 +958,23 @@ Use unit tests for:
 
 Use integration tests for:
 
-- PostgreSQL and JPA behavior.
+- Tavall Database entity operations and PostgreSQL-specific behavior.
 - Redis behavior.
 - DI map registration and cleanup.
 - Registry index rollback.
 - Cache TTL, live snapshots, and grouped invalidation.
 - Module loading and unloading.
-- Paper and Velocity adapters when practical.
+- Platform adapters when practical.
 
 ### Simulation Tests
 
 Use simulation for:
 
-- Full plugin lifecycles.
-- Combat and rating flows.
+- Full plugin or application lifecycles.
+- Combat and rating flows where applicable.
 - Timers and retries.
 - Distributed routing.
-- Player join, quit, reconnect, transfer, and cleanup.
+- Join, quit, reconnect, transfer, and cleanup flows where applicable.
 
 Rules:
 
@@ -1019,12 +988,13 @@ Rules:
 
 ## Extended Architecture Chapters
 
-The chapter directory retains detailed examples and specialized rules. This document remains the binding authority.
+The chapter directory retains detailed examples and specialized rules. This document remains the binding shared authority.
 
 | Chapter | Extended detail |
 | --- | --- |
 | [Dependency Injection and Orchestration](code-architecture/DEPENDENCY_INJECTION_AND_ORCHESTRATION.md) | Module scopes, cleanup, compatibility, and orchestration |
-| [Registries, Caches, and Repositories](code-architecture/REGISTRIES_CACHES_AND_REPOSITORIES.md) | State classification, production examples, JPA, indexed registries, cache TTL, failure, and migration rules |
+| [Entity Persistence](code-architecture/ENTITY_PERSISTENCE.md) | Tavall Database entity boundary, query ownership, transaction ownership, and application repository removal |
+| [Registries, Caches, and Repositories](code-architecture/REGISTRIES_CACHES_AND_REPOSITORIES.md) | State classification, production examples, registries, cache TTL, failure, and durable-state migration rules |
 | [Testing and Git Discipline](code-architecture/TESTING_AND_GIT.md) | Test structure, commit boundaries, and branch expectations |
 
 ## Architecture Review Checklist
@@ -1032,10 +1002,9 @@ The chapter directory retains detailed examples and specialized rules. This docu
 Before accepting a change, confirm:
 
 - [ ] The owning module and package are correct.
-- [ ] Shared code does not import platform adapter types.
-- [ ] Interfaces and handler packages follow the owning child-package rules.
+- [ ] Shared code does not import unrelated platform adapter types.
+- [ ] Interfaces exist for real contracts/substitution or DI boundaries, not merely because a concrete class exists.
 - [ ] Class and method names describe exact roles and actions.
-- [ ] Dependency-injected behavior depends on interfaces where a real substitution boundary exists.
 - [ ] Managed concretes use `@DelegatesTo`; their concrete token is implicit.
 - [ ] Every additional delegated token is assignable from the concrete.
 - [ ] New DI code does not require injectable marker interfaces.
@@ -1047,25 +1016,26 @@ Before accepting a change, confirm:
 - [ ] Tavall-managed application dependencies are not constructor-injected into ordinary production behavior classes.
 - [ ] Static calls do not locate, cache, or own Tavall-managed runtime dependencies; allowed statics stay pure or construction-only.
 - [ ] Constructor parameters are limited to object state, configuration, builder inputs, or genuinely externally owned handles outside the Tavall DI dependency graph.
-- [ ] Builders build or assemble; they do not save, authorize, or become service locators.
-- [ ] Handlers, routers, commands, and listeners retain their distinct responsibilities.
+- [ ] Builders construct typed output; they do not persist, register managed behavior, wire Tavall dependencies, authorize, or become service locators.
+- [ ] Domain handlers, services, orchestrators, routers, commands/controllers, and listeners retain their distinct responsibilities.
 - [ ] Tavall tools are reused instead of recreated.
-- [ ] Every loose map is classified as registry, cache, operation state, immutable snapshot, or repository substitute.
+- [ ] Every loose map is classified as registry, cache, typed operation/runtime state, immutable snapshot, or durable state.
 - [ ] Runtime keyed state uses typed registries or caches.
+- [ ] Operation-state collections live only inside a dedicated typed operation/runtime owner with explicit teardown.
 - [ ] Parallel indexes mutate through `AbstractIndexedRegistry` or one aggregate.
 - [ ] Cache TTL, misses, live snapshots, invalidation, and lifecycle ownership are explicit.
-- [ ] JPA through Tavall Database is the normal PostgreSQL boundary.
-- [ ] Native SQL has a nearby database-specific reason.
+- [ ] Ordinary PostgreSQL CRUD uses the Tavall Database entity boundary rather than application `.jpa()` callbacks or generic CRUD repositories.
+- [ ] Application code does not own `EntityManager`, transaction callbacks, JDBC, provider bootstrap, or shared persistence factory lifecycle.
+- [ ] Native SQL has a nearby database-specific reason and stays at the mapped entity/typed Tavall Database boundary.
 - [ ] Runtime code does not create schema or open JDBC connections.
-- [ ] Repositories do not create or close shared persistence factories.
+- [ ] Repositories exist only for real domain persistence/substitution boundaries beyond ordinary entity CRUD.
 - [ ] Durable, cached, distributed, runtime, and file authority are explicit.
-- [ ] PostgreSQL, Redis, registries, caches, repositories, and files follow documented ownership.
 - [ ] Cross-storage ordering and recovery are defined.
-- [ ] Async work does not block Paper or Velocity threads.
+- [ ] Async work does not block latency-sensitive platform/event threads.
 - [ ] Lifecycle, cancellation, recovery, cleanup, and rollback behavior are defined.
 - [ ] Requests, results, keys, states, and expected failures are typed.
 - [ ] Validation happens before mutation.
 - [ ] Tests exercise real contracts and meaningful boundaries.
 - [ ] Exact validation and remaining gaps are recorded honestly.
-- [ ] Java examples link to real checked-in classes.
+- [ ] Java examples are real production excerpts or explicitly marked canonical examples.
 - [ ] Documentation ownership and links remain valid.

@@ -1,24 +1,21 @@
-# Project Novus Handler Patterns
+# Tavall Handler Patterns
 
 > **Status:** Active  
-> **Authority:** Binding chapter of [Project Novus Code Architecture](../CODE_ARCHITECTURE.md)  
-> **Applies to:** All Project Novus modules, contributors, automation, generated code, and AI-assisted development
+> **Authority:** Binding chapter of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
+> **Applies to:** Tavall production modules, contributors, automation, generated code, reviews, and AI-assisted development
 
-This chapter is separated for navigation only. Its rules are part of the authoritative Project Novus code architecture and are not optional supplemental guidance.
+## Domain Handler Pattern
 
-### Handler Pattern
+A domain handler owns one focused behavior or operation family.
 
-Handlers are the default behavior classes for Project Novus game systems.
+Handlers are a common/default Tavall behavior role when the behavior is narrower than a reusable Service capability and does not primarily represent routing, resolution, persistence infrastructure, caching, registry ownership, or orchestration.
 
-Most game behavior is handling input, data, state, commands, events, GUI actions, or player actions.
+A domain handler may own the rule it exists to implement. It should not absorb unrelated policies or the storage mechanics of its collaborators.
 
-That means handlers are usually better than service classes.
-
-#### Bad Handler Pattern
+Bad:
 
 ```java
 public final class RankCommand {
-
     public void execute(Player staff, Player target, String rankName) {
         if (staff.isOp()) {
             target.setDisplayName(rankName);
@@ -29,179 +26,139 @@ public final class RankCommand {
 
 ##### Why
 
-The command owns the rule.
+The command owns reusable rank/authority behavior, uses raw input, and mutates platform state directly. The external input surface became the domain rule merely because it received the command first.
 
-The rank is a raw string.
-
-The permission check is fake.
-
-The command mutates player state directly.
-
-This is less architecture and more vibes with a keyboard.
-
-#### Good Handler Pattern
+Good shape:
 
 ```java
-public final class RankUpdateHandler {
+@DelegatesTo(IRankUpdateHandler.class)
+public final class RankUpdateHandler
+        implements IRankUpdateHandler,
+        DependencyAccess<
+                IPlayerAccountDataHandler,
+                IPowerLevelHandler,
+                IPlayerRankDataHandler
+        > {
 
-    private final PlayerAccountDataHandler playerAccountDataHandler;
-    private final PowerLevelHandler powerLevelHandler;
-    private final PlayerRankDataHandler playerRankDataHandler;
-    private final PlayerAccountCache playerAccountCache;
+    @Override
+    public RankUpdateResult updatePlayerRank(
+            RankUpdateRequest request
+    ) {
+        IDependencyMap dependencies = getInstance();
 
-    public CommandResult updatePlayerRank(RankUpdateRequest rankUpdateRequest) {
-        UUID staffUUID = rankUpdateRequest.getStaffUUID();
-        UUID targetUUID = rankUpdateRequest.getTargetUUID();
+        PlayerAccountData staff = dependencies
+                .iPlayerAccountDataHandler()
+                .load(request.staffUUID());
 
-        PlayerAccountData staffAccountData = playerAccountDataHandler.loadPlayerAccountData(
-            staffUUID
-        );
+        PlayerAccountData target = dependencies
+                .iPlayerAccountDataHandler()
+                .load(request.targetUUID());
 
-        PlayerAccountData targetAccountData = playerAccountDataHandler.loadPlayerAccountData(
-            targetUUID
-        );
-
-        boolean canRankEdit = powerLevelHandler.canRankEdit(
-            staffAccountData,
-            targetAccountData
-        );
-
-        if (!canRankEdit) {
-            return CommandResult.targetTooPowerful();
+        if (!dependencies.iPowerLevelHandler().canRankEdit(staff, target)) {
+            return RankUpdateResult.targetTooPowerful();
         }
 
-        playerRankDataHandler.updatePlayerRankData(rankUpdateRequest);
-        playerAccountCache.refreshPlayerAccountData(targetUUID);
+        dependencies
+                .iPlayerRankDataHandler()
+                .updatePlayerRankData(request);
 
-        return CommandResult.success();
+        return RankUpdateResult.success();
     }
 }
 ```
 
 ##### Why
 
-The handler coordinates the behavior.
+The handler owns one rank-update operation, declares its capabilities through Tavall DI, and delegates data policy/authority sub-rules to focused boundaries. It does not own their backing collections or transaction mechanics.
 
-The request object carries the input.
+## Input Adapter Pattern
 
-The power-level handler owns the authority check.
+Commands, listeners, controllers, GUI actions, plugin messages, and other external-input surfaces are adapters.
 
-The data handler updates rank data.
+They should:
 
-The cache refresh is explicit.
+1. receive transport/platform input;
+2. resolve/build typed operation input;
+3. call the domain handler/service/orchestrator;
+4. adapt the typed result back to the surface.
 
-#### Input Handler Pattern
+They should not perform durable I/O directly or become the reusable domain rule.
 
-Input handlers receive external input and convert it into internal requests.
+##### Why
 
-Examples:
+Transport syntax and lifecycle change independently from domain behavior. Thin adapters let the same behavior serve multiple surfaces and keep platform-specific failure/cancellation concerns at the edge.
 
-* Commands
-* Paper events
-* GUI clicks
-* Chat input
-* Plugin messages
+## Data Handler Pattern
 
-Bad:
+A data handler owns reusable **data policy** when policy exists, such as:
+
+- Tavall Database entity + cache coordination;
+- domain/entity mapping;
+- dirty-state/retry behavior;
+- batching/retention;
+- one consistent load/save/update policy used by several consumers.
+
+A data handler is not mandatory around every entity operation.
+
+Example:
 
 ```java
-public final class PlayerJoinListener {
+@DelegatesTo(IPlayerAccountDataHandler.class)
+public final class PlayerAccountDataHandler
+        implements IPlayerAccountDataHandler,
+        DependencyAccess<IPostgresDatabase> {
 
-    public void onJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
+    @Override
+    public PlayerAccountData load(UUID playerUUID) {
+        Optional<PlayerAccountEntity> entity = getInstance()
+                .entities()
+                .find(PlayerAccountEntity.class, playerUUID);
 
-        player.sendMessage("Welcome");
-        player.setDisplayName("Subject");
-        database.save(player.getName());
+        return entity
+                .map(PlayerAccountData::fromEntity)
+                .orElse(null);
     }
 }
 ```
 
 ##### Why
 
-The listener owns too much behavior.
+A data handler is useful when it centralizes real data behavior. A class that only forwards one `database.entities().find()` call adds no policy and should not exist by habit.
 
-It sends messages, mutates display state, and saves data directly.
+Data handlers do not decide unrelated product/gameplay authorization merely because they perform the eventual write.
 
-That makes the listener hard to test and easy to break.
+## Metadata Handler Pattern
 
-Good:
+A metadata handler resolves, refreshes, validates, enriches, or exposes derived metadata.
 
-```java
-public final class PlayerJoinListener {
+It does not mutate primary durable data unless the class is explicitly a different persistence/domain behavior owner.
 
-    private final PlayerJoinHandler playerJoinHandler;
-
-    public void onJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-
-        playerJoinHandler.loadPlayerAccountData(player);
-        playerJoinHandler.sendWelcomeMessage(player);
-        playerJoinHandler.refreshPlayerTabFormat(player);
-    }
-}
-```
-
-##### Why
-
-The listener receives input.
-
-The handler owns the behavior.
-
-The method names say what actions happen after join.
-
-No `handlePlayerJoin()` nonsense. The class already said that part.
-
-#### Data Handler Pattern
-
-Data handlers move normal data between storage and the codebase.
-
-They may call database classes and builders.
-
-They should not run gameplay rules.
-
-Bad:
+Example shape:
 
 ```java
-public final class PlayerAccountDataHandler {
+@DelegatesTo(IPlayerRankMetaDataHandler.class)
+public final class PlayerRankMetaDataHandler
+        implements IPlayerRankMetaDataHandler,
+        DependencyAccess<
+                IPlayerAccountDataHandler,
+                IRankRegistry
+        > {
 
-    public void updateRank(UUID staffUUID, UUID targetUUID, RankKey rankKey) {
-        boolean staffIsAllowed = permissionHandler.canRankEdit(
-            staffUUID,
-            targetUUID
-        );
+    public PlayerRankMetaData load(UUID playerUUID) {
+        IDependencyMap dependencies = getInstance();
+        PlayerAccountData account = dependencies
+                .iPlayerAccountDataHandler()
+                .load(playerUUID);
 
-        if (!staffIsAllowed) {
-            return;
-        }
+        RankDefinition definition = dependencies
+                .iRankRegistry()
+                .find(account.rankKey())
+                .orElseThrow();
 
-        playerAccountDatabase.updateRank(targetUUID, rankKey);
-    }
-}
-```
-
-##### Why
-
-The data handler is running authority rules.
-
-That belongs in a behavior handler.
-
-Data handlers should move data. They should not decide whether the action is allowed.
-
-Good:
-
-```java
-public final class PlayerRankDataHandler {
-
-    private final PlayerRankDatabase playerRankDatabase;
-
-    public void updatePlayerRankData(RankUpdateRequest rankUpdateRequest) {
-        UUID targetUUID = rankUpdateRequest.getTargetUUID();
-        RankKey rankKey = rankUpdateRequest.getRankKey();
-
-        playerRankDatabase.updatePlayerRank(
-            targetUUID,
-            rankKey
+        return new PlayerRankMetaData(
+                account.rankKey(),
+                definition.displayName(),
+                definition.color()
         );
     }
 }
@@ -209,66 +166,29 @@ public final class PlayerRankDataHandler {
 
 ##### Why
 
-The data handler updates data.
+Metadata is derived state with its own refresh/rebuild behavior. Keeping primary mutation elsewhere prevents a display refresh from quietly becoming a durable write path.
 
-It does not decide if the staff member is allowed to do it.
+## Handler Ownership Rules
 
-The behavior handler should already have made that decision.
+Handlers may coordinate focused dependencies, but they do not:
 
-#### MetaData Handler Pattern
-
-MetaData handlers resolve, refresh, and expose metadata.
-
-They should not save primary data unless explicitly designed to.
-
-Bad:
-
-```java
-public final class PlayerRankMetaDataHandler {
-
-    public void setRank(UUID playerUUID, RankKey rankKey) {
-        playerRankDatabase.updatePlayerRank(playerUUID, rankKey);
-    }
-}
-```
+- constructor-capture Tavall-managed collaborators;
+- statically locate Tavall-managed services;
+- own mutable registry/cache-shaped maps;
+- open JDBC/EntityManager/transaction callbacks;
+- create generic CRUD repository/database wrappers;
+- absorb routing/scheduling/lifecycle behavior that belongs in an Orchestrator/Router/Runtime;
+- hide several unrelated operations behind one generic `handle()` method.
 
 ##### Why
 
-This is changing primary player data.
+Handlers remain easy to understand only while their operation boundary is visible. Once they become dependency containers, storage owners, routers, and schedulers simultaneously, `Handler` is just `Manager` with better public relations.
 
-A metadata handler should not own rank writes.
+## Review Checklist
 
-It should resolve or refresh metadata built from that rank data.
-
-Good:
-
-```java
-public final class PlayerRankMetaDataHandler {
-
-    private final PlayerAccountDataHandler playerAccountDataHandler;
-    private final RankRegistry rankRegistry;
-    private final PlayerRankMetaDataBuilder playerRankMetaDataBuilder;
-
-    public PlayerRankMetaData loadPlayerRankMetaData(UUID playerUUID) {
-        PlayerAccountData playerAccountData = playerAccountDataHandler.loadPlayerAccountData(
-            playerUUID
-        );
-
-        RankKey rankKey = playerAccountData.getRankKey();
-        RankDefinition rankDefinition = rankRegistry.getRankDefinition(rankKey);
-
-        PlayerRankMetaData playerRankMetaData = playerRankMetaDataBuilder.buildPlayerRankMetaData(
-            playerAccountData,
-            rankDefinition
-        );
-
-        return playerRankMetaData;
-    }
-}
-```
-
-##### Why
-
-The metadata handler loads source data, resolves the rank definition, and builds metadata.
-
-It does not mutate the player rank.
+- [ ] The handler owns one focused behavior/data/metadata responsibility.
+- [ ] Input adapters remain thin and delegate reusable rules.
+- [ ] Managed collaborators resolve through Tavall DI.
+- [ ] Durable operations use Tavall Database/data policy rather than local transaction/database wrappers.
+- [ ] No consumer-owned mutable keyed store is hidden in the handler.
+- [ ] A Service/Orchestrator/Router/Resolver/Registry/Cache is used when that role is more accurate.

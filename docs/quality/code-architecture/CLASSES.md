@@ -1,488 +1,217 @@
-# Project Novus Class Roles
+# Tavall Class Roles
 
 > **Status:** Active  
-> **Authority:** Binding chapter of [Project Novus Code Architecture](../CODE_ARCHITECTURE.md)  
-> **Applies to:** All Project Novus modules, contributors, automation, generated code, and AI-assisted development
+> **Authority:** Binding chapter of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
+> **Applies to:** Tavall production modules, contributors, automation, generated code, reviews, and AI-assisted development
 
-This chapter is separated for navigation only. Its rules are part of the authoritative Project Novus code architecture and are not optional supplemental guidance.
+Classes should have one coherent reason to change. Role suffixes are architectural contracts, not decorative nouns added after the implementation is already a small government.
 
-## Classes
+## Class Rules
 
-### Class Rules
+A class should primarily do one of these things:
 
-Classes should have one clear job.
+- hold typed data/state;
+- construct typed values;
+- perform focused domain behavior;
+- adapt external input;
+- coordinate an ordered workflow;
+- resolve/format/route a typed value;
+- own runtime registry/cache state;
+- request durable operations through the owning persistence boundary;
+- provide focused platform adaptation or pure utility behavior.
 
-A class should either:
+Avoid vague names such as `Manager`, `Helper`, `Common`, or `Misc`.
 
-* Hold data.
-* Build data.
-* Handle input.
-* Coordinate behavior.
-* Talk to storage.
-* Provide shared utility behavior.
+##### Why
 
-Do not mix all of those together because then we have invented `EverythingManager`, and civilization loses again.
+A class name and role should predict what the class is allowed to own. When storage, presentation, validation, routing, lifecycle, and data construction accumulate in one type, callers can no longer tell where a rule belongs or which lifecycle owns the state.
 
-Rules:
+## Naming Rules
 
-* Avoid vague class names like `Manager`, `Helper`, `Common`, or `Misc`.
-* Prefer clear names based on the class role.
-* Keep data classes separate from behavior classes.
-* Keep metadata classes separate from normal data classes.
-* Inner classes should be avoided unless they improve clarity.
-* Services should own reusable system behavior, not event-specific routing.
-* Handlers should receive input and delegate work.
-* Builders should create objects, not save them.
-* Database classes should only handle persistence.
-* Cache classes should only handle cached state.
+- Name the domain subject and role: `PlayerRankMetaDataHandler`, not `MetaHandler`.
+- Preserve established acronyms such as `UUID`, `UI`, `HTTP`, `JSON`, and `Redis`.
+- Match interface/implementation names where practical: `ITimerResolver` / `TimerResolver`.
+- Platform names appear only when the class owns that platform boundary.
+- Reusable data/request/result/state/definition/metadata types remain top-level records/classes.
+- Rename when responsibility becomes materially clearer, not merely because a newer suffix feels fashionable.
 
-### Class Naming Rules
+##### Why
 
-* Use names that identify both the domain subject and the class role.
-* Preserve established acronym capitalization, such as `UUID`, `UI`, `HTTP`, `JSON`, and `Redis`.
-* Match interface and implementation names where practical: `ITimerResolver` and `TimerResolver`.
-* Suffixes are contracts. A `Repository` persists, a `Cache` caches, a `Resolver` derives, and a `Renderer` renders.
-* Platform names appear only when the class owns that platform boundary, such as `PaperWorldSnapshotGateway` or `VelocityServerRoutingHandler`.
-* Reusable domain, request, result, state, definition, and metadata types remain top-level classes or records.
-* Do not rename a class merely to follow fashion. Rename when responsibility becomes materially clearer.
+Precise names make ownership visible before a file is opened and give architecture tests/reviewers useful signals. A class called `Cache` that performs durable persistence or a `Builder` that wires services is immediately suspicious instead of merely unconventional.
 
-### Inner Classes
+## Domain Handler
 
-Avoid inner classes when they reduce clarity.
-
-Inner classes are only acceptable when the class is small, private to the parent, and has no value outside that parent.
-
-Do not use inner classes for domain data, metadata, services, handlers, builders, or anything likely to be reused.
-
-#### Example
-
-Bad:
-
-```java
-public final class PlayerAccountService {
-
-    private static final class RankData {
-
-        private final RankKey rankKey;
-
-        private RankData(RankKey rankKey) {
-            this.rankKey = rankKey;
-        }
-    }
-}
-```
-
-Good:
-
-```java
-public final class PlayerRankData {
-
-    private final RankKey rankKey;
-
-    public PlayerRankData(RankKey rankKey) {
-        this.rankKey = rankKey;
-    }
-
-    public RankKey getRankKey() {
-        return rankKey;
-    }
-}
-```
-
-The good version is easier to find, test, reuse, and document.
-
-### Behaviour Classes
-
-Behavior classes do work.
-
-They should act on data objects, metadata objects, repositories, services, handlers, builders, or caches.
-
-They should not pretend to be data containers.
-
-#### Behavior Class Data Flow
-
-Player account rank load flow:
-
-```text
-Database
-  -> PlayerAccountDataHandler
-  -> PlayerAccountDataBuilder
-  -> PlayerAccountData
-  -> PlayerRankMetaDataBuilder
-  -> PlayerRankMetaData
-  -> PlayerRankMetaDataHandler
-  -> PlayerAccountService
-  -> PlayerJoinHandler / RankCommandHandler / TabHandler
-```
-
-Example:
-
-```text
-player_account.rank_key
-  -> loaded from database
-  -> converted into PlayerAccountData
-  -> converted into PlayerRankMetaData
-  -> cached in the player account service
-  -> used by chat, tab, permissions, and staff tools
-```
-
-Write/update flow:
-
-```text
-RankCommandHandler
-  -> PlayerAccountService
-  -> PlayerAccountDataHandler
-  -> Database
-  -> Cache
-  -> TabHandler / ChatHandler refresh
-```
-
-Example:
-
-```text
-Admin changes player rank
-  -> command handler receives request
-  -> service validates permission and power level
-  -> data handler saves new rank
-  -> cache updates player account data
-  -> tab and chat visuals refresh
-```
-
-#### Service Classes
-
-Handlers are the default behavior classes for Project Novus game systems.
-
-Most game behavior is handling input, data, state, commands, events, GUI actions, or player actions.
-
-That means handlers are usually better than service classes.
-
-Only use service classes for actual long-running services, like a match-making service.
-
-#### Handler Classes
-
-Handler classes receive input and delegate behavior.
+A domain `*Handler` owns one focused behavior or operation/input family.
 
 Examples:
 
 ```text
-PlayerJoinHandler
-RankCommandHandler
-ChatMessageHandler
-PunishmentCommandHandler
+RankUpdateHandler
+AchievementCompletionHandler
+MessageRenderHandler
 ```
 
-Handlers should not contain core rules.
+A domain handler **may own core rules for that focused behavior**. It should not absorb unrelated rules, durable storage mechanics, raw cache/registry collections, or platform input parsing.
 
-Bad:
+##### Why
 
-```java
-if (staffPower > targetPower) {
-    target.setRank(newRank);
-}
-```
+“Handlers should never contain core rules” was too broad and conflicted with Tavall's default behavior pattern. The useful distinction is between a domain handler, which exists to implement focused behavior, and an input adapter/listener/command, which should not become the reusable domain rule merely because it received the event first.
 
-Good:
+## Input Adapters, Commands, and Listeners
 
-```java
-boolean canRankEdit = powerLevelService.canRankEdit(staffProfile, targetProfile);
+Commands, controllers, listeners, and other platform adapters receive external input, build/resolve typed operation input, delegate to domain behavior, and adapt the result back to the platform.
 
-if (!canRankEdit) {
-    return CommandResult.targetTooPowerful();
-}
+They should not own reusable domain policy, persistence mechanics, or keyed runtime stores.
 
-rankService.setRank(targetProfile, newRank);
-```
+##### Why
 
-#### Data Handler Classes
+Platform input changes for different reasons than the domain rule. Keeping the adapter thin allows the same behavior to serve game, web, Discord, jobs, tests, or future surfaces without importing each surface's event model.
 
-Data handler classes move normal data between storage and the codebase.
+## Service
 
-Examples:
+A `*Service` provides a cohesive reusable domain capability shared by multiple consumers.
+
+Examples may include:
 
 ```text
-PlayerAccountDataHandler
-PunishmentDataHandler
-RankDataHandler
+CurrencyService
+StorageService
+FarmProductionService
 ```
 
-They should load, save, update, and delete data.
+A service is **not** defined by being “long-running.” Lifecycle may matter for some services, but the defining property is a coherent reusable capability broader than one focused operation/input family.
 
-They should not run gameplay rules.
+Do not use `Service` as the default suffix for arbitrary logic. Prefer a Handler, Resolver, Registry, Cache, Orchestrator, Router, etc. when that role is more exact.
 
-#### Meta Data Classes
+##### Why
 
-Metadata classes hold derived or display-ready information.
+Using runtime duration as the Service test produced contradictory guidance: capability classes such as permission/currency services can be valid without being daemons, while a long-lived object may actually be a Runtime, Registry, or Cache. Responsibility is a better classification than how long the object happens to exist.
 
-Metadata is usually built from normal data.
+## Orchestrator
 
-Example:
+A `*Orchestrator` coordinates ordered work/lifecycle across several focused collaborators.
 
-```text
-PlayerAccountData
-  -> PlayerRankMetaData
-```
+It owns:
 
-`PlayerAccountData` may store:
+- sequencing;
+- operation lifecycle;
+- cross-boundary coordination;
+- startup/shutdown/compensation when those are part of the workflow.
 
-```text
-uuid
-name
-rankKey
-powerLevel
-```
+It does not absorb collaborator rules, caches, registries, persistence mechanics, or storage maps.
 
-`PlayerRankMetaData` may expose:
+##### Why
 
-```text
-rank display name
-rank color
-tab format
-chat format
-power level
-```
+Sequencing across several focused boundaries is real behavior. Without one owner it leaks into commands, listeners, schedulers, or oversized handlers until each surface performs a slightly different workflow.
 
-#### Meta Data Handler Classes
+## Data and State
 
-Metadata handler classes resolve, refresh, or expose metadata.
+`*Data`, `*State`, `*Request`, `*Result`, and `*MetaData` are typed values.
 
-Examples:
+They do not resolve Tavall-managed dependencies, open databases, mutate caches/registries, schedule work, or become hidden service objects.
 
-```text
-PlayerRankMetaDataHandler
-ChatFormatMetaDataHandler
-TabFormatMetaDataHandler
-```
+Metadata is derived/resolved/display-ready state and should normally be rebuildable from its source data/definitions.
 
-They should not save primary data unless explicitly designed to.
+##### Why
 
-#### Builder Classes
+A data value should remain understandable as a value. If reading it can perform I/O or reach runtime services, passing the object across a boundary also passes hidden behavior and failure modes.
 
-Builder classes create objects.
+## Data Handler
 
-They should not save objects, cache objects, or run permission checks.
+A `*DataHandler` owns domain data load/save/update policy when application code needs a focused data boundary.
 
-##### Data Builder Classes
+It may coordinate Tavall Database entity operations and cache behavior when that coordination is the data policy. It does not own unrelated gameplay/product authorization rules.
 
-Data builders create data objects from raw input.
+Do not require a DataHandler for every entity. If ordinary behavior can correctly use the typed Tavall Database entity boundary directly without duplicating cache/persistence policy, another wrapper adds no value.
 
-Example:
+##### Why
 
-```java
-UUID playerUUID = resultSet.getObject("uuid", UUID.class);
-String playerName = resultSet.getString("name");
-RankKey rankKey = RankKey.valueOf(resultSet.getString("rank_key"));
+Data policy is useful when several callers need the same cache/load/save/retry behavior. It is not useful as mandatory ceremony around every `database.entities().find(...)`.
 
-PlayerAccountData playerAccountData = playerAccountDataBuilder.build(
-    playerUUID,
-    playerName,
-    rankKey
-);
-```
+## MetaData Handler
 
-##### Meta Data Builder Classes
+A `*MetaDataHandler` derives, refreshes, validates, enriches, or exposes metadata when that work is behavior rather than passive construction.
 
-Metadata builders create metadata from normal data.
+It should not mutate primary durable data merely because the metadata came from it.
 
-Example:
+##### Why
 
-```java
-RankKey rankKey = playerAccountData.getRankKey();
-RankDefinition rankDefinition = rankRegistry.get(rankKey);
+Metadata derivation and primary persistence have different authority. Combining them means a presentation refresh can unexpectedly become a durable mutation path.
 
-PlayerRankMetaData rankMetaData = playerRankMetaDataBuilder.build(
-    playerAccountData,
-    rankDefinition
-);
-```
+## Builder
 
-#### Behavior Interfaces
+A `*Builder` constructs one explicit typed output. Builders do not save, cache, register managed behavior, schedule, authorize, orchestrate, or resolve Tavall-managed dependencies.
 
-Behavior interfaces should describe a usable contract.
+Runtime/bootstrap composition is not a builder pattern even when legacy production classes still use `*RuntimeBuilder` names.
 
-Prefer interface names that match the concrete class with an `I` prefix.
+##### Why
 
-Examples:
+Construction should be deterministic from explicit inputs. Once a builder performs runtime composition or I/O, object creation becomes a hidden workflow with lifecycle/failure behavior callers cannot infer from `build()`.
 
-```text
-IPowerLevelService -> PowerLevelService
-IRankService -> RankService
-IPlayerAccountDataHandler -> PlayerAccountDataHandler
-```
+## Registry
 
-Use interfaces for dependency-injected behavior.
+A `*Registry` owns typed keyed runtime identity/lookup state and exposes domain methods rather than a generic mutable-map API.
 
-Do not create interfaces for tiny data objects just to worship abstraction like it owes us money.
+Use Tavall Registry and `AbstractIndexedRegistry` where appropriate.
 
-### Static Classes
+##### Why
 
-Static classes should be rare.
+Runtime keyed state needs duplicate, replacement, indexing, snapshot, and cleanup policy. A dedicated registry gives those invariants one owner instead of scattering maps through behavior classes.
 
-Use static classes only for focused, stateless utility behavior.
+## Cache
 
-Good:
+A `*Cache` owns disposable/reloadable/expiring fast-access state using Tavall Cache.
 
-```text
-ChatColorUtil
-UUIDUtil
-TimeFormatUtil
-```
+A cache is not durable truth unless a narrower architecture explicitly assigns that authority, which should be rare and loudly documented.
 
-Bad:
+##### Why
 
-```text
-PlayerUtil
-ServerUtil
-CommonUtil
-MiscUtil
-```
+Eviction, expiration, restart, and invalidation must be safe. If losing a cache entry means losing authoritative data, the thing was not merely a cache.
 
-Static classes should not hold mutable system state.
+## Persistence Classes
 
-### Data Object Classes
+Tavall Database owns normal PostgreSQL/JPA persistence mechanics.
 
-Data object classes hold normal persisted or runtime data.
+Do **not** create `PlayerAccountDatabase`, `PostgresPlayerRepository`, `PlayerStore`, or similar generic CRUD wrappers whose only role is forwarding ordinary entity operations.
 
-They should not contain business behavior.
+Mapped entities own mapping/query definitions. Application code uses `database.entities()` or another typed Tavall Database operation.
 
-Examples:
+A `*Repository` is reserved for a real stable domain persistence/substitution contract beyond ordinary Tavall Database entity CRUD.
 
-```text
-PlayerAccountData
-PunishmentData
-RankData
-PermissionNodeData
-```
+##### Why
 
-Data objects may contain small validation or getters, but should not talk to services, databases, commands, or caches.
+Generic database/repository wrappers duplicate Tavall Database and create additional places for query, transaction, exception, and lifecycle behavior to diverge. A persistence class earns its existence only when it owns a real contract Tavall Database does not already provide directly.
 
-### Meta Data Object Classes
+## Utility Classes
 
-Metadata object classes hold derived, resolved, or display-ready data.
+Pure Java utility classes are focused, stateless, final, and have no hidden runtime dependencies.
 
-Examples:
+Platform/application utility behavior that touches runtime state remains a DI-managed adapter/capability rather than a static global helper.
 
-```text
-PlayerRankMetaData
-ChatFormatMetaData
-TabFormatMetaData
-PermissionMetaData
-```
+##### Why
 
-Metadata objects should be easy to rebuild from source data.
+Static mutable/runtime access bypasses replacement and lifecycle ownership. Pure helpers stay safe because their result depends only on explicit input.
 
-### Utility Classes
+## Inner Classes
 
-Utility classes provide focused stateless helpers.
+Avoid inner classes for reusable domain data, metadata, services, handlers, builders, registries, caches, or other concepts with identity outside the parent implementation.
 
-Examples:
+A small private implementation detail may remain inner when it has no value outside the parent.
 
-```text
-LegacyColorUtil
-UUIDUtil
-DurationFormatUtil
-```
+##### Why
 
-Utility classes should be final and have a private constructor.
+Top-level domain types are searchable, independently testable, and reusable without forcing callers to depend on an unrelated parent class.
 
-```java
-public final class LegacyColorUtil {
+## Review Checklist
 
-    private LegacyColorUtil() {
-    }
-}
-```
-
-Do not create god utility classes.
-
-### Orchestration Classes
-
-Orchestration classes coordinate multiple services.
-
-They are useful when one flow touches several systems.
-
-Examples:
-
-```text
-PlayerLoginOrchestrator
-RankUpdateOrchestrator
-PunishmentOrchestrator
-```
-
-Example flow:
-
-```text
-RankUpdateOrchestrator
-  -> PowerLevelService
-  -> RankService
-  -> PlayerAccountService
-  -> TabHandler
-  -> ChatFormatMetaDataHandler
-```
-
-Orchestrators should coordinate.
-
-They should not become dumping grounds for every rule ever written.
-
-### Service Classes
-
-Service classes own core reusable behavior.
-
-Examples:
-
-```text
-PowerLevelService
-RankService
-PermissionService
-PlayerAccountService
-```
-
-Services may use:
-
-```text
-Data handlers
-Metadata handlers
-Registries
-Caches
-Other services
-```
-
-Services should not directly parse commands or listen to Paper events.
-
-### Database Classes
-
-Database classes own persistence access.
-
-They should know how to read and write data.
-
-They should not know gameplay rules.
-
-Examples:
-
-```text
-PlayerAccountDatabase
-PunishmentDatabase
-RankDatabase
-```
-
-### Cache Classes
-
-Cache classes own temporary fast-access state.
-
-They should never be treated as the permanent source of truth unless the system explicitly says so.
-
-Examples:
-
-```text
-PlayerAccountCache
-RankMetaDataCache
-PermissionCache
-```
-
-Cache flow:
-
-```text
-Database
-  -> Data Handler
-  -> Cache
-  -> Service
-```
+- [ ] The class has one coherent responsibility/lifecycle.
+- [ ] The suffix matches the responsibility actually owned.
+- [ ] Domain handlers may own focused rules; platform input adapters stay thin.
+- [ ] Services represent reusable cohesive capabilities, not merely “logic” or “long-running things.”
+- [ ] Orchestrators own sequencing, not collaborator rules/storage.
+- [ ] Data/metadata remain values without hidden runtime behavior.
+- [ ] Builders construct typed output only.
+- [ ] Registries/caches own keyed runtime/cache state through Tavall infrastructure.
+- [ ] Ordinary persistence uses Tavall Database entity/typed operations rather than generic CRUD wrappers.
+- [ ] Repositories exist only for real domain persistence/substitution contracts.
+- [ ] Static classes remain pure/stateless.
