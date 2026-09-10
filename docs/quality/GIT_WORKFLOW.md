@@ -159,6 +159,128 @@ Every active staging branch must have a corresponding active staging PR. Integra
 
 Normal focused PRs do not promote directly to `main`. Repository/release staging promotion receives the full accountable production review defined here. The narrow explicit owner and incident exceptions in Sections 3.4, 3.5, and 11 retain their authority; they are not a default path for contributors or automation.
 
+#### PR work-graph metadata
+
+Tavall PR metadata describes one recoverable work graph. It has three independent axes. Implementations, staging manifests, CONTROL projections, or automation MUST NOT collapse these axes into one status field.
+
+**PR Type** describes structural location in the Git integration graph:
+
+- `FEATURE`: bounded implementation, repair, test, migration, documentation, or product work;
+- `SUB_STAGING`: persistent integration root for a bounded product, subsystem, or domain contained inside a broader runtime or staging graph;
+- `RUNTIME`: persistent integration PR for a deployable or runtime boundary such as Paper, Velocity, Discord, Web, Agent, or Ingress;
+- `STAGING`: top-level persistent composition/integration PR before production.
+
+PR Type is explicit metadata. Branch naming may help a human locate work but MUST NOT be treated as sufficient evidence for type.
+
+**PR State** describes human/agent lifecycle intent:
+
+- `ACTIVE`: actively being worked or immediately resumable;
+- `PAUSED`: intentionally preserved but temporarily stopped, including work interrupted by session/model limits, infrastructure failure, priority switching, or planned handoff;
+- `BLOCKED`: unable to progress because of a concrete external dependency;
+- `NEEDS_RECONCILIATION`: historical or migrated work whose intent, ownership, or relationships cannot yet be classified safely;
+- `REVIEW_READY`: implementation is complete and awaiting review/checks;
+- `MERGE_READY`: required review, validation, synchronization, and acceptance are satisfied;
+- `MERGED`: successfully integrated into its parent;
+- `SUPERSEDED`: intentionally replaced by another PR/source lineage and accompanied by a `supersededBy` relationship;
+- `ABANDONED`: explicitly discontinued without a replacement.
+
+`ACTIVE`, `PAUSED`, `BLOCKED`, and `NEEDS_RECONCILIATION` are protected lifecycle states for cleanup purposes. `ABANDONED` MUST NOT be inferred solely from age, inactivity, stopped executors, missing worktrees, closed/inactive GitHub state, or a temporary infrastructure failure. Ambiguous legacy work defaults to `NEEDS_RECONCILIATION`.
+
+CONTROL coordination values such as `CANONICAL` and `SUPERSEDED` describe environment/domain coordination. They are not PR lifecycle states. A feature environment may be superseded at a broad domain while the PR remains `ACTIVE` or `PAUSED`.
+
+**Execution Attachment State** describes current physical/runtime attachment independently of PR lifecycle:
+
+- `LOGICAL_ONLY`: PR/source/lane/environment linkage exists but no current physical worktree exists;
+- `MATERIALIZED_SYNCED`: a physical worktree exists and matches authoritative source identity;
+- `MATERIALIZED_DIRTY`: a physical worktree contains local uncommitted work;
+- `MATERIALIZED_STALE`: a physical worktree exists but local source differs from authoritative remote/CONTROL source;
+- `ORPHANED_PHYSICAL`: a physical workspace exists without an authoritative CONTROL/PR owner;
+- `ORPHANED_CONTROL`: CONTROL claims a physical attachment that cannot be located;
+- `AMBIGUOUS`: conflicting potential owners or identities exist.
+
+`LOGICAL_ONLY` is valid. Reconciliation MUST NOT create a worktree merely to make metadata symmetrical. `MATERIALIZED_DIRTY`, `MATERIALIZED_STALE`, `ORPHANED_PHYSICAL`, `ORPHANED_CONTROL`, and `AMBIGUOUS` are protected attachment states: automation MUST NOT reset, overwrite, relocate, condense, or delete them as cleanup.
+
+##### Canonical source identity
+
+The exact work identity tuple is:
+
+```text
+repository
++ branch
++ exact commit SHA
++ pull request
++ parent pull request
+```
+
+Directory names, historical path conventions, branch-name patterns, timestamps, or process liveness are evidence only. They are never authoritative identity.
+
+A canonical PR metadata document may evolve in storage shape, but it must preserve at least:
+
+```json
+{
+  "schemaVersion": "tavall-pr:v1",
+  "repository": "TavallStudios/example",
+  "pullRequest": 123,
+  "type": "FEATURE",
+  "state": "PAUSED",
+  "stateDetail": "Paused after execution limit; safe to resume.",
+  "source": {
+    "branch": "working/example",
+    "headSha": "..."
+  },
+  "relations": {
+    "parentPullRequest": 100,
+    "stagingPullRequest": 50,
+    "runtimePullRequest": 100,
+    "subStagingPullRequest": null,
+    "supersededBy": null
+  },
+  "callbacks": {
+    "canonicalLaneId": "...",
+    "laneHistory": [],
+    "currentEnvironmentId": "...",
+    "environmentHistory": [],
+    "executor": {
+      "environmentId": "...",
+      "lastJobId": null,
+      "lastOperationId": null
+    },
+    "work": {
+      "attachmentState": "MATERIALIZED_SYNCED",
+      "workPath": "...",
+      "backingWorkPath": "...",
+      "localHeadSha": "...",
+      "remoteHeadSha": "...",
+      "dirty": false
+    }
+  },
+  "resume": {
+    "currentTask": "...",
+    "nextAction": "...",
+    "blockers": [],
+    "reason": "SESSION_LIMIT"
+  }
+}
+```
+
+The example is semantic, not a frozen serialization contract. Implementations may normalize or split storage when the current architecture has a better ownership boundary, but they must preserve the three axes, exact identity, relationships, histories, resume intent, and cleanup safety.
+
+##### Bidirectional callbacks and reconciliation
+
+PR/source metadata, Tavall Cloud lanes, immutable environment generations, execution jobs/operations, and physical workspaces form one graph. Reconciliation must make ownership traversable in both directions rather than maintaining disconnected lists that happen to contain similar strings.
+
+- PR metadata callbacks identify repository, branch, exact SHA, parent PR, staging/runtime/sub-staging owners, canonical lane, lane history, current environment, environment history, executor/job/operation evidence, and physical workspace when materialized.
+- Lane metadata callbacks identify owning PR/source identities and environment generations.
+- Environment metadata callbacks identify lane, PR, repository, branch, exact SHA, parent PR, and physical worktree when materialized.
+- Workspace metadata callbacks identify owning PR, lane, environment, source identity, and executor evidence where appropriate.
+- Executor/job/operation metadata callbacks identify the environment and PR/source identity that authorized execution.
+
+Existing Tavall Cloud callback/index structures should be extended when they own these relationships; implementations should not create a parallel registry merely because migration data is untidy.
+
+Reconciliation is metadata-first and non-destructive by default. It inventories authoritative GitHub PRs and branches, CONTROL lanes/environments, and physical shared worktrees; joins them by exact source identity; reads explicit PR lifecycle state; calculates attachment state; preserves lane/environment/executor history; updates safe callbacks; and emits conflicts as unresolved evidence. A dry-run/audit mode must exist before mutations that can affect physical state. Initial graph reconciliation MUST NOT perform mass deletion, condensation, reset, or relocation.
+
+Age is not abandonment. `STOPPED` is not abandonment. No running executor is not abandonment. No physical worktree is not abandonment. Cleanup becomes eligible only after lifecycle intent is explicitly safe, protected attachment conditions are absent, source/history is preserved, and repository-specific retention rules permit it.
+
 ### 3.3 `main`
 
 `main` is production and must normally:
@@ -406,7 +528,9 @@ New PR A establishes the accepted replacement architecture.
 
 Prefer rebasing or retargeting PR B onto PR A, repairing B in place, and preserving its issue/review/history context. Do not automatically close B and manufacture another PR that represents the same work.
 
-### 4.6 Pull request state
+### 4.6 GitHub review readiness
+
+GitHub Draft/ready-for-review status is a review-presentation signal. It is separate from the Tavall PR lifecycle state defined in Section 3.2. A PR may, for example, be lifecycle `PAUSED` while GitHub still shows it as Draft, or lifecycle `REVIEW_READY` when it is moved out of Draft.
 
 Keep a pull request in **Draft** while implementation, validation, dependency reconciliation, or its description is incomplete.
 
@@ -650,6 +774,8 @@ Record rejected approaches, link implementation work, and close issues only when
 - [ ] Existing same-scope PR was reused instead of duplicated.
 - [ ] Stack parent/child relationships are explicit when applicable.
 - [ ] Every active normal PR has valid transitive ancestry to an active repository/release staging root; any manifests match the current graph and exact heads.
+- [ ] PR Type, PR State, and Execution Attachment State are not conflated when graph metadata is present or reconciled.
+- [ ] Ambiguous legacy work is preserved as `NEEDS_RECONCILIATION` rather than inferred abandoned or superseded.
 - [ ] Every changed integration tier has its own exact-head validation; child acceptance is not substituted for integrated acceptance.
 - [ ] Complete diff was self-reviewed.
 - [ ] Scope is focused.
@@ -673,6 +799,8 @@ Record rejected approaches, link implementation work, and close issues only when
 - [ ] Architecture and repository-specific rules are respected.
 - [ ] No duplicate or parallel system was introduced.
 - [ ] PR base and stack relationships are correct.
+- [ ] PR lifecycle intent is not inferred from GitHub Draft/closed status, CONTROL coordination state, executor liveness, age, or worktree presence.
+- [ ] Protected dirty, stale, orphaned, ambiguous, paused, blocked, active, or reconciliation-required work is not treated as cleanup-safe.
 - [ ] The displayed diff excludes already-reviewed parent work where expected.
 - [ ] Failure, recovery, data, security, permission, lifecycle, performance, and operational behavior were considered.
 - [ ] Tests are meaningful and passing.
