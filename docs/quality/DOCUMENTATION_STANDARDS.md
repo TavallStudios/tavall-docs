@@ -16,6 +16,8 @@ Documentation is part of the engineering contract.
 - Extend an existing owning document before creating a parallel document for the same rules.
 - Split a supporting document only when the main owning document would become materially harder to read.
 - The main system document must summarize and link any delegated command, permission, format, message, schema, or integration document.
+- Maintained Tavall system documents must link their working Notion record when one exists, and the Notion record must link the system's design, final/canonical, progression/evidence, and implementation sources.
+- Every maintained Tavall document ends with a `DOC TODO:` maintenance handoff as defined below.
 
 Architecture and pattern documentation must explain both **what** the rule is and **why** the rule exists. A rule without its ownership, lifecycle, testing, failure-mode, or maintainability rationale is easy to copy mechanically and easy to misuse.
 
@@ -30,6 +32,7 @@ Cross-project engineering policy belongs under `docs/quality`, including:
 - [CODE_ARCHITECTURE.md](CODE_ARCHITECTURE.md)
 - [GIT_WORKFLOW.md](GIT_WORKFLOW.md)
 - this document
+- [NOTION_SYSTEM_DESIGN_RECORD_TEMPLATE.md](NOTION_SYSTEM_DESIGN_RECORD_TEMPLATE.md)
 - the detailed chapters under `docs/quality/code-architecture/`
 
 Shared quality documents define Tavall defaults. Repository- or module-specific documents may **strengthen or specialize** those defaults when a narrower runtime/product boundary requires it, but they must not silently weaken or contradict shared policy.
@@ -40,7 +43,44 @@ Project Novus and other production systems may appear as examples inside shared 
 
 A shared quality repository cannot simultaneously claim cross-project authority and label its binding rules as one product's private architecture. Explicit precedence prevents copied examples from becoming accidental scope restrictions and gives agents one place to resolve conflicts.
 
-## 3. System Document Lifecycle and Naming
+## 3. Notion Working Records and Cross-Surface Linkage
+
+Notion is the working cross-repository design and reconciliation surface for a Tavall system. GitHub/repository documentation remains the portable, reviewable system contract and implementation-evidence surface.
+
+A Notion working system record does not replace a repository `FINAL`, `FINAL_DRAFT`, progression document, schema, test suite, or implementation. It connects them.
+
+Use [NOTION_SYSTEM_DESIGN_RECORD_TEMPLATE.md](NOTION_SYSTEM_DESIGN_RECORD_TEMPLATE.md) as the portable contract for a new Notion system record. Create a new Notion record only when there is a genuinely distinct system/domain/authority boundary. Otherwise update the existing record.
+
+Every maintained Notion system record must include these link classes:
+
+1. **Design Source(s)**
+   - The material that established or materially changed the design.
+   - May be a repository design/final-draft document, another Notion design page, or a PR/issue when the PR/issue genuinely contains the design.
+2. **Final / Canonical Documentation**
+   - Link the accepted `*_FINAL.md` when it exists.
+   - If no accepted final exists, state **Not finalized yet** and link the current `FINAL_DRAFT` / `FINAL_DRAFT_NHV` / explicit design candidate.
+3. **Progression / Evidence Documentation**
+   - Link the current `*_PROGRESSION.md`, acceptance record, exact-source validation, or other evidence owner that answers what is actually implemented and validated.
+4. **Implementation**
+   - Link the owning repository/module and current PR/staging/runtime lineage where useful.
+   - PRs are implementation/evidence references, not substitutes for final documentation.
+
+Repository system documents should include a **Working Notion Record** or equivalent backlink when a maintained Notion record exists. Delegated/reference documents may link through their owning system document instead of duplicating every cross-surface link.
+
+When Notion and GitHub disagree:
+
+- an accepted repository `FINAL` owns accepted system behavior;
+- a progression/evidence document owns audited implementation state at its recorded source;
+- the Notion record owns working cross-repository design/reconciliation context;
+- the conflict must be reconciled explicitly rather than selecting whichever paragraph is newer or more convenient.
+
+A copied `docs/quality` tree in a consumer repository is a projection of shared quality policy. It does **not** create a new system authority or justify a duplicate Notion page.
+
+##### Why
+
+Design conversations, repository contracts, and implementation evidence evolve at different speeds. Explicit cross-surface links let a reader move from the working design to the accepted contract and then to actual implementation status without treating chat history, PR prose, or a copied policy file as accidental authority.
+
+## 4. System Document Lifecycle and Naming
 
 The filename patterns in this section apply to **product/system design documents**, not shared quality chapters such as `CLASSES.md`, `BUILDERS.md`, or `GIT_WORKFLOW.md`.
 
@@ -64,7 +104,7 @@ System documents use uppercase descriptive filenames with the system name first.
 - A progression document never becomes a final document. They answer different questions.
 - Planned behavior in a final contract must still be reported accurately in progression as `Designed`, `Partially Implemented`, or another evidence-backed status.
 
-## 4. Final Tech and Design Document
+## 5. Final Tech and Design Document
 
 The final tech/design document is the main source of truth for one system.
 
@@ -95,10 +135,11 @@ Use only sections that apply, normally in this order:
 9. **Integrations**
 10. **Validation Requirements**
 11. **Final Rules Summary**
+12. **DOC TODO:** maintenance handoff
 
 Do not add empty sections merely to satisfy the list.
 
-## 5. Delegated Command and Permission Documents
+## 6. Delegated Command and Permission Documents
 
 Use a delegated command/permission document only when command/access complexity justifies it.
 
@@ -115,7 +156,7 @@ Recommended content:
 - success/failure behavior;
 - permission nodes/matrix.
 
-## 6. Delegated Format and Message Documents
+## 7. Delegated Format and Message Documents
 
 Use a delegated format/message document when a system has substantial visual formats, placeholders, reusable messages, or delivery-specific behavior.
 
@@ -131,7 +172,7 @@ Cover:
 
 The document must provide raw format text or a precise textual description even when images exist.
 
-## 7. Progression Documents
+## 8. Progression Documents
 
 Progression documents report what is demonstrably implemented, integrated, tested, blocked, or missing at an exact audited commit.
 
@@ -145,7 +186,7 @@ They must not:
 
 Update progression in the same coherent change as the implementation/audit evidence it reports.
 
-## 8. Folder and Delegation Rules
+## 9. Folder and Delegation Rules
 
 System documentation lives beneath the narrowest owning system folder when the repository has a system-doc tree:
 
@@ -168,7 +209,7 @@ Rules:
 - Delegated documents link back to their owning final document once it exists.
 - Final documents summarize delegated rules so readers do not reconstruct the contract through a scavenger hunt.
 
-## 9. Archive Rules
+## 10. Archive Rules
 
 Archive a document when it is obsolete, conflicts with an active owner, or would otherwise compete as a source of truth.
 
@@ -178,7 +219,41 @@ Archive a document when it is obsolete, conflicts with an active owner, or would
 - Do not rewrite archived content to look current.
 - Record archives in the repository's archive index when one exists.
 
-## 10. Change and Review Rules
+## 11. `DOC TODO:` Maintenance Handoff
+
+Every maintained Tavall document ends with a `DOC TODO:` section. Use it as a handoff for what must happen next to keep the document and its represented system coherent.
+
+Use this shape:
+
+```markdown
+## DOC TODO:
+
+### Document next steps
+
+- [ ] Reconcile or add missing design/final/progression/implementation links.
+- [ ] Promote, archive, supersede, or clarify the document when its lifecycle changes.
+
+### System next steps
+
+- [ ] Record only the next system design/implementation/validation work directly represented by this document.
+```
+
+Rules:
+
+- **Document next steps** are documentation work: missing sources, stale links, lifecycle promotion, supersession, ownership cleanup, validation description, archive work, or evidence reconciliation.
+- **System next steps** are only the engineering/design/validation steps directly represented by the document.
+- The section is not a second unsorted product backlog and does not replace Linear/GitHub issues/project planning.
+- A TODO does not authorize implementation or turn proposed behavior into accepted behavior.
+- Completed TODOs should be reflected in the owning document/progression/evidence and then removed rather than accumulating forever.
+- Delegated/reference documents may keep their system TODOs narrow and point to the owning system record for broader work.
+- An accepted `FINAL` document still carries `DOC TODO:`. If there is no open documentation maintenance, say so explicitly. New material contract changes must enter a new design/draft lineage rather than appearing as stealth future requirements in a Final's TODO list.
+- A progression document may list implementation/verification next steps, but must continue to report current evidence separately from future work.
+
+##### Why
+
+A document without an explicit maintenance handoff becomes stale silently. A document with an unbounded TODO list becomes a shadow project tracker. Splitting document maintenance from system work preserves both accountability and authority.
+
+## 12. Change and Review Rules
 
 Documentation changes follow [GIT_WORKFLOW.md](GIT_WORKFLOW.md).
 
@@ -195,5 +270,22 @@ Before accepting a documentation change, confirm:
 - [ ] Commands, permissions, formats, messages, schemas, and integrations are defined in the correct document.
 - [ ] Architecture pattern rules explain why the pattern exists rather than only prescribing shape.
 - [ ] Production examples are linked inline to source instead of copied into a competing evidence catalog.
+- [ ] The working Notion record is linked when one exists.
+- [ ] The Notion record links Design Source(s), Final/Canonical, Progression/Evidence, and Implementation.
+- [ ] `DOC TODO:` is present, split into document and system next steps, and does not smuggle unapproved behavior into a Final.
 - [ ] Links resolve and examples use current repository/module/class names.
 - [ ] Obsolete drafts are removed, archived, or clearly marked so they cannot compete with accepted contracts.
+
+---
+
+## DOC TODO:
+
+### Document next steps
+
+- [ ] Apply this linkage/footer contract to existing maintained Tavall system documentation as those documents are touched or reconciled.
+- [ ] Keep the Notion system-record template and this standard synchronized when the documentation contract changes.
+- [ ] Reconcile repositories that currently have active system implementation but no lifecycle-compliant design/final documentation.
+
+### System next steps
+
+- [ ] Add automated architecture/documentation checks where a rule can be enforced mechanically without pretending automation can decide human design acceptance.
