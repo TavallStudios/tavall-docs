@@ -6,6 +6,7 @@ Use this directory for shared Tavall engineering and documentation policy.
 
 ## Documentation System
 
+- [DOCUMENT_ROUTING.yml](DOCUMENT_ROUTING.yml) — small machine-readable exact-signal routing index for selecting only the documentation relevant to the current task.
 - [DOCUMENTATION_STANDARDS.md](DOCUMENTATION_STANDARDS.md) — authority, lifecycle, delegation, evidence, archive, and `DOC TODO:` rules.
 - [DOCUMENT_TYPES.md](DOCUMENT_TYPES.md) — GENERAL, ARTICLE, PRODUCT, USER EXPERIENCE, Design, Technical, and Progression/Evidence responsibilities.
 - [GENERAL_DOCUMENT_TEMPLATE.md](GENERAL_DOCUMENT_TEMPLATE.md) — readable product/system overview.
@@ -20,6 +21,12 @@ Use this directory for shared Tavall engineering and documentation policy.
 - [GIT_WORKFLOW.md](GIT_WORKFLOW.md)
 - [`code-architecture/`](code-architecture/)
 
+## Selective resolution
+
+Shared Tavall policy consumers should resolve this repository's current `main` branch and select only the files required by the task. `DOCUMENT_ROUTING.yml` is the lightweight routing contract for exact prompt/reasoning signals; it is not a replacement for the selected documents themselves.
+
+Do not recursively preload this directory as a generic engineering preflight. Detailed architecture chapters may be selected directly without automatically loading `CODE_ARCHITECTURE.md`, and templates should be loaded only when the corresponding document type is being created or materially restructured.
+
 ## Authority
 
 Shared quality documents define Tavall-wide defaults. Repository-local documentation may specialize them where the owning runtime/product requires stricter rules, but may not silently weaken shared policy.
@@ -31,6 +38,7 @@ The currently active `DOC_DESIGN_RULES.md` lineage remains authoritative for det
 ### Document next steps
 
 - [ ] Keep this index synchronized as shared quality documents are added, renamed, or superseded.
+- [ ] Keep `DOCUMENT_ROUTING.yml` synchronized when an owning document or exact routing signal changes.
 - [ ] Link the canonical `DOC_DESIGN_RULES.md` location once reconciled.
 
 ### System next steps
