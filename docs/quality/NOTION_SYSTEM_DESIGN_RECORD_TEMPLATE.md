@@ -1,13 +1,17 @@
-# Tavall Notion System Design Record Template
+# Tavall GENERAL System Record Template
 
 > **Status:** Active template  
-> **Applies to:** Tavall working Notion records for system, product, platform, architecture, workflow, and infrastructure design  
-> **Purpose:** Keep Notion design records connected to their design sources, accepted final documentation, implementation/progression evidence, and next documentation/system actions.
+> **Document type:** `GENERAL`  
+> **Applies to:** Tavall working GENERAL records for systems, products, platforms, architecture families, workflows, and infrastructure  
+> **Purpose:** Provide the broad system context and navigation layer that connects detailed Design and Technical documentation, implementation/progression evidence, and next documentation/system actions.
 
-This is the portable GitHub copy of the Tavall Notion system-record template. The working Notion template may use native Notion mentions/tables/callouts, but it must preserve the same information contract.
+This is the portable GitHub copy of the Tavall GENERAL-record template. A GENERAL document may live in Notion or GitHub. Current Tavall Notion system records are GENERAL documents and may use native Notion mentions/tables/callouts, but they must preserve the same information contract.
+
+A GENERAL document is not a substitute for detailed Design or Technical documentation. It summarizes the system boundary, current cross-repository context, and documentation graph. Detailed Design and Technical `DRAFT`/candidate/`FINAL` documents link back to their owning GENERAL document.
 
 ## Document Identity
 
+- **Document Type:** `GENERAL`
 - **System / Domain:** TODO
 - **Working Status:** Idea / Designing / Designed / Implementing / Validating / Finalized / Parked
 - **Owning Repository / Module:** TODO
@@ -16,15 +20,29 @@ This is the portable GitHub copy of the Tavall Notion system-record template. Th
 
 ## Documentation Links
 
+### Design Documentation
+
+Link the current detailed **Design** document or document set and state its lifecycle (`DRAFT`, candidate, or `FINAL`). The GENERAL record may summarize design context but does not replace the Design contract.
+
+- TODO
+
+### Technical Documentation
+
+Link the current detailed **Technical** document or document set and state its lifecycle (`DRAFT`, candidate, or `FINAL`). The GENERAL record may summarize architecture/implementation context but does not replace the Technical contract.
+
+- TODO
+
+If the repository still uses one combined Final Tech & Design document, link that same document under both Design and Technical until the documentation is naturally split or promoted. Do not create churn solely to rename historical documentation.
+
 ### Design Source(s)
 
-Link the material that actually established or materially changed the design. Sources may be Notion design records, repository design documents, GitHub PRs/issues when they contain the design, or another explicit Tavall design record.
+Link the material that actually established or materially changed the design. Sources may be chat-derived Notion records, repository design documents, GitHub PRs/issues when they genuinely contain the design, or another explicit Tavall record.
 
 - TODO
 
 ### Final / Canonical Documentation
 
-Link the current accepted contract. Prefer the repository's `*_FINAL.md` or the applicable shared Tavall quality document once it exists. If no final exists, write **Not finalized yet** and link the current `FINAL_DRAFT` / `FINAL_DRAFT_NHV` candidate instead.
+Link the currently accepted Design and Technical contract(s). If either side is not final, state that explicitly and link its current draft/candidate instead.
 
 - TODO
 
@@ -36,7 +54,7 @@ Link implementation/progression docs, acceptance records, exact-source evidence,
 
 ### Implementation
 
-Link owning repositories/modules and current PR/staging/runtime lineage where useful. PR links are implementation/evidence references, not substitutes for final documentation.
+Link owning repositories/modules and current PR/staging/runtime lineage where useful. PR links are implementation/evidence references, not substitutes for Design or Technical final documentation.
 
 - TODO
 
@@ -46,42 +64,38 @@ What problem this system solves and who/what consumes it.
 
 ## Scope & Non-Goals
 
-State the system boundary explicitly. Include what this system **must not own** when adjacent Tavall systems have authority.
+State the broad system boundary. Detailed behavioral rules belong in Design documentation; detailed implementation architecture belongs in Technical documentation.
 
-## Authority & Ownership
+## Authority & Ownership Summary
 
-- Authoritative state/behavior owned here.
-- Connected systems and what they own.
-- Runtime/platform adapters.
-- Security/authorization boundary where relevant.
+Summarize:
 
-## Design & Invariants
+- the domain/system authority;
+- connected systems and their ownership;
+- owning runtime/platform/repositories;
+- security/authorization boundaries where useful.
 
-Record current agreed behavior, lifecycle, state transitions, and invariants. Distinguish designed behavior from implementation evidence.
+Do not duplicate the full Design or Technical contract here.
 
-## Technical Structure
+## Current Design Summary
 
-Owning modules/packages/services/handlers/orchestrators, important interfaces, routing, registries/caches/persistence, and platform adapters.
+Summarize the current agreed direction and important invariants at a navigation level. Link to the owning Design document for the detailed behavior.
 
-## Data, Recovery & Reconciliation
+## Current Technical Summary
 
-Authoritative storage, cache/projection behavior, restart/recovery expectations, migrations, idempotency, reconciliation, and audit behavior where applicable.
+Summarize the current implementation/architecture direction at a navigation level. Link to the owning Technical document for modules, data ownership, runtime flows, recovery, and failure behavior.
 
-## Runtime Flows
+## Cross-Repository / Cross-System Context
 
-Describe important success paths and relevant failure/cancellation/expiration/reload/shutdown/recovery paths.
+Record context that is useful precisely because the GENERAL document sits above individual implementation documents: related repositories, products, runtimes, shared platform dependencies, migrations, and supersession relationships.
 
-## Integrations & Dependencies
+## Validation & Current State
 
-List typed dependencies and consumers. Avoid claiming another system's authority merely because it is called from this one.
-
-## Validation & Acceptance
-
-State how the system proves correctness: tests, architecture gates, exact-source runtime validation, client/browser/bot acceptance, human visual review, production readiness, or other applicable evidence.
+Summarize the current evidence boundary and link to progression/acceptance records. Do not turn the GENERAL record into the implementation tracker.
 
 ## Decisions, Open Questions & Supersession
 
-Record unresolved design decisions and explicitly identify older design/documents this record supersedes or narrows.
+Record unresolved cross-document decisions and identify older GENERAL/design/technical records this page supersedes or narrows.
 
 ---
 
@@ -90,24 +104,26 @@ Record unresolved design decisions and explicitly identify older design/document
 ### Document next steps
 
 - [ ] Reconcile all Design Source links.
-- [ ] Link the current Final / canonical documentation or explicitly state that none exists yet.
+- [ ] Link the current Design document and lifecycle state.
+- [ ] Link the current Technical document and lifecycle state.
+- [ ] Link the current Final/canonical documentation or explicitly state which Design/Technical side is not finalized yet.
 - [ ] Link progression/evidence and current implementation lineage.
 - [ ] Remove stale/duplicate authority links and mark superseded material clearly.
-- [ ] Promote accepted design changes into the owning GitHub/Notion final documentation according to the documentation lifecycle.
+- [ ] Keep backlinks from Design, Technical, and progression documents to this GENERAL owner current.
 
 ### System next steps
 
-- [ ] Record only next engineering/design/validation steps directly represented by this document.
+- [ ] Record only next engineering/design/validation steps directly represented by this GENERAL record.
 - [ ] Keep implementation claims evidence-backed; document completion does not imply system completion.
-- [ ] Remove completed items once they are reflected in final/progression/evidence documentation.
+- [ ] Remove completed items once they are reflected in the owning Design/Technical/progression/evidence documentation.
 
 ## `DOC TODO:` Rules
 
-Every maintained Tavall system document ends with a `DOC TODO:` section.
+Every maintained Tavall document ends with a `DOC TODO:` section.
 
 - The section is the document's maintenance handoff, not a second unsorted product backlog.
 - Separate **Document next steps** from **System next steps**.
-- Document TODOs cover reconciliation, missing links, supersession, promotion, missing validation descriptions, or other work needed to make the document accurate and authoritative.
+- GENERAL document TODOs primarily cover documentation-graph reconciliation, missing Design/Technical links, supersession, ownership, and cross-repository context.
 - System TODOs contain only work directly represented by the document and must not imply approval or implementation.
-- Completed items should move into the appropriate final/progression/evidence content and then be removed from the TODO list.
-- An accepted `FINAL` contract still carries the footer, but it must not become a stealth backlog of unapproved future behavior. If no document work remains, state that no document TODOs are open and direct future design changes into a new design/draft lineage. Implementation progress belongs in progression/evidence unless it changes the accepted contract.
+- Completed items should move into the appropriate Design/Technical/final/progression/evidence content and then be removed from the TODO list.
+- Accepted Design or Technical `FINAL` documents still carry their own footer, but material future contract changes enter a new draft lineage rather than hiding in TODOs.
