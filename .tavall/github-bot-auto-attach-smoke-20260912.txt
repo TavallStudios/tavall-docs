@@ -1,0 +1,2 @@
+Disposable smoke-test marker for Tavall GitHub Bot automatic PR attachment and AI review orchestration.
+Created 2026-09-12. No product or policy semantics.
