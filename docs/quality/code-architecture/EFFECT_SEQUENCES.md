@@ -1,25 +1,16 @@
-# Project Novus Effect Sequence Architecture
+# Tavall Minecraft Effect Sequence Architecture
 
-> **Status:** Active
-> **Authority:** Binding chapter of [Project Novus Code Architecture](../CODE_ARCHITECTURE.md)
-> **Applies to:** Reusable Minecraft player-facing effect composition, timing, animation, particle rendering, and cleanup
+> **Status:** Active  
+> **Authority:** Binding Minecraft presentation specialization of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
+> **Applies to:** Tavall Minecraft modules using reusable Paper/Bukkit presentation utilities, timing, animation, particles, client-only views, and cleanup
 
 Effect sequences coordinate reusable presentation utilities. They do not replace the utility layer, message resolution, gameplay handlers, custom-entity runtimes, or authoritative state.
 
 ## Utility-First Rule
 
-Use the existing `IBukkit*Util` surface for one immediate Paper operation.
+Use the existing `IBukkit*Util` surface for one immediate platform operation.
 
-Examples:
-
-```java
-getEffectUtil().playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 1.0F, 1.0F);
-getMessageUtil().sendActionBar(player, message);
-getFireworkUtil().spawnInstantFirework(location, fireworkEffect);
-getBlockVisualUtil().sendBlockChange(player, location, blockData);
-```
-
-The effect-sequence layer is for behavior that needs one or more of:
+Use the effect-sequence layer only when behavior needs one or more of:
 
 - several presentation surfaces coordinated together;
 - absolute timing;
@@ -30,11 +21,13 @@ The effect-sequence layer is for behavior that needs one or more of:
 
 Do not route every sound, particle, title, or fake block through a sequence merely because the sequence API exists.
 
-## Modern DI Access
+##### Why
 
-Consumers use Tavall DI's ranked production style: `DependencyAccess<...>` with named local getters.
+A sequence introduces scheduling, lifecycle, state identity, and cleanup that an immediate utility call does not need. The split keeps one-shot effects cheap/predictable and reserves sequence ownership for coordinated time/state.
 
-For an expanded dependency set:
+## DI Access
+
+Consumers and the sequence handler resolve managed utilities through Tavall DI with `DependencyAccess<...>`.
 
 ```java
 public final class MatchPresentationHandler
@@ -43,35 +36,23 @@ public final class MatchPresentationHandler
                 IBukkitEffectSequenceHandler
         > {
 
-    private IBukkitEffectUtil getEffectUtil() {
-        return getInstance().bukkitEffectUtil();
-    }
-
-    private IBukkitEffectSequenceHandler getEffectSequenceHandler() {
-        return getInstance().bukkitEffectSequenceHandler();
+    public void show(MatchPresentationRequest request) {
+        IDependencyMap dependencies = getInstance();
+        dependencies.iBukkitEffectUtil();
+        dependencies.iBukkitEffectSequenceHandler();
     }
 }
 ```
 
-For a single dependency:
+Do not constructor-capture managed utility implementations or instantiate replacement utilities with `new Bukkit*Util()`.
 
-```java
-public final class OvertimePresentationHandler
-        implements DependencyAccess<IBukkitEffectSequenceHandler> {
+##### Why
 
-    private IBukkitEffectSequenceHandler getEffectSequenceHandler() {
-        return getInstance();
-    }
-}
-```
+Effect delivery is runtime behavior with replacement/module-generation semantics. Local construction or captured instances create a second ownership path that can outlive or disagree with the DI-managed instance.
 
-Do not add a dependency field merely to avoid the generated access path. Named getters resolve the metadata-owned dependency and preserve replacement/reload behavior.
+## Delivery Entry Point
 
-The sequence handler itself follows the same rule for `IBukkitMessageUtil`, `IBukkitEffectUtil`, `IBukkitBossBarUtil`, `IBukkitFireworkUtil`, and `IBukkitBlockVisualUtil`. It must not instantiate replacement utility objects with `new Bukkit*Util()`.
-
-## Entry Point
-
-Actual sequence delivery begins through:
+Actual sequence delivery enters through the owning sequence handler:
 
 ```java
 getEffectSequenceHandler().send(players)
@@ -83,19 +64,19 @@ or:
 getEffectSequenceHandler().send(player)
 ```
 
-The terminal operation remains:
+The terminal operation remains `.start()` unless the owning API intentionally changes its canonical contract.
 
-```java
-.start();
-```
+Do not add parallel aliases such as `.to(...)` or `effects.play(...)` that duplicate delivery ownership.
 
-Do not introduce `.to(...)`, `effects.play(...)`, or a second delivery entry point.
+##### Why
+
+One entry point gives audience ownership, defaults, lifecycle registration, and cleanup one predictable path.
 
 ## Effect Definition Builders
 
-Rich visual configuration lives in focused builders without audience or timing.
+Focused builders describe one visual definition without audience or absolute sequence timing.
 
-Current builder roles:
+Examples:
 
 ```text
 BukkitTitleEffectBuilder
@@ -105,52 +86,26 @@ BukkitBlockProjectionEffectBuilder
 BukkitFireworkEffectBuilder
 ```
 
-A definition builder owns only the data required to describe that visual.
+A definition builder owns only data required to describe the visual.
 
-Example:
-
-```java
-BukkitTitleEffectBuilder overtimeTitle = new BukkitTitleEffectBuilder()
-        .title(Component.text("OVERTIME"))
-        .subtitle(Component.text("Next point wins"))
-        .animation(EffectAnimationType.REVEAL);
-
-BukkitBossBarEffectBuilder overtimeBar = new BukkitBossBarEffectBuilder()
-        .name(Component.text("OVERTIME"))
-        .progress(1.0F)
-        .color(BossBar.Color.RED);
-```
-
-Definition builders must not own:
+It must not own:
 
 - audience selection;
-- delay or absolute offset;
+- delay/absolute offset;
 - scheduling;
-- sequence lifecycle;
-- module lifecycle;
-- cleanup timing.
+- sequence/module lifecycle;
+- cleanup timing;
+- Tavall-managed dependency lookup.
 
-Do not add `at(...)`, `showAt(...)`, `delay(...)`, or similar timing methods to the effect-definition builders.
+##### Why
+
+A reusable visual definition should mean the same thing regardless of who sees it or when it is sent. Audience/timing belongs to the workflow that delivers the definition.
 
 ## Chronological Sequence Pattern
 
-The sequence builder receives configured effect builders and owns all timing.
+The sequence receives configured definitions and owns all timing.
 
 ```java
-BukkitTitleEffectBuilder overtimeTitle = new BukkitTitleEffectBuilder()
-        .title(Component.text("OVERTIME"))
-        .subtitle(Component.text("Next point wins"))
-        .animation(EffectAnimationType.REVEAL);
-
-BukkitBossBarEffectBuilder overtimeBar = new BukkitBossBarEffectBuilder()
-        .name(Component.text("OVERTIME"))
-        .progress(1.0F)
-        .color(BossBar.Color.RED);
-
-BukkitParticleEffectBuilder rune = BukkitParticleEffectBuilder
-        .preset(EffectPresetType.GROUND_RUNE)
-        .location(center);
-
 getEffectSequenceHandler()
         .send(players)
         .bossBar(overtimeBar, 0)
@@ -159,67 +114,67 @@ getEffectSequenceHandler()
         .particle(rune, 1)
         .bossBar(overtimeBar.progress(0.5F), 3)
         .particle(EffectPresetType.ENERGY_RELEASE, center, 4)
-        .bossBar(overtimeBar.progress(0.0F).name(Component.text("GO!")), 4)
         .hideBossBar(overtimeBar, 5)
         .start();
 ```
 
-This code reads in timeline order. Effect builders describe state; the sequence describes when that state is sent.
+Calls read in timeline order. Effect builders describe state; the sequence describes when that state is sent.
+
+##### Why
+
+A visible timeline is easier to review than delays distributed through nested callbacks/builders. One sequence owner also provides cancellation and same-tick ordering.
 
 ## Snapshot Rule
 
-When an effect builder is added to a sequence, the sequence snapshots its current definition immediately.
-
-Therefore:
+When a definition builder is added to a sequence, snapshot its current definition immediately.
 
 ```java
 sequence.bossBar(bar.progress(1.0F), 0);
 sequence.bossBar(bar.progress(0.5F), 3);
 ```
 
-creates two independent cue snapshots. Mutating `bar` for the second cue must not retroactively modify the first cue.
+creates independent cue snapshots. Mutating `bar` for a later cue must not rewrite the earlier cue.
 
-Stateful builder object identity only tells one sequence that later cues refer to the same live visual object.
+##### Why
+
+A timeline is a record of intended states at specific offsets. If future builder mutation rewrites earlier cues, the timeline cannot be understood at construction time.
 
 ## Stateful Visual Identity
 
-Do not expose sequence-local key or reference classes to consumers for boss bars or block projections.
+Do not expose sequence-local keys/reference classes as durable-looking public concepts for boss bars/block projections.
 
-The consumer handle is the builder itself:
+The builder/definition object may act as the consumer handle while the sequence assigns private local identity.
 
-```text
-BukkitBossBarEffectBuilder
-BukkitBlockProjectionEffectBuilder
-```
-
-Internally, each `BukkitEffectSequenceBuilder` assigns state IDs by builder identity. Those IDs are:
+Sequence-local IDs are:
 
 - private to one sequence;
-- not UUIDs;
-- not Bukkit object identity;
-- not database keys;
-- not durable state;
-- not cross-sequence addresses.
+- not durable UUIDs/database keys;
+- not cross-sequence addresses;
+- not authoritative application state.
 
-A builder reused in another sequence receives independent sequence-local state.
+##### Why
+
+Sequence-local identity exists only to correlate cues inside one presentation. Publishing it invites callers to store/compare it outside the lifecycle where it has meaning.
 
 ## Sequence Timing
 
 - Every cue uses an absolute offset from sequence start.
 - `0` is the first execution point.
-- Seconds overloads are convenience methods over `Duration`.
-- Cues with the same resolved tick execute in insertion order.
-- Animated subframes belong to the sequence handle and are cancelled with it.
-- Paper mutations execute on the Paper server thread.
-- The sequence owner closes or cancels live handles during lifecycle teardown.
+- Seconds overloads may delegate to `Duration`.
+- Cues resolving to the same tick execute in insertion order.
+- Animated subframes belong to the sequence handle and cancel with it.
+- Paper mutations execute on the required Paper thread.
+- The owner closes/cancels live handles during lifecycle teardown.
 
-Timing belongs only to the sequence. An effect definition must remain reusable without knowing when it will be sent.
+##### Why
 
-## Effect Categories
+Absolute offsets make cue placement independent of neighboring effect duration. Relative chains compound timing changes and make insertion unexpectedly shift every later cue.
 
-Effect identity, shape, animation, preset, and material selection use enums when behavior is finite and code-owned.
+## Native Types and Effect Categories
 
-Native Paper types remain native:
+Use Tavall enums for finite Tavall-owned behavior categories such as animation/presets/shapes.
+
+Keep native Paper types native when Tavall does not own a competing semantic layer:
 
 ```text
 Particle
@@ -232,155 +187,109 @@ FireworkEffect
 Color
 ```
 
-Do not wrap Paper enums merely to create another translation layer.
+##### Why
+
+Type boundaries should exist where ownership changes. Wrapping Paper enums merely creates conversion code and another version-drift surface.
 
 ## Custom Entity Boundary
 
-Shared effect modules must not depend on the Novus/Kingdom custom-entity catalog or runtime.
+Shared effect contracts do not depend on product-specific custom-entity catalogs/runtimes.
 
-The following do not belong in `minecraft-framework` effect contracts:
+A product/module may orchestrate a custom-entity runtime beside a shared effect sequence, but that composition does not make custom entities a parent-framework capability.
 
-```text
-LIGHT
-PURPLE_CREEPER
-Novus custom-entity IDs
-custom-entity spawn/remove cues
-custom-entity spawner/registry bridges
-entity-rig animation state
-```
+##### Why
 
-A product or server module may coordinate its own custom-entity runtime beside a shared effect sequence. That composition does not make custom entities a parent-framework capability.
+Framework effects are reusable presentation primitives; custom entities carry product-specific identity/lifecycle/gameplay meaning. Pulling product catalogs into the framework reverses the dependency.
 
-## Animation
+## Animation and Geometry
 
-Generic sequence animation is selected with `EffectAnimationType`.
+Reusable generic animation mechanics remain in a focused animation handler/capability. Animation settings belong to the visual definition while cue offset remains sequence-owned.
 
-Reusable animation mechanics remain in `BukkitEffectAnimationHandler`.
+Reusable effect geometry is platform-light/Bukkit-free where practical and produces relative vectors consumed by particle/block-projection renderers.
 
-Current generic animation behavior:
+Shapes may include:
 
 ```text
-NONE
-REVEAL
-DRAW
-EXPAND
-CONTRACT
-ROTATE
-BUILD
-DISSOLVE
+POINT LINE RAY RING ARC SPIRAL HELIX SPHERE DOME CONE
+CYLINDER CUBOID GRID POLYGON WAVE VORTEX BEZIER
 ```
-
-`EffectAnimationSettings` carries duration and frame interval. It is part of the visual definition, while the cue's absolute offset remains part of the sequence.
-
-## Geometry
-
-Reusable effect geometry is Bukkit-free and produces relative `EffectVector` values.
-
-Particle and block-projection rendering share the same sampler.
-
-Current shapes:
-
-```text
-POINT
-LINE
-RAY
-RING
-ARC
-SPIRAL
-HELIX
-SPHERE
-DOME
-CONE
-CYLINDER
-CUBOID
-GRID
-POLYGON
-WAVE
-VORTEX
-BEZIER
-```
-
-`EffectGeometryRequest` owns radius, height/amplitude, length, point count, polygon side count, turn count, and Bézier control points.
 
 Do not repurpose unrelated numeric fields as hidden shape-specific data.
 
+##### Why
+
+Geometry is mathematical shape, not Paper rendering. Sharing one sampler avoids duplicated shape math while typed parameters stop one magic number from meaning radius, turns, and some third mystery value depending on enum choice.
+
 ## Typed Particle Data
 
-Paper particle payloads use `BukkitParticleData` rather than caller-facing raw `Object` values.
+Caller-facing particle payloads use a typed boundary rather than raw `Object` values.
 
-Supported payload categories include:
+Validate:
 
-```text
-BlockData
-Particle.DustOptions
-Particle.DustTransition
-Color
-Particle.Trail
-Float
-Integer
-Particle.Spell
-```
+- whether the particle accepts data;
+- native payload type compatibility;
+- block-data/material requirements;
+- mutually exclusive data sources;
+- rendering through the owning Bukkit effect utility.
 
-Rules:
+##### Why
 
-- no-data particles reject typed data;
-- non-block particles reject material palettes;
-- block-data particles require exactly one block-data source;
-- typed data must match the native Paper particle payload class;
-- validated rendering routes through `IBukkitEffectUtil`.
+Paper particle payload requirements vary by particle type. Raw `Object` pushes casts/validation into callers and makes invalid combinations runtime surprises.
 
 ## Layered Presets
 
-Generic reusable visual presets may live in the framework when they have no FFA, Kingdom, team, reward, punishment, or product meaning.
+Shared framework presets remain product-neutral visual definitions. They may contain multiple particle layers with native particle type, geometry, optional typed data/material palette, and default animation.
 
-A preset may contain multiple particle layers. Each layer owns:
+Product modules decide why/when the preset is sent.
 
-- native Paper particle type;
-- geometry shape and request;
-- optional typed particle data;
-- optional material palette;
-- default animation.
+##### Why
 
-Product modules decide why and when the preset is sent.
+A shared preset remains reusable only while it describes appearance rather than “victory,” “punishment,” team identity, reward identity, or one mode's semantics.
 
 ## Client-Only State
 
-Block projections and other view overrides never become gameplay truth.
+Block projections, fake equipment, fake health/experience, per-viewer weather/time, and other view overrides never become gameplay truth.
 
-A sequence owns temporary state it creates and restores it on cancellation. Block restoration reads current authoritative world `BlockData`.
+The sequence/workflow restores temporary state during cancellation/close. Block restoration reads current authoritative world state rather than assuming the original state is still correct.
 
-Boss bars created by a sequence are hidden during sequence cleanup.
+##### Why
+
+Client-only visuals are projections over authoritative server state. Treating them as truth lets previews/tutorials/animations overwrite gameplay assumptions and leaves stale views after the workflow ends.
 
 ## Cleanup and Lifecycle
 
-Cancelling or closing a sequence:
+Cancelling/closing a sequence:
 
-- cancels scheduled cue and animation tasks;
+- cancels scheduled cues/animation tasks;
 - hides sequence-owned boss bars;
-- restores sequence-owned block projections;
+- restores sequence-owned client-only block/view state;
 - leaves authoritative gameplay state untouched.
 
-Updating the same block-projection builder in one sequence restores the previous projection before rendering the new snapshot.
+Updating the same block-projection handle restores/reconciles the previous projection before rendering the new snapshot where required.
+
+##### Why
+
+Scheduling and client-only state create resources even when no traditional Java resource is open. Without one cleanup owner, cancelled matches/module unloads can leave tasks and visuals alive after their domain context disappears.
 
 ## Dependency Rule
 
-No third-party particle or effect library is required.
+Do not add a third-party effect runtime merely to reproduce capabilities already owned by Paper primitives, Tavall geometry, `IBukkit*Util` adapters, and the effect-sequence layer.
 
-Use Paper primitives, Tavall-owned geometry, the existing `IBukkit*Util` adapters, and the effect-sequence orchestration layer.
+##### Why
+
+A new runtime duplicates scheduling/render/lifecycle abstractions and adds version/dependency risk. Add a dependency when it provides a capability Tavall does not reasonably own, not because its README has impressive particles.
 
 ## Review Checklist
 
-- [ ] One immediate platform operation uses the appropriate `IBukkit*Util`.
-- [ ] Consumers use modern `DependencyAccess<...>` with named getters.
-- [ ] The sequence handler resolves utilities through DI rather than constructing duplicate utilities.
-- [ ] Actual sequence delivery enters through `getEffectSequenceHandler().send(...)`.
-- [ ] Effect-definition builders contain no timing or audience state.
+- [ ] Immediate one-shot operations use the appropriate `IBukkit*Util`.
+- [ ] Managed utilities/sequence handlers resolve through Tavall DI.
+- [ ] Effect definitions contain no audience/absolute timing/dependency lookup.
 - [ ] Sequence calls read chronologically.
-- [ ] Builder state is snapshotted when a cue is added.
-- [ ] Stateful visuals use builder identity internally rather than public key/ref classes.
-- [ ] Paper work stays on the server thread.
-- [ ] Particle and block-projection renderers share geometry.
-- [ ] Client-only state is restored on cancellation.
-- [ ] Custom-entity ownership remains outside the shared framework.
-- [ ] No third-party effect dependency was added.
-- [ ] Gameplay meaning remains outside the framework.
+- [ ] Cue definitions snapshot at insertion.
+- [ ] Stateful visual identity stays sequence-local.
+- [ ] Paper work runs on the required thread.
+- [ ] Particle/block projection share reusable geometry where appropriate.
+- [ ] Particle data is typed/validated.
+- [ ] Client-only state restores on cancellation/close.
+- [ ] Product/custom-entity meaning remains outside shared framework contracts.
+- [ ] No duplicate third-party effect runtime is added without a real capability need.

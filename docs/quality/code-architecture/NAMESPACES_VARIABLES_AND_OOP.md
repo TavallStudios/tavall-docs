@@ -1,401 +1,249 @@
-# Project Novus Namespaces, Variables, OOP, DRY, and Type Safety
+# Tavall Namespaces, Variables, OOP, DRY, and Type Safety
 
 > **Status:** Active  
-> **Authority:** Binding chapter of [Project Novus Code Architecture](../CODE_ARCHITECTURE.md)  
-> **Applies to:** All Project Novus modules, contributors, automation, generated code, and AI-assisted development
+> **Authority:** Binding chapter of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
+> **Applies to:** Tavall production modules, contributors, automation, generated code, reviews, and AI-assisted development
 
-This chapter is separated for navigation only. Its rules are part of the authoritative Project Novus code architecture and are not optional supplemental guidance.
+## Namespaces and Class Names
 
-## Code Design & Principles
+Package and class names communicate ownership before anyone opens the file.
 
-This section lays out the general code design and principles we'll use here in Project Novus.
+### Package Rules
 
-Examples use Project Novus account, rank, permission, chat, timer, building, resource, and platform concepts where practical. A small number of generic moderation examples remain because they demonstrate authority, request, result, repository, and delegation boundaries without defining a production moderation system.
+- Prefer domain + purpose over short vague buckets.
+- Package ownership follows the system/domain that owns the behavior.
+- Avoid broad new packages such as `manager`, `misc`, `common`, or generic `util`.
+- Shared utilities belong in shared utility packages only when they are genuinely shared and focused.
+- Platform-specific code remains beneath the platform boundary that owns it.
 
-### Namespaces
+Examples:
 
-* **Package names**: Domain + purpose > short and vague
-    * **Example**: `org.tavall.api.minecraft.backend.message.format.placeholder` > `org.tavall.api.minecraft.backend.message`
-    * **Example**: `org.tavall.api.minecraft.backend.rank.permission.power` > `org.tavall.api.minecraft.backend.rank.permission`
-    * **Example**: `org.tavall.api.minecraft.backend.account.data.handler` > `org.tavall.api.minecraft.backend.account`
-    * **Why**: Packages should make it obvious what system the code belongs to and what layer it lives in. Short packages look clean for about five minutes, then every class becomes a scavenger hunt.
+```text
+org.tavall.api.minecraft.backend.message.format.placeholder
+org.tavall.api.minecraft.backend.rank.permission.power
+org.tavall.api.minecraft.backend.account.data.handler
+```
 
-* **Package names should follow system ownership**
-    * Chat system code should live under chat packages.
-    * Rank and permission code should live under permission/rank packages.
-    * Player profile code should live under profile packages.
-    * Punishment code should live under punishment packages.
-    * UI/menu code should live under UI/menu packages.
-    * Shared utilities should only go into shared utility packages when they are truly shared.
+##### Why
 
-* **Avoid vague package buckets**
-    * Bad:
-        * `org.tavall.backend.core.manager`
-        * `org.tavall.backend.core.util`
-        * `org.tavall.backend.core.common`
-        * `org.tavall.backend.core.misc`
-    * Good:
-        * `org.tavall.api.minecraft.backend.message.format`
-        * `org.tavall.api.minecraft.backend.message.placeholder`
-        * `org.tavall.api.minecraft.backend.rank.permission.power`
-        * `org.tavall.api.minecraft.backend.account.data`
-        * `org.tavall.backend.audit.history`
+Packages are navigation and dependency signals. A vague package saves a few characters today and turns future maintenance into a scavenger hunt conducted by imports.
 
-* **Class names**: Precise > short
-    * **Example**: `PlayerRankMetaDataHandler` > `RankHandler`
-    * **Example**: `ChatFormatPlaceholderResolver` > `PlaceholderResolver`
-    * **Example**: `StaffPowerLevelHandler` > `PowerHandler`
-    * **Example**: `PlayerAccountDataBuilder` > `AccountBuilder`
-    * **Example**: `PlayerRankMetaDataBuilder` > `MetaBuilder`
-    * **Example**: `PunishmentRecordDataBuilder` > `DataBuilder`
-    * **Why**: This project has overlapping systems. A rank can appear in chat, tab, permissions, profile data, staff tools, and punishments. Precision prevents confusion.
+### Class Naming
 
-* **Class names should describe the exact role**
-    * `Handler` classes receive input, coordinate behavior, and delegate work.
-    * `DataHandler` classes move data between storage and the codebase.
-    * `Builder` classes construct objects.
-    * `DataBuilder` classes construct normal data objects.
-    * `MetaDataBuilder` classes construct resolved/display-ready metadata objects.
-    * `MetaData` classes hold resolved/display-ready information.
-    * `Database` classes talk to persistence.
-    * `Cache` classes own temporary cached state.
-    * `Service` classes should only exist for actual long-standing services.
-    * `Util` classes must be focused, stateless, and rare.
+Names identify both subject and role:
 
-* **Service classes should be rare**
-    * Most game logic should be handled through handlers, not services.
-    * A service should represent something long-standing, lifecycle-owned, or continuously available.
-    * Do not name normal game behavior as a service just because it sounds official.
+```text
+PlayerRankMetaDataHandler
+ChatFormatPlaceholderResolver
+PlayerAccountDataBuilder
+AchievementListRegistry
+PlayerAchievementCache
+FFARoundOrchestrator
+```
 
-* **Avoid names that hide responsibility**
-    * Bad:
-        * `RankManager`
-        * `PlayerHelper`
-        * `ChatUtil`
-        * `CoreService`
-        * `DataManager`
-        * `MetaBuilder`
-        * `DataBuilder`
-    * Good:
-        * `RankHandler`
-        * `PlayerAccountDataHandler`
-        * `ChatFormatHandler`
-        * `LegacyColorUtil`
-        * `PlayerAccountCache`
-        * `PlayerAccountDataBuilder`
-        * `PlayerRankMetaDataBuilder`
+Role expectations:
 
-* **Rule**
-    * Package names should tell us where the class belongs.
-    * Class names should tell us what the class actually does.
-    * Handler classes are the default for game behavior.
-    * Service classes are only for real long-standing services.
-    * Data builders should say what data they build.
-    * Metadata builders should say what metadata they build.
-    * Clean is good, but clear wins.
+- `Handler`: focused domain behavior/operation family.
+- `DataHandler`: reusable domain data policy when one is needed.
+- `Builder`: constructs typed output only.
+- `MetaDataBuilder`: constructs metadata values.
+- `MetaDataHandler`: derives/refreshes/enriches metadata behavior.
+- `Registry`: owns keyed runtime lookup state.
+- `Cache`: owns disposable/expiring fast-access state.
+- `Service`: cohesive reusable domain capability shared by consumers.
+- `Orchestrator`: ordered cross-boundary workflow/lifecycle coordination.
+- `Repository`: prohibited for new Tavall-owned production declared types; existing names are shrinking migration debt only.
+- `Util`: focused pure/stateless helper, or a clearly named DI-managed platform adapter where the existing utility convention applies.
 
-### Variables & Constants
+Do not use generic application `*Database` classes as the normal persistence role. Tavall Database owns ordinary PostgreSQL/JPA persistence mechanics. Do not replace them with a new `*Repository` layer.
+
+##### Why
+
+Precise suffixes give reviewers and architecture tests a usable contract. `Service` is about reusable capability, not how many minutes the object stays alive, and `Repository` no longer exists as an approved Tavall application role.
+
+## Variables and Fields
 
 ### Local Variables
 
-Important values should be extracted into named local variables before they are passed into nested calls. Locals make ownership, debugging, breakpoints, and stack traces readable.
+Extract important domain values into named locals when it improves reading, debugging, validation, or failure diagnosis.
 
-* Example bad variable usage
-```java
-SomeClass localVar;
-someMethod(localVar.getSomething());
-```
-* Example good variable usage
-
-```java 
-SomeClass localVar;
-SomeObject localObject = localVar.getSomething()
-someMethod(localObject);
-```
-
-#### Naming Local Variables
-
-* Names describe the value's domain meaning, not merely its Java type.
-* Preserve established acronym capitalization, such as `playerUUID`, `nativeUI`, `httpRequest`, and `jsonPayload`.
-* Avoid numbered locals unless the number is part of the domain.
-* Avoid one-letter names except conventional tiny scopes such as a mathematical coordinate or short lambda.
-* Do not reuse one local for several meanings.
-
-Example bad:
-```java
-UUID playerUuid = player.getUniqueId();
-```
-
-Example good:
-```java
-UUID playerUUID = player.getUniqueId();
-```
-
-### Global Variables
-
-Class fields represent owned state or injected dependencies.
-
-* Fields are `private` unless a framework requires another visibility.
-* Dependencies and immutable state are `final`.
-* Mutable state has one clear owner and documented concurrency behavior.
-* Public mutable static state is prohibited.
-* Static state must not become a hidden dependency graph, cache, registry, or service locator.
-* Shared runtime state belongs in a typed registry, cache, repository, or runtime handler.
-* Field names describe the subject, not merely the type.
-
-### Constants
-
-Create constants for stable values that are truly code-owned.
-
-* Use `UPPER_SNAKE_CASE`.
-* Prefer typed keys, enums, and definitions over collections of raw string constants.
-* Values operators must tune belong in configuration or a persisted definition, not hard-coded constants.
-* Do not create a constant merely to avoid writing a clear literal once.
-* Time values include their unit in the name or use `Duration`.
-* Permission, message, resource, registry, and configuration keys have one owning typed definition.
-* Never place secrets, credentials, protected tokens, or environment-specific endpoints in constants.
-
-### OOP, DRY, Type-Safety, & Abstractions
-
-### OOP
-
-We are doing proper OOP in this codebase.
-
-Classes should have clear ownership, clear responsibility, and meaningful behavior. Objects should represent real concepts in the system, not random bags of static methods wearing a trench coat.
-
-#### Bad OOP
+#### Bad
 
 ```java
-public class PlayerUtils {
+var currentPlan = populationGateway.routingPlan(serverData.getServerId());
+var destination = populationGateway.snapshot(offer.destination().serverId());
+var target = destination.get();
+var valid = target.online() && target.spareCapacity() > 0;
+```
 
-    public static boolean canBan(Player staff, Player target) {
-        return getPower(staff) > getPower(target);
+#### Good
+
+```java
+Optional<FFARegionRoutingPlan> currentPlan =
+        populationGateway.routingPlan(serverData.getServerId());
+Optional<FFARegionServerSnapshot> destination =
+        populationGateway.snapshot(offer.destination().serverId());
+FFARegionServerSnapshot target = destination.get();
+boolean valid = target.online() && target.spareCapacity() > 0;
+```
+
+Project Novus production source [`FFARegionControlService`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-ffa/src/main/java/org/tavall/minecraft/ffa/region/FFARegionControlService.java) uses explicit local types across routing, snapshot, candidate, state, and validation flows.
+
+Production Tavall Java code under `src/main/java` uses explicit local variable types. Do not use Java `var` in production source, including loop variables, generic results, builder results, DI-backed values, entity/data values, optionals, collections, or operation results.
+
+Tests, fixtures, generated source, and tooling may define narrower rules independently; this production rule does not silently expand into those surfaces.
+
+Naming rules:
+
+- names describe domain meaning, not merely Java type;
+- preserve established acronym capitalization such as `playerUUID`, `nativeUI`, `httpRequest`, `jsonPayload`;
+- avoid numbered locals unless the number is domain meaning;
+- avoid one-letter names outside tiny conventional scopes;
+- do not reuse one local for several meanings.
+
+##### Why
+
+`var` keeps compiler type safety but removes type visibility from source. Explicit locals keep domain and API boundaries obvious in reviews and make type-changing refactors surface at the use site.
+
+### Fields
+
+Class fields represent owned state, immutable values, externally owned handles, or Tavall-managed dependency-access metadata according to the owning architecture.
+
+Rules:
+
+- fields are `private` unless a framework requires another visibility;
+- immutable owned state is `final`;
+- mutable state has one clear owner and documented concurrency/lifecycle behavior;
+- public mutable static state is prohibited;
+- static state must not become a hidden dependency graph, cache, registry, service locator, or persistence layer;
+- keyed runtime state belongs in Tavall Registry/Cache or a dedicated typed runtime owner;
+- durable state belongs through Tavall Database or another explicitly selected durable provider;
+- Tavall-managed collaborators are resolved through Tavall DI rather than constructor-captured fields in ordinary managed behavior classes.
+
+##### Why
+
+A field is long-lived relative to a method. Putting mutable keyed or managed dependency state there implicitly declares lifecycle ownership, whether the author intended to or not.
+
+## Constants
+
+Use constants for stable code-owned values.
+
+- `UPPER_SNAKE_CASE`.
+- Prefer typed keys/enums/definitions over raw string collections.
+- Operator-tuned values belong in configuration/persisted definitions when they are not code invariants.
+- Time values include units or use `Duration`.
+- Permission/message/resource/config keys have one typed owner.
+- Never store secrets/credentials/protected tokens/environment endpoints in constants.
+
+##### Why
+
+Constants should encode real code invariants, not freeze operational configuration or sensitive runtime state into source because typing a literal twice felt emotionally unacceptable.
+
+# OOP
+
+Objects represent real concepts with clear ownership/responsibility. Avoid vague static bags of domain logic.
+
+Bad:
+
+```java
+public final class PlayerUtils {
+    public static boolean canPunish(PermissionProfile staff, PermissionProfile target) {
+        return staff.powerLevel() > target.powerLevel();
     }
+}
+```
 
-    public static int getPower(Player player) {
-        return 100;
+Good:
+
+```java
+@DelegatesTo(IPowerLevelHandler.class)
+public final class PowerLevelHandler implements IPowerLevelHandler {
+    @Override
+    public boolean canPunish(
+            PermissionProfile staff,
+            PermissionProfile target
+    ) {
+        return staff.powerLevel() > target.powerLevel();
     }
 }
 ```
 
 ##### Why
 
-This hides real domain logic inside a vague utility class. The class has no ownership, no state, no clear responsibility, and no real connection to the permission system. It also makes future changes harder because punishment rules, rank rules, and player authority rules can get scattered everywhere.
+The permission rule has a named domain owner and can participate in DI/testing/replacement. A vague static utility hides the rule among unrelated convenience methods.
 
-#### Good OOP
+# DRY
 
-```java
-public final class PermissionProfile { // This class can also probably be a record
+DRY means **shared rules** should have one owner. It does not mean every similar-looking line must be abstracted.
 
-    private final UUID playerUUID;
-    private final int powerLevel;
+### Bad Duplication: Same Rule, Several Owners
 
-    public PermissionProfile(UUID playerUUID, int powerLevel) {
-        this.playerUUID = playerUUID;
-        this.powerLevel = powerLevel;
-    }
-}
-```
+If Ban and Mute commands each implement the same power comparison, the authority rule is duplicated.
 
-##### Why
-
-This gives the permission data a real object with real behavior. We can later call 'PermissionProfile' and it will have all the data objects related to the player profile, instead of having them scattered around the code base. The code becomes easier to read, test, and reuse.
-
-### DRY
-
-DRY means shared rules should live in one place.
-
-It does **not** mean every similar-looking line of code needs to be abstracted.
-
-Do not force DRY when two systems only look similar but may change for different reasons.
-
-#### Bad DRY
+Good ownership:
 
 ```java
-public final class BanCommand {
-
-    public void execute(PermissionProfile staffProfile, PermissionProfile targetProfile) {
-        if (staffProfile.powerLevel() <= targetProfile.powerLevel()) {
-            throw new IllegalStateException("You cannot punish this player.");
-        }
-
-        // ban player
-    }
-}
-```
-
-```java
-public final class MuteCommand {
-
-    public void execute(PermissionProfile staffProfile, PermissionProfile targetProfile) {
-        if (staffProfile.powerLevel() <= targetProfile.powerLevel()) {
-            throw new IllegalStateException("You cannot punish this player.");
-        }
-
-        // mute player
-    }
-}
-```
-**We SHOULD NOT make this code DRY.**
-
-##### Why
-
-The same punishment authority rule is duplicated in multiple commands.
-
-If the rule changes, every command has to be updated. One will be missed. Then production gets spicy for no reason.
-
-#### Good DRY
-
-```java
-public final class PermissionService {
-
-    public boolean canPunish(PermissionProfile staffProfile, PermissionProfile targetProfile) {
-        return staffProfile.powerLevel() > targetProfile.powerLevel();
-    }
-}
-```
-
-```java
-public final class BanCommand {
-
-    private final PermissionService permissionHandler;
-
-    public BanCommand(PermissionService permissionHandler) {
-        this.permissionHandler = permissionHandler;
-    }
-
-    public void execute(PermissionProfile staffProfile, PermissionProfile targetProfile) {
-        if (!permissionHandler.canPunish(staffProfile, targetProfile)) {
-            throw new IllegalStateException("You cannot punish this player.");
-        }
-
-        // ban player
-    }
-}
-```
-
-```java
-public final class MuteCommand {
-
-    private final PermissionService permissionHandler;
-
-    public MuteCommand(PermissionService permissionHandler) {
-        this.permissionHandler = permissionHandler;
-    }
-
-    public void execute(PermissionProfile staffProfile, PermissionProfile targetProfile) {
-        if (!permissionHandler.canPunish(staffProfile, targetProfile)) {
-            throw new IllegalStateException("You cannot punish this player.");
-        }
-
-        // mute player
-    }
-}
-```
-
-##### Why
-
-The authority rule now lives in one place. Commands use the rule, but they do not own it.
-
-This is proper DRY.
-
-#### Bad DRY: Forced Abstraction
-
-```java
-public final class CommandMessageHelper {
-
-    public String buildActionMessage(String actor, String target, String action) {
-        return actor + " used " + action + " on " + target + ".";
-    }
-}
-```
-
-```java
-String banMessage = commandMessageHelper.buildActionMessage(
-    staffName,
-    targetName,
-    "ban"
-);
-
-String muteMessage = commandMessageHelper.buildActionMessage(
-    staffName,
-    targetName,
-    "mute"
+boolean canPunish = getPowerLevelHandler().canPunish(
+        staffProfile,
+        targetProfile
 );
 ```
 
-##### Why
-
-These messages only look similar right now.
-
-Ban messages may later need duration, appeal info, IP data, or broadcast rules. Mute messages may need expiration info, chat-channel rules, or silent moderation behavior.
-
-Forcing them into one helper creates fake reuse. Fake reuse is just duplication with extra steps and worse stack traces.
-
-#### Good Duplication: Different Rules, Different Code
-
-```java
-String banMessage = messageResolver.resolve(
-    PunishmentMessageKey.BAN_APPLIED,
-    placeholders
-);
-```
-
-```java
-String muteMessage = messageResolver.resolve(
-    PunishmentMessageKey.MUTE_APPLIED,
-    placeholders
-);
-```
+Each input adapter calls the same domain rule through its DI-managed boundary.
 
 ##### Why
 
-Both messages use the same message system, but each punishment keeps its own message key.
+When one rule changes, one owner changes. Commands adapt input/result; they do not each become a second permission engine.
 
-This avoids hardcoding while still allowing ban and mute messages to evolve separately.
+### Bad DRY: Forced Abstraction
 
-A little duplication is better than the wrong abstraction. The wrong abstraction is how a five-line problem becomes a framework nobody asked for.
+Two messages or flows that currently look similar may evolve for different reasons.
 
-### Type-Safety
+Prefer separate typed message keys:
 
-Prefer typed keys, enums, IDs, and domain objects over raw strings and magic numbers.
+```java
+messageResolver.resolve(PunishmentMessageKey.BAN_APPLIED, placeholders);
+messageResolver.resolve(PunishmentMessageKey.MUTE_APPLIED, placeholders);
+```
 
-#### Bad Type-Safety
+over a generic helper that accepts arbitrary action strings and forces unrelated semantics into one method.
+
+##### Why
+
+Fake reuse couples systems that only resemble each other today. A little duplication is cheaper than the wrong abstraction plus the meetings required to remove it later.
+
+# Type Safety
+
+Prefer typed keys, enums, IDs, requests, results, and domain values over raw strings/magic numbers.
+
+Bad:
 
 ```java
 messageResolver.resolve("chat.player.format");
-```
-
-##### Why
-
-Raw strings are easy to mistype, hard to refactor, and impossible for the compiler to protect. If the config key changes, this can silently break at runtime, because apparently bugs enjoy waiting until production to introduce themselves.
-
-#### Good Type-Safety
-
-```java
-messageResolver.resolve(ChatMessageKey.PLAYER_FORMAT);
-```
-
-##### Why
-
-The compiler can track this. Refactors are safer, usage is easier to find, and the key has a single source of truth. This makes message resolution predictable instead of string-based guesswork.
-
-#### Bad Permission Check
-
-```java
 permissionHandler.has(player, "punishment.ban");
 ```
 
-##### Why
-
-The permission node is just a loose string. A typo like `"punishment.bna"` can compile perfectly and fail silently. This is how codebases become archaeological dig sites.
-
-#### Good Permission Check
+Good:
 
 ```java
+messageResolver.resolve(ChatMessageKey.PLAYER_FORMAT);
 permissionHandler.has(player, PermissionNode.PUNISHMENT_BAN);
 ```
 
 ##### Why
 
-The permission node is type-safe, searchable, reusable, and harder to mess up. The code clearly says what permission is being checked without relying on fragile raw strings.
+Typed values are searchable/refactorable and let the compiler reject invalid categories. Raw strings happily compile typos and wait until production to become interesting.
+
+# Review Checklist
+
+- [ ] Packages describe domain + role rather than broad buckets.
+- [ ] Class suffixes match current Tavall role definitions.
+- [ ] Services represent reusable cohesive capabilities, not merely long-lived objects.
+- [ ] No new Tavall-owned production type ends in `Repository`.
+- [ ] Generic application `*Database` wrappers are not introduced as a replacement persistence layer.
+- [ ] Production locals use explicit Java types rather than `var`.
+- [ ] Fields have explicit state/lifecycle ownership.
+- [ ] Tavall-managed dependencies are not constructor-captured in ordinary managed behavior.
+- [ ] Constants represent code invariants rather than operational secrets/configuration.
+- [ ] Shared rules have one domain owner without forced abstraction.
+- [ ] Stable domain keys/values are typed instead of raw strings/magic values.

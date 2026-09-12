@@ -1,288 +1,161 @@
-# Project Novus Requests, Results, Resolvers, and Formatters
+# Tavall Requests, Results, Resolvers, and Formatters
 
 > **Status:** Active  
-> **Authority:** Binding chapter of [Project Novus Code Architecture](../CODE_ARCHITECTURE.md)  
-> **Applies to:** All Project Novus modules, contributors, automation, generated code, and AI-assisted development
+> **Authority:** Binding chapter of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
+> **Applies to:** Tavall production modules, contributors, automation, generated code, reviews, and AI-assisted development
 
-This chapter is separated for navigation only. Its rules are part of the authoritative Project Novus code architecture and are not optional supplemental guidance.
+## Request Pattern
 
-### Request Object Pattern
+Requests group related input for one operation when several values form one meaningful contract.
 
-Request objects group related input for a behavior.
-
-Use request objects when a method needs several related values.
-
-#### Bad Request Object Pattern
+Bad:
 
 ```java
-public CommandResult updateRank(
-    UUID staffUUID,
-    UUID targetUUID,
-    RankKey rankKey,
-    String reason,
-    boolean silent
-) {
-    return CommandResult.success();
-}
-```
-
-##### Why
-
-The method has too many related parameters.
-
-Callers can pass values in the wrong order.
-
-Adding another value makes the method worse.
-
-This is how method signatures become centipedes.
-
-#### Good Request Object Pattern
-
-```java
-public final class RankUpdateRequest {
-
-    private final UUID staffUUID;
-    private final UUID targetUUID;
-    private final RankKey rankKey;
-    private final String reason;
-    private final boolean silent;
-
-    public RankUpdateRequest(
+updateRank(
         UUID staffUUID,
         UUID targetUUID,
         RankKey rankKey,
         String reason,
         boolean silent
-    ) {
-        this.staffUUID = staffUUID;
-        this.targetUUID = targetUUID;
-        this.rankKey = rankKey;
-        this.reason = reason;
-        this.silent = silent;
-    }
-
-    public UUID getStaffUUID() {
-        return staffUUID;
-    }
-
-    public UUID getTargetUUID() {
-        return targetUUID;
-    }
-
-    public RankKey getRankKey() {
-        return rankKey;
-    }
-
-    public String getReason() {
-        return reason;
-    }
-
-    public boolean isSilent() {
-        return silent;
-    }
-}
+);
 ```
 
-```java
-public CommandResult updatePlayerRank(RankUpdateRequest rankUpdateRequest) {
-    UUID staffUUID = rankUpdateRequest.getStaffUUID();
-    UUID targetUUID = rankUpdateRequest.getTargetUUID();
+Good:
 
-    return CommandResult.success();
+```java
+public record RankUpdateRequest(
+        UUID staffUUID,
+        UUID targetUUID,
+        RankKey rankKey,
+        String reason,
+        boolean silent
+) {
 }
 ```
 
 ##### Why
 
-The request object gives the input a real shape.
+The request gives related input a real shape, prevents order-based meaning from dominating the API, and allows validation/evolution without turning every call site into a synchronized signature edit.
 
-The method receives one meaningful object instead of a pile of loose values.
+Do not create a request object for one or two obvious values merely to satisfy a pattern checklist.
 
-### Result Object Pattern
+## Result Pattern
 
-Result objects describe what happened.
+Results describe expected operation outcomes when a boolean/null cannot explain what happened.
 
-Use result objects when behavior can succeed, fail, or return a reason.
-
-#### Bad Result Object Pattern
+Bad:
 
 ```java
-public boolean updatePlayerRank(RankUpdateRequest rankUpdateRequest) {
+public boolean updatePlayerRank(RankUpdateRequest request) {
     return false;
 }
 ```
 
-##### Why
-
-`false` tells us nothing.
-
-Was permission denied?
-
-Was the target too powerful?
-
-Was the rank missing?
-
-Did the database fail?
-
-Nobody knows. The boolean sits there smugly contributing nothing.
-
-#### Good Result Object Pattern
+Good:
 
 ```java
-public final class CommandResult {
-
-    private final boolean success;
-    private final CommandFailureReason failureReason;
-
-    private CommandResult(
+public record RankUpdateResult(
         boolean success,
-        CommandFailureReason failureReason
-    ) {
-        this.success = success;
-        this.failureReason = failureReason;
+        RankUpdateFailureType failureType
+) {
+    public static RankUpdateResult success() {
+        return new RankUpdateResult(true, null);
     }
 
-    public static CommandResult success() {
-        CommandResult commandResult = new CommandResult(
-            true,
-            null
+    public static RankUpdateResult targetTooPowerful() {
+        return new RankUpdateResult(
+                false,
+                RankUpdateFailureType.TARGET_TOO_POWERFUL
         );
-
-        return commandResult;
-    }
-
-    public static CommandResult targetTooPowerful() {
-        CommandResult commandResult = new CommandResult(
-            false,
-            CommandFailureReason.TARGET_TOO_POWERFUL
-        );
-
-        return commandResult;
-    }
-
-    public boolean isSuccess() {
-        return success;
-    }
-
-    public CommandFailureReason getFailureReason() {
-        return failureReason;
     }
 }
 ```
 
 ##### Why
 
-The result object explains the outcome.
+`false` does not say whether permission failed, state was invalid, the target was too powerful, or some expected domain rejection occurred. Typed results let callers respond correctly without guessing.
 
-Callers can respond correctly without guessing.
+Infrastructure failures and violated invariants still use operation-specific exceptions rather than forcing every catastrophic failure into an expected result enum.
 
-### Resolver Pattern
+## Resolver Pattern
 
-Resolvers turn a key or placeholder into a resolved value.
+A Resolver derives one typed answer from explicit input and managed capabilities.
 
 Examples:
 
-* Message resolver
-* Placeholder resolver
-* Rank display resolver
-* Format resolver
+```text
+MessageResolver
+PlaceholderResolver
+RankDisplayResolver
+FormatResolver
+DestinationResolver
+```
 
-#### Bad Resolver Pattern
+Bad:
 
 ```java
 String message = config.getString("chat.player.format");
 ```
 
-##### Why
-
-The key is a raw string.
-
-The caller knows too much about config structure.
-
-There is no central fallback behavior.
-
-#### Good Resolver Pattern
+Good shape:
 
 ```java
-public final class ChatFormatResolver {
+@DelegatesTo(IChatFormatResolver.class)
+public final class ChatFormatResolver
+        implements IChatFormatResolver,
+        DependencyAccess<IChatFormatRegistry> {
 
-    private final ChatFormatRegistry chatFormatRegistry;
-
-    public String resolveChatFormat(ChatMessageFormatKey chatMessageFormatKey) {
-        ChatFormatDefinition chatFormatDefinition = chatFormatRegistry.getChatFormatDefinition(
-            chatMessageFormatKey
-        );
-
-        String formatValue = chatFormatDefinition.getFormatValue();
-
-        return formatValue;
+    @Override
+    public ChatFormatDefinition resolve(
+            ChatMessageFormatKey key
+    ) {
+        return getInstance()
+                .find(key)
+                .orElseThrow();
     }
 }
 ```
 
 ##### Why
 
-The caller uses a typed key.
+The caller uses a typed key while the resolver owns lookup/fallback/derivation behavior. Managed collaborators stay behind Tavall DI instead of becoming constructor-captured fields.
 
-The resolver owns lookup behavior.
+A Resolver should not become a repository, cache owner, or generic service locator.
 
-Fallbacks can live in one place instead of being copied into every caller.
+## Formatter Pattern
 
-### Formatter Pattern
+A Formatter converts already-known data into a presentation representation.
 
-Formatters turn already-known data into display text.
+It should not load data, save data, resolve permissions, mutate caches, or perform unrelated domain decisions.
 
-Formatters should not load data, save data, or run permission checks.
-
-#### Bad Formatter Pattern
+Bad:
 
 ```java
-public final class RankFormatter {
+public String format(UUID playerUUID) {
+    PlayerAccountData data = dataHandler.load(playerUUID);
+    return data.rankKey().name();
+}
+```
 
-    public String format(UUID playerUUID) {
-        PlayerAccountData playerAccountData = playerAccountDataHandler.loadPlayerAccountData(
-            playerUUID
-        );
+Good:
 
-        RankKey rankKey = playerAccountData.getRankKey();
-
-        return rankKey.name();
-    }
+```java
+public String formatPlayerRank(
+        PlayerRankMetaData metaData
+) {
+    return metaData.legacyColor() + metaData.displayName();
 }
 ```
 
 ##### Why
 
-The formatter is loading data.
+Formatting is deterministic from already-known input. Once the formatter starts loading data or resolving authority, it becomes hidden behavior with I/O and failure semantics that callers cannot infer from `format()`.
 
-That makes it secretly a handler.
+## Review Checklist
 
-Formatters should format values they are given.
-
-#### Good Formatter Pattern
-
-```java
-public final class PlayerRankFormatter {
-
-    public String formatPlayerRank(PlayerRankMetaData playerRankMetaData) {
-        String legacyColor = playerRankMetaData.getLegacyColor();
-        String displayName = playerRankMetaData.getDisplayName();
-
-        String formattedRank = legacyColor + displayName;
-
-        return formattedRank;
-    }
-}
-```
-
-##### Why
-
-The formatter receives metadata and formats it.
-
-No storage.
-
-No cache.
-
-No rules.
-
-Just formatting. A rare moment of restraint.
+- [ ] Requests group genuinely related operation input.
+- [ ] Results explain meaningful expected outcomes.
+- [ ] Resolvers derive one typed answer and use Tavall DI for managed collaborators.
+- [ ] Formatters receive the values they format rather than loading them.
+- [ ] Raw strings/maps are not used where a stable typed key/value exists.
+- [ ] These roles do not become hidden persistence/cache/registry/service-locator boundaries.

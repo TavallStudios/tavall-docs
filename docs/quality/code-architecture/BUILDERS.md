@@ -1,505 +1,247 @@
-# Project Novus Builder Patterns
+# Tavall Builder Patterns
 
 > **Status:** Active  
-> **Authority:** Binding chapter of [Project Novus Code Architecture](../CODE_ARCHITECTURE.md)  
-> **Applies to:** All Project Novus modules, contributors, automation, generated code, and AI-assisted development
+> **Authority:** Binding chapter of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
+> **Applies to:** Tavall production modules, contributors, automation, generated code, reviews, and AI-assisted development
 
-This chapter is separated for navigation only. Its rules are part of the authoritative Project Novus code architecture and are not optional supplemental guidance.
+Builders are construction tools. They construct typed values, definitions, requests, results, entities, configuration, or another explicit output. They do **not** become runtime composition roots, dependency containers, services, repositories, registries, or orchestrators.
 
-## Patterns
+## Pattern Rules
 
-### Pattern Rules
+Use a builder when construction is meaningfully clearer because:
 
-Patterns should make the code easier to understand, test, and change.
+- several optional values exist;
+- defaults are part of the contract;
+- validation belongs before publication;
+- the result is immutable or expensive to assemble;
+- parsing/conversion produces one typed output.
 
-Do not use a pattern just because it sounds official. That is how a five-line problem becomes a shrine to suffering.
-
-Patterns should:
-
-* Make ownership clearer.
-* Keep data flow readable.
-* Keep behavior in the right class.
-* Avoid raw strings and magic values.
-* Work with Java 21 and the owning Paper, Velocity, web, or standalone runtime.
-* Match the class and method rules already defined in this document.
-
-#### Bad Pattern Usage
-
-```java
-public final class PlayerManager {
-
-    private final Map<String, Object> data = new HashMap<String, Object>();
-
-    public void update(String key, Object value) {
-        data.put(key, value);
-    }
-}
-```
+Do not use a builder merely because a constructor has many Tavall-managed dependencies. A large dependency declaration is a design-review signal, not permission to hide the same graph behind setters.
 
 ##### Why
 
-This hides every real responsibility behind vague names.
+A build call should be predictable from the inputs supplied to the builder. Once a builder resolves managed dependencies, registers services, performs I/O, schedules work, or wires application behavior, construction becomes a hidden lifecycle with failure and replacement semantics callers cannot see.
 
-There is no clear system ownership, no type safety, no real data shape, and no readable behavior.
+Keeping builders construction-only makes them safe to reuse in handlers, persistence, tests, migrations, serializers, and other composition paths.
 
-#### Good Pattern Usage
-
-```java
-public final class PlayerAccountDataHandler {
-
-    private final PlayerAccountDatabase playerAccountDatabase;
-    private final PlayerAccountDataBuilder playerAccountDataBuilder;
-
-    public PlayerAccountData loadPlayerAccountData(UUID playerUUID) {
-        PlayerAccountEntity playerAccountEntity = playerAccountDatabase.findPlayerAccountEntity(
-            playerUUID
-        );
-
-        PlayerAccountData playerAccountData = playerAccountDataBuilder.buildPlayerAccountData(
-            playerAccountEntity
-        );
-
-        return playerAccountData;
-    }
-}
-```
-
-##### Why
-
-The class name explains the role.
-
-The method name explains the action.
-
-The database class reads persistence data.
-
-The builder creates the data object.
-
-The handler coordinates the flow.
-
-### Builder Pattern
-
-Builders are a default preferred pattern in Project Novus.
-
-Builders are not only for creating simple data objects.
-
-Builders may safely assemble, hydrate, configure, mutate, register, or prepare a system object or flow.
-
-The builder name must make the responsibility clear.
-
-Builders are preferred over long constructor injection when construction needs several dependencies, setup values, or ordered setup steps.
-
-#### Builder Class Rule
-
-Use a builder when construction or setup needs more than a tiny obvious constructor.
-
-Bad:
-
-```java
-public final class RankUpdateHandler {
-
-    public RankUpdateHandler(
-        PlayerAccountDataHandler playerAccountDataHandler,
-        PlayerRankDataHandler playerRankDataHandler,
-        PlayerRankMetaDataHandler playerRankMetaDataHandler,
-        PlayerAccountCache playerAccountCache,
-        RankRegistry rankRegistry,
-        PermissionHandler permissionHandler,
-        PowerLevelHandler powerLevelHandler
-    ) {
-    }
-}
-```
-
-##### Why
-
-The constructor is doing too much.
-
-It is noisy, easy to break, and annoying to read.
-
-Long constructor injection turns class setup into a parameter hostage situation.
-
-Good:
+## Bad Pattern: Generic Builder as Dependency Container
 
 ```java
 public final class RankUpdateHandlerBuilder {
+    private IPlayerAccountDataHandler dataHandler;
+    private IPlayerAccountCache cache;
+    private IPermissionHandler permissionHandler;
 
-    private PlayerAccountDataHandler playerAccountDataHandler;
-    private PlayerRankDataHandler playerRankDataHandler;
-    private PlayerRankMetaDataHandler playerRankMetaDataHandler;
-    private PlayerAccountCache playerAccountCache;
-    private RankRegistry rankRegistry;
-    private PermissionHandler permissionHandler;
-    private PowerLevelHandler powerLevelHandler;
-
-    public RankUpdateHandlerBuilder withPlayerAccountDataHandler(
-        PlayerAccountDataHandler playerAccountDataHandler
-    ) {
-        this.playerAccountDataHandler = playerAccountDataHandler;
-
-        return this;
-    }
-
-    public RankUpdateHandlerBuilder withPlayerRankDataHandler(
-        PlayerRankDataHandler playerRankDataHandler
-    ) {
-        this.playerRankDataHandler = playerRankDataHandler;
-
-        return this;
-    }
-
-    public RankUpdateHandler buildRankUpdateHandler() {
-        RankUpdateHandler rankUpdateHandler = new RankUpdateHandler(
-            playerAccountDataHandler,
-            playerRankDataHandler,
-            playerRankMetaDataHandler,
-            playerAccountCache,
-            rankRegistry,
-            permissionHandler,
-            powerLevelHandler
+    public RankUpdateHandler build() {
+        return new RankUpdateHandler(
+                dataHandler,
+                cache,
+                permissionHandler
         );
-
-        return rankUpdateHandler;
     }
 }
 ```
 
 ##### Why
 
-The setup has a real object.
+This does not remove constructor injection. It merely stores the same managed graph in a mutable builder first.
 
-The builder owns construction.
+The builder becomes an alternate composition root, callers decide dependency identities, and Tavall DI replacement/reload semantics can be bypassed.
 
-The handler can stay focused on behavior.
+Use `DependencyAccess<...>` on the managed behavior class. If the dependency count is too large, keep direct access when the class is genuinely cohesive, introduce one real immutable domain bundle, or split responsibilities.
 
-The caller can read what is being assembled without counting constructor parameters like a cursed spreadsheet.
+## Data Builder Pattern
 
-#### Data Builder Pattern
-
-Data builders create normal data objects.
-
-Data builders usually build data from:
-
-* Database entities
-* Config values
-* Runtime input
-* Request objects
-* Other domain data
-
-Bad:
-
-```java
-public final class DataBuilder {
-
-    public Object build(Object input) {
-        return input;
-    }
-}
-```
-
-##### Why
-
-This does not tell us what data is being built.
-
-It also throws away type safety, which is not exactly a trust-building exercise.
-
-Good:
+Data builders create one typed data value from explicit source values.
 
 ```java
 public final class PlayerAccountDataBuilder {
 
-    public PlayerAccountData buildPlayerAccountData(PlayerAccountEntity playerAccountEntity) {
-        UUID playerUUID = playerAccountEntity.getPlayerUUID();
-        String playerName = playerAccountEntity.getPlayerName();
-        RankKey rankKey = playerAccountEntity.getRankKey();
+    public PlayerAccountData buildPlayerAccountData(
+            PlayerAccountEntity entity
+    ) {
+        UUID playerUUID = entity.getPlayerUUID();
+        String playerName = entity.getPlayerName();
+        RankKey rankKey = entity.getRankKey();
 
-        PlayerAccountData playerAccountData = new PlayerAccountData(
-            playerUUID,
-            playerName,
-            rankKey
+        return new PlayerAccountData(
+                playerUUID,
+                playerName,
+                rankKey
         );
-
-        return playerAccountData;
     }
 }
 ```
 
 ##### Why
 
-The class says what data it builds.
+The class says what data it builds and the source-to-domain conversion stays separate from persistence/runtime behavior.
 
-The method says what object it creates.
+A builder may validate or normalize its explicit inputs, but it does not load them from a service, cache, registry, or database by itself.
 
-The values are extracted into readable local variables before the object is created.
+## Metadata Builder Pattern
 
-#### MetaData Builder Pattern
-
-MetaData builders create resolved or display-ready metadata from normal data.
-
-Metadata should be easy to rebuild from source data.
-
-Bad:
-
-```java
-public final class MetaBuilder {
-
-    public PlayerRankMetaData build(PlayerAccountData playerAccountData) {
-        return new PlayerRankMetaData(playerAccountData.getRankKey().name());
-    }
-}
-```
-
-##### Why
-
-The class name is vague.
-
-The method name is vague.
-
-The chained call hides the value being used.
-
-The builder also does not show where display data comes from.
-
-Good:
+Metadata builders create resolved or display-ready values from source data already provided to them.
 
 ```java
 public final class PlayerRankMetaDataBuilder {
 
     public PlayerRankMetaData buildPlayerRankMetaData(
-        PlayerAccountData playerAccountData,
-        RankDefinition rankDefinition
+            PlayerAccountData accountData,
+            RankDefinition rankDefinition
     ) {
-        RankKey rankKey = playerAccountData.getRankKey();
-        String displayName = rankDefinition.getDisplayName();
-        String legacyColor = rankDefinition.getLegacyColor();
-        int powerLevel = rankDefinition.getPowerLevel();
-
-        PlayerRankMetaData playerRankMetaData = new PlayerRankMetaData(
-            rankKey,
-            displayName,
-            legacyColor,
-            powerLevel
+        return new PlayerRankMetaData(
+                accountData.getRankKey(),
+                rankDefinition.getDisplayName(),
+                rankDefinition.getLegacyColor(),
+                rankDefinition.getPowerLevel()
         );
-
-        return playerRankMetaData;
     }
 }
 ```
 
 ##### Why
 
-The metadata is built from clear source objects.
+Metadata is derived state with different rebuild/invalidation semantics from its source data. The builder expresses that transformation without becoming the owner that looks up the source values.
 
-The result is display-ready.
+## Request Builder Pattern
 
-The builder still only builds metadata.
+Use a request builder when external input needs parsing, defaults, or conversion before one typed request can be produced.
 
-#### Request Builder Pattern
+The builder may receive collaborators as **explicit method inputs** or already-resolved values. A Tavall-managed request builder must not constructor-capture or statically locate managed services merely because parsing needs them.
 
-Request builders create request objects from command input, event input, GUI input, or other external data.
-
-Bad:
+Simple request values do not require a builder:
 
 ```java
-RankUpdateRequest rankUpdateRequest = new RankUpdateRequest(
-    staffUUID,
-    targetUUID,
-    rankKey,
-    reason,
-    silent
+RankUpdateRequest request = new RankUpdateRequest(
+        staffUUID,
+        targetUUID,
+        rankKey,
+        reason,
+        false
 );
 ```
 
-##### Why
-
-This is fine when the object is tiny.
-
-It becomes bad when request creation needs parsing, defaults, validation, sender conversion, fallback values, or player lookup.
-
-Good:
+Use a builder when the construction itself is meaningful:
 
 ```java
 public final class RankUpdateRequestBuilder {
 
-    public RankUpdateRequest buildRankUpdateRequest(
-        CommandSender sender,
-        String targetName,
-        String rankInput,
-        String reason
+    public RankUpdateRequest build(
+            UUID staffUUID,
+            UUID targetUUID,
+            RankKey rankKey,
+            String reason,
+            boolean silent
     ) {
-        UUID staffUUID = senderUUIDResolver.resolveSenderUUID(sender);
-        UUID targetUUID = playerUUIDResolver.resolvePlayerUUID(targetName);
-        RankKey rankKey = rankKeyResolver.resolveRankKey(rankInput);
-        boolean silent = false;
+        Objects.requireNonNull(staffUUID, "staffUUID");
+        Objects.requireNonNull(targetUUID, "targetUUID");
+        Objects.requireNonNull(rankKey, "rankKey");
 
-        RankUpdateRequest rankUpdateRequest = new RankUpdateRequest(
-            staffUUID,
-            targetUUID,
-            rankKey,
-            reason,
-            silent
+        return new RankUpdateRequest(
+                staffUUID,
+                targetUUID,
+                rankKey,
+                reason,
+                silent
         );
-
-        return rankUpdateRequest;
     }
 }
 ```
 
 ##### Why
 
-The builder owns the messy input conversion.
+The builder owns request construction, not command handling, target lookup, permission checks, or service access. External input adapters resolve those concerns and then ask the builder for one typed value.
 
-The command can stay focused on command flow.
+## Result Builder Pattern
 
-#### Result Builder Pattern
+A result builder is useful only when result construction itself has meaningful optional fields, validation, or reusable defaults.
 
-Result builders create result objects when success/failure output has multiple paths.
-
-Bad:
+Prefer typed factories when the result is simple:
 
 ```java
-return new CommandResult(false, "target-too-powerful");
+return CommandResult.failure(
+        CommandFailureReason.TARGET_TOO_POWERFUL
+);
 ```
+
+Do not create `CommandResultBuilder` merely to wrap a one-line typed factory.
 
 ##### Why
 
-The failure reason is a raw string.
+Builders should reduce construction complexity. Wrapping already-clear factories adds ceremony without ownership value and makes simple result creation harder to read.
 
-The result shape is being rebuilt manually.
+## Persistence Entity Builder Pattern
 
-That is how result handling becomes a pile of slightly different lies.
-
-Good:
-
-```java
-public final class CommandResultBuilder {
-
-    public CommandResult buildTargetTooPowerfulResult() {
-        CommandFailureReason failureReason = CommandFailureReason.TARGET_TOO_POWERFUL;
-
-        CommandResult commandResult = CommandResult.failure(failureReason);
-
-        return commandResult;
-    }
-
-    public CommandResult buildSuccessResult() {
-        CommandResult commandResult = CommandResult.success();
-
-        return commandResult;
-    }
-}
-```
-
-##### Why
-
-Result creation stays consistent.
-
-Handlers do not need to rebuild the same result shapes everywhere.
-
-#### Database Entity Builder Pattern
-
-Database entity builders create persistence entities.
-
-Database entity builders should be used with `tavall-database` and JPA-shaped entity classes where appropriate.
-
-Bad:
-
-```java
-public final class PlayerAccountDatabase {
-
-    public void savePlayerAccountData(PlayerAccountData playerAccountData) {
-        PlayerAccountEntity playerAccountEntity = new PlayerAccountEntity();
-
-        playerAccountEntity.setPlayerUUID(playerAccountData.getPlayerUUID());
-        playerAccountEntity.setPlayerName(playerAccountData.getPlayerName());
-        playerAccountEntity.setRankKey(playerAccountData.getRankKey());
-
-        savePlayerAccountEntity(playerAccountEntity);
-    }
-}
-```
-
-##### Why
-
-The database class is building entities and saving them.
-
-Persistence access and entity construction are now mixed together.
-
-Good:
+Entity builders may convert domain values into mapped JPA entities.
 
 ```java
 public final class PlayerAccountEntityBuilder {
 
-    public PlayerAccountEntity buildPlayerAccountEntity(PlayerAccountData playerAccountData) {
-        UUID playerUUID = playerAccountData.getPlayerUUID();
-        String playerName = playerAccountData.getPlayerName();
-        RankKey rankKey = playerAccountData.getRankKey();
-
-        PlayerAccountEntity playerAccountEntity = new PlayerAccountEntity();
-
-        playerAccountEntity.setPlayerUUID(playerUUID);
-        playerAccountEntity.setPlayerName(playerName);
-        playerAccountEntity.setRankKey(rankKey);
-
-        return playerAccountEntity;
+    public PlayerAccountEntity buildPlayerAccountEntity(
+            PlayerAccountData data
+    ) {
+        PlayerAccountEntity entity = new PlayerAccountEntity();
+        entity.setPlayerUUID(data.getPlayerUUID());
+        entity.setPlayerName(data.getPlayerName());
+        entity.setRankKey(data.getRankKey());
+        return entity;
     }
 }
 ```
 
+The builder does **not** save the entity. Persistence goes through the Tavall Database entity/typed operation boundary.
+
 ##### Why
 
-The data object and JPA entity stay separate.
+Entity construction and entity persistence are separate responsibilities. The builder maps one value shape to another; Tavall Database owns the persistence lifecycle and transaction behavior.
 
-The database class can persist entities without knowing how every domain object is assembled.
+## Configuration and Definition Builders
 
-#### Runtime Builder Pattern
-
-Runtime builders assemble runtime objects, handlers, registries, caches, or feature flows.
-
-They may wire dependencies, register handlers, or prepare state.
-
-Runtime builders should still have clear names.
-
-Bad:
+Builders are appropriate for immutable definitions with optional configuration:
 
 ```java
-public final class SetupBuilder {
-}
+BukkitBossBarEffectBuilder overtimeBar = new BukkitBossBarEffectBuilder()
+        .name(Component.text("OVERTIME"))
+        .progress(1.0F)
+        .color(BossBar.Color.RED);
 ```
+
+The builder may snapshot/validate configuration but must not choose audience, schedule work, register services, or perform delivery unless the owning type is explicitly not a builder and represents a workflow/runtime boundary.
 
 ##### Why
 
-`SetupBuilder` tells us nothing.
+Definitions remain reusable when they describe **what** should exist rather than **when**, **where**, or **through which runtime dependency** it should be used.
 
-Setup for what?
+## Runtime Composition Is Not a Builder Pattern
 
-A feature?
+Classes that create/register several managed services, handlers, caches, registries, schedulers, or module objects own **bootstrap/runtime composition**, not ordinary builder behavior.
 
-A handler?
+Use names such as:
 
-A ritual?
-
-Good:
-
-```java
-public final class ChatRuntimeBuilder {
-
-    public ChatRuntime buildChatRuntime() {
-        ChatFormatRegistry chatFormatRegistry = buildChatFormatRegistry();
-        ChatFormatResolver chatFormatResolver = buildChatFormatResolver(chatFormatRegistry);
-        ChatMessageHandler chatMessageHandler = buildChatMessageHandler(chatFormatResolver);
-
-        ChatRuntime chatRuntime = new ChatRuntime(
-            chatFormatRegistry,
-            chatFormatResolver,
-            chatMessageHandler
-        );
-
-        return chatRuntime;
-    }
-}
+```text
+AchievementRuntime
+AchievementBootstrap
+ModuleComposition
+FeatureRuntime
 ```
+
+when those names match the actual lifecycle.
+
+Existing production classes named `*RuntimeBuilder` may remain during migration, but their name is not a template for new code. When touched coherently, move runtime assembly toward explicit bootstrap/runtime composition and Tavall DI registration.
 
 ##### Why
 
-The builder owns runtime assembly.
+Runtime composition creates object identity, registration, replacement, startup order, and cleanup ownership. Calling that a builder hides lifecycle semantics under a construction suffix and encourages ordinary builders to start wiring services.
 
-The name explains the system being assembled.
+## Builder Review Checklist
+
+- [ ] The builder produces one explicit typed output.
+- [ ] Construction complexity justifies the builder.
+- [ ] Required values are validated before publication.
+- [ ] Defaults are intentional and tested.
+- [ ] The builder does not resolve or capture Tavall-managed application dependencies.
+- [ ] The builder does not persist, cache, register, schedule, authorize, deliver, or orchestrate runtime behavior.
+- [ ] The builder is not being used to hide a large dependency graph.
+- [ ] Simple typed factories/constructors are preferred when they are clearer.
+- [ ] Runtime composition uses a runtime/bootstrap owner rather than a new `*Builder` pattern.

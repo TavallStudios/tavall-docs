@@ -1,309 +1,186 @@
-# Project Novus Testing and Git Discipline
+# Tavall Testing and Git Discipline
 
 > **Status:** Active  
-> **Authority:** Binding chapter of [Project Novus Code Architecture](../CODE_ARCHITECTURE.md)  
-> **Applies to:** All Project Novus modules, contributors, automation, generated code, and AI-assisted development
+> **Authority:** Binding architecture/testing chapter of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
+> **Applies to:** Tavall production modules, contributors, automation, generated code, reviews, and AI-assisted development
 
-This chapter is separated for navigation only. Its rules are part of the authoritative Project Novus code architecture and are not optional supplemental guidance.
+This chapter defines testing expectations and the architecture implications of Git boundaries. The authoritative branch, pull-request, staging, review, owner-authority, and production-promotion rules live in [GIT_WORKFLOW.md](../GIT_WORKFLOW.md). Do not duplicate a simplified branch graph here and accidentally create a second workflow.
 
-## Testing
-### Testing Stack
+# Testing
 
-* JUnit 5: Core unit, contract, and integration test execution.
-* Mockito: Narrow mocking of Paper or Velocity platform boundaries when a delegate or test implementation is impractical.
-* Testcontainers: PostgreSQL, Redis, and other real infrastructure dependencies.
-* Mineflayer with raw TypeScript: Minecraft command, routing, lifecycle, and interaction scenarios.
-* Gradle test suites: Repository unit, contract, and explicit integration-test execution.
+## Testing Stack
 
-### How to Write Tests / Testing Rules
+Use the tools appropriate to the repository/runtime, commonly:
 
-We want to write **delegate-style integration tests**.
+- JUnit 5 for unit/contract/integration execution;
+- Mockito only for narrow external/platform boundaries when a real delegate/fake is impractical;
+- Testcontainers for PostgreSQL, Redis, and real infrastructure dependencies;
+- Mineflayer or equivalent client harnesses for Minecraft command/routing/lifecycle/interaction scenarios;
+- Gradle test suites for explicit unit/contract/integration separation.
 
-That means tests should use real data objects, real enums, real interfaces, and real concrete behavior from the codebase whenever possible.
+Repository-specific test skills and canonical Tavall architecture tests may impose additional requirements.
 
-The test should build realistic input, call real system behavior, and let JUnit tell us what happened.
+## Canonical Architecture-Test Boundary
 
-Some things can still be faked:
+[`TavallStudios/Tavall-Architecture-Tests`](https://github.com/TavallStudios/Tavall-Architecture-Tests) owns the reusable executable subset of Tavall-wide architecture policy. This documentation remains the human-readable authority for the policy itself; an executable rule implements policy, it does not replace or silently redefine it.
 
-* UUIDs
-* In-memory repositories
-* Test clocks
-* Fake players/senders
-* Test-only data sources
+The default consumer boundary is the repository's canonical testing suite:
 
-Do not mock the thing being tested.  
-Do not test private methods.  
-Do not write tests that only prove Mockito knows how to lie.
+1. a multi-module repository owns one `*-test-suite` or equivalent repository-level verification suite;
+2. that suite consumes the published Tavall architecture-test plugin/modules as dependencies rather than copying canonical test source;
+3. the suite declares the real production projects/modules it owns as architecture targets;
+4. those targets' compiled `main` classes, `main` Java source roots, and production/runtime classpaths are fed through the architecture-test boundary;
+5. repository/root `check` reaches the suite's architecture gate once;
+6. production subprojects do not each need to apply and execute duplicate canonical Tavall architecture gates.
 
-#### Test Class Rules
+A genuinely single-module repository may use its root verification project as the suite boundary. The important invariant is that the architecture engine inspects the real production source/classes that are built and shipped rather than a copied fixture, stale source mirror, or independently reconstructed model of the application.
 
-* Test helper objects used by a test should live at the class level inside that test class when they are part of the repeated test setup.
-* Use real domain objects.
-* Use real behavior when possible.
-* Fake only external boundaries.
-* Keep setup readable.
-* Extract important values into local variables.
-* Put repeated test setup at the class level.
-* Match the test package structure to the main package structure.
-* Name test classes after the tested class with Test at the end.
+Repository-specific tests remain responsible for behavior that cannot or should not be generalized into Tavall-wide architecture rules, including product-specific adapters, runtime simulations, live infrastructure/platform behavior, and explicit temporary architecture debt. When a repository-specific rule becomes reusable Tavall-wide policy, move the reusable enforcement into `Tavall-Architecture-Tests` and update this documentation in the same coherent design/review boundary.
 
-**Test classes should be named directly after the class they are testing, with `Test` at the end.**
+##### Why
 
-Example:
+Putting the canonical dependency at the repository test-suite boundary gives each repository one verification authority while still allowing the shared architecture engine to inspect every applicable production module. Applying the same canonical gate independently to every production subproject duplicates configuration and execution, makes cross-module architecture harder to inspect, and encourages local copies to drift from the shared policy.
 
-```text
-PowerLevelService.java
-PowerLevelServiceTest.java
-```
-**The test source package structure should match the main source package structure.**
+## Real Behavior First
 
-Example:
+Tests should use real domain values, real enums, real concrete behavior, and the production contract whenever practical.
+
+Fake or mock only boundaries whose implementation is not the behavior under test, such as:
+
+- platform/server objects;
+- external providers;
+- clocks;
+- network clients;
+- filesystem/data-source boundaries;
+- real repository contracts when a repository genuinely exists;
+- Tavall Database itself only when the test specifically targets behavior above persistence and a focused fake boundary is appropriate.
+
+Do not mock the thing being tested. Do not test private methods. Do not write tests that only prove a configured mock returns the configured value.
+
+##### Why
+
+A test should fail when production behavior regresses. Mocking the behavior under test only proves the mocking framework can recite the answer we gave it, which is technically a skill but not one worth putting in CI.
+
+## Tavall DI Test Composition
+
+Tests of Tavall-managed behavior should exercise the same dependency-access model as production.
+
+Do **not** construct a managed Handler/Service/Orchestrator with Tavall-managed dependencies through a special test constructor merely because it is convenient.
+
+Preferred shape:
+
+1. create the owning `IDependencyMap` or repository-approved test composition;
+2. register real/fake boundary dependencies under the same interface aliases production uses;
+3. create/register generated `DependencyAccess` metadata where required by the checked-in Tavall DI version;
+4. instantiate/register the behavior through its production-equivalent composition path;
+5. invoke the public behavior contract.
+
+##### Why
+
+A constructor-only test path can pass while production replacement, alias, generation, or lifecycle semantics are broken. Production-equivalent composition tests the code **and** the dependency relationship the code actually relies on.
+
+## Test Class Rules
+
+- Name the test after the production type with `Test` at the end.
+- Match the production package structure.
+- Use behavior-oriented test method names such as `modCannotPunishAdmin()` rather than `testCanPunish()`.
+- Keep repeated test setup at class level when it is stable context.
+- Keep behavior-specific setup inside the test when it matters only to that case.
+- Extract important values into readable locals.
+- Cover expected rejection/failure/cleanup paths, not only success.
+
 ```text
 src/main/java/org/tavall/permissions/power/PowerLevelService.java
 src/test/java/org/tavall/permissions/power/PowerLevelServiceTest.java
 ```
 
-#### Example Bad Test
-```java
-@Test
-public void testCanPunish() {
-IPowerLevelService powerLevelService = Mockito.mock(IPowerLevelService.class);
+##### Why
 
-    Player staff = Mockito.mock(Player.class);
-    Player target = Mockito.mock(Player.class);
+Behavior-oriented names make CI failures describe the contract that broke. Matching packages and readable setup keep tests discoverable and prevent test-only organization from becoming another architecture to learn.
 
-    Mockito.when(powerLevelService.canPunish(staff, target)).thenReturn(true);
+## Infrastructure Tests
 
-    boolean canPunish = powerLevelService.canPunish(staff, target);
+Use real infrastructure when the behavior belongs to the infrastructure contract.
 
-    assertTrue(canPunish);
-}
-```
-_Why?_
+Examples:
 
-This does not test the power level system.
+- Tavall Database entity mapping, transaction rollback, native PostgreSQL behavior, migrations;
+- Redis streams/TTL/locking semantics;
+- Tavall Cache TTL, misses, live snapshots, invalidation;
+- Tavall Registry duplicate/index/rollback behavior;
+- module load/unload/replacement;
+- platform-thread rules where practical.
 
-It tests that a mocked method returns the value we told it to return. Stunning. We successfully asked a mirror if we look good.
+H2/in-memory substitutes may test provider-neutral mechanics, but they must not claim PostgreSQL-specific behavior is verified.
 
-#### Example Good Test
+## Full-Flow Tests
 
-```java
-public final class PowerLevelServiceTest {
+Delegate-style integration/simulation tests should exercise a meaningful real flow while faking only true external boundaries.
 
-    private final UUID staffUUID = UUID.fromString("00000000-0000-0000-0000-000000000001");
-    private final UUID targetUUID = UUID.fromString("00000000-0000-0000-0000-000000000002");
+For plugin/application lifecycle tests, bootstrap through the same runtime/composition entry point production uses where practical and assert shutdown/cleanup as well as startup.
 
-    private final StaffPowerProfile staffProfile = new StaffPowerProfile(
-        staffUUID,
-        RankKey.MOD,
-        300
-    );
+A useful public example of lifecycle-style testing remains [Minecraft-CTF `FullPluginSimulationTest`](https://github.com/tjXJNOOBIE/Minecraft-CTF/blob/main/ctf-paper/src/test/java/dev/tjxjnoobie/ctf/game/FullPluginSimulationTest.java), but current Tavall DI/composition rules take precedence over any older constructor-wiring shape in external examples.
 
-    private final StaffPowerProfile targetProfile = new StaffPowerProfile(
-        targetUUID,
-        RankKey.ADMIN,
-        700
-    );
+# Git and Commit Discipline
 
-    private final IPowerLevelService powerLevelService = new PowerLevelService();
+## Authoritative Workflow
 
-    @Test
-    public void modCannotPunishAdmin() {
-        boolean canPunish = powerLevelService.canPunish(
-            staffProfile,
-            targetProfile
-        );
+[GIT_WORKFLOW.md](../GIT_WORKFLOW.md) owns:
 
-        assertFalse(canPunish);
-    }
-}
-```
+- working-branch rules;
+- PR-first durable work surfaces;
+- staging files/branches and ancestry when required;
+- stacked/parallel PR behavior;
+- owner direct-push/self-review authority;
+- review/check requirements;
+- production promotion;
+- hotfix/reconciliation behavior.
 
-_Why?_
+This chapter intentionally does **not** state `working/* -> staging/* -> main` as a universal mandatory topology because the canonical workflow may represent staging through manifests, branches, stacked ancestry, or repository-specific rules.
 
-The test class is named after the class being tested.
+##### Why
 
-The setup objects live at the class level because they are part of the repeated test context.
+Branch topology is operational policy and evolves. Duplicating a simplified diagram in architecture docs creates a stale second authority that agents will eventually choose when it is more convenient. Naturally, convenience is undefeated in finding the wrong paragraph.
 
-The test uses real profiles, real rank keys, real power values, and the real power-level service.
+## Main and Review
 
-No fake answer. No mock theater. Just behavior.
+`main` is production source.
 
-#### Example Good Full Delegate Test
+- Ordinary contributor changes follow accountable GitHub review and configured checks under `GIT_WORKFLOW.md`.
+- Authorized repository owners retain the explicit self-review/direct/bypass authority defined by `GIT_WORKFLOW.md` where repository-specific rules permit it.
+- Direct owner authority is an exception owned by the workflow; it does not become permission for ordinary contributors or automation to bypass review.
 
-```java
-public final class BanCommandTest {
+##### Why
 
-    private final UUID staffUUID = UUID.fromString("00000000-0000-0000-0000-000000000001");
-    private final UUID targetUUID = UUID.fromString("00000000-0000-0000-0000-000000000002");
+Saying “all changes must be reviewed before main” contradicted the explicit owner-authority path. The correct rule distinguishes normal contributor safety from deliberate owner responsibility instead of pretending GitHub can approve an author's own PR by force of documentation.
 
-    private final StaffPowerProfile staffProfile = new StaffPowerProfile(
-        staffUUID,
-        RankKey.MOD,
-        300
-    );
+## Commit Messages
 
-    private final StaffPowerProfile targetProfile = new StaffPowerProfile(
-        targetUUID,
-        RankKey.ADMIN,
-        700
-    );
+Use the structured commit format defined by the current Tavall Git workflow. At minimum, commit history must state:
 
-    private final FakePermissionRepository permissionRepository = new FakePermissionRepository();
-    private final IPermissionService permissionService = new PermissionService(permissionRepository);
-    private final IPowerLevelService powerLevelService = new PowerLevelService();
-    private final IPunishmentService punishmentService = new FakePunishmentService();
+- the typed/specific change;
+- why it exists;
+- what changed;
+- what validation actually ran or why it did not.
 
-    private final BanCommand banCommand = new BanCommand(
-        permissionService,
-        powerLevelService,
-        punishmentService
-    );
+Do not claim validation that did not run. Keep one commit to one coherent system boundary; implementation, tests, and docs for the same boundary may belong together.
 
-    @Test
-    public void rejectsTargetWithHigherPower() {
-        PermissionNode permissionNode = PermissionNode.PUNISHMENT_BAN;
-        permissionRepository.grant(staffUUID, permissionNode);
+## Coherent Change Boundaries
 
-        String reason = "Testing punishment power checks.";
+- Architecture migrations stay separate from unrelated feature work.
+- Code, tests, DI bindings, imports, schemas, and docs move together when one contract changes.
+- A PR remains the durable work surface for its branch until merged/superseded/abandoned according to `GIT_WORKFLOW.md`.
+- Large PR counts are not themselves a defect; duplicate, contradictory, ownerless, or misleading work is.
 
-        BanCommandRequest request = new BanCommandRequest(
-            staffProfile,
-            targetProfile,
-            reason
-        );
+# Review Checklist
 
-        CommandResult result = banCommand.execute(request);
-
-        assertFalse(result.isSuccess());
-        assertEquals(CommandFailureReason.TARGET_POWER_TOO_HIGH, result.getFailureReason());
-    }
-}
-```
-_Why?_
-
-This delegates through the real command flow.
-
-The test uses real permission logic, real power-level logic, and realistic request data. Only the outside boundary is fake.
-
-The setup is readable, class-level, and reusable. The test method only contains the behavior being tested, which is the whole point before someone invents BanCommandIntegrationUnitMockDelegateTestV2Final.
-
-#### Best Example Usage of Mocking
-
-**Delegate testing can simulate complete plugin lifecycles from bootstrap through shutdown while still keeping platform boundaries replaceable.**
-
-The linked class demonstrates how to simulate a complete plugin lifecycle while mocking only true platform boundaries.
-
-[See class FullPluginSimulationTest.java in public Minecraft-CTF plugin by TJ](https://github.com/tjXJNOOBIE/Minecraft-CTF/blob/main/ctf-paper/src/test/java/dev/tjxjnoobie/ctf/game/FullPluginSimulationTest.java)
-
-## Git Commits
-
-### Commit Message Rules
-
-Every commit must use a structured message with a typed subject and body.
-
-Allowed types only:
-
-```text
-Build:
-Added:
-Changed:
-Removed:
-Fixed:
-Clean:
-Test:
-Docs:
-License:
-```
-
-Required format:
-
-```text
-<Type>: <specific action>
-
-Reason:
-- Why this commit exists.
-
-Changes:
-- What changed.
-
-Validation:
-- What was checked, or `Not run: <reason>`.
-```
-
-Rules:
-
-* Always include the colon after the type.
-* Wrap file paths, class names, commands, and literal references in backticks.
-* Capitalize the first word after the commit type so the subject reads like a sentence.
-* No vague subjects or reasons like `update`, `cleanup`, `fix stuff`, or `sync`.
-* One commit should represent one real system boundary.
-* Split the commit if it touches unrelated files, systems, or reasons.
-* Do not claim validation that was not actually run.
-
-Multiple commit types are allowed in one commit message when the changes all belong to the same logical boundary.
-
-Use multiple typed subject lines at the top of the commit message, one per meaningful change type.
-
-Example:
-
-```text
-Added: Implement dependency bundle access
-Test: Cover dependency bundle hydration
-Docs: Document bundle usage
-
-Reason:
-- Introduce dependency bundle access as one coherent feature boundary.
-- Keep the implementation, matching tests, and direct usage documentation together because they explain one completed system slice.
-
-Changes:
-- Added dependency bundle access contracts.
-- Added bundle hydration tests.
-- Added documentation for bundle-based dependency access.
-
-Validation:
-- Ran bundle access tests.
-- Confirmed the staged files only belong to dependency bundle access.
-```
-### Multi-Type Commits
-
-Use multiple typed subject lines only when all lines describe the same coherent commit boundary.
-
-Do not combine unrelated work just because the files were edited at the same time.
-
-Good combined commit:
-
-```text
-Added: Implement dependency access grant descriptors
-Test: Cover dependency access grant descriptors
-Docs: Document descriptor behavior
-```
-
-Bad combined commit:
-
-```text
-Added: Implement dependency loader
-Docs: Update README badges
-Clean: Rename unrelated test package
-```
-
-Splitting rule:
-
-* If the `Reason` section can explain all subject lines as one system boundary, the combined commit is allowed.
-* If each subject line needs its own unrelated reason, split it into separate commits.
-* If the combined commit touches unrelated packages or behavior, split it.
-* If docs/tests directly explain or prove the same feature added in the commit, they may stay with it.
-
-### Git Branches
-
-The authoritative branch, pull-request, review, and production-promotion rules live in [GIT_WORKFLOW.md](../GIT_WORKFLOW.md). This section keeps the architectural expectations that affect code organization and commit boundaries.
-
-```text
-working/* -> staging/* -> main
-```
-
-* Working branches contain one coherent feature, fix, refactor, documentation change, or investigation outcome.
-* Staging branches collect one reviewable integration or release scope.
-* `main` is production and changes through accountable GitHub review.
-* Architecture migrations remain separate from unrelated feature work.
-* Code, tests, DI bindings, imports, and documentation move together when a contract changes.
+- [ ] Tests exercise real behavior rather than mocking the subject under test.
+- [ ] Tavall architecture tests are consumed through the repository test-suite boundary and inspect real production `main` outputs/source roots.
+- [ ] Tavall-managed behavior uses production-equivalent DI composition in tests.
+- [ ] External/platform boundaries are the primary fake/mock targets.
+- [ ] PostgreSQL-specific behavior uses PostgreSQL-capable integration coverage.
+- [ ] Failure, cleanup, reload, retry, and shutdown paths are covered where they exist.
+- [ ] Test names describe behavior and packages match production.
+- [ ] Branch/review/staging/promotion decisions follow `GIT_WORKFLOW.md`, not a duplicated diagram.
+- [ ] Ordinary contributor review rules and explicit owner authority are not conflated.
+- [ ] Commit messages report truthful validation and one coherent reason for the change.
