@@ -1,0 +1,241 @@
+version: 1
+
+source:
+  repository: TavallStudios/tavall-docs
+  branch: main
+  root: docs/quality
+
+matching:
+  explicit_document_path_precedence: true
+  case_sensitive: false
+  mode: exact_whole_term_or_phrase
+  fuzzy_matching: false
+  recursive_fallback: false
+  reasoning_labels_must_match_declared_signal: true
+
+resolution:
+  order:
+    - explicit_document_path_or_filename
+    - exact_user_prompt_signal
+    - exact_agent_reasoning_signal
+    - targeted_filename_or_heading_search
+  on_no_match: surface_unresolved_documentation_context
+  deduplicate_documents: true
+  reread_when:
+    - selected_document_changes
+    - task_scope_adds_new_routed_concern
+    - user_explicitly_changes_required_documentation
+  do_not_reread_on_branch_head_change_alone: true
+
+routes:
+  - id: architecture-overview
+    signals:
+      - architecture
+      - architectural
+      - cross-cutting architecture
+      - architecture rule
+      - architecture policy
+    documents:
+      - docs/quality/CODE_ARCHITECTURE.md
+
+  - id: git-workflow
+    signals:
+      - git workflow
+      - branch strategy
+      - pull request
+      - pr
+      - merge
+      - rebase
+      - staging
+      - promotion
+      - release
+      - deployment
+    documents:
+      - docs/quality/GIT_WORKFLOW.md
+
+  - id: documentation-lifecycle
+    signals:
+      - documentation
+      - documentation standards
+      - document lifecycle
+      - progression document
+      - evidence document
+      - final system document
+      - design document
+      - technical document
+      - doc todo
+    documents:
+      - docs/quality/DOCUMENTATION_STANDARDS.md
+      - docs/quality/DOCUMENT_TYPES.md
+
+  - id: general-document
+    signals:
+      - general document
+      - general document template
+    documents:
+      - docs/quality/GENERAL_DOCUMENT_TEMPLATE.md
+
+  - id: article-document
+    signals:
+      - article document
+      - article document template
+    documents:
+      - docs/quality/ARTICLE_DOCUMENT_TEMPLATE.md
+
+  - id: product-document
+    signals:
+      - product document
+      - product document template
+    documents:
+      - docs/quality/PRODUCT_DOCUMENT_TEMPLATE.md
+
+  - id: user-experience-document
+    signals:
+      - user experience document
+      - user experience document template
+      - ux document
+    documents:
+      - docs/quality/USER_EXPERIENCE_DOCUMENT_TEMPLATE.md
+
+  - id: class-and-naming
+    signals:
+      - class architecture
+      - class size
+      - class role
+      - package ownership
+      - namespace
+      - naming convention
+      - object ownership
+    documents:
+      - docs/quality/code-architecture/CLASSES.md
+      - docs/quality/code-architecture/NAMESPACES_VARIABLES_AND_OOP.md
+
+  - id: dependency-injection-and-composition
+    signals:
+      - dependency injection
+      - di
+      - composition root
+      - dependency composition
+      - bootstrap ownership
+      - lifecycle owner
+    documents:
+      - docs/quality/code-architecture/DEPENDENCY_INJECTION_AND_ORCHESTRATION.md
+
+  - id: handlers-and-builders
+    signals:
+      - handler
+      - handlers
+      - handler role
+      - service role
+      - orchestrator
+      - builder
+      - builder pattern
+    documents:
+      - docs/quality/code-architecture/HANDLERS.md
+      - docs/quality/code-architecture/BUILDERS.md
+
+  - id: routers-and-delegation
+    signals:
+      - router
+      - routing architecture
+      - delegation
+      - delegation boundary
+    documents:
+      - docs/quality/code-architecture/ROUTERS_AND_DELEGATION.md
+
+  - id: interfaces-and-abstractions
+    signals:
+      - interface boundary
+      - abstraction boundary
+      - abstraction
+      - api contract
+      - module boundary
+    documents:
+      - docs/quality/code-architecture/INTERFACES_AND_ABSTRACTIONS.md
+
+  - id: persistence
+    signals:
+      - persistence
+      - entity persistence
+      - persistent entity
+      - database ownership
+      - data handler
+      - persistence boundary
+    documents:
+      - docs/quality/code-architecture/ENTITY_PERSISTENCE.md
+
+  - id: registries-caches-and-keyed-state
+    signals:
+      - registry
+      - cache
+      - mutable map
+      - mutable keyed state
+      - keyed state
+      - repository class
+    documents:
+      - docs/quality/code-architecture/REGISTRIES_CACHES_AND_REPOSITORIES.md
+      - docs/quality/code-architecture/APPLICATION_OWNED_MUTABLE_MAPS.md
+
+  - id: methods-and-data-flow
+    signals:
+      - method architecture
+      - method signature
+      - request object
+      - result object
+      - resolver
+      - formatter
+      - request result
+    documents:
+      - docs/quality/code-architecture/METHODS.md
+      - docs/quality/code-architecture/REQUESTS_RESULTS_RESOLVERS_AND_FORMATTERS.md
+
+  - id: effects-validation-and-fallbacks
+    signals:
+      - effect sequence
+      - mutation order
+      - fallback
+      - retry
+      - reconciliation semantics
+      - validation fallback
+      - partial failure
+    documents:
+      - docs/quality/code-architecture/EFFECT_SEQUENCES.md
+      - docs/quality/code-architecture/VALIDATION_FALLBACKS_AND_ANTI_PATTERNS.md
+
+  - id: concurrency-and-execution-ownership
+    signals:
+      - concurrency
+      - thread ownership
+      - executor ownership
+      - scheduler ownership
+      - async ownership
+      - direct thread
+      - direct executor
+    documents:
+      - docs/quality/CODE_ARCHITECTURE.md
+      - docs/quality/code-architecture/VALIDATION_FALLBACKS_AND_ANTI_PATTERNS.md
+
+  - id: utilities
+    signals:
+      - utility class
+      - utilities
+      - helper class
+    documents:
+      - docs/quality/code-architecture/UTILITIES.md
+
+  - id: architecture-testing
+    signals:
+      - architecture test
+      - canonical architecture test
+      - testing architecture
+      - architecture verification
+    documents:
+      - docs/quality/code-architecture/TESTING_AND_GIT.md
+
+rules:
+  - Do not load docs/quality/README.md as policy unless the user explicitly asks for the documentation index.
+  - Do not load CODE_ARCHITECTURE.md merely because source code is being changed.
+  - A detailed chapter may be selected without also loading CODE_ARCHITECTURE.md.
+  - Load a document template only when creating or materially restructuring that document type.
+  - Repository-local AGENTS.md or AGENT.MD remains an instruction source, not a reason to recursively read repository documentation.
+  - Repository-local system, design, progression, operating, or migration documents are selected only when the touched system or explicit prompt makes them relevant.
