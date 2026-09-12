@@ -6,6 +6,23 @@
 
 This chapter classifies runtime, cached, distributed, operation, and durable state. The file name retains `REPOSITORIES` only for link/history compatibility. **Repository is not an approved Tavall application class role.**
 
+## Canonical Tool Authority
+
+`tavall-registry`, `tavall-cache`, `tavall-database`, and the other canonical Tavall Java tool repositories own the API shape and implementation model of their respective tools.
+
+Shared architecture documentation classifies when a tool should be used and records accepted cross-project policy. It must not silently redesign a canonical tool, replace an intentional inheritance model with a generic composition preference, hide supported APIs, or invent a parallel vocabulary because another implementation style appears cleaner in isolation.
+
+Before changing a Tavall Java tool pattern in shared docs:
+
+1. inspect the current canonical repository, its interfaces, tests, and owning documentation;
+2. distinguish the tool's supported low-level/framework surface from the preferred application-consumer surface;
+3. document the existing accepted pattern first;
+4. propose an upstream tool change separately when a real defect or architectural migration is needed.
+
+##### Why
+
+The shared docs are policy for Tavall's actual libraries, not a replacement design exercise for them. If documentation can redefine a library without first reading that library, the docs become a source of architecture drift rather than a guard against it.
+
 ## Classify State Before Naming It
 
 | Boundary | Use it when | Authority | Lifetime |
@@ -28,7 +45,7 @@ Before adding or preserving a mutable keyed collection, ask:
 1. Must it survive restart? Use the Tavall Database entity model/current entity contract.
 2. Can it be discarded/rebuilt or expire? Use Tavall Cache.
 3. Does it represent active keyed runtime identity/definitions/providers/sessions? Use Tavall Registry.
-4. Do several indexes describe one identity? Use an indexed registry or typed aggregate.
+4. Do several lookup dimensions describe one runtime identity? Keep one Registry owner and follow the current `tavall-registry` contract for lookup/view behavior rather than publishing unrelated maps as independent owners.
 5. Is it in-flight work? Give it a typed operation/runtime owner with teardown.
 6. Is it a bounded method-local transform? Keep it local if it never escapes.
 7. Is it a value snapshot? Make it immutable.
@@ -39,21 +56,48 @@ Do not route durable state into a new `*Repository` merely because the state is 
 
 Use `tavall-registry` for runtime lookup ownership.
 
+The canonical base deliberately models a registry as a thread-safe map-backed collection. `AbstractRegistry<K, V>` extends `ConcurrentHashMap<K, V>` and implements `IAbstractRegistry<K, V>`. That inheritance is an accepted part of the tool contract, not an implementation accident that shared docs should automatically replace with composition.
+
+`IAbstractRegistry` provides Tavall-named registry access such as:
+
+- `createRegistry(key, data)`;
+- `getRegistryData(key)`;
+- `getRegistryKeyByData(data)`;
+- `getRegistryKeysAsSet/List/Collection()`;
+- `getRegistryDataAsSet/List/Collection()`;
+- `hasRegistryKey(key)`;
+- `hasRegistryData(data)`.
+
+These methods are the normal semantic registry-facing vocabulary when they fit the caller. Registry subclasses and framework code may also use the inherited `ConcurrentMap` operations when those operations are the correct implementation mechanism. Do not describe the inherited map contract as forbidden or accidental when the canonical tool intentionally exposes it.
+
 Rules:
 
-- typed keys/values;
-- domain methods rather than backing-map APIs;
-- duplicate/replacement policy;
-- immutable snapshots;
-- generation cleanup;
-- `AbstractIndexedRegistry` when secondary indexes must remain coherent;
-- aggregate parallel maps when they represent one lifecycle.
-
-Infrastructure registries may own maps internally. Consumers do not.
+- use typed keys and values;
+- preserve one clear runtime/lifecycle owner;
+- use the established registry-named accessors/views where they express the operation cleanly;
+- use inherited map operations inside registry/framework implementation when the canonical contract supports them;
+- define duplicate/replacement behavior where domain semantics require more than the underlying map contract;
+- clear generation-owned registry state on unload;
+- do not expose a second independent mutable map as a competing owner for the same identity;
+- do not introduce a new registry abstraction or terminology merely to restate behavior already represented by `AbstractRegistry` / `IAbstractRegistry`.
 
 ##### Why
 
-A registry is a lifecycle/identity owner, not a prettier `Map`. Domain methods let one owner preserve indexing, replacement, validation, snapshot, and unload invariants.
+Tavall Registry intentionally combines Java collection interoperability with a clearer registry vocabulary. The named API makes common registry intent readable, while the underlying concurrent-map contract remains available to the tool and advanced/framework code. Replacing that design in documentation adds abstraction cost and can break behavior that the library intentionally supports.
+
+### Multiple Lookup Dimensions
+
+Several lookup dimensions over the same runtime identity still have one Registry owner.
+
+Before adding a new “indexed” abstraction, check whether the canonical registry API already expresses the required lookup or view. For example, `getRegistryKeyByData(...)` already provides reverse key lookup over registered data, and the key/data collection accessors provide registry-named views/snapshots for common traversal needs.
+
+If a concrete registry genuinely requires additional maintained lookup structures for performance or domain-specific identity, those structures are implementation details owned by that registry. Their mutation behavior must remain coherent with the primary registry state across every supported mutation path.
+
+`AbstractIndexedRegistry` currently exists in `tavall-registry`, but shared architecture does **not** treat it as a mandatory replacement for the established Registry model or use it to justify hiding the canonical map contract. Any future promotion, redesign, or removal of that abstraction must be reconciled in `tavall-registry` first and then reflected here.
+
+##### Why
+
+“Indexed” describes one implementation technique. Registry callers care about registry identity and lookup behavior. Keeping implementation terminology subordinate to the canonical Registry vocabulary prevents shared docs from forcing one optimization strategy across every registry.
 
 ## Tavall Cache
 
@@ -145,8 +189,10 @@ Any different order documents authority, idempotency, durable commit boundary, r
 
 Cover:
 
-- registry duplicate/replacement/index rollback;
-- immutable snapshots and unload cleanup;
+- registry duplicate/replacement behavior when specialized by the concrete registry;
+- registry-named key/data views and reverse lookup where used;
+- coherence of any registry-owned secondary lookup structures across every supported mutation path;
+- unload cleanup;
 - cache hit/miss/TTL/stale/invalidation/cleanup;
 - Tavall Database entity behavior and database-specific contracts using the current module test surface;
 - Redis/distributed partial failures and reconciliation;
