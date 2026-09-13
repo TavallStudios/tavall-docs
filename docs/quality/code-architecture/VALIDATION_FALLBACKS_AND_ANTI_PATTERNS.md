@@ -1,112 +1,55 @@
-# Project Novus Validation, Fallbacks, and Anti-Patterns
+# Tavall Validation, Fallbacks, and Anti-Patterns
 
 > **Status:** Active  
-> **Authority:** Binding chapter of [Project Novus Code Architecture](../CODE_ARCHITECTURE.md)  
-> **Applies to:** All Project Novus modules, contributors, automation, generated code, and AI-assisted development
+> **Authority:** Binding chapter of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
+> **Applies to:** Tavall production modules, contributors, automation, generated code, reviews, and AI-assisted development
 
-This chapter is separated for navigation only. Its rules are part of the authoritative Project Novus code architecture and are not optional supplemental guidance.
+## Validation Pattern
 
-### Validation Pattern
+Validate before mutation. Validation should be typed, readable, and performed at the boundary that owns the invariant.
 
-Validation should happen before mutation.
-
-Validation should be readable and typed.
-
-#### Bad Validation Pattern
+Bad:
 
 ```java
 public void updateRank(String rankName) {
     if (rankName != null) {
-        database.update(rankName);
+        // mutate
     }
+}
+```
+
+Good:
+
+```java
+public RankUpdateResult updatePlayerRank(
+        RankUpdateRequest request
+) {
+    if (!getRankRegistry().contains(request.rankKey())) {
+        return RankUpdateResult.invalidRank();
+    }
+
+    getRankDataHandler().updatePlayerRankData(request);
+    return RankUpdateResult.success();
 }
 ```
 
 ##### Why
 
-The validation is weak.
+Typed validation rejects invalid state before side effects begin and makes expected rejection explicit rather than leaving later storage/platform code to discover the problem accidentally.
 
-The rank is a raw string.
+## Fallback Pattern
 
-The method still allows bad values to slip through.
+Fallbacks are intentional, typed, visible, and owned. They must not convert failed required writes or violated invariants into fake success.
 
-#### Good Validation Pattern
-
-```java
-public CommandResult updatePlayerRank(RankUpdateRequest rankUpdateRequest) {
-    RankKey rankKey = rankUpdateRequest.getRankKey();
-    boolean rankExists = rankRegistry.containsRank(rankKey);
-
-    if (!rankExists) {
-        return CommandResult.invalidRank();
-    }
-
-    playerRankDataHandler.updatePlayerRankData(rankUpdateRequest);
-
-    return CommandResult.success();
-}
-```
+A presentation fallback may provide safe output for missing optional metadata. A durable write failure may not silently become “success with in-memory state.”
 
 ##### Why
 
-The validation uses a typed rank key.
+A fallback changes failure semantics. If its ownership/reconciliation is not explicit, degraded behavior becomes an undocumented second source of truth.
 
-The failure result is explicit.
+# Anti-Patterns
 
-The mutation only happens after validation passes.
-
-### Fallback Pattern
-
-Fallbacks prevent missing data from crashing player-facing systems.
-
-Fallbacks should be intentional and visible in code.
-
-#### Bad Fallback Pattern
-
-```java
-String rankName = playerRankMetaData.getDisplayName();
-player.sendMessage(rankName);
-```
-
-##### Why
-
-If metadata is missing, this can throw or send bad output.
-
-Player-facing systems need safe fallback behavior.
-
-#### Good Fallback Pattern
-
-```java
-public String resolveRankDisplayName(PlayerRankMetaData playerRankMetaData) {
-    if (playerRankMetaData == null) {
-        return "Subject";
-    }
-
-    String displayName = playerRankMetaData.getDisplayName();
-
-    if (displayName == null) {
-        return "Subject";
-    }
-
-    return displayName;
-}
-```
-
-##### Why
-
-The fallback is clear.
-
-The player still receives safe output.
-
-The system fails softly instead of making the console scream.
-
-### Anti-Patterns
-
-Anti-patterns are patterns we do not want in this codebase.
-
-These usually make ownership unclear, testing harder, and future changes worse.
-
-#### God Class Pattern
+## God Class
 
 Bad:
 
@@ -115,104 +58,139 @@ public final class ProjectCoreManager {
 }
 ```
 
-##### Why
-
-A god class owns too much.
-
-If one class controls chat, ranks, profiles, punishments, cache, database, and commands, then every change touches the same monster.
-
-Split by system and role.
-
-#### Manager Pattern
-
-Bad:
-
-```java
-public final class RankManager {
-}
-```
+A god class owns unrelated domains, lifecycle, storage, routing, and presentation.
 
 ##### Why
 
-`Manager` does not describe what the class actually does.
+Every change touches the same owner and tests must recreate unrelated systems. Split by real responsibility/lifecycle instead of adding forwarding wrappers.
 
-Use a role name.
+## Manager Pattern
 
-Good:
+Avoid new `*Manager` classes unless maintaining an external established API that cannot be changed.
+
+Use an exact role:
 
 ```text
 RankUpdateHandler
 RankRegistry
-RankDataHandler
+PlayerAccountDataHandler
 PlayerRankMetaDataBuilder
-```
-
-#### Helper Pattern
-
-Bad:
-
-```java
-public final class PlayerHelper {
-}
+FFARoundOrchestrator
 ```
 
 ##### Why
 
-`Helper` is vague.
+`Manager` does not state what the class owns. Exact suffixes give callers, reviewers, and architecture tests a contract.
 
-It usually becomes a junk drawer for unrelated methods.
+## Helper Pattern
 
-Use focused class names instead.
+Avoid vague `*Helper`, `Common`, and `Misc` classes.
 
-#### Static Dependency Access Pattern
+##### Why
 
-Static syntax is not the problem. Static ownership of runtime behavior is.
+They become junk drawers because the name provides no boundary for rejecting the next unrelated method.
 
-Tavall-managed application dependencies must resolve through the owning DI map. Do not hide a service, repository, registry, cache, gateway, scheduler, runtime, or other managed dependency behind a static method.
+## Static Dependency Access
+
+Static syntax is not the problem. Static ownership/lookup of runtime behavior is.
+
+Tavall-managed application dependencies resolve through the owning DI map.
 
 Bad:
 
 ```java
-public final class EconomyAccess {
-
-    public static IEconomyService getEconomyService() {
-        return DependencyLoaderAccess.findInstance(IEconomyService.class);
-    }
+public static IEconomyService economyService() {
+    return DependencyLoaderAccess.findInstance(IEconomyService.class);
 }
 ```
 
-```java
-EconomyAccess.getEconomyService().credit(playerUUID, amount);
-```
+Allowed statics are dependency-free:
+
+- constants/immutable constant values;
+- pure parsing/normalization/transformation;
+- private pure helpers;
+- construction-only `of(...)`, `from(...)`, `builder()`, `create(...)` methods.
+
+A static factory/builder must not resolve DI, perform I/O, touch mutable runtime state, schedule work, or become a hidden composition root.
 
 ##### Why
 
-The call site no longer declares that it needs economy behavior.
+A static locator erases dependency ownership from the class declaration and bypasses replacement, generation, lifecycle, and test composition semantics.
 
-The static method becomes a service locator, bypasses the owning dependency-access surface, and makes replacement, reload, lifecycle ownership, and tests less trustworthy.
+## Application-Owned Mutable Map Pattern
 
-Use the normal `DependencyAccess` path, including focused default access methods where they make repeated calls easier to read.
+Application-owned mutable keyed state is prohibited by default.
 
-The Minecraft-CTF `MessageAccess` pattern is a useful reference: default instance methods expose DI-managed behavior, while a private static helper is limited to pure fallback-value construction.
+Bad:
 
-Reference: [Minecraft-CTF `MessageAccess`](https://github.com/tjXJNOOBIE/Minecraft-CTF/blob/main/ctf-paper/src/main/java/dev/tjxjnoobie/ctf/config/message/interfaces/MessageAccess.java)
+```java
+public final class PlayerSessionHandler {
+    private final Map<UUID, PlayerSessionData> sessions =
+            new ConcurrentHashMap<>();
+}
+```
 
-Allowed static calls are intentionally narrow:
+Route state by semantics:
 
-- Compile-time constants and immutable constant values.
-- Enum or value-object parsing and conversion such as `fromKey(...)`, when the result depends only on explicit inputs.
-- Pure normalization, formatting, or transformation functions with no hidden runtime dependency.
-- Static factory or builder entry points such as `builder()`, `of(...)`, `from(...)`, or `create(...)` when they only construct or configure the returned value.
-- Private static helpers that are pure implementation details and depend only on their arguments.
-- Third-party static helpers only when they are equivalently pure and stateless.
+- runtime identity/session/definitions -> Tavall Registry;
+- expiring/reloadable/disposable state -> Tavall Cache;
+- durable state -> Tavall Database entity model/current entity contract;
+- distributed runtime state -> owning Redis/distributed boundary;
+- in-flight tasks/futures/retries -> dedicated typed operation/runtime owner;
+- immutable value/snapshot -> typed data.
 
-A static builder or factory is construction syntax, not a composition root. It must not resolve DI, perform persistence or network I/O, access server or plugin runtime state, schedule work, mutate global state, or smuggle managed dependencies into the returned object.
+Full rule: [Application-Owned Mutable Maps](APPLICATION_OWNED_MUTABLE_MAPS.md).
 
-Runtime utility behavior should normally remain an injected instance dependency and may be exposed through focused default access methods. Calls such as sounds, messages, effects, scheduling, persistence, cache access, and other platform/runtime behavior do not become valid static calls merely because a utility class could technically hold them.
+##### Why
 
-When behavior needs replacement, lifecycle ownership, runtime configuration, deterministic testing, or access to Tavall-managed state, route it through DI.
+A thread-safe map still has authority/lifecycle semantics. Putting it in an ordinary consumer silently makes that consumer the registry/cache/runtime/persistence owner.
 
-#### Raw String Pattern
+## Direct Thread Ownership Pattern
+
+Ordinary Tavall production application code must not create or own worker threads directly. Do not introduce application work through `new Thread(...)`, `Thread.startVirtualThread(...)`, `Thread.ofVirtual()`, `Thread.ofPlatform()`, or a feature-local executor merely to obtain a thread.
+
+Use Tavall concurrency infrastructure for off-thread work and the owning platform scheduler for thread-affine platform mutation. The checked-in [`AsyncTask`](https://github.com/TavallStudios/TavallMonoRepo/blob/8d3891ec9620e008405f9367b80b0e5c7bd0ab34/tavall-java-tools/tavall-concurrency/src/main/java/org/tavall/internal/utils/concurrent/AsyncTask.java) implementation uses a virtual-thread-per-task executor and returns `CompletableFuture` from `runAsync`/`supplyAsync`.
+
+#### Bad
+
+```java
+Thread workerThread = new Thread(this::runControlLoop, "region-control");
+workerThread.start();
+```
+
+#### Good: Async work without retained completion
+
+```java
+AsyncTask.runAsync(() -> populationGateway.publishCurrentPopulation(
+        playerCount,
+        maximumPlayerCount
+));
+```
+
+Project Novus production source [`FFARegionControlService`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-ffa/src/main/java/org/tavall/minecraft/ffa/region/FFARegionControlService.java) routes off-thread work through `AsyncTask` and returns Bukkit-affine mutation to the Bukkit scheduler.
+
+#### Good: Completion is part of the caller contract
+
+```java
+CompletableFuture<RoutingPlanData> routingFuture =
+        AsyncTask.supplyAsync(this::loadRoutingPlanData);
+```
+
+Keep the `CompletableFuture<T>` only when the caller actually owns, chains, awaits, cancels, or records completion. Do not retain a future merely because `AsyncTask` returns one.
+
+#### Allowed exceptional Thread API
+
+Direct `Thread` creation is allowed only when a JVM/platform/integration API structurally requires a `Thread` object or canonical concurrency infrastructure itself owns thread construction. The reason and lifecycle must be explicit.
+
+Project Novus production source [`NovusDiscordCoreApplication`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-discord/novus-discord-core/src/main/java/org/tavall/discord/core/NovusDiscordCoreApplication.java) constructs a `Thread` specifically because `Runtime.addShutdownHook(...)` requires one; the JVM owns when that hook starts. Tavall concurrency infrastructure may likewise use `Thread.ofVirtual()` internally to implement the shared abstraction.
+
+`Thread.currentThread()` inspection, interrupt restoration, and equivalent operations on the already-owning thread are not thread creation and are not prohibited by this rule.
+
+##### Why
+
+Direct thread creation bypasses Tavall concurrency ownership, virtual-thread policy, observability, and future resource balancing. Centralizing creation lets application code express work while infrastructure owns how that work receives CPU time.
+
+## Raw String Pattern
 
 Bad:
 
@@ -223,66 +201,84 @@ permissionHandler.has(player, "punishment.ban");
 Good:
 
 ```java
-PermissionNode permissionNode = PermissionNode.PUNISHMENT_BAN;
-
-boolean hasPermission = permissionHandler.has(
-    player,
-    permissionNode
-);
+permissionHandler.has(player, PermissionNode.PUNISHMENT_BAN);
 ```
 
 ##### Why
 
-Typed keys are safer, searchable, and refactorable.
+Typed keys are searchable/refactorable and let the compiler reject category mistakes. Raw strings compile typos with tremendous confidence.
 
-Raw strings are tiny runtime landmines.
+## Hidden Side Effect Pattern
 
-#### Hidden Side Effect Pattern
+A method name must not hide unrelated mutation.
 
 Bad:
 
 ```java
 public PlayerAccountData getPlayerAccountData(UUID playerUUID) {
-    PlayerAccountData playerAccountData = database.load(playerUUID);
-
-    cache.put(playerUUID, playerAccountData);
+    PlayerAccountData data = load(playerUUID);
+    cache.put(playerUUID, data);
     tabHandler.refresh(playerUUID);
-
-    return playerAccountData;
+    return data;
 }
 ```
 
+Prefer explicit actions with honest names and owners.
+
 ##### Why
 
-A method named `getPlayerAccountData` should not secretly mutate cache and refresh tab state.
+Callers reason from method contracts. Hidden cache/presentation/persistence effects turn innocent reads into workflows and make retry/error behavior impossible to infer.
 
-The method name lies.
+## Repository Type Pattern
 
-Code should not lie. Humans already overachieved there.
+New Tavall-owned production declared types ending in `Repository` are prohibited.
 
-Good:
+#### Bad
 
-```java
-public PlayerAccountData loadPlayerAccountData(UUID playerUUID) {
-    PlayerAccountData playerAccountData = playerAccountDataHandler.loadPlayerAccountData(
-        playerUUID
-    );
-
-    return playerAccountData;
-}
-
-public void refreshPlayerAccountData(UUID playerUUID) {
-    PlayerAccountData playerAccountData = loadPlayerAccountData(playerUUID);
-
-    playerAccountCache.putPlayerAccountData(
-        playerUUID,
-        playerAccountData
-    );
-}
+```text
+PlayerRepository
+IPlayerRepository
+PostgresPlayerRepository
+PlayerRepositoryAdapter
 ```
 
+#### Good
+
+Name the behavior that actually exists, such as a `PlayerDataHandler`, `PlayerHistoryWriter`, `AccountLinkGateway`, or another precise capability. Ordinary durable entity persistence follows Tavall Database entity classes and the current checked-in Tavall Database contract without a new application Repository layer.
+
 ##### Why
 
-Loading and refreshing are separate actions.
+`Repository` repeatedly recreated a generic persistence wrapper and kept obsolete mechanics alive. The ban forces persistence behavior either into Tavall Database or into a precisely named capability with real semantics.
 
-The method names match what happens.
+## JPA Callback Ownership Pattern
+
+Production application code must not own:
+
+```text
+EntityManager
+EntityTransaction
+IPostgresJpaContext callbacks
+database.jpa().read(...)
+database.jpa().write(...)
+raw JDBC transaction wrappers
+```
+
+Use Tavall Database entity classes and the entity persistence contract defined by the checked-in module. Add missing multi-entity operations upstream to Tavall Database instead of recreating callbacks downstream.
+
+##### Why
+
+Transaction/entity-manager lifecycle is infrastructure-wide ownership. Local callback wrappers reproduce the persistence runtime inside feature code.
+
+## Review Checklist
+
+- [ ] Validation occurs before mutation where possible.
+- [ ] Fallbacks have explicit ownership/reconciliation and never fake required-write success.
+- [ ] No God/Manager/Helper bucket hides unrelated behavior.
+- [ ] Static methods do not locate Tavall-managed runtime dependencies.
+- [ ] Mutable keyed state has Registry/Cache/Tavall Database/distributed/runtime ownership.
+- [ ] Worker/concurrent application work uses Tavall concurrency or an owning platform scheduler rather than direct Thread creation.
+- [ ] Any direct Thread construction has an explicit JVM/platform/infrastructure reason and lifecycle owner.
+- [ ] Stable keys/values use typed representations rather than raw strings/maps.
+- [ ] Method names disclose side effects.
+- [ ] No new Tavall-owned production type ends in `Repository`.
+- [ ] Application code owns no JPA callbacks/JDBC transaction lifecycle.

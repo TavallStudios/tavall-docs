@@ -1,224 +1,301 @@
-# Project Novus Dependency Injection and Orchestration
+# Tavall Dependency Injection and Orchestration
 
 > **Status:** Active  
-> **Authority:** Supporting chapter of [Project Novus Code Architecture](../CODE_ARCHITECTURE.md)  
-> **Applies to:** Module scopes, runtime composition, lifecycle cleanup, and orchestration
+> **Authority:** Supporting chapter of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
+> **Applies to:** Tavall DI-managed modules, runtime composition, lifecycle cleanup, consumers, and orchestration
 
-The binding Project Novus dependency access patterns live directly in [`CODE_ARCHITECTURE.md`](../CODE_ARCHITECTURE.md#dependency-injection-patterns). This chapter owns only the runtime-scope and composition details that would make the primary architecture document needlessly swollen.
+This chapter expands the binding dependency-access and orchestration rules in `CODE_ARCHITECTURE.md`. Production examples may come from Project Novus or other Tavall repositories, but compatibility-era construction shown in a source class is not automatically endorsed.
 
-Every Java example is a shortened excerpt from linked production code. If an excerpt stops matching production, update the document rather than preserving architectural fan fiction for sentimental reasons.
+## Managed Registration
 
-## Module Registration Pattern
-
-Register interface and concrete aliases against the same metadata-owned instance.
-
-Source: [`ScopedNovusModuleContext`](../../../minecraft-framework/backend-api/src/main/java/org/tavall/api/minecraft/runtime/module/runtime/ScopedNovusModuleContext.java)
+A managed concrete implementation registers one object identity under its concrete token and every declared interface alias.
 
 ```java
-IDependencyMetaData<?, ?> existingMetaData = findMetadataForInstance(dependencyInstance);
-if (existingMetaData == null) {
-    dependencyMap.registerInstance(dependencyType, dependencyInstance);
-} else {
-    dependencyMap.registerDependency(dependencyType, existingMetaData);
+@DelegatesTo(IMessageRenderHandler.class)
+public final class MessageRenderHandler
+        implements IMessageRenderHandler,
+        DependencyAccess<IMessageRegistryHandler> {
 }
 ```
 
-This permits:
+Registration rules:
+
+- concrete token is implicit where the checked-in Tavall DI version provides it;
+- each delegated type is assignable from the concrete;
+- aliases share one metadata/instance owner;
+- replacement/removal updates aliases atomically;
+- new code does not add legacy injectable marker interfaces merely to satisfy old composition paths.
+
+##### Why
+
+Interface and concrete aliases must describe one owned dependency, not parallel instances that happen to implement the same contract. Shared metadata preserves replacement, cleanup, and identity regardless of token used by the consumer.
+
+## Module and Generation Lookup
+
+Generation-owned dependencies resolve from the owning module `IDependencyMap`. Stable parent/application dependencies may be available through explicitly defined parent composition, but child-generation objects must not be leaked into a process-global loader.
+
+Rules:
+
+- module generations own isolated dependency maps;
+- child-generation dependencies stay in the child map;
+- stable parent code does not retain child objects after unload;
+- replacement/unload removes or closes old generation-owned objects before the generation becomes unreachable;
+- compatibility fallback loaders are migration seams, not target composition for new code.
+
+##### Why
+
+Generation isolation lets unload/reload/replacement affect only the owner. Globalizing a child object creates stale references that survive the generation designed to own them.
+
+## Generated Access Pattern
+
+Managed consumers declare Tavall-managed collaborators through `DependencyAccess<...>` and use the generated typed access surface from the owning dependency map.
 
 ```java
-registerDependency(IPlayerAchievementDataHandler.class, dataHandler);
-registerDependency(PlayerAchievementDataHandler.class, dataHandler);
-```
+@DelegatesTo(IAchievementProgressMutationHandler.class)
+public final class AchievementProgressMutationHandler
+        implements IAchievementProgressMutationHandler,
+        DependencyAccess<
+                IPlayerAchievementDataHandler,
+                IPlayerAchievementCache,
+                AchievementCompletionHandler
+        > {
 
-Both tokens resolve to one metadata object and one instance.
+    @Override
+    public AchievementProgressMutationResult applyProgress(
+            AchievementProgressRequest request
+    ) {
+        IDependencyMap dependencies = getInstance();
 
-The named loader registration remains only as a migration bridge for existing module code. New module behavior resolves from `dependencyMap()`.
+        PlayerAchievementData data = dependencies
+                .iPlayerAchievementDataHandler()
+                .load(request.playerId());
 
-## Module Lookup Pattern
+        if (data != null) {
+            dependencies
+                    .iPlayerAchievementCache()
+                    .saveOnline(data);
+        }
 
-A module resolves generation-owned dependencies first and stable application dependencies second.
-
-Source: [`ScopedNovusModuleContext`](../../../minecraft-framework/backend-api/src/main/java/org/tavall/api/minecraft/runtime/module/runtime/ScopedNovusModuleContext.java)
-
-```java
-T moduleDependency = dependencyMap.findInstance(dependencyType);
-if (moduleDependency != null) {
-    return moduleDependency;
+        return AchievementProgressMutationResult.applied();
+    }
 }
-return DependencyLoaderAccess.findInstance(dependencyType);
 ```
 
-The fallback is for stable application dependencies only. A child-generation object must never be placed in the global loader.
+Rules:
 
-## Generated Access Composition Pattern
+- capture `getInstance()` once when a method reads several dependencies;
+- use generated typed getters instead of repeated class-token lookup;
+- optional dependencies use the repository-approved optional lookup path;
+- missing required dependencies fail fast;
+- do not store resolved managed dependencies in ordinary long-lived fields merely to avoid future lookups.
 
-Register dependencies before the generated access type, then register the consumer.
+##### Why
 
-Source: [`AchievementRuntimeBuilder`](../../../novus-achievements/src/main/java/org/tavall/minecraft/achievement/runtime/AchievementRuntimeBuilder.java)
+Generated access keeps object identity and replacement owned by the dependency map. Consumers describe what they need without becoming composition roots.
 
-```java
-register(context, IPlayerAchievementDataHandler.class, dataHandler);
-register(context, IPlayerAchievementCache.class, cache);
-register(context, AchievementEventMutationAccess.class, eventMutationAccess);
-register(context, AchievementCompletionHandler.class, completionHandler);
+## Dependency Constructor Injection Is Rejected
 
-AchievementProgressMutationHandlerDependencyAccess mutationDependencies =
-        new AchievementProgressMutationHandlerDependencyAccess(context.dependencyMap());
-register(
-        context,
-        AchievementProgressMutationHandlerDependencyAccess.class,
-        mutationDependencies
-);
+Do not constructor-inject Tavall-managed application dependencies into ordinary production handlers, services, orchestrators, routers, listeners, repositories, utilities, controllers, or other DI-managed behavior.
 
-AchievementProgressMutationHandler mutationHandler =
-        new AchievementProgressMutationHandler(context.dependencyMap());
-register(context, IAchievementProgressMutationHandler.class, mutationHandler);
-register(context, AchievementProgressMutationHandler.class, mutationHandler);
-```
-
-The generated access object is stable. Its getters resolve the current metadata-owned dependency each time.
-
-## DI Anti-Patterns
-
-### Dependency Constructor Injection
-
-Tavall-managed application dependencies must not be passed through constructors of ordinary production behavior classes. Constructor injection creates a parallel dependency-access style that bypasses the generated `DependencyAccess` surface and moves graph ownership into whichever caller happens to construct the class.
-
-Anti-pattern:
+Bad:
 
 ```java
 public final class PlayerRewardHandler {
-    private final IPlayerData playerData;
     private final IEconomyService economyService;
 
-    public PlayerRewardHandler(
-            IPlayerData playerData,
-            IEconomyService economyService
-    ) {
-        this.playerData = playerData;
+    public PlayerRewardHandler(IEconomyService economyService) {
         this.economyService = economyService;
     }
 }
 ```
 
-Preferred Tavall DI shape:
+Use `DependencyAccess<IEconomyService>` instead.
+
+Constructors remain valid for:
+
+- immutable object/value state;
+- configuration values;
+- builder inputs;
+- genuinely externally owned platform handles that Tavall DI does not manage;
+- infrastructure internals whose owning repository explicitly defines constructor composition outside Tavall application DI.
+
+##### Why
+
+Managed constructor injection moves graph ownership into callers, captures dependency identity at construction time, encourages manual wiring trees, and can bypass replacement/reload/generation semantics.
+
+## Static Dependency Access Is Rejected
+
+Do not hide Tavall-managed services, registries, caches, persistence, gateways, schedulers, runtimes, or utilities behind static locators.
+
+Allowed statics are pure/dependency-free:
+
+- constants;
+- value parsing/normalization;
+- private pure helpers;
+- construction-only factories/builders such as `of(...)`, `from(...)`, or `builder()`.
+
+A static construction call must not perform I/O, resolve DI, touch mutable runtime state, schedule work, or become a composition root.
+
+##### Why
+
+A static locator erases dependency ownership from the class declaration and lets any caller reach runtime state without participating in its lifecycle.
+
+## Default Consumer Pattern
+
+A consumer is an ordinary production class using Tavall-managed capabilities to perform one focused operation.
+
+The default consumer has:
+
+- one coherent behavior;
+- typed request/input where useful;
+- typed result for meaningful expected outcomes;
+- managed collaborators declared through `DependencyAccess<...>`;
+- no constructor-captured Tavall dependencies;
+- no static dependency lookup;
+- no mutable keyed domain store;
+- no raw registry/cache backing-map access;
+- no `EntityManager`, JPA callback, JDBC, or generic CRUD repository ownership;
+- no hidden runtime composition.
+
+### Pattern Responsibilities
+
+| Pattern | Consumer rule |
+| --- | --- |
+| `*Data` / `*State` | Pass/return typed values. Do not replace known fields with generic maps. |
+| `*Request` | Carry operation input across a meaningful boundary. |
+| `*Result` | Represent expected success/rejection outcomes explicitly. |
+| `*DataHandler` | Use when reusable data policy exists; it may coordinate Tavall Database/cache behavior. Do not require one around every entity call. |
+| `*MetaData` | Typed derived/resolved value; extensible maps stay at real integration edges. |
+| `*MetaDataHandler` | Derive/refresh/enrich metadata; do not mutate primary data by accident. |
+| `*Registry` | Call domain lookup/registration methods; never backing-map APIs. |
+| `*Cache` | Consume cache-facing behavior only when cache policy is actually the consumer's responsibility. |
+| `*Repository` | Exceptional real persistence/substitution contract beyond ordinary Tavall Database entity CRUD. |
+| `*Orchestrator` | Coordinate ordered work/lifecycle; do not absorb collaborator rules/storage. |
+| `*Router` | Select/delegate; do not become the implementation. |
+| `*Builder` | Construct typed output only; never resolve/wire managed dependencies. |
+| `*Handler` | Own one focused domain behavior/operation family. |
+| `*Service` | Provide one cohesive reusable domain capability. |
+
+##### Why
+
+The table separates behavior consumption from behavior ownership. Without that distinction, one consumer slowly becomes registry, cache, repository, router, orchestrator, and builder simply because all those operations were convenient to perform in one class.
+
+## More Than Four Managed Dependencies
+
+More than four managed dependencies is a **design-review signal**, not a runtime cap.
+
+Review in this order:
+
+1. **Keep direct `DependencyAccess`** when the class is genuinely cohesive and each dependency serves one narrow behavior.
+2. **Use one immutable domain bundle** only when the collaborators form a durable domain boundary reused by several consumers.
+3. **Split responsibilities** when the class owns several distinct behaviors/lifecycle phases.
+
+Do not:
+
+- hide the same dependencies inside a builder;
+- constructor-inject them instead;
+- create a generic `Services`, `Dependencies`, or `Context` bag;
+- introduce a bundle used by only one class merely to reduce the visible count.
+
+##### Why
+
+Dependency count is evidence of coupling, not a style error. Hiding the count does not remove the coupling and usually makes ownership less visible.
+
+## Data and Persistence Consumption
+
+Ordinary durable entity operations use Tavall Database:
 
 ```java
-@DelegatesTo(IPlayerRewardHandler.class)
-public final class PlayerRewardHandler
-        implements IPlayerRewardHandler,
-        DependencyAccess<IPlayerData, IEconomyService> {
-
-    @Override
-    public void handlePlayerReward(long amount) {
-        var dependencies = getInstance();
-        dependencies.iPlayerData().addCoins(amount);
-        dependencies.iEconomyService().recordTransaction(amount);
-    }
-}
+Optional<MyEntity> entity = dependencies
+        .iPostgresDatabase()
+        .entities()
+        .find(MyEntity.class, id);
 ```
 
-The exact generated getter names and access contract come from the checked-in `tavall-di` version. The architectural rule is that Tavall-managed dependencies resolve through the owning dependency map rather than being captured by behavior-class constructors.
+A consumer/data handler does not create an `EntityManager` callback or `Postgres*Repository` merely to wrap ordinary CRUD.
 
-Why constructor injection is rejected for managed dependencies:
+A DataHandler may exist when it owns reusable policy such as cache-aside load, mapping, dirty/retry handling, batching, or retention.
 
-- replacement and reload semantics stay owned by the map and metadata;
-- module generations do not accidentally retain constructor-captured objects;
-- tests exercise the same dependency graph mechanics as production;
-- callers do not become ad hoc composition roots;
-- dependency access remains consistent across the codebase.
+##### Why
 
-### Static Dependency Access
+Persistence wrappers should exist because domain policy exists, not because every durable call is expected to pass through a ritual stack of classes.
 
-Do not use static methods as an alternate dependency-access channel.
+## Consumer-Owned Collection Rejection
 
-A static method that resolves a Tavall-managed service from `DependencyLoaderAccess`, an `IDependencyMap`, or another container is a service locator with friendlier punctuation. It hides the dependency from the behavior type, bypasses the owning generated access surface, and can retain the wrong assumptions about replacement or module-generation ownership.
+A consumer does not own long-lived mutable keyed state merely because the field is private/thread-safe.
 
-Use focused default instance methods when they make dependency-backed behavior easier to read. The implementing object still participates in the DI contract, and the default method continues to resolve through its dependency-access interface rather than a global static accessor.
+Route state by semantics:
 
-Source: [Minecraft-CTF `MessageAccess`](https://github.com/tjXJNOOBIE/Minecraft-CTF/blob/main/ctf-paper/src/main/java/dev/tjxjnoobie/ctf/config/message/interfaces/MessageAccess.java)
+- Registry for keyed runtime identity;
+- Cache for disposable/expiring state;
+- Tavall Database for durable state;
+- dedicated typed operation/runtime owner for futures/tasks/pending work;
+- immutable typed data for snapshots/values.
 
-```java
-public interface MessageAccess extends MessageConfigDependencyAccess {
+##### Why
 
-    default MessageHandler getMessageService() {
-        MessageConfigHandler handler = getMessageConfigHandler();
-        return handler;
-    }
-
-    private static Component missingMessageServiceText(String key) {
-        return Component.text("Missing message service: " + key);
-    }
-}
-```
-
-The default method exposes DI-managed behavior. The private static helper is acceptable because it only constructs a fallback value from its explicit input and owns no runtime dependency.
-
-Static methods remain acceptable only when they do not own or locate runtime dependencies. Typical valid cases are immutable constants, pure value parsing or normalization, private pure helpers, and static builder/factory entry points that merely construct a value or builder. If the call performs I/O, touches runtime state, schedules work, resolves a service, or needs lifecycle/replacement semantics, it belongs behind DI.
-
-## Non-DI Constructor Inputs
-
-Constructors remain valid for values that are not Tavall-managed application dependencies, such as immutable object state, builder inputs, configuration, and genuinely externally owned platform handles.
-
-Source: [`AchievementCompletionHandler`](../../../novus-achievements/src/main/java/org/tavall/minecraft/achievement/handler/AchievementCompletionHandler.java)
-
-```java
-public final class AchievementCompletionHandler {
-    private final JavaPlugin plugin;
-
-    public AchievementCompletionHandler(JavaPlugin plugin) {
-        this.plugin = Objects.requireNonNull(plugin, "plugin");
-    }
-}
-```
-
-Do not move a Paper, Velocity, Spring, or other externally owned object into generated DI access merely to make declarations look uniform. This exception does not permit constructor injection of Tavall-managed handlers, services, repositories, registries, caches, gateways, or other application dependencies.
-
-## Module Cleanup Pattern
-
-Close resources in reverse ownership order, then clear the generation map and compatibility scope.
-
-Source: [`ScopedNovusModuleContext`](../../../minecraft-framework/backend-api/src/main/java/org/tavall/api/minecraft/runtime/module/runtime/ScopedNovusModuleContext.java)
-
-```java
-while (!resources.isEmpty()) {
-    OwnedResource resource = resources.removeLast();
-    resource.closeable().close();
-}
-
-dependencyMap.clear();
-DependencyLoaderAccess.clear(scopeName());
-```
-
-Cleanup remains best-effort across all resources. Failures are accumulated and reported after every owned resource receives a close attempt.
+Private mutable keyed state is still architecture. It still needs lifecycle, replacement, concurrency, cleanup, and authority semantics.
 
 ## Orchestration Pattern
 
-## Runtime Rules
+An `*Orchestrator` owns sequencing/lifecycle across several already-focused boundaries.
 
-- Generated access objects and consumers use the same owning map.
-- Interface and concrete aliases share metadata.
-- Stable application fallback must not return stale module-generation objects.
-- Register dependencies before generated access objects and consumers.
-- Tavall-managed application dependencies resolve through the owning dependency map rather than behavior-class constructors.
-- Immutable state, builder inputs, configuration, and genuinely externally owned platform handles may remain constructor inputs.
-- Every resource and dependency has one lifecycle owner.
-- Module close clears the generation map and compatibility scope.
+Use one when behavior is primarily the **order** of handlers, routers, schedulers, services, runtime boundaries, persistence/cache updates, or compensation steps.
+
+Project Novus production source: [`FFARoundOrchestrator`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-ffa/src/main/java/org/tavall/minecraft/ffa/round/orchestrator/FFARoundOrchestrator.java).
+
+The production responsibility split is the useful evidence: the orchestrator obtains time/participant count, advances runtime maintenance, invokes the round state machine, and routes the resulting transition. Compatibility-era constructor composition in that source is not the target DI pattern.
+
+An orchestrator may own operation-level coordination state such as `running` or a last-tick timestamp when that state belongs to the workflow. It does not own durable/cache/registry state for collaborators.
+
+##### Why
+
+Sequencing is real behavior. Without one testable owner it leaks into listeners, commands, schedulers, controllers, or oversized handlers until each surface performs a slightly different workflow.
+
+## Lifecycle and Cleanup
+
+Composition creates cleanup responsibility.
+
+For every managed runtime define:
+
+- creator/owner;
+- registration point;
+- close/unload behavior;
+- replacement order;
+- cancellation/draining of async work;
+- reverse-order cleanup where appropriate;
+- dependency-map cleanup after owned resources close.
+
+##### Why
+
+DI replacement and module reload are only safe when old generations actually release listeners, tasks, caches, registries, database/runtime handles, and references.
 
 ## Testing Requirements
 
-Tests verify:
+Verify where applicable:
 
-- interface and concrete aliases share metadata and instance identity;
-- two module generations use different maps;
-- closing one generation does not mutate another generation;
-- generated access resolves from the owning module map;
-- replacement is visible through an existing generated access instance;
-- resources close in reverse order;
-- module cleanup clears every owned dependency.
+- interface/concrete aliases share one identity/metadata owner;
+- module dependency maps isolate generations;
+- replacement makes new dependencies visible to existing generated access surfaces;
+- missing required dependencies fail predictably;
+- ordinary managed behavior is tested through production-equivalent DI composition;
+- constructor-only test paths do not replace production DI;
+- consumers do not own raw keyed stores or JPA callbacks;
+- orchestrators invoke collaborators in required order;
+- orchestrator start/close behavior is deterministic when it owns operation lifecycle;
+- cleanup removes generation-owned work/state.
 
-Existing coverage:
+## Review Checklist
 
-- [`ScopedNovusModuleContextTest`](../../../minecraft-framework/backend-api/src/test/java/org/tavall/api/minecraft/runtime/module/runtime/ScopedNovusModuleContextTest.java)
-- [`NovusModuleReconciliationHandlerTest`](../../../minecraft-framework/backend-api/src/test/java/org/tavall/api/minecraft/runtime/module/handler/NovusModuleReconciliationHandlerTest.java)
-- [`Tavall DI access styles`](https://github.com/TavallStudios/tavall-di/blob/main/docs/DI_ACCESS_STYLES.md)
+- [ ] Tavall-managed collaborators use `DependencyAccess`.
+- [ ] No ordinary managed behavior constructor-captures Tavall dependencies.
+- [ ] Static methods do not locate managed runtime behavior.
+- [ ] Aliases share one metadata/instance owner.
+- [ ] Generation-owned dependencies stay generation-local.
+- [ ] Dependency counts above four receive design review without hiding them.
+- [ ] Builders do not become dependency containers.
+- [ ] Durable CRUD uses Tavall Database entities/typed operations.
+- [ ] Repositories exist only for real persistence/substitution contracts.
+- [ ] Consumers do not own mutable keyed stores.
+- [ ] Orchestrators own sequence/lifecycle, not collaborator rules/storage.
+- [ ] Cleanup/replacement/unload behavior is explicit and tested.
