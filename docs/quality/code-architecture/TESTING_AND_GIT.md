@@ -20,6 +20,27 @@ Use the tools appropriate to the repository/runtime, commonly:
 
 Repository-specific test skills and canonical Tavall architecture tests may impose additional requirements.
 
+## Canonical Architecture-Test Boundary
+
+[`TavallStudios/Tavall-Architecture-Tests`](https://github.com/TavallStudios/Tavall-Architecture-Tests) owns the reusable executable subset of Tavall-wide architecture policy. This documentation remains the human-readable authority for the policy itself; an executable rule implements policy, it does not replace or silently redefine it.
+
+The default consumer boundary is the repository's canonical testing suite:
+
+1. a multi-module repository owns one `*-test-suite` or equivalent repository-level verification suite;
+2. that suite consumes the published Tavall architecture-test plugin/modules as dependencies rather than copying canonical test source;
+3. the suite declares the real production projects/modules it owns as architecture targets;
+4. those targets' compiled `main` classes, `main` Java source roots, and production/runtime classpaths are fed through the architecture-test boundary;
+5. repository/root `check` reaches the suite's architecture gate once;
+6. production subprojects do not each need to apply and execute duplicate canonical Tavall architecture gates.
+
+A genuinely single-module repository may use its root verification project as the suite boundary. The important invariant is that the architecture engine inspects the real production source/classes that are built and shipped rather than a copied fixture, stale source mirror, or independently reconstructed model of the application.
+
+Repository-specific tests remain responsible for behavior that cannot or should not be generalized into Tavall-wide architecture rules, including product-specific adapters, runtime simulations, live infrastructure/platform behavior, and explicit temporary architecture debt. When a repository-specific rule becomes reusable Tavall-wide policy, move the reusable enforcement into `Tavall-Architecture-Tests` and update this documentation in the same coherent design/review boundary.
+
+##### Why
+
+Putting the canonical dependency at the repository test-suite boundary gives each repository one verification authority while still allowing the shared architecture engine to inspect every applicable production module. Applying the same canonical gate independently to every production subproject duplicates configuration and execution, makes cross-module architecture harder to inspect, and encourages local copies to drift from the shared policy.
+
 ## Real Behavior First
 
 Tests should use real domain values, real enums, real concrete behavior, and the production contract whenever practical.
@@ -154,6 +175,7 @@ Do not claim validation that did not run. Keep one commit to one coherent system
 # Review Checklist
 
 - [ ] Tests exercise real behavior rather than mocking the subject under test.
+- [ ] Tavall architecture tests are consumed through the repository test-suite boundary and inspect real production `main` outputs/source roots.
 - [ ] Tavall-managed behavior uses production-equivalent DI composition in tests.
 - [ ] External/platform boundaries are the primary fake/mock targets.
 - [ ] PostgreSQL-specific behavior uses PostgreSQL-capable integration coverage.
