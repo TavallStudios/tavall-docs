@@ -58,7 +58,7 @@ Independent work:
 
 ```text
 remote working branch <-> open PR
--> active Sub-Staging/Staging PR ancestry
+-> active Development Staging/Runtime/Staging PR ancestry
 -> exact-head integrated validation at every staging tier
 -> accountable review
 -> explicit repository/release staging promotion to main
@@ -68,7 +68,7 @@ remote working branch <-> open PR
 Stacked dependent work:
 
 ```text
-PR A: architecture branch -> active Sub-Staging/Staging PR branch
+PR A: architecture branch -> active Development Staging/Runtime/Staging PR branch
 PR B: behavior branch -> PR A branch
 PR C: follow-up branch -> PR B branch
 
@@ -109,7 +109,7 @@ working branch <-> pull request
         |            |
         |            +-> may target another PR branch when stacked
         |
-        +-> active Sub-Staging PR (when used) -> active repository/release Staging PR -> main
+        +-> active Development Staging/Runtime PR (when used) -> active repository/release Staging PR -> main
 ```
 
 A repository-specific contribution or synchronization workflow may use `working/**`, personal-fork branches, `sync/**`, `upstream/**`, `staging/**`, or another documented path while preserving the same review and production boundaries.
@@ -147,11 +147,15 @@ An authorized repository owner may work directly on `main` when another branch p
 
 ### 3.2 Staging state, staging files, and staging branches
 
-Staging is persistent integration state represented by active Sub-Staging and Staging pull requests and their branches. Every active normal PR must reach this graph through its dependency ancestry. A staging file or manifest records composition and evidence; it does not substitute for an active integration PR.
+Staging is persistent integration state represented by active Development Staging, Runtime, and Staging pull requests and their branches. Every active normal PR must reach this graph through its dependency ancestry. A staging file or manifest records composition and evidence; it does not substitute for an active integration PR.
 
-- **Sub-Staging PRs** integrate a coherent domain, dependency stack, or subsystem and target the next active integration tier.
-- **Repository/release Staging PRs** form the top-level integration and normal promotion boundary toward `main`.
+- **Development Staging PRs** integrate a coherent product, domain, dependency stack, or subsystem and target the next active integration tier.
+- **Runtime PRs** integrate a deployable/runtime boundary such as Paper, Velocity, Discord, Web, Agent, or Ingress when the repository uses a runtime-specific tier.
+- **Combined Runtime Staging** is the top-level multi-runtime composition role when a repository has several runtime boundaries.
+- **Repository/release Staging PRs** form the generic top-level integration and normal promotion boundary toward `main`. In a multi-runtime repository, the Combined Runtime Staging PR may also be this repository-level promotion boundary.
 - **Staging files or manifests**, when used, record intended composition, parent relationships, exact source heads, conflicts, validation, supersession, and promotion decisions. GitHub PRs remain the authoritative work surfaces.
+
+Where a repository's accepted runtime graph defines all three named tiers, preserve its documented `Runtime PR -> Development Staging -> Combined Runtime Staging` relationship. Repositories may omit tiers that do not apply, but they must not revive `Sub-Staging` / `SUB_STAGING` as an alias for Development Staging.
 
 Reuse the appropriate persistent integration PR rather than recreating it for each feature. Keep integration roots in Draft while they are continuously collecting or validating work; readiness for an authorized promotion is a separate transition. A green child does not authorize merging a persistent root into `main`.
 
@@ -166,9 +170,9 @@ Tavall PR metadata describes one recoverable work graph. It has three independen
 **PR Type** describes structural location in the Git integration graph:
 
 - `FEATURE`: bounded implementation, repair, test, migration, documentation, or product work;
-- `SUB_STAGING`: persistent integration root for a bounded product, subsystem, or domain contained inside a broader runtime or staging graph;
+- `DEVELOPMENT_STAGING`: persistent integration root for a bounded product, subsystem, domain, or development composition contained inside a broader runtime or staging graph;
 - `RUNTIME`: persistent integration PR for a deployable or runtime boundary such as Paper, Velocity, Discord, Web, Agent, or Ingress;
-- `STAGING`: top-level persistent composition/integration PR before production.
+- `STAGING`: top-level persistent composition/integration PR before production. In a multi-runtime repository, this may be named Combined Runtime Staging.
 
 PR Type is explicit metadata. Branch naming may help a human locate work but MUST NOT be treated as sufficient evidence for type.
 
@@ -232,7 +236,7 @@ A canonical PR metadata document may evolve in storage shape, but it must preser
     "parentPullRequest": 100,
     "stagingPullRequest": 50,
     "runtimePullRequest": 100,
-    "subStagingPullRequest": null,
+    "developmentStagingPullRequest": null,
     "supersededBy": null
   },
   "callbacks": {
@@ -269,7 +273,7 @@ The example is semantic, not a frozen serialization contract. Implementations ma
 
 PR/source metadata, Tavall Cloud lanes, immutable environment generations, execution jobs/operations, and physical workspaces form one graph. Reconciliation must make ownership traversable in both directions rather than maintaining disconnected lists that happen to contain similar strings.
 
-- PR metadata callbacks identify repository, branch, exact SHA, parent PR, staging/runtime/sub-staging owners, canonical lane, lane history, current environment, environment history, executor/job/operation evidence, and physical workspace when materialized.
+- PR metadata callbacks identify repository, branch, exact SHA, parent PR, staging/runtime/development-staging owners, canonical lane, lane history, current environment, environment history, executor/job/operation evidence, and physical workspace when materialized.
 - Lane metadata callbacks identify owning PR/source identities and environment generations.
 - Environment metadata callbacks identify lane, PR, repository, branch, exact SHA, parent PR, and physical worktree when materialized.
 - Workspace metadata callbacks identify owning PR, lane, environment, source identity, and executor evidence where appropriate.
@@ -336,7 +340,7 @@ An authorized repository owner may apply the correction directly to `main` where
 
 ### PR Flow: mandatory active staging ancestry
 
-Every active normal pull request MUST always have a valid transitive path into an active Sub-Staging or Staging PR, continuing through every Sub-Staging tier to one unambiguous active repository/release staging root. This includes feature, fix, architecture, infrastructure, agent, documentation, and dependency work, including Draft PRs and PRs that implement this policy. There is no staging-less grace period.
+Every active normal pull request MUST always have a valid transitive path into an active Development Staging, Runtime, or Staging PR, continuing through every configured integration tier to one unambiguous active repository/release staging root. This includes feature, fix, architecture, infrastructure, agent, documentation, and dependency work, including Draft PRs and PRs that implement this policy. There is no staging-less grace period.
 
 A valid path uses current open PRs, their actual base/head branches, and the repository's authoritative staging relationships. Branch naming, a body link, a historical merge, or stale manifest membership alone does not establish a valid path. A dependency child may target its parent's working branch; only the appropriate stack root needs direct staging attachment. Preserve dependency ordering and review boundaries rather than retargeting every child directly to staging.
 
@@ -344,11 +348,12 @@ For example:
 
 ```text
 feature follow-up PR -> feature PR -> foundation PR
-                     -> domain Sub-Staging PR
-                     -> repository/release Staging PR -> main
+                     -> domain Development Staging PR
+                     -> Runtime PR when applicable
+                     -> repository/release or Combined Runtime Staging PR -> main
 ```
 
-The final edge to `main` identifies the authorized promotion boundary. It does not exempt intermediate Sub-Staging PRs from active upward ancestry or permit ordinary focused PRs to bypass staging.
+The final edge to `main` identifies the authorized promotion boundary. It does not exempt intermediate Development Staging or Runtime PRs from active upward ancestry or permit ordinary focused PRs to bypass staging.
 
 #### Creation, update, and recovery
 
@@ -365,11 +370,11 @@ Retarget, merge, close, rotate, supersede, and rebase operations must plan and p
 
 #### Exact-head integration acceptance
 
-Feature, Sub-Staging, and repository/release Staging validation must identify their exact current heads, composition, execution result, and evidence. A head or composition change invalidates prior acceptance for the changed integration state and affected higher tiers. Run relevant integrated build, architecture, regression, and runtime checks at every changed staging tier. Passing child tests do not replace testing the composed head, and intended membership must not be reported as integrated until the current integration tree actually contains the accepted work.
+Feature, Development Staging, Runtime, and repository/release Staging validation must identify their exact current heads, composition, execution result, and evidence. A head or composition change invalidates prior acceptance for the changed integration state and affected higher tiers. Run relevant integrated build, architecture, regression, and runtime checks at every changed staging tier. Passing child tests do not replace testing the composed head, and intended membership must not be reported as integrated until the current integration tree actually contains the accepted work.
 
 GitHub is SCM, review, checks, and reporting. Tavall/local execution remains the authoritative build, test, and runtime execution surface according to repository policy; GitHub-hosted Actions are not the primary execution infrastructure. Publish truthful evidence for the exact source that ran. Distinguish source failures from provider, infrastructure, timeout, termination, stale-head, and missing-evidence failures.
 
-Topology validation must detect orphan normal PRs and stack roots, orphan Sub-Staging PRs, active staging branches without active staging PRs, cycles, incompatible or ambiguous roots, closed/superseded parents with active descendants, deleted PR references, stale metadata or head mismatches, incorrectly flattened dependency stacks, false integration membership, and stale acceptance. Ordinary PR creation and maintenance are valid only when these checks pass; explicitly authorized narrow exceptions remain attributable and reviewable under Section 11.
+Topology validation must detect orphan normal PRs and stack roots, orphan Development Staging or Runtime PRs, active staging branches without active staging PRs, cycles, incompatible or ambiguous roots, closed/superseded parents with active descendants, deleted PR references, stale metadata or head mismatches, incorrectly flattened dependency stacks, false integration membership, and stale acceptance. Ordinary PR creation and maintenance are valid only when these checks pass; explicitly authorized narrow exceptions remain attributable and reviewable under Section 11.
 
 ### 4.1 Before implementation
 
@@ -465,7 +470,7 @@ Use a stack when one reviewable change logically depends on another unmerged cha
 A typical stack is:
 
 ```text
-active Sub-Staging/Staging PR branch
+active Development Staging/Runtime/Staging PR branch
 └── PR A: architecture/foundation
     └── PR B: behavior using PR A
         └── PR C: follow-up or integration using PR B
@@ -476,7 +481,7 @@ Mechanically, the child PR targets the parent PR's branch. The PR body and stagi
 When a parent merges:
 
 1. update the child branch from the parent's new destination;
-2. retarget the child PR to the appropriate active parent or Sub-Staging/Staging PR branch, preserving its path to the repository/release staging root;
+2. retarget the child PR to the appropriate active parent or Development Staging/Runtime/Staging PR branch, preserving its path to the repository/release staging root;
 3. verify that the child diff now contains only its intended changes;
 4. rerun affected validation;
 5. update the staging file or dependency metadata;
@@ -825,7 +830,7 @@ Record rejected approaches, link implementation work, and close issues only when
 ### Staging state and `staging/*`
 
 - Keep repository-defined staging files or manifests authoritative for intended integration composition when that mechanism is enabled.
-- Maintain a corresponding active persistent Draft integration PR for every active staging branch. Reuse the correct root and connect every Sub-Staging tier upward.
+- Maintain a corresponding active persistent Draft integration PR for every active staging branch. Reuse the correct root and connect every Development Staging and Runtime tier upward.
 - Enforce the mandatory PR Flow invariant on creation and every topology transition; reject ambiguous roots and stale head/metadata matches.
 - Allow trusted owner integration where repository-specific rules permit it.
 - Run configured checks and automatic Codex review on reviewable promotion diffs.
