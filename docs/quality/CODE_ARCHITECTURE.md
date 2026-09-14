@@ -215,7 +215,7 @@ Rules:
 - every async/scheduled operation has explicit lifecycle/cancellation ownership;
 - a dedicated operation/runtime owner may internally own in-flight futures/tasks/cancellation state; ordinary handlers/services/listeners/controllers/orchestrators do not gain arbitrary mutable operation maps.
 
-Project Novus production [`FFARegionControlService`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-ffa/src/main/java/org/tavall/minecraft/ffa/region/FFARegionControlService.java) routes off-thread population/routing work through `AsyncTask` and returns Bukkit-affine work to the Bukkit scheduler. [`NovusDiscordCoreApplication`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-discord/novus-discord-core/src/main/java/org/tavall/discord/core/NovusDiscordCoreApplication.java) is a narrow direct-`Thread` exception because `Runtime.addShutdownHook(...)` structurally requires a `Thread` object.
+Project Novus production [`FFARegionControlService`](https://github.com/TavallStudios/tavall-mc/blob/main/novus-ffa/src/main/java/org/tavall/minecraft/ffa/region/FFARegionControlService.java) routes off-thread population/routing work through `AsyncTask` and returns Bukkit-affine work to the Bukkit scheduler. [`NovusDiscordCoreApplication`](https://github.com/TavallStudios/tavall-mc/blob/main/novus-discord/novus-discord-core/src/main/java/org/tavall/discord/core/NovusDiscordCoreApplication.java) is a narrow direct-`Thread` exception because `Runtime.addShutdownHook(...)` structurally requires a `Thread` object.
 
 Detailed anti-pattern: [Direct Thread Ownership](code-architecture/VALIDATION_FALLBACKS_AND_ANTI_PATTERNS.md#direct-thread-ownership-pattern).
 
