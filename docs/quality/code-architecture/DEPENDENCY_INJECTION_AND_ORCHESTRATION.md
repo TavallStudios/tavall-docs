@@ -1,10 +1,12 @@
 # Tavall Dependency Injection and Orchestration
 
 > **Status:** Active  
-> **Authority:** Supporting chapter of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
+> **Authority:** Binding specialization of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
 > **Applies to:** Tavall DI-managed modules, runtime composition, lifecycle cleanup, consumers, and orchestration
 
-This chapter expands the binding dependency-access and orchestration rules in `CODE_ARCHITECTURE.md`. Production examples may come from Project Novus or other Tavall repositories, but compatibility-era construction shown in a source class is not automatically endorsed.
+This chapter owns detailed Tavall DI access, managed registration, default-consumer, orchestration, and cleanup rules. Read the root architecture first.
+
+When a DI-managed consumer also touches durable persistence, Registry/Cache state, mutable keyed state, Handler behavior, or another delegated topic, the corresponding specialized chapter is also required. This chapter does not redefine those boundaries.
 
 ## Managed Registration
 
@@ -95,9 +97,9 @@ Generated access keeps object identity and replacement owned by the dependency m
 
 ## Dependency Constructor Injection Is Rejected
 
-Do not constructor-inject Tavall-managed application dependencies into ordinary production handlers, services, orchestrators, routers, listeners, repositories, utilities, controllers, or other DI-managed behavior.
+Do not constructor-inject Tavall-managed application dependencies into ordinary production handlers, services, orchestrators, routers, listeners, utilities, controllers, or other DI-managed behavior.
 
-Bad:
+#### Bad
 
 ```java
 public final class PlayerRewardHandler {
@@ -121,7 +123,7 @@ Constructors remain valid for:
 
 ##### Why
 
-Managed constructor injection moves graph ownership into callers, captures dependency identity at construction time, encourages manual wiring trees, and can bypass replacement/reload/generation semantics.
+Managed constructor injection moves graph ownership into callers, captures dependency identity at construction time, and can bypass replacement/reload/generation semantics.
 
 ## Static Dependency Access Is Rejected
 
@@ -154,7 +156,7 @@ The default consumer has:
 - no static dependency lookup;
 - no mutable keyed domain store;
 - no raw registry/cache backing-map access;
-- no `EntityManager`, JPA callback, JDBC, or generic CRUD repository ownership;
+- no `EntityManager`, JPA callback, JDBC, or application `*Repository` ownership;
 - no hidden runtime composition.
 
 ### Pattern Responsibilities
@@ -169,7 +171,7 @@ The default consumer has:
 | `*MetaDataHandler` | Derive/refresh/enrich metadata; do not mutate primary data by accident. |
 | `*Registry` | Call domain lookup/registration methods; never backing-map APIs. |
 | `*Cache` | Consume cache-facing behavior only when cache policy is actually the consumer's responsibility. |
-| `*Repository` | Exceptional real persistence/substitution contract beyond ordinary Tavall Database entity CRUD. |
+| `*Repository` | Prohibited for new Tavall-owned production declared types; existing names are migration debt only. |
 | `*Orchestrator` | Coordinate ordered work/lifecycle; do not absorb collaborator rules/storage. |
 | `*Router` | Select/delegate; do not become the implementation. |
 | `*Builder` | Construct typed output only; never resolve/wire managed dependencies. |
@@ -178,7 +180,7 @@ The default consumer has:
 
 ##### Why
 
-The table separates behavior consumption from behavior ownership. Without that distinction, one consumer slowly becomes registry, cache, repository, router, orchestrator, and builder simply because all those operations were convenient to perform in one class.
+The table separates behavior consumption from behavior ownership. Without that distinction, one consumer slowly becomes registry, cache, persistence runtime, router, orchestrator, and builder because all those operations were convenient to perform in one class.
 
 ## More Than Four Managed Dependencies
 
@@ -203,22 +205,17 @@ Dependency count is evidence of coupling, not a style error. Hiding the count do
 
 ## Data and Persistence Consumption
 
-Ordinary durable entity operations use Tavall Database:
+Durable consumers use the **entity classes and entity persistence contract defined by the checked-in `tavall-database` version**. This DI chapter does not copy or freeze a concrete Tavall Database accessor.
 
-```java
-Optional<MyEntity> entity = dependencies
-        .iPostgresDatabase()
-        .entities()
-        .find(MyEntity.class, id);
-```
-
-A consumer/data handler does not create an `EntityManager` callback or `Postgres*Repository` merely to wrap ordinary CRUD.
+A consumer/DataHandler does not create an `EntityManager` callback, JDBC transaction wrapper, generic database wrapper, or new Tavall-owned `*Repository` type merely to wrap ordinary persistence.
 
 A DataHandler may exist when it owns reusable policy such as cache-aside load, mapping, dirty/retry handling, batching, or retention.
 
+Required persistence rules: [Entity Persistence](ENTITY_PERSISTENCE.md).
+
 ##### Why
 
-Persistence wrappers should exist because domain policy exists, not because every durable call is expected to pass through a ritual stack of classes.
+DI explains how a consumer reaches managed capabilities. The persistence module owns the API and transaction lifecycle behind the durable capability, so duplicating its accessor here would create a second source of truth.
 
 ## Consumer-Owned Collection Rejection
 
@@ -231,6 +228,8 @@ Route state by semantics:
 - Tavall Database for durable state;
 - dedicated typed operation/runtime owner for futures/tasks/pending work;
 - immutable typed data for snapshots/values.
+
+Required state rules: [Registries, Caches, and Persistence](REGISTRIES_CACHES_AND_REPOSITORIES.md) and [Application-Owned Mutable Maps](APPLICATION_OWNED_MUTABLE_MAPS.md).
 
 ##### Why
 
@@ -287,6 +286,7 @@ Verify where applicable:
 
 ## Review Checklist
 
+- [ ] Root architecture and every additional relevant delegated chapter were read.
 - [ ] Tavall-managed collaborators use `DependencyAccess`.
 - [ ] No ordinary managed behavior constructor-captures Tavall dependencies.
 - [ ] Static methods do not locate managed runtime behavior.
@@ -294,8 +294,8 @@ Verify where applicable:
 - [ ] Generation-owned dependencies stay generation-local.
 - [ ] Dependency counts above four receive design review without hiding them.
 - [ ] Builders do not become dependency containers.
-- [ ] Durable CRUD uses Tavall Database entities/typed operations.
-- [ ] Repositories exist only for real persistence/substitution contracts.
+- [ ] Durable behavior follows the checked-in Tavall Database entity contract without this chapter freezing an accessor.
+- [ ] No new Tavall-owned production type ends in `Repository`.
 - [ ] Consumers do not own mutable keyed stores.
 - [ ] Orchestrators own sequence/lifecycle, not collaborator rules/storage.
 - [ ] Cleanup/replacement/unload behavior is explicit and tested.
