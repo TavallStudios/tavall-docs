@@ -16,6 +16,8 @@ esac
 cd "${repository_root}"
 mkdir -p "${TAVALL_CI_EVIDENCE_DIRECTORY:-${repository_root}/.tavall/local-ci/verify}"
 
+python3 scripts/ci/test_verify_docs.py
+
 case "${profile}" in
     build)
         python3 scripts/ci/verify_docs.py --mode build
