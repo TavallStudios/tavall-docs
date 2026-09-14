@@ -167,7 +167,7 @@ AsyncTask.runAsync(() -> populationGateway.publishCurrentPopulation(
 ));
 ```
 
-Project Novus production source [`FFARegionControlService`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-ffa/src/main/java/org/tavall/minecraft/ffa/region/FFARegionControlService.java) routes off-thread work through `AsyncTask` and returns Bukkit-affine mutation to the Bukkit scheduler.
+Project Novus production source [`FFARegionControlService`](https://github.com/TavallStudios/tavall-mc/blob/main/novus-ffa/src/main/java/org/tavall/minecraft/ffa/region/FFARegionControlService.java) routes off-thread work through `AsyncTask` and returns Bukkit-affine mutation to the Bukkit scheduler.
 
 #### Good: Completion is part of the caller contract
 
@@ -182,7 +182,7 @@ Keep the `CompletableFuture<T>` only when the caller actually owns, chains, awai
 
 Direct `Thread` creation is allowed only when a JVM/platform/integration API structurally requires a `Thread` object or canonical concurrency infrastructure itself owns thread construction. The reason and lifecycle must be explicit.
 
-Project Novus production source [`NovusDiscordCoreApplication`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-discord/novus-discord-core/src/main/java/org/tavall/discord/core/NovusDiscordCoreApplication.java) constructs a `Thread` specifically because `Runtime.addShutdownHook(...)` requires one; the JVM owns when that hook starts. Tavall concurrency infrastructure may likewise use `Thread.ofVirtual()` internally to implement the shared abstraction.
+Project Novus production source [`NovusDiscordCoreApplication`](https://github.com/TavallStudios/tavall-mc/blob/main/novus-discord/novus-discord-core/src/main/java/org/tavall/discord/core/NovusDiscordCoreApplication.java) constructs a `Thread` specifically because `Runtime.addShutdownHook(...)` requires one; the JVM owns when that hook starts. Tavall concurrency infrastructure may likewise use `Thread.ofVirtual()` internally to implement the shared abstraction.
 
 `Thread.currentThread()` inspection, interrupt restoration, and equivalent operations on the already-owning thread are not thread creation and are not prohibited by this rule.
 
