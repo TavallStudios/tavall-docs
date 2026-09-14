@@ -6,7 +6,14 @@
 
 Application-owned mutable maps are prohibited by default.
 
-The rule is about **ownership**, not whether Java's `Map` type is inherently bad. Tavall Registry, Tavall Cache, Tavall Database internals, distributed-state adapters, dedicated operation/runtime owners, and other canonical infrastructure may use maps internally. Ordinary application consumers should not recreate those systems with `HashMap`, `ConcurrentHashMap`, `ConcurrentMap`, mutable `Set`, or parallel keyed collections.
+The rule is about **ownership**, not whether Java's `Map` type is inherently bad. Canonical Tavall infrastructure may intentionally model a system as a Java collection. In those cases the collection contract is part of the tool's accepted design unless the owning tool explicitly changes it.
+
+Current examples include:
+
+- `tavall-registry` `AbstractRegistry<K, V>`, which intentionally extends `ConcurrentHashMap<K, V>` while adding `IAbstractRegistry` registry-named access;
+- `tavall-di` `DependencyMap`, which intentionally remains a `ConcurrentHashMap<Class<?>, IDependencyMetaData<?, ?>>` and keeps inherited mutation available for advanced/framework use.
+
+Shared application architecture must not reinterpret those intentional tool contracts as generic “backing-map exposure” defects.
 
 ## Classification Rule
 
@@ -16,7 +23,7 @@ Before introducing mutable keyed state, classify the semantics:
 - expiring/reloadable/stale-able/disposable fast state -> Tavall Cache;
 - durable state that must survive restart -> Tavall Database entity classes and the entity persistence contract defined by the checked-in `tavall-database` version;
 - distributed/shared runtime state -> owning Redis/distributed abstraction;
-- several indexes over one identity -> indexed Registry or one typed aggregate;
+- several lookup dimensions over one runtime identity -> one Registry owner using the current `tavall-registry` contract, with any additional lookup structures owned coherently by that registry;
 - in-flight futures/tasks/retries/cancellation -> dedicated typed operation/runtime owner;
 - short-lived payload/result/value -> typed `*Data`, `*Request`, `*Result`, `*State`, or `*MetaData`;
 - bounded algorithmic transform that never escapes -> method-local collection.
@@ -37,11 +44,29 @@ public final class PlayerSessionHandler {
 
 This is registry-shaped state owned by a behavior consumer. Thread safety does not solve the ownership problem.
 
-Prefer a focused Registry with domain methods such as `start`, `find`, `remove`, and `snapshot`.
+Prefer a focused Registry owner.
 
 ##### Why
 
 The consumer should own behavior, not silently become the lifecycle/storage primitive for that behavior.
+
+## Canonical Tool Collection Contracts
+
+Do not apply the application-owned-map prohibition mechanically inside a canonical Tavall tool or a type extending that tool's intended collection abstraction.
+
+For example, `AbstractRegistry` is itself a concurrent map-backed registry. Registry implementations may use inherited `Map` / `ConcurrentMap` operations when those operations are part of the accepted registry implementation contract. The Tavall-named methods on `IAbstractRegistry`, including `createRegistry`, `getRegistryData`, `getRegistryKeyByData`, and the key/data `AsSet` / `AsList` / `AsCollection` accessors, provide a clearer registry vocabulary for common access without erasing the underlying collection behavior.
+
+Likewise, `DependencyMap` intentionally preserves inherited map mutation for advanced/framework use while named Tavall DI APIs own coherent registration/replacement semantics.
+
+When reviewing one of these tools, distinguish:
+
+1. **ordinary application consumer ownership**, which should not invent its own raw keyed store;
+2. **tool-facing semantic APIs**, which are normally preferred when they describe the operation cleanly;
+3. **tool implementation / framework use**, where the canonical library may intentionally expose and use Java collection operations.
+
+##### Why
+
+A blanket “composition over inheritance” or “never use backing-map APIs” rule would contradict existing Tavall tools that deliberately use Java collection inheritance for interoperability and low abstraction overhead. The correct boundary is ownership and invariant preservation, not aesthetic dislike of `Map`.
 
 ## Cache-Shaped State
 
@@ -87,34 +112,45 @@ Local grouping/counting/sorting has no independent lifecycle to architect. This 
 
 ## Infrastructure Exception
 
-Canonical infrastructure may own mutable maps as implementation details, including:
+Canonical infrastructure may own mutable maps as implementation details or intentional public/framework contracts, including:
 
-- Tavall Registry implementations and indexes;
+- Tavall Registry implementations and registry-owned lookup structures;
+- Tavall DI dependency maps;
 - Tavall Cache internals;
 - Tavall Database persistence internals;
 - Redis/distributed-state adapters;
 - dedicated operation/runtime owners;
 - dynamic serialization/integration adapters where the external schema is actually dynamic.
 
-Consumers do not depend on or mutate those backing maps directly.
+Whether a collection surface is internal, semantic, or intentionally inherited is decided by the canonical owning tool. Shared docs must not guess.
 
 ## API Rule
 
-Do not expose generic map mutation as a domain API.
+Ordinary application consumers should use the semantic API exposed by the owning Tavall tool when one exists and fits the operation.
 
-Rejected:
+Rejected consumer ownership:
 
 ```java
-registry.getEntries().put(id, value);
-cache.getMap().remove(id);
-state.compute(id, mutation);
+public final class SessionService {
+    private final Map<UUID, Session> sessions = new ConcurrentHashMap<>();
+}
 ```
 
-Prefer focused behavior such as `start`, `save`, `find`, `invalidate`, `applyMutation`, and immutable snapshots.
+Preferred ownership:
+
+```java
+public final class SessionRegistry
+        extends AbstractRegistry<UUID, Session> {
+}
+```
+
+Inside the registry itself, inherited operations such as `compute`, `putIfAbsent`, iteration, or other supported `ConcurrentMap` behavior are not automatically violations. They are valid when they preserve the registry's actual invariants and the canonical tool contract.
+
+If a specialized registry adds additional invariants or lookup structures, every supported mutation path must preserve those invariants. The fix for a missed mutation path is to repair the invariant or explicitly narrow the owning tool contract, not to assume the base inheritance was accidental.
 
 ##### Why
 
-Map methods expose storage mechanics. Domain methods can preserve validation, duplicate policy, lifecycle transitions, audit, persistence effects, and cleanup behind the owner that understands them.
+Semantic APIs communicate intent to ordinary consumers, while canonical infrastructure still needs implementation power and Java interoperability. Conflating those layers produces needless wrappers and can make shared docs contradict the libraries they are supposed to govern.
 
 ## `*Repository` Does Not Fix Map Ownership
 
@@ -124,10 +160,12 @@ Existing repository types are migration debt only. A map migration must not crea
 
 ## Review Rule
 
-Any new mutable map/set field or parallel keyed collection in production application code requires architecture review and should be rejected unless clearly inside an allowed infrastructure/data boundary.
+Any new mutable map/set field or parallel keyed collection in ordinary production application code requires architecture review and should be rejected unless clearly inside an allowed infrastructure/data boundary.
 
-Strong violation signals include raw/nested arbitrary maps, mutable keyed fields in ordinary consumers, backing-map exposure, and attempts to move the state into a newly named `*Repository`.
+Strong violation signals include raw/nested arbitrary maps, mutable keyed fields in ordinary consumers, and attempts to move the state into a newly named `*Repository`.
+
+Do **not** flag an inherited or internally used collection API merely because it is a `Map`. First identify whether the owning canonical Tavall tool intentionally exposes that behavior and which invariants it requires.
 
 ##### Why
 
-Mutable keyed state is cheap to add and expensive to unwind after callers depend on its shape. Ownership review at introduction is far cheaper than later discovering one convenient map became a cache, registry, persistence layer, and API at the same time.
+Mutable keyed state is cheap to add and expensive to unwind after callers depend on its shape. Ownership review at introduction is far cheaper than later discovering one convenient map became a cache, registry, persistence layer, and API at the same time. The same review must also avoid “fixing” deliberate infrastructure contracts into unnecessary abstraction layers.
