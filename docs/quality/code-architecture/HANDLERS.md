@@ -1,8 +1,10 @@
 # Tavall Handler Patterns
 
 > **Status:** Active  
-> **Authority:** Binding chapter of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
+> **Authority:** Binding specialization of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
 > **Applies to:** Tavall production modules, contributors, automation, generated code, reviews, and AI-assisted development
+
+This chapter owns Handler, DataHandler, MetaDataHandler, and input-adapter behavior. Read the root architecture first and also read any specialized DI, persistence, Registry/Cache, mutable-state, or orchestration chapter touched by the handler.
 
 ## Domain Handler Pattern
 
@@ -12,7 +14,7 @@ Handlers are a common/default Tavall behavior role when the behavior is narrower
 
 A domain handler may own the rule it exists to implement. It should not absorb unrelated policies or the storage mechanics of its collaborators.
 
-Bad:
+#### Bad
 
 ```java
 public final class RankCommand {
@@ -28,7 +30,7 @@ public final class RankCommand {
 
 The command owns reusable rank/authority behavior, uses raw input, and mutates platform state directly. The external input surface became the domain rule merely because it received the command first.
 
-Good shape:
+#### Good
 
 ```java
 @DelegatesTo(IRankUpdateHandler.class)
@@ -100,30 +102,13 @@ A data handler owns reusable **data policy** when policy exists, such as:
 
 A data handler is not mandatory around every entity operation.
 
-Example:
+When durable persistence is involved, the DataHandler consumes the **entity classes and entity persistence contract defined by the checked-in `tavall-database` version**. This Handler chapter deliberately does not copy a concrete Tavall Database accessor into an example.
 
-```java
-@DelegatesTo(IPlayerAccountDataHandler.class)
-public final class PlayerAccountDataHandler
-        implements IPlayerAccountDataHandler,
-        DependencyAccess<IPostgresDatabase> {
-
-    @Override
-    public PlayerAccountData load(UUID playerUUID) {
-        Optional<PlayerAccountEntity> entity = getInstance()
-                .entities()
-                .find(PlayerAccountEntity.class, playerUUID);
-
-        return entity
-                .map(PlayerAccountData::fromEntity)
-                .orElse(null);
-    }
-}
-```
+A DataHandler must not create an `EntityManager` callback, JDBC transaction wrapper, generic database wrapper, or new Tavall-owned `*Repository` type. Required persistence rules: [Entity Persistence](ENTITY_PERSISTENCE.md).
 
 ##### Why
 
-A data handler is useful when it centralizes real data behavior. A class that only forwards one `database.entities().find()` call adds no policy and should not exist by habit.
+A DataHandler is useful only when it centralizes real data policy. Copying the current persistence accessor into Handler guidance would make this chapter a competing Tavall Database API document.
 
 Data handlers do not decide unrelated product/gameplay authorization merely because they perform the eventual write.
 
@@ -132,8 +117,6 @@ Data handlers do not decide unrelated product/gameplay authorization merely beca
 A metadata handler resolves, refreshes, validates, enriches, or exposes derived metadata.
 
 It does not mutate primary durable data unless the class is explicitly a different persistence/domain behavior owner.
-
-Example shape:
 
 ```java
 @DelegatesTo(IPlayerRankMetaDataHandler.class)
@@ -186,9 +169,11 @@ Handlers remain easy to understand only while their operation boundary is visibl
 
 ## Review Checklist
 
+- [ ] Root architecture and every additional relevant delegated chapter were read.
 - [ ] The handler owns one focused behavior/data/metadata responsibility.
 - [ ] Input adapters remain thin and delegate reusable rules.
 - [ ] Managed collaborators resolve through Tavall DI.
-- [ ] Durable operations use Tavall Database/data policy rather than local transaction/database wrappers.
+- [ ] Durable operations follow the checked-in Tavall Database entity contract rather than local transaction/database wrappers.
+- [ ] No new Tavall-owned production type ends in `Repository`.
 - [ ] No consumer-owned mutable keyed store is hidden in the handler.
 - [ ] A Service/Orchestrator/Router/Resolver/Registry/Cache is used when that role is more accurate.
