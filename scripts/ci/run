@@ -54,8 +54,8 @@ if [[ "${repository}" != 'TavallStudios/tavall-docs' ]]; then
     printf 'repository must be TavallStudios/tavall-docs: actual=%s\n' "${repository}" >&2
     exit 64
 fi
-if [[ ! "${expected_head}" =~ ^[a-f0-9]{40}$ ]]; then
-    printf '%s\n' 'expected head must be a lowercase SHA-1 identifier' >&2
+if [[ ! "${expected_head}" =~ ^([a-f0-9]{40}|[a-f0-9]{64})$ ]]; then
+    printf '%s\n' 'expected head must be a lowercase 40- or 64-character commit identifier' >&2
     exit 64
 fi
 case "${profile}" in
