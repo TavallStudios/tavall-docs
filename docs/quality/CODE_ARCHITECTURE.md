@@ -34,6 +34,8 @@ Before changing architecture:
 4. Read the current checked-in Tavall tool/module contracts used by the implementation.
 5. Inspect the current lifecycle/composition owner and production behavior before designing a replacement.
 
+When a rule concerns an existing Tavall tool, inspect that canonical tool's interfaces, implementation, tests, and owning documentation before changing shared guidance. Canonical Tavall tools own their API shape, inheritance model, lifecycle semantics, supported low-level/framework surfaces, and naming vocabulary. Shared architecture may classify when a tool is used and constrain ordinary application consumers, but it must not silently redesign the canonical tool itself. A desired redesign belongs in the owning tool first and in shared docs only after that change becomes the accepted tool contract.
+
 A change may require several delegated chapters. A Handler using Tavall DI, Cache, and persistence must not read only `HANDLERS.md`; it also requires the DI and state/persistence chapters that own those boundaries.
 
 ### Required Topic Routing
@@ -197,7 +199,7 @@ Classify state by semantics before choosing a collection or class name:
 - bounded method-local transforms -> local collection that never escapes;
 - immutable snapshots/values -> typed immutable data.
 
-Application-owned mutable maps/sets are prohibited by default. Registry/Cache/database/distributed/operation infrastructure may own mutable maps internally according to their own lifecycle contracts.
+Application-owned mutable maps/sets are prohibited by default. Canonical Tavall tools may intentionally expose collection inheritance or low-level/framework operations as part of their accepted contracts; ordinary consumer restrictions must not be confused with tool implementation rules.
 
 Detailed rules: [Registries, Caches, and Persistence](code-architecture/REGISTRIES_CACHES_AND_REPOSITORIES.md) and [Application-Owned Mutable Maps](code-architecture/APPLICATION_OWNED_MUTABLE_MAPS.md).
 
@@ -246,6 +248,7 @@ Before accepting a change, confirm:
 
 - [ ] This root document and every relevant delegated chapter were read.
 - [ ] Repository/module instructions and current Tavall tool contracts were inspected where relevant.
+- [ ] Existing canonical Tavall tools were inspected before changing or documenting their API, inheritance, lifecycle, or naming assumptions.
 - [ ] Owner/module/package and class/method roles are correct.
 - [ ] No new Tavall-owned production type ends in `Repository`; migration debt does not grow.
 - [ ] Interfaces represent real contract/substitution boundaries.
@@ -255,6 +258,7 @@ Before accepting a change, confirm:
 - [ ] Off-thread application work uses Tavall concurrency/owning platform schedulers rather than direct worker-thread ownership.
 - [ ] Durable persistence follows Tavall Database's checked-in entity contract without shared docs freezing a concrete accessor.
 - [ ] Runtime keyed state is Registry/Cache/distributed/typed operation state rather than consumer-owned mutable maps.
+- [ ] Canonical tool collection inheritance is not rejected merely for exposing supported Java collection behavior.
 - [ ] Cross-storage authority, ordering, recovery, and reconciliation are explicit.
 - [ ] Async/lifecycle cleanup is explicit.
 - [ ] Requests/results/keys/state are typed and validation precedes mutation.
