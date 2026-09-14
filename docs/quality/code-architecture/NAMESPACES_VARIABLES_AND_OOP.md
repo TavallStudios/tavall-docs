@@ -87,7 +87,7 @@ FFARegionServerSnapshot target = destination.get();
 boolean valid = target.online() && target.spareCapacity() > 0;
 ```
 
-Project Novus production source [`FFARegionControlService`](https://github.com/TavallStudios/tavall-project-novus/blob/main/novus-ffa/src/main/java/org/tavall/minecraft/ffa/region/FFARegionControlService.java) uses explicit local types across routing, snapshot, candidate, state, and validation flows.
+Project Novus production source [`FFARegionControlService`](https://github.com/TavallStudios/tavall-mc/blob/main/novus-ffa/src/main/java/org/tavall/minecraft/ffa/region/FFARegionControlService.java) uses explicit local types across routing, snapshot, candidate, state, and validation flows.
 
 Production Tavall Java code under `src/main/java` uses explicit local variable types. Do not use Java `var` in production source, including loop variables, generic results, builder results, DI-backed values, entity/data values, optionals, collections, or operation results.
 
