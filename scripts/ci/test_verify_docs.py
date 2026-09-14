@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import contextlib
 import importlib.util
+import io
 import tempfile
 from pathlib import Path
 
@@ -19,6 +21,17 @@ def load_validator():
 def assert_equal(actual, expected, message: str) -> None:
     if actual != expected:
         raise AssertionError(f"{message}: expected={expected!r} actual={actual!r}")
+
+
+def expect_exit_one(callback, message: str) -> None:
+    diagnostics = io.StringIO()
+    try:
+        with contextlib.redirect_stderr(diagnostics):
+            callback()
+    except SystemExit as exception:
+        assert_equal(exception.code, 1, message)
+    else:
+        raise AssertionError(f"expected validation failure: {message}")
 
 
 def test_route_specificity(validator) -> None:
@@ -64,12 +77,13 @@ def test_markdown_link_validation(validator) -> None:
         validator.validate_markdown_links(root, [Path("docs/source.md"), Path("docs/target.md")])
 
         source.write_text("# Source\n\n[Missing](missing.md)\n", encoding="utf-8")
-        try:
-            validator.validate_markdown_links(root, [Path("docs/source.md"), Path("docs/target.md")])
-        except SystemExit as exception:
-            assert_equal(exception.code, 1, "broken local link exit code")
-        else:
-            raise AssertionError("broken local link was not rejected")
+        expect_exit_one(
+            lambda: validator.validate_markdown_links(
+                root,
+                [Path("docs/source.md"), Path("docs/target.md")],
+            ),
+            "broken local link exit code",
+        )
 
 
 def test_text_integrity(validator) -> None:
@@ -83,12 +97,10 @@ def test_text_integrity(validator) -> None:
 
         conflicted = docs / "conflicted.md"
         conflicted.write_text("<<<<<<< ours\ntext\n>>>>>>> theirs\n", encoding="utf-8")
-        try:
-            validator.validate_text_integrity(root, [Path("docs/conflicted.md")])
-        except SystemExit as exception:
-            assert_equal(exception.code, 1, "conflict marker exit code")
-        else:
-            raise AssertionError("merge-conflict marker was not rejected")
+        expect_exit_one(
+            lambda: validator.validate_text_integrity(root, [Path("docs/conflicted.md")]),
+            "conflict marker exit code",
+        )
 
 
 def main() -> int:
