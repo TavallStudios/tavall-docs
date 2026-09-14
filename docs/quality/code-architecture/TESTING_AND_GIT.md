@@ -29,9 +29,10 @@ The default consumer boundary is the repository's canonical testing suite:
 1. a multi-module repository owns one `*-test-suite` or equivalent repository-level verification suite;
 2. that suite consumes the published Tavall architecture-test plugin/modules as dependencies rather than copying canonical test source;
 3. the suite declares the real production projects/modules it owns as architecture targets;
-4. those targets' compiled `main` classes, `main` Java source roots, and production/runtime classpaths are fed through the architecture-test boundary;
-5. repository/root `check` reaches the suite's architecture gate once;
-6. production subprojects do not each need to apply and execute duplicate canonical Tavall architecture gates.
+4. those targets' compiled `main` classes, `main` Java source roots, production/runtime classpaths, and Java test-source roots are fed through the architecture-test boundary;
+5. production classes are the architecture subject; test source is inspected as evidence about how that production behavior is tested and must never replace inspection of the real production classes;
+6. repository/root `check` reaches the suite's architecture gate once;
+7. production subprojects do not each need to apply and execute duplicate canonical Tavall architecture gates.
 
 A genuinely single-module repository may use its root verification project as the suite boundary. The important invariant is that the architecture engine inspects the real production source/classes that are built and shipped rather than a copied fixture, stale source mirror, or independently reconstructed model of the application.
 
@@ -40,6 +41,28 @@ Repository-specific tests remain responsible for behavior that cannot or should 
 ##### Why
 
 Putting the canonical dependency at the repository test-suite boundary gives each repository one verification authority while still allowing the shared architecture engine to inspect every applicable production module. Applying the same canonical gate independently to every production subproject duplicates configuration and execution, makes cross-module architecture harder to inspect, and encourages local copies to drift from the shared policy.
+
+## Continuous Per-Class Architecture Assessment
+
+Architecture validation is part of implementation authoring, not only a final aggregate JUnit failure after the code is supposedly finished.
+
+The canonical architecture engine must:
+
+- produce an explicit assessment for every discovered production class, including classes with zero findings;
+- report class identity, source location when available, selected rule families, pass/fail state, compliance score, and the findings that produced the result;
+- attach exact source file and line/column evidence when a source-backed rule can mechanically identify it;
+- expose the same assessment model to the JUnit architecture gate, direct/local analysis, AI tooling, CLI/MCP consumers, and machine-readable reports rather than creating separate interpretations;
+- fail a class on any unbaselined blocking finding regardless of numeric score;
+- keep baselined debt visible in the class result and score;
+- fail stale debt entries so accepted debt shrinks rather than becoming a permanent ignore list.
+
+The compliance score is diagnostic prioritization, not a threshold that can average away a broken architecture rule. `75/100 FAIL` still means fail.
+
+For normal AI-assisted Java work, run the repository test suite's canonical `architectureAnalyze` task after each coherent production or test-source edit. In a durable interactive development environment, the same task may run under Gradle continuous mode while the AI edits. Repository/root `check` remains the authoritative completion gate.
+
+##### Why
+
+A single final red/green test says too little when an agent is changing many classes. Per-class evidence makes the failing production owner, exact location, applicable policy, and remaining debt visible early enough to guide the edit instead of merely rejecting the finished branch.
 
 ## Real Behavior First
 
@@ -81,22 +104,51 @@ A constructor-only test path can pass while production replacement, alias, gener
 
 ## Test Class Rules
 
-- Name the test after the production type with `Test` at the end.
-- Match the production package structure.
-- Use behavior-oriented test method names such as `modCannotPunishAdmin()` rather than `testCanPunish()`.
-- Keep repeated test setup at class level when it is stable context.
-- Keep behavior-specific setup inside the test when it matters only to that case.
-- Extract important values into readable locals.
-- Cover expected rejection/failure/cleanup paths, not only success.
+Behavior-bearing concrete production types require direct JUnit 5 behavior-test evidence unless repository-specific architecture documents establish a stronger or more appropriate integration-only boundary.
+
+The canonical direct-test expectation is type-aware. Interfaces, annotations, enums, records, abstract types, nested implementation details, generated types, and concrete types with no public/protected behavior method are not forced into meaningless one-file-per-type tests merely to satisfy a file counter. Their behavior may be proven through the production type that owns the actual contract or through the appropriate contract/integration suite.
+
+For a production type that requires a direct test:
+
+- name the test after the production type with `Test` at the end;
+- match the production package structure and test-source path;
+- use JUnit 5;
+- use behavior-oriented test method names such as `modCannotPunishAdmin()` rather than `testCanPunish()`;
+- every behavior test must observe a result with an assertion or verification rather than only execute code;
+- do not mock the production subject under test;
+- do not reflectively invoke private subject methods as the test contract;
+- use production-equivalent Tavall DI composition when the subject is Tavall-managed;
+- keep repeated test setup at class level when it is stable context;
+- keep behavior-specific setup inside the test when it matters only to that case;
+- extract important values into readable locals;
+- cover expected rejection/failure/cleanup paths, not only success.
 
 ```text
 src/main/java/org/tavall/permissions/power/PowerLevelService.java
 src/test/java/org/tavall/permissions/power/PowerLevelServiceTest.java
 ```
 
+Canonical test scaffolding and canonical test validation must use the same test-authoring policy model. An AI may ask the architecture-test plugin to create the expected package/class/JUnit scaffold before writing the behavior, but generated scaffolds must fail closed. A generated placeholder is not test coverage and must remain rejected until replaced by real behavior-oriented assertions.
+
+The architecture-test layer should enforce only mechanically reliable portions of this policy. It must not invent static heuristics and then claim they prove infrastructure realism, failure-path completeness, or semantic test quality when those require actual runtime evidence or review.
+
 ##### Why
 
-Behavior-oriented names make CI failures describe the contract that broke. Matching packages and readable setup keep tests discoverable and prevent test-only organization from becoming another architecture to learn.
+Behavior-oriented names make CI failures describe the contract that broke. Matching packages and readable setup keep tests discoverable and prevent test-only organization from becoming another architecture to learn. A shared scaffold/validator policy prevents the spectacularly pointless outcome where the generator writes a test shape the canonical analyzer rejects five seconds later.
+
+## AI Test-Authoring Loop
+
+When an AI creates or changes Java behavior:
+
+1. compile/analyze the real production class through the repository test-suite architecture boundary;
+2. inspect the per-class result rather than inferring architecture from source shape alone;
+3. when direct behavior coverage is required, resolve the canonical expected test path/class and authoring constraints before writing the test;
+4. optionally create the canonical fail-closed scaffold, then replace it with real behavior setup/actions/assertions;
+5. rerun canonical architecture analysis after production or test-source edits and repair exact reported findings;
+6. run the repository's appropriate unit/contract/integration/runtime tests;
+7. complete the normal repository/root `check` gate before claiming the work accepted.
+
+A Git hook may provide convenience feedback but is not architecture authority. The canonical Gradle/test-suite path is the shared executable contract.
 
 ## Infrastructure Tests
 
@@ -175,12 +227,16 @@ Do not claim validation that did not run. Keep one commit to one coherent system
 # Review Checklist
 
 - [ ] Tests exercise real behavior rather than mocking the subject under test.
-- [ ] Tavall architecture tests are consumed through the repository test-suite boundary and inspect real production `main` outputs/source roots.
+- [ ] Tavall architecture tests are consumed through the repository test-suite boundary and inspect real production `main` outputs/source roots plus test-authoring evidence.
+- [ ] Every discovered production class receives a canonical architecture assessment with exact source evidence where mechanically available.
+- [ ] Behavior-bearing concrete production types have the required direct JUnit 5 test evidence, or an explicit stronger integration boundary owns that behavior.
+- [ ] Direct behavior tests contain real assertions/verifications and are not unfinished generated scaffolds.
 - [ ] Tavall-managed behavior uses production-equivalent DI composition in tests.
 - [ ] External/platform boundaries are the primary fake/mock targets.
 - [ ] PostgreSQL-specific behavior uses PostgreSQL-capable integration coverage.
 - [ ] Failure, cleanup, reload, retry, and shutdown paths are covered where they exist.
 - [ ] Test names describe behavior and packages match production.
+- [ ] AI-assisted Java edits ran canonical architecture analysis during authoring and the final repository `check` before acceptance.
 - [ ] Branch/review/staging/promotion decisions follow `GIT_WORKFLOW.md`, not a duplicated diagram.
 - [ ] Ordinary contributor review rules and explicit owner authority are not conflated.
 - [ ] Commit messages report truthful validation and one coherent reason for the change.
