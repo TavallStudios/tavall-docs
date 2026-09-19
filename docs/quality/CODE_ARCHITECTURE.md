@@ -108,6 +108,16 @@ Use an interface for a real contract/substitution boundary such as a Tavall DI a
 
 Detailed rules: [Interfaces and Abstractions](code-architecture/INTERFACES_AND_ABSTRACTIONS.md).
 
+## Direct Java Capability and Adapter Default
+
+Tavall-owned Java capabilities expose their typed semantic Java API as the canonical reusable boundary:
+
+- **Same JVM / composition**: ordinary Java consumers call that typed API directly rather than shelling out to CLI, calling localhost HTTP/MCP, or rebuilding domain behavior in an adapter. External adapters (CLI, HTTP, MCP, Web/UI) project that same capability; they do not become duplicate business authorities.
+- **Separate runtime / process**: cross-process Java consumers use a typed integration client that encapsulates transport and protocol details. Business, domain, and controller code do not scatter raw HTTP requests, JSON envelopes, CLI commands, MCP tool names, socket framing, or remote service ports.
+- **No decorative over-abstraction**: if a canonical Tavall tool (`tavall-database`, `tavall-registry`, `tavall-cache`, `tavall-di`, `tavall-concurrency`, etc.) already exposes the correct semantic API, use it directly. A new facade or interface requires a real ownership, substitution, dependency-direction, or process boundary.
+
+Detailed rules: [Interfaces and Abstractions](code-architecture/INTERFACES_AND_ABSTRACTIONS.md#direct-java-capability-and-adapter-default).
+
 ## Dependency Injection
 
 `tavall-di` is the default Tavall runtime composition system unless a narrower repository explicitly defines another composition boundary.

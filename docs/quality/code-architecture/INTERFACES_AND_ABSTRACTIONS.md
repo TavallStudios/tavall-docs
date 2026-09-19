@@ -63,6 +63,53 @@ Registry and Cache base classes are valid because they centralize real shared li
 
 Interface methods use typed requests, results, keys, states, and domain data. Avoid `Object`, raw strings, arbitrary mutable maps, and storage-mechanic APIs when a stable type or domain action exists.
 
+## Direct Java Capability and Adapter Default
+
+Tavall-owned Java capabilities expose their typed semantic Java API as the canonical reusable boundary.
+
+```text
+same JVM:
+consumer
+    -> typed Java capability
+         +-> CLI adapter
+         +-> HTTP/MCP adapter
+         +-> Web/UI adapter
+
+separate process:
+consumer Java
+    -> typed integration client
+    -> stable transport
+    -> owning runtime
+```
+
+### Same JVM / Composition
+
+When caller and capability share one JVM composition boundary, ordinary Java consumers call that typed API directly.
+
+Bad defaults:
+- Java -> CLI process -> parse stdout/JSON -> same Java application;
+- Java -> localhost HTTP -> controller -> domain service;
+- Java -> MCP tool dispatch -> tool adapter -> same JVM capability.
+
+Correct default:
+- `Java caller -> typed Java capability`
+
+External adapters (CLI, HTTP, MCP, Web/UI) project that same capability; they do not become duplicate domain/business authorities.
+
+### Separate Process / Runtime
+
+For a separate runtime or process, the Java consumer uses a typed integration client that encapsulates the stable transport and protocol details. Business, domain, and controller code do not scatter raw HTTP requests, JSON envelopes, CLI commands, MCP tool names, socket framing, or remote service ports.
+
+### No Decorative Over-Abstraction
+
+If an existing canonical Tavall tool (`tavall-database`, `tavall-registry`, `tavall-cache`, `tavall-di`, `tavall-concurrency`, etc.) already exposes the correct semantic API, use it directly. Do not add:
+- `FooFacade`
+- `FooWrapper`
+- `IFooRepository`
+- `FooApiServiceFactory`
+
+merely to restate an existing library API. A new interface requires a real ownership, substitution, dependency-direction, or process boundary.
+
 ## Review
 
 Before adding an interface, identify the actual substitution/contract boundary. Reject the interface when:
@@ -71,4 +118,5 @@ Before adding an interface, identify the actual substitution/contract boundary. 
 - it hides a Tavall-managed dependency behind static lookup;
 - it exposes raw mutable storage;
 - it is a new `*Repository`/`I*Repository` type;
+- it creates decorative wrappers around already-correct Tavall library APIs;
 - its only purpose is preserving a generic CRUD wrapper around Tavall Database.
