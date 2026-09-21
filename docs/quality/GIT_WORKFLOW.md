@@ -568,6 +568,8 @@ Provide relevant repository documents, active PR relationships, and issues; requ
 
 ## 6. Production promotion and deployment
 
+[CI_CD.md](CI_CD.md) owns CI execution, exact-source evidence, immutable artifact identity, delivery validation, and production-promotion semantics. This workflow owns the Git, review, staging, and source-promotion path that carries validated work toward those CI/CD boundaries.
+
 A production-promotion pull request or staged promotion must explain release scope, included issues and pull requests, stack relationships where relevant, important behavior changes, migrations and configuration, automated and manual evidence, risks and untested paths, rollback, and post-deployment verification.
 
 Before merging:
