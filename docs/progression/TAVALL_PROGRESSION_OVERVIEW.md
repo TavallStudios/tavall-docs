@@ -159,30 +159,39 @@ The Tavall agent/executor path should enforce these rules mechanically:
 - When branch-only progression is newer, label it **unmerged evidence** until reconciled into the owning production tracker.
 - Add a check that the per-repository progression index contains every tracked progression document and that its displayed status matches the owning tracker header or declared table-driven summary.
 
-## 8. Immediate follow-up
+## 8. Immediate follow-up & Execution Status
 
-1. Replace the stale `tavall-mc/docs/progression/README.md` manual inventory with a generated or mechanically verified index covering all 46 trackers.
-2. Reconcile the 24 divergent `tavall-mc` tracker paths and the 3 divergent `tavall-cloud` tracker paths.
-3. Update the canonical Tavall agents/executor source-selection rules so random worktree discovery cannot silently establish authority.
-4. Prune merged/superseded/prunable worktrees after preserving useful branch/PR evidence.
-5. Re-run this roll-up from canonical refs and reduce the divergence counts toward zero.
+1. **`tavall-mc/docs/progression/README.md` index:** COMPLETED via PR #304. Full 46-tracker inventory accurately indexed and linked with current statuses and audit rules.
+2. **Dating of all 46 `tavall-mc` progression trackers:** COMPLETED via PR #304. Every tracker now enforces `YYYY-MM-DD` ISO dates with commit SHAs and verified evidence states.
+3. **Dating of all 4 `tavall-cloud` progression trackers:** COMPLETED via PR #393.
+4. **Dating of `tavall-web` progression trackers:** COMPLETED via PR #38 and PR #39.
+5. **Java tool repository workflow centralization:** COMPLETED across all 9 Java repositories (PRs merged to `main`).
+6. **Cross-repo Git workflow centralization:** COMPLETED across all 24 repositories containing stale copies.
+7. **Tavall Docs master policy promotion:** COMPLETED via PR #14 -> `staging/quality` -> PR #2 -> `main` (`docs/quality/CI_CD.md` and `docs/quality/DOCUMENT_ROUTING.yml` live on `main`).
+8. **Prune merged/superseded/prunable worktrees** after preserving useful branch/PR evidence.
 
 ## 9. Reconciliation Ledger and Active PR Tracking
 
 The authoritative cross-repository inventory and authority model is maintained in [`TAVALL_DOCUMENTATION_RECONCILIATION_LEDGER.md`](TAVALL_DOCUMENTATION_RECONCILIATION_LEDGER.md).
 
-### Active Reconciliation PRs:
-- **Paper Fork Progression**: [`TavallStudios/tavall-mc-paper#4`](https://github.com/TavallStudios/tavall-mc-paper/pull/4) (`docs/progression/PAPER_FORK_PROGRESSION.md`)
-- **Architecture Tests Progression**: [`TavallStudios/Tavall-Architecture-Tests#11`](https://github.com/TavallStudios/Tavall-Architecture-Tests/pull/11) (`docs/progression/ARCHITECTURE_TESTS_PROGRESSION.md`)
-- **Minecraft Bot Testing Progression**: [`TavallStudios/tavall-mc-bot-testing#3`](https://github.com/TavallStudios/tavall-mc-bot-testing/pull/3) (`docs/progression/BOT_TESTING_PROGRESSION.md`)
-- **Tavall MC Bot-Testing Doc Links Repair**: [`TavallStudios/tavall-mc#303`](https://github.com/TavallStudios/tavall-mc/pull/303) (repairs corrupted bot-testing URLs across 7 documents)
-- **Tavall Web Runtime Progression**: [`TavallStudios/tavall-web#38`](https://github.com/TavallStudios/tavall-web/pull/38) (`docs/TAVALL_WEB_RUNTIME_PROGRESSION.md`)
-- **Tavall Discord Progression**: [`TavallStudios/tavall-discord#4`](https://github.com/TavallStudios/tavall-discord/pull/4) (`docs/progression/DISCORD_PLATFORM_PROGRESSION.md`)
-- **Tavall Minecraft Framework Progression**: [`TavallStudios/tavall-minecraft-framework#6`](https://github.com/TavallStudios/tavall-minecraft-framework/pull/6) (`docs/progression/MINECRAFT_FRAMEWORK_PROGRESSION.md`)
-- **Tavall Content Publishing Queue**: [`TavallStudios/tavall-content#11`](https://github.com/TavallStudios/tavall-content/pull/11) (`docs/MULTI_ACCOUNT_PUBLISHING_QUEUE_FINAL_DRAFT.md`)
+### Merged Production & Staging PRs:
+- **Tavall MC Progression Dating (46 trackers)**: [`TavallStudios/tavall-mc#304`](https://github.com/TavallStudios/tavall-mc/pull/304) (`MERGED_PRODUCTION`)
+- **Tavall MC Bot-Testing Link Repair**: [`TavallStudios/tavall-mc#303`](https://github.com/TavallStudios/tavall-mc/pull/303) (`MERGED_PRODUCTION`)
+- **Paper Fork Progression**: [`TavallStudios/tavall-mc-paper#4`](https://github.com/TavallStudios/tavall-mc-paper/pull/4) (`MERGED_PRODUCTION`)
+- **Architecture Tests Progression**: [`TavallStudios/Tavall-Architecture-Tests#11`](https://github.com/TavallStudios/Tavall-Architecture-Tests/pull/11) (`MERGED_PRODUCTION`)
+- **Minecraft Bot Testing Progression**: [`TavallStudios/tavall-mc-bot-testing#3`](https://github.com/TavallStudios/tavall-mc-bot-testing/pull/3) (`MERGED_PRODUCTION`)
+- **Tavall Web Runtime Progression**: [`TavallStudios/tavall-web#38`](https://github.com/TavallStudios/tavall-web/pull/38) (`MERGED_PRODUCTION`)
+- **Tavall Web Website Progression**: [`TavallStudios/tavall-web#39`](https://github.com/TavallStudios/tavall-web/pull/39) (`MERGED_PRODUCTION`)
+- **Tavall Cloud Progression Dating**: [`TavallStudios/tavall-cloud#393`](https://github.com/TavallStudios/tavall-cloud/pull/393) (`MERGED_PRODUCTION`)
+- **Tavall Discord Progression**: [`TavallStudios/tavall-discord#4`](https://github.com/TavallStudios/tavall-discord/pull/4) (`MERGED_STAGING`)
+- **Tavall Minecraft Framework Progression**: [`TavallStudios/tavall-minecraft-framework#6`](https://github.com/TavallStudios/tavall-minecraft-framework/pull/6) (`MERGED_PRODUCTION`)
+- **Tavall AI Git Workflow Disambiguation**: [`TavallStudios/tavall-ai#41`](https://github.com/TavallStudios/tavall-ai/pull/41) (`MERGED_PRODUCTION`)
+- **Java Tools Standalone Workflow Migration**: 9 Repositories Merged to `main` (`MERGED_PRODUCTION`)
+- **Consumer Quality Git Workflow Centralization**: 15 Repositories Merged to default branches (`MERGED_PRODUCTION`)
 
-## DOC TODO:
-
-- Consolidate resolved tracker divergence counts after initial PR round is merged.
-- Replace snapshot counts with generated inventory once the progression index check exists.
+### Active Pending PRs:
+- **Tavall Content Publishing Queue**: [`TavallStudios/tavall-content#11`](https://github.com/TavallStudios/tavall-content/pull/11) (`VALID_UNMERGED_WORK`)
+- **Tavall MC Web Retirement & Store Boundary**: [`TavallStudios/tavall-mc#290`](https://github.com/TavallStudios/tavall-mc/pull/290) (`VALID_UNMERGED_PR`)
+- **Tavall MC Selective Documentation Preflight**: [`TavallStudios/tavall-mc#285`](https://github.com/TavallStudios/tavall-mc/pull/285) (`VALID_UNMERGED_PR`, unblocked & rebased)
+- **Tavall Docs Master Consolidation & Ledger**: [`TavallStudios/tavall-docs#24`](https://github.com/TavallStudios/tavall-docs/pull/24) (`VALID_UNMERGED_PR`)
 
