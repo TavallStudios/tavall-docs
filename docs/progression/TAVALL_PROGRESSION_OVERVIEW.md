@@ -167,8 +167,22 @@ The Tavall agent/executor path should enforce these rules mechanically:
 4. Prune merged/superseded/prunable worktrees after preserving useful branch/PR evidence.
 5. Re-run this roll-up from canonical refs and reduce the divergence counts toward zero.
 
+## 9. Reconciliation Ledger and Active PR Tracking
+
+The authoritative cross-repository inventory and authority model is maintained in [`TAVALL_DOCUMENTATION_RECONCILIATION_LEDGER.md`](TAVALL_DOCUMENTATION_RECONCILIATION_LEDGER.md).
+
+### Active Reconciliation PRs:
+- **Paper Fork Progression**: [`TavallStudios/tavall-mc-paper#4`](https://github.com/TavallStudios/tavall-mc-paper/pull/4) (`docs/progression/PAPER_FORK_PROGRESSION.md`)
+- **Architecture Tests Progression**: [`TavallStudios/Tavall-Architecture-Tests#11`](https://github.com/TavallStudios/Tavall-Architecture-Tests/pull/11) (`docs/progression/ARCHITECTURE_TESTS_PROGRESSION.md`)
+- **Minecraft Bot Testing Progression**: [`TavallStudios/tavall-mc-bot-testing#3`](https://github.com/TavallStudios/tavall-mc-bot-testing/pull/3) (`docs/progression/BOT_TESTING_PROGRESSION.md`)
+- **Tavall MC Bot-Testing Doc Links Repair**: [`TavallStudios/tavall-mc#303`](https://github.com/TavallStudios/tavall-mc/pull/303) (repairs corrupted bot-testing URLs across 7 documents)
+- **Tavall Web Runtime Progression**: [`TavallStudios/tavall-web#38`](https://github.com/TavallStudios/tavall-web/pull/38) (`docs/TAVALL_WEB_RUNTIME_PROGRESSION.md`)
+- **Tavall Discord Progression**: [`TavallStudios/tavall-discord#4`](https://github.com/TavallStudios/tavall-discord/pull/4) (`docs/progression/DISCORD_PLATFORM_PROGRESSION.md`)
+- **Tavall Minecraft Framework Progression**: [`TavallStudios/tavall-minecraft-framework#6`](https://github.com/TavallStudios/tavall-minecraft-framework/pull/6) (`docs/progression/MINECRAFT_FRAMEWORK_PROGRESSION.md`)
+- **Tavall Content Publishing Queue**: [`TavallStudios/tavall-content#11`](https://github.com/TavallStudios/tavall-content/pull/11) (`docs/MULTI_ACCOUNT_PUBLISHING_QUEUE_FINAL_DRAFT.md`)
+
 ## DOC TODO:
 
-- Link the first reconciliation PRs as they are opened.
-- Add other Tavall repositories when they introduce maintained Progression / Evidence documents.
+- Consolidate resolved tracker divergence counts after initial PR round is merged.
 - Replace snapshot counts with generated inventory once the progression index check exists.
+
