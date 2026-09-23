@@ -31,7 +31,7 @@ Do not recursively preload this directory as a generic engineering preflight. De
 
 Shared quality documents define Tavall-wide defaults. Repository-local documentation may specialize them where the owning runtime/product requires stricter rules, but may not silently weaken shared policy.
 
-The currently active `DOC_DESIGN_RULES.md` lineage remains authoritative for detailed Design/Technical subtype and lifecycle rules wherever it is current. The Tavall documentation taxonomy should link that lineage directly once its canonical location is reconciled.
+The historical `DOC_DESIGN_RULES.md` lineage (Project Novus/Tavall MC `b5e690859` / `dff1d0818`) has been fully reconciled and superseded by [DOCUMENTATION_STANDARDS.md](DOCUMENTATION_STANDARDS.md) and [DOCUMENT_TYPES.md](DOCUMENT_TYPES.md), which own the binding Design/Technical subtype, delegation, and lifecycle rules organization-wide.
 
 ## DOC TODO:
 
@@ -39,7 +39,7 @@ The currently active `DOC_DESIGN_RULES.md` lineage remains authoritative for det
 
 - [ ] Keep this index synchronized as shared quality documents are added, renamed, or superseded.
 - [ ] Keep `DOCUMENT_ROUTING.yml` synchronized when an owning document or exact routing signal changes.
-- [ ] Link the canonical `DOC_DESIGN_RULES.md` location once reconciled.
+- [x] Link the canonical `DOC_DESIGN_RULES.md` location once reconciled (completed: superseded by `DOCUMENTATION_STANDARDS.md` and `DOCUMENT_TYPES.md`).
 
 ### System next steps
 
