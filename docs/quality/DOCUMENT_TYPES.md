@@ -170,7 +170,7 @@ Type and lifecycle are independent.
 - ARTICLE may be Draft / Reviewed / Published / Historical.
 - PRODUCT may be Idea / Designing / Validating / Launching / Active / Retired, with explicit approval where commercial commitments require it.
 - USER EXPERIENCE may be Exploring / Draft / Reviewed / Accepted / Needs Revalidation.
-- Design and Technical retain the formal Draft/Final lifecycle defined by current Tavall design rules.
+- Design and Technical retain the formal Draft/Final lifecycle originally defined in the early repository `DOC_DESIGN_RULES.md` lineage (Project Novus/Tavall MC `b5e690859` / `dff1d0818`) and now fully codified and superseded by [DOCUMENTATION_STANDARDS.md](DOCUMENTATION_STANDARDS.md) (Sections 3–8) and this taxonomy.
 - Progression/Evidence remains evidence at a recorded source state.
 
 Existing combined Tech + Design Final documents may satisfy both Design and Technical links until there is a material reason to split them. Do not create mass rename churn merely because the taxonomy improved.
@@ -184,7 +184,7 @@ All maintained documents follow the shared `DOC TODO:` maintenance-handoff contr
 ### Document next steps
 
 - [ ] Keep templates synchronized with this taxonomy.
-- [ ] Reconcile the detailed Design/Technical type and lifecycle rules with the active `DOC_DESIGN_RULES.md` lineage when its canonical location is recovered.
+- [x] Reconcile the detailed Design/Technical type and lifecycle rules with the active `DOC_DESIGN_RULES.md` lineage (completed: lineage verified through commits `b5e690859`/`dff1d0818` and fully superseded by canonical `DOCUMENTATION_STANDARDS.md` and `DOCUMENT_TYPES.md`).
 - [ ] Add explicit examples/templates for additional document types only when a real recurring documentation responsibility appears.
 
 ### System next steps
