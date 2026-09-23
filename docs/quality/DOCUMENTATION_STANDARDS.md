@@ -205,6 +205,13 @@ docs/<system>/
 
 Only create files the system actually needs.
 
+Cross-project engineering policy belongs under `docs/quality`, including:
+
+- [CODE_ARCHITECTURE.md](CODE_ARCHITECTURE.md)
+- [GIT_WORKFLOW.md](GIT_WORKFLOW.md)
+- [CI_CD.md](CI_CD.md)
+- this document
+
 Rules:
 
 - Keep executable schemas/migrations with executable source; summarize/link them from owning docs.
