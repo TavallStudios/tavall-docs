@@ -146,10 +146,70 @@ Agentic and automated workers must follow a strict resolution ladder:
 
 ---
 
-## 5. Verification and Maintenance
+## 5. AGENT.md / AGENTS.md Authority Reconciliation Ledger
+
+As established by Tavall engineering policy, repository-tracked `AGENT.md` / `AGENTS.md` files are prohibited from serving as independent authority surfaces. Authored engineering guidance belongs in `TavallStudios/tavall-docs` and owning repository documentation (`CONTRIBUTING.md`, `README.md`, `docs/architecture/**`). Canonical agent definitions under explicit directories (`plugins/tavall-ai/agents/*/agent.md` and `/srv/dev-storage/.ai/plugins/Tavall/agents/`) are strictly preserved.
+
+### Physical & Remote Host Disposition
+
+| Physical / Remote Path | Original Status | Action | Disposition State | Details |
+| --- | --- | --- | --- | --- |
+| `/srv/dev-storage/recovery/tavall-generated-snapshots-20260922/8776564f2772c42970d824cc063d309354c00cc2/AGENTS.md` | Snapshot recovery file | Renamed to `AGENTS.md.historical-snapshot` | `HISTORICAL_SPEC_PRESERVED` | Magic authority filename eliminated; historical recovery bytes preserved intact. |
+| `/var/lib/tavall-local-sandbox/codex-view/AGENTS.md` | Stale host sandbox file | Retired / removed | `BROKEN_GENERATED_FILE_RETIRED` | Eliminated unmanaged host-local sandbox file. |
+| `/home/ubuntu/.codex/AGENTS.md` | User-local runner file | Stripped broken includes | `BROKEN_GENERATED_FILE_RETIRED` | Removed dangling `@/home/ubuntu/.codex/RTK.md` and `@/srv/workspace/tavall-project-novus/AGENTS.MD` lines. |
+
+### Repository-Level AGENT.md / AGENTS.md Reconciliation (25 Files Retired)
+
+| Repository | Original Path | Disposition | Successor Path / Contract | PR / Commit | Evidence State |
+| --- | --- | --- | --- | --- | --- |
+| `tavall-ai` | `AGENT.MD` | `MOVED_TO_REPOSITORY_DOC` | `docs/architecture/AGENT_TASK_MANAGER_RUNTIME_GUIDELINES.md` | PR #42 | `MERGED_PRODUCTION` |
+| `tavall-ai` | `docs/AGENTS.md` | `MOVED_TO_REPOSITORY_DOC` | `CONTRIBUTING.md` & `docs/architecture/DEVELOPMENT_GUIDELINES.md` | PR #42 | `MERGED_PRODUCTION` |
+| `TavallMonoRepo` | `AGENT.MD` | `COMPATIBILITY_ALIAS_REMOVED` | Retired (Redundant pointer alias) | PR #12 | `MERGED_PRODUCTION` |
+| `TavallMonoRepo` | `AGENTS.md` | `MOVED_TO_REPOSITORY_DOC` | `CONTRIBUTING.md` & `docs/aggregate-repository-sync.md` | PR #12 | `MERGED_PRODUCTION` |
+| `TavallMonoRepo` | `tavall-java-web-apps/Habitual/AGENT.MD` | `HISTORICAL_SPEC_PRESERVED` | `tavall-java-web-apps/Habitual/docs/design/HABITUAL_BUILD_SPECIFICATION.md` | PR #12 | `MERGED_PRODUCTION` |
+| `tavall-mc-bot-testing` | `minecraft-bot-testing/AGENTS.md` | `BROKEN_GENERATED_FILE_RETIRED` | `minecraft-bot-testing/README.md` (Bot Validation Rules) | PR #4 | `MERGED_PRODUCTION` |
+| `CustomMinecraftServer` | `AGENT.MD` | `MOVED_TO_REPOSITORY_DOC` | `README.md` (Engineering Guidelines) | PR #7 | `MERGED_PRODUCTION` |
+| `tavall-hytale-resource-game` | `AGENT.MD` | `MOVED_TO_REPOSITORY_DOC` | `README.md` (Engineering Guidelines) | PR #7 | `MERGED_PRODUCTION` |
+| `tavall-cache` | `AGENTS.md` | `MOVED_TO_REPOSITORY_DOC` | `README.md` & `CONTRIBUTING.md` | PR #8 | `MERGED_PRODUCTION` |
+| `tavall-concurrency` | `AGENTS.md` | `MOVED_TO_REPOSITORY_DOC` | `README.md` & `CONTRIBUTING.md` | PR #7 | `MERGED_PRODUCTION` |
+| `tavall-database` | `AGENTS.md` | `MOVED_TO_REPOSITORY_DOC` | `README.md` & `CONTRIBUTING.md` | PR #18 | `MERGED_PRODUCTION` |
+| `tavall-di` | `AGENTS.md` | `MOVED_TO_REPOSITORY_DOC` | `README.md` & `CONTRIBUTING.md` | PR #15 | `MERGED_PRODUCTION` |
+| `tavall-eventbus` | `AGENTS.md` | `MOVED_TO_REPOSITORY_DOC` | `README.md` & `CONTRIBUTING.md` | PR #8 | `MERGED_PRODUCTION` |
+| `tavall-logging` | `AGENTS.md` | `MOVED_TO_REPOSITORY_DOC` | `README.md` & `CONTRIBUTING.md` | PR #8 | `MERGED_PRODUCTION` |
+| `tavall-reflection` | `AGENTS.md` | `MOVED_TO_REPOSITORY_DOC` | `README.md` & `CONTRIBUTING.md` | PR #9 | `MERGED_PRODUCTION` |
+| `tavall-registry` | `AGENTS.md` | `MOVED_TO_REPOSITORY_DOC` | `README.md` & `CONTRIBUTING.md` | PR #10 | `MERGED_PRODUCTION` |
+| `tavall-scheduler` | `AGENTS.md` | `MOVED_TO_REPOSITORY_DOC` | `README.md` & `CONTRIBUTING.md` | PR #9 | `MERGED_PRODUCTION` |
+| `Tavall-Architecture-Tests` | `AGENTS.md` | `MOVED_TO_REPOSITORY_DOC` | `CONTRIBUTING.md` | PR #12 | `MERGED_PRODUCTION` |
+| `tavall-discord` | `AGENTS.md` | `MOVED_TO_REPOSITORY_DOC` | `CONTRIBUTING.md` | PR #5 | `MERGED_PRODUCTION` |
+| `tavall-ci` | `AGENTS.md` | `MOVED_TO_REPOSITORY_DOC` | `CONTRIBUTING.md` | PR #13 | `MERGED_PRODUCTION` |
+| `tavall-mc-paper` | `AGENTS.md` | `MOVED_TO_REPOSITORY_DOC` | `CONTRIBUTING.md` | PR #5 | `MERGED_PRODUCTION` |
+| `tavall-java-tools` | `AGENTS.md` | `MOVED_TO_REPOSITORY_DOC` | `CONTRIBUTING.md` | PR #5 | `MERGED_PRODUCTION` |
+| `tavall-java-utils` | `AGENTS.md` | `MOVED_TO_REPOSITORY_DOC` | `CONTRIBUTING.md` | PR #1 | `MERGED_PRODUCTION` |
+| `tavall-cloud` | `AGENTS.md` | `MOVED_TO_REPOSITORY_DOC` | `CONTRIBUTING.md` | PR #394 | `MERGED_PRODUCTION` |
+| `tavall-mc` | `AGENTS.md` | `MOVED_TO_REPOSITORY_DOC` | `CONTRIBUTING.md` & `docs/quality/README.md` | PR #305 | `MERGED_PRODUCTION` |
+
+### Preserved Canonical Agent Definitions (11 Files Preserved)
+
+The 11 canonical agent definitions under `tavall-ai/plugins/tavall-ai/agents/*/agent.md` are classified as `CANONICAL_AGENT_DEFINITION` and preserved intact:
+1. `plugins/tavall-ai/agents/tavall-agent-architecture/agent.md`
+2. `plugins/tavall-ai/agents/tavall-agent-builder/agent.md`
+3. `plugins/tavall-ai/agents/tavall-agent-documentation/agent.md`
+4. `plugins/tavall-ai/agents/tavall-agent-e2e/agent.md`
+5. `plugins/tavall-ai/agents/tavall-agent-implementation/agent.md`
+6. `plugins/tavall-ai/agents/tavall-agent-orchestration/agent.md`
+7. `plugins/tavall-ai/agents/tavall-agent-reconciliation/agent.md`
+8. `plugins/tavall-ai/agents/tavall-agent-recovery/agent.md`
+9. `plugins/tavall-ai/agents/tavall-agent-review/agent.md`
+10. `plugins/tavall-ai/agents/tavall-agent-scheduler/agent.md`
+11. `plugins/tavall-ai/agents/tavall-agent-web/agent.md`
+
+---
+
+## 6. Verification and Maintenance
 
 This ledger must be updated whenever:
 1. A new standalone repository is extracted from a monorepo or product repository.
 2. A staging or consumer cutover PR is promoted to `main`.
 3. An environment retirement pass is executed after verifying all durable GitHub lineage.
 4. A previously branch-only proposal or final draft is accepted into production.
+
