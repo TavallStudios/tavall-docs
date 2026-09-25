@@ -70,6 +70,20 @@ Examples include:
 
 Tavall CI orchestrates those definitions. It does not maintain a second hard-coded version of every repository's build.
 
+### Gradle and Build Tools
+
+Gradle ownership follows the same boundary:
+
+- The repository owns `settings.gradle(.kts)`, `build.gradle(.kts)`, project topology, dependency intent, lockfiles, version catalogs, and repository-specific tasks.
+- Tavall CI owns approved build policy, exact-source composition, typed Gradle planning, build-platform identity, resolution evidence, and artifact identity.
+- The Tavall Cloud Executor owns execution placement, Java and Gradle provisioning, filesystem isolation, and cache access.
+
+Java 25 is the Tavall default. Gradle repositories use the standard committed Wrapper and the approved platform Gradle version, currently 9.6.1, through `./gradlew`. CI must not depend on a host `gradle` command or an arbitrary user Gradle home.
+
+The Executor provides the canonical equivalent of `/tavall/workspace`, `/tavall/dependencies`, and `/tavall/shared-tools/gradle`. Commands run from the exact-source repository root. Source dependencies are materialized at exact Git identities and record repository, commit, dependency role, and source tree digest. Shared Gradle download caches may be reused; job output and operation-specific Gradle state remain isolated per execution.
+
+Tavall internal dependency composition uses exact source builds or immutable Tavall artifacts. Maven Local, floating sibling workspaces, mutable snapshots, and GitHub Packages are not internal dependency authorities. Gradle remains a typed Tavall CI executor; shell commands remain for work that needs a repository-owned script or non-Gradle tool.
+
 ### Tavall Cloud
 
 Tavall Cloud owns infrastructure and execution capabilities.
@@ -163,6 +177,8 @@ Rules:
 - Tavall CI must not require an opaque database copy to determine the repository's canonical CI graph.
 - CI configuration must not silently invent missing dependencies or versions.
 - Repository-specific validation remains repository-owned.
+- `SYSTEM` is the default resource mode unless an explicit platform policy selects another approved mode.
+- Provider metadata may identify where source events came from, but CI identities and build execution do not require GitHub APIs.
 
 Where a repository exposes stable CI scripts such as:
 
@@ -200,6 +216,8 @@ Do not depend on:
 - A stale executor workspace left over from another job.
 
 Reusable workflows and workflow dependencies may be distributed and hosted independently, but executions must resolve their exact required inputs before becoming valid evidence.
+
+For Gradle composites, Tavall CI includes only resolved exact-source builds and applies declared module substitutions. A candidate never includes a neighboring directory just because it is present on an Executor.
 
 ## Exact Source
 
@@ -503,6 +521,14 @@ A delivery candidate should bind:
 - Deployment target.
 - Validation requirements.
 - Rollback requirements.
+
+Deployment intent belongs to a deployable logical service/runtime template in Tavall Cloud's existing service template registry. The source repository does not own `.tavallcd`; a repository may produce no service, one service, or several independently deployed runtimes. Pure libraries therefore need no CD definition.
+
+The canonical service/runtime template leaf is `templates/services/<service-id>/`, with `.tavallcd/cd.yaml` attached to the template. It binds the logical `serviceId`, a distinct `runtimeId`, artifact selector, required CI checks, allowed environments, readiness requirement, promotion gates, rollback expectation, runtime flags, and production traffic mode. Provider-specific deployment configuration remains beneath Tavall Cloud CONTROL.
+
+Tavall CI freezes the `.tavallcd` template identity and configuration digest into the delivery bundle alongside exact source identity, CI evidence, build-platform and dependency identity, and immutable artifact digest. Tavall Cloud carries that bundle through deployment generation, environment, runtime instance, readiness, promotion, and rollback evidence. A filesystem path or GitHub pull-request state is not release identity.
+
+The deployment path remains the existing Tavall service flow through `tavall service deploy` and CONTROL. DEVELOPMENT and STAGING consume the frozen artifact and template configuration. PRODUCTION A/B uses two runtime slots beneath one stable logical service identity.
 
 Production-relevant changes create a new delivery identity and invalidate authorization that no longer represents the candidate.
 
