@@ -1,0 +1,19 @@
+version: 2
+
+source:
+  repository: TavallStudios/tavall-docs
+  provider: github
+
+build:
+  type: python
+
+resources:
+  mode: SYSTEM
+
+requiredChecks:
+  - quality
+
+checks:
+  quality:
+    executor: shell
+    script: .tavallci/scripts/docs-quality.sh
