@@ -428,6 +428,20 @@ Evidence should identify, where applicable:
 - Durable log or storage references.
 - Final result and failure classification.
 
+Every caller submission uses a stable provider-neutral request UUID. Tavall CI
+computes its replay identity after resolving the repository definition,
+exact-source manifest, build policy, dependency resolution, profile, and tasks.
+Reusing the UUID with a different resolved plan fails closed. The execution-plan
+SHA is retained with the typed result so that Cloud's durable job and the CI
+record refer to the same frozen plan.
+
+Typed CI evidence is persisted as an immutable record through the existing
+Tavall Cloud Storage capability. The Cloud operation binds it to the completed
+environment `LOCAL_CI` job and its exact plan, and rejects replacement with
+different bytes. Raw executor logs and worker result properties remain useful
+diagnostics, but they do not replace the typed CI record used by delivery and
+promotion.
+
 Infrastructure failure is not source failure.
 
 A missing dependency is not a failed unit test.
