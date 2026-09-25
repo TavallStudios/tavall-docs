@@ -8,7 +8,9 @@
 
 This document is the shared Tavall Studios repository workflow.
 
-Repository-specific files such as `AGENTS.md`, `CONTRIBUTING.md`, release procedures, synchronization contracts, staging manifests, and deployment runbooks may impose stricter requirements. Stricter repository-specific rules take precedence when they protect public source-of-truth history, automated synchronization, release integrity, security, or production safety.
+Repository-specific files such as `CONTRIBUTING.md`, `README.md`, release procedures, synchronization contracts, staging manifests, and deployment runbooks may impose stricter requirements. Stricter repository-specific rules take precedence when they protect public source-of-truth history, automated synchronization, release integrity, security, or production safety.
+
+A TavallStudios Git repository must not hand-maintain `AGENT.md` or `AGENTS.md` unless explicitly allowlisted because a required external tool mandates that tracked path. Actual Tavall agent definitions under explicit agent-definition directories are exempt.
 
 A repository-specific supplement may not silently remove accountable review, truthful validation reporting, or production traceability. Any intentional exception must be explicit and attributable to an authorized maintainer or repository owner.
 

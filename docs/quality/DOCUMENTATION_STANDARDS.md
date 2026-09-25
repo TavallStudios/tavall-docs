@@ -42,6 +42,12 @@ For architecture pattern sections, use a concise `##### Why` subsection after a 
 
 Documentation should reduce ambiguity. Producing three files that disagree with each other is merely distributed ambiguity with better filenames.
 
+### Repository Instruction Authority (AGENT.md / AGENTS.md Policy)
+
+A TavallStudios Git repository must not hand-maintain `AGENT.md` or `AGENTS.md` unless explicitly allowlisted because a required external tool mandates that tracked path. Actual Tavall agent definitions under explicit agent-definition directories (e.g., `plugins/tavall-ai/agents/<agent>/agent.md` or `/srv/dev-storage/.ai/plugins/Tavall/agents/`) are exempt.
+
+Authored engineering guidance, architecture rules, workflow instructions, and contribution requirements belong in normal repository documentation (`CONTRIBUTING.md`, `README.md`, `docs/architecture/**`, etc.) and the canonical organization authority in `TavallStudios/tavall-docs`.
+
 ### Canonical Implementation and Tool Authority
 
 When shared documentation describes an existing Tavall library, framework, runtime, or Java tool, the canonical owning repository is the source of truth for that tool's API shape, inheritance model, lifecycle semantics, supported low-level surfaces, and naming vocabulary.
@@ -49,7 +55,7 @@ When shared documentation describes an existing Tavall library, framework, runti
 Before adding or materially changing architecture guidance for an existing Tavall tool:
 
 1. inspect the canonical repository at its current accepted revision;
-2. read its owning interfaces, implementation classes, tests, `AGENTS.md`, and system documentation where present;
+2. read its owning interfaces, implementation classes, tests, `CONTRIBUTING.md`, `README.md`, and system documentation where present;
 3. identify which behavior is intended for ordinary application consumers versus framework/tool implementation;
 4. preserve intentional library contracts and terminology in shared docs;
 5. treat a desired redesign as a separate upstream proposal or migration, not as documentation cleanup.
