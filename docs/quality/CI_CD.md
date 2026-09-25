@@ -357,6 +357,12 @@ Executors belong to their environment and execution lineage.
 
 Completed executor work, metadata, logs, and evidence must remain attributable to the environment, lane, source, and job that produced them.
 
+For a dedicated Cloud Environment, physical repository materializations are
+scoped by the immutable source-snapshot digest beneath that Environment. A new
+source generation receives its own physical path and preserves prior work;
+CONTROL continues to expose the logical Environment/repository path. Neither
+path replaces the exact repository SHA as source identity.
+
 An executor is not a random temporary folder with a CPU attached.
 
 ## CI Origins
