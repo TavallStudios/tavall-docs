@@ -228,12 +228,13 @@ Any alternative documents source of truth, idempotency, durable commit boundary,
 
 Detailed state/recovery rules: [Registries, Caches, and Persistence](code-architecture/REGISTRIES_CACHES_AND_REPOSITORIES.md#cross-storage-mutation).
 
-## Tavall Runtime Terminology
+## Tavall NLEW Runtime Terminology
 
-- **NLE** is the official collective abbreviation for Tavall **Nodes, Lanes, and Environments**. Use **NLEs** when referring to multiple NLE resources or to the collective system.
-- NLE is a collective architectural category, not a required parent-child hierarchy and not a one-to-one mapping to an infrastructure-provider object.
-- **Executors are not NLEs.** Executors are execution resources. They may be bound to an Environment for scoped work or exist independently as system-level `SHARED` executors.
-- Infrastructure and provider vocabulary must remain below Tavall NLE and executor abstractions. Public Tavall APIs, documentation, and workflows should use Tavall domain identities rather than provider-specific identities.
+- **NLEW** is the official collective abbreviation for Tavall **Nodes, Lanes, Environments, and Workspaces**. Use **NLEWs** when referring to multiple NLEW resources or to the collective NLEW system.
+- NLEW is a collective architectural category, not a strict parent-child hierarchy and not a one-to-one mapping to an infrastructure-provider object.
+- Including **Workspaces** in NLEW does not make a workspace a peer authority beside Nodes, Lanes, and Environments. A workspace remains subordinate CONTROL-managed repository/work materialization beneath the logical lane/environment/repository execution context.
+- **Executors are not NLEWs.** Executors are reusable execution resources selected after CONTROL resolves the applicable NLEW context. They may execute work for an Environment or operate as eligible system-level `SHARED` capability according to policy.
+- Infrastructure and provider vocabulary must remain below Tavall NLEW and executor abstractions. Public Tavall APIs, documentation, and workflows should use Tavall domain identities rather than provider-specific identities or physical workspace paths.
 
 ## Platform Boundaries
 
