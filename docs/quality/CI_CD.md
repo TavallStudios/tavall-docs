@@ -84,6 +84,8 @@ The Executor provides the canonical equivalent of `/tavall/workspace`, `/tavall/
 
 Tavall CI's Git source materializer resolves a remote and fetchable ref through an injected source locator, then verifies the fetched HEAD against the requested exact SHA and records its tree digest. Planning checkouts use request-scoped paths and are released after the resolved plan has finished; they do not become canonical local repositories. Cloud-backed jobs carry source/tree identities, while CONTROL independently resolves the matching Environment snapshot into the Executor workspace and dependencies. Git credentials remain in the configured transport environment, outside remote URLs and source identities.
 
+When a durable Environment reuses its repository path after a source snapshot advances, Cloud may rebind that checkout only when it is clean, its origin still names the resolved repository, its branch is unchanged, and its prior exact commit is an ancestor of the newly requested SHA. Dirty, foreign-origin, wrong-branch, or divergent worktrees remain blocked for owner-preserving recovery; they are never reset or cleaned to make provisioning succeed.
+
 Tavall internal dependency composition uses exact source builds or immutable Tavall artifacts. Maven Local, floating sibling workspaces, mutable snapshots, and GitHub Packages are not internal dependency authorities. Gradle remains a typed Tavall CI executor; shell commands remain for work that needs a repository-owned script or non-Gradle tool.
 
 ### Tavall Cloud
@@ -550,7 +552,17 @@ The canonical service/runtime template leaf is `templates/services/<service-id>/
 
 Tavall CI freezes the `.tavallcd` template identity and configuration digest into the delivery bundle alongside exact source identity, CI evidence, build-platform and dependency identity, and immutable artifact digest. Tavall Cloud carries that bundle through deployment generation, environment, runtime instance, readiness, promotion, and rollback evidence. A filesystem path or GitHub pull-request state is not release identity.
 
-The deployment path remains the existing Tavall service flow through `tavall service deploy` and CONTROL. DEVELOPMENT and STAGING consume the frozen artifact and template configuration. PRODUCTION A/B uses two runtime slots beneath one stable logical service identity.
+The deployment path remains the Tavall service flow through `tavall service deploy plan/apply/verify/promote/rollback` and CONTROL. DEVELOPMENT and STAGING consume the frozen artifact and template configuration. PRODUCTION A/B uses two runtime slots beneath one stable logical service identity.
+
+The `tavall-ci-cloud` deployment adapter carries the frozen artifact identity, exact source SHA, CI run/evidence references, delivery-bundle digest, service-template identity/digest, logical runtime, environment, slot, and traffic intent into the existing typed `tavall service deploy plan/apply/verify/promote/rollback` commands. It does not call a provider deployment API directly.
+
+Each templated DEVELOPMENT, STAGING, and PRODUCTION runtime is materialized under its own Cloud runtime instance. The stable logical service and router remain the public identity. PRODUCTION A/B chooses the inactive BLUE/GREEN slot from the durable Cloud runtime registry; CONTROL rejects an apply that targets the active slot.
+
+Production activation uses two existing service-command stages. `tavall service deploy apply` installs the immutable candidate in the inactive slot with `STANDBY` traffic. Tavall CI then gathers the `.tavallcd` count of generation-fenced health and runtime-registry observations. After exact-bundle human approval, `tavall service deploy promote` asks CONTROL to revalidate the candidate generation and inactive-slot fence, then changes router traffic without rebuilding or restarting the candidate. The authorization bundle digest, actor, and time are recorded with the promotion command and delivery lineage.
+
+Readiness requires the number of healthy observations declared by `.tavallcd`. Every observation verifies the immutable source/artifact and reads the Cloud runtime registry again. All samples must identify the same deployment generation, runtime instance, service-template digest, environment, slot, and traffic state. Cloud persists the observations in the deployed service's existing `.tavallcd/deployment.json` lineage alongside source, artifact, CI evidence, delivery bundle, and template identity. No separate service-local evidence tree is introduced.
+
+Tavall CI keeps this evidence typed in `RuntimeReadinessEvidence` and requires matching DEVELOPMENT and STAGING readiness before production authorization. A successful build or single health response alone does not satisfy the template readiness requirement.
 
 Production-relevant changes create a new delivery identity and invalidate authorization that no longer represents the candidate.
 
