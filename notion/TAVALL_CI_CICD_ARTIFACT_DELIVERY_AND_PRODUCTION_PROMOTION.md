@@ -153,5 +153,15 @@ The validated Redis-only Cloud staging/runtime tree was promoted through existin
 - The root TCI `check` was attempted outside the full source-aggregation Executor and stopped before tests because exact Architecture Tests modules were absent from ordinary repositories. This is a dependency-source/bootstrap limitation, not a passing root check.
 - DEVELOPMENT Environment `5848c5ff-a2a2-4da4-bd25-9cff8e558433` was re-resolved to snapshot `b6a8b43b314ad2a5b017f271f4974d9562327d13ef66d132ccf14ccca2ea7484` with Architecture Tests `c0863bfe`, TCI `a6872ae`, and Cloud `6c314ce6`. Policies remain unchanged; observed state is still `BLOCKED` with WORKSPACE and DEVELOPMENT_TOOL `UNKNOWN`.
 - No CONTROL job, immutable artifact, frozen bundle, DEVELOPMENT deployment, or STAGING readiness has been produced for this candidate. Production is unchanged.
+## Live Executor recheck — 2026-09-26
+- The lane has one existing DEVELOPMENT Environment; no alternate Environment with the rollout snapshot is available. Its exact source snapshot is unchanged at `b6a8b43b314ad2a5b017f271f4974d9562327d13ef66d132ccf14ccca2ea7484`.
+- The Environment-owned TCI checkout is clean but at `ef59a10f97668bf38f47616649353e8cca1199bb`, while the snapshot pins `tavall-ci@a6872ae4366434da2308529b7e60a1497469c466`. Cloud's `environment repository refresh` rejects it with `STALE_VERSION` because the mounted workspace is not the pinned exact source.
+- The Environment-owned Cloud checkout is clean at `main@2f1c94b47d38d86a1724067c0ab8be39bd512178`, while the snapshot pins `tavall-cloud@6c314ce65dd7f15b9df312ea1384e62a03bd0689`. The Architecture Tests shared dependency is present clean at the exact pinned `c0863bfe9e3ea38e4872eb295856e69bed30eb28`.
+- A read-only `environment console execute` probe failed before starting a command: Sandbox creation returned `PROVIDER_FAILURE` / exit 125 because `/srv/dev-storage/environments/env-5848c5ff/repositories/TavallStudios/Tavall-Architecture-Tests` is missing or outside the approved DEVELOPMENT root. The Environment still reports WORKSPACE and DEVELOPMENT_TOOL as `UNKNOWN`.
+- These probes produced no CI job, build evidence, artifact, delivery bundle, or deployment. Exact-source DEVELOPMENT validation and STAGING readiness remain blocked; production remains unchanged.
+## Dedicated Environment execution-path correction — 2026-09-26
+- Tavall Cloud PR #395 commit `04d2f2efa52857f1c6ea4a3bda7169a82ed396c8` binds the logical Environment repository path to a clean exact `PRIMARY` workspace at the current source-snapshot generation. `SHARED_DEP` and `ENVIRONMENT_DEP` inputs remain dependencies and cannot become a job/Console workspace.
+- An Environment Console request without `repository` now resolves to the `PRIMARY` source explicitly. Tests cover exact-generation link recovery, preservation of stale generations, and primary selection when dependencies sort first.
+- These tests have not run at commit `04d2f2ef`. The live Environment still pins Cloud at `6c314ce6`; its installed runtime cannot materialize the current PR head or exact TCI checkout. No artifact or delivery evidence is claimed.
 </content>
 </page>
