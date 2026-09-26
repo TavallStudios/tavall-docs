@@ -164,16 +164,23 @@ No Tavall CI Cloud job, immutable artifact, frozen delivery bundle, DEVELOPMENT 
 - Tavall CI full `check`, its Architecture Tests suite, and runtime distribution packaging passed on Java 25 / Gradle 9.6.1 with exact Cloud API and Architecture Tests composites (46 actionable tasks in the prior validation run).
 - On Java 25 / Gradle 9.6.1, `:tavall-ci-cloud:test --tests org.tavall.ci.cloud.TavallCloudCliJobServiceTest` passed using exact source composites for Tavall CI `f3ad7942eb775a232e1e92a91a6baf101cac1444`, Tavall Cloud `2738f25a9c8c979e1b25673d8734002f29eaf061`, and Architecture Tests `c0863bfe9e3ea38e4872eb295856e69bed30eb28` (27 tasks; test executed). This local wrapper run validates the provider contract, not live Cloud Executor placement. A plain Gradle run without the composite correctly failed to resolve Cloud API from Maven Central; no GitHub Packages fallback was added.
 - The GitHub Bot runtime test task passed on Java 25 / Gradle 9.6.1 using exact Bot `2984a157cff1e2a7552cf7fe82ef126667c088a3`, TCI `f3ad7942eb775a232e1e92a91a6baf101cac1444`, and Architecture Tests `c0863bfe9e3ea38e4872eb295856e69bed30eb28` composites (15 tasks; tests executed). This validates the typed CI caller and GitHub projection contracts, not a live Bot process; `GitHubBotApplication.main` remains unwired.
-- Cloud's `scripts/test-shared-development-ci-contract.sh` passed against the current PR source; it checks the frozen-plan invocation and that the Executor broker receives no GitHub or GitHub Packages credentials. `tavall-docs` validation passed in build mode (`trackedDocs=32`).
+- Cloud's `scripts/test-shared-development-ci-contract.sh` passed against the current PR source; it checks the frozen-plan invocation and that the Executor broker receives no GitHub or GitHub Packages credentials.
+- A later plain Gradle composite attempt for `check`, `architectureTest`, and `distZip` stopped before the architecture task because `org.tavall:tavall-architecture-core:1.1.0` and `org.tavall:tavall-architecture-patterns:1.1.0` were unavailable from Maven Central. That manual invocation did not create the per-job Architecture Tests repository that TCI's frozen plan provides; classify it as a dependency-bootstrap miss, not source/test failure or live Executor evidence. The prior full exact-source TCI check remains historical evidence only.
+- The docs staging child PR #31 now includes the current `staging/quality` root commit, and Draft root PR #34 restores the active `staging/quality` -> `main` ancestry after the prior root was promoted. Both PRs remain Draft; no merge to `main` occurred. Docs validation on the merged child head passed (`trackedDocs=33`).
 - Exact-head CI definition planning: **60/60 pass**, correct source identity, zero plan failures. This does not claim any configured repository build ran.
 - Live Cloud status: Agent, Control, and developer storage are ready; the selected DEVELOPMENT Environment remains blocked as described above.
 - `tavall-docs` checked-in architecture/progression exports are updated through PR #31. This client has no live Notion connector, so Notion was not written or represented as updated.
 
 ## Open rollout pull requests
 
-- [`tavall-cloud#395`](https://github.com/TavallStudios/tavall-cloud/pull/395) — current head `2738f25a9c8c979e1b25673d8734002f29eaf061`, Draft, base `staging/runtime`.
-- [`tavall-ci#14`](https://github.com/TavallStudios/tavall-ci/pull/14) — current head `f3ad7942eb775a232e1e92a91a6baf101cac1444`, Draft, base `staging/platform`.
-- [`tavall-docs#31`](https://github.com/TavallStudios/tavall-docs/pull/31) — existing evidence-provenance branch, updated by this record and the architecture clarification.
+- [`tavall-cloud#397`](https://github.com/TavallStudios/tavall-cloud/pull/397) — Draft `staging/runtime` root to `main`.
+- [`tavall-cloud#395`](https://github.com/TavallStudios/tavall-cloud/pull/395) — Draft Executor/CI implementation child to `staging/runtime`.
+- [`tavall-ci#15`](https://github.com/TavallStudios/tavall-ci/pull/15) — Draft `staging/platform` root to `main`.
+- [`tavall-ci#14`](https://github.com/TavallStudios/tavall-ci/pull/14) — Draft exact-source CI/CD implementation child to `staging/platform`.
+- [`tavall-github-bot#2`](https://github.com/TavallStudios/tavall-github-bot/pull/2) — Draft Bot staging root to `main`.
+- [`tavall-github-bot#1`](https://github.com/TavallStudios/tavall-github-bot/pull/1) — Draft Bot extraction child to `staging/platform`.
+- [`tavall-docs#34`](https://github.com/TavallStudios/tavall-docs/pull/34) — Draft `staging/quality` root to `main`.
+- [`tavall-docs#31`](https://github.com/TavallStudios/tavall-docs/pull/31) — Draft CI/CD architecture and rollout evidence child to `staging/quality`.
 - Source-owned `.tavallci` and wrapper work remains in the 60 existing PR heads shown above; no duplicate source PRs were opened.
 
 ## Remaining blockers
