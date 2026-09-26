@@ -231,7 +231,7 @@ The workflow is conceptually defined, but these details should be resolved again
 ### System next steps
 - [ ] Implement and validate structured Runtime PR / Development Staging / Combined Runtime Staging semantics.
 - [ ] Define exact formal-STAGING and merge-to-main gates.
-- [ ] Implement/validate production A/B slot identity, candidate validation, traffic switch and last-known-good rollback.
+- [ ] Wire immutable artifact deployment into the existing Cloud runtime-slot repository/router: deploy and health-check the inactive BLUE/GREEN candidate, switch stable-service traffic after promotion gates, and retain verified rollback identity.
 ## Authority correction 2026-09-20
 The current Tavall Cloud runtime does not use PostgreSQL. Redis owns live lanes, environments, generations, leases, Jobs, runtime presence, desired/observed projections, and CAS; Tavall Storage/filesystem owns durable materialization and evidence. PostgreSQL migrations/classes are historical provenance only and are not current runtime authority or fallback.
 ## Authority correction 2026-09-20 — runtime promotion
@@ -241,5 +241,15 @@ Any older relational/PostgreSQL runtime wording is superseded historical provena
 The accepted integrated staging/runtime head is 2858ae2a576d77a4a2fee162a776d5d7425d4752. Agent deployment from this exact source is READY; live Console and exact-source Cloud Job execution succeeded through Redis-backed coordination and Tavall Storage evidence. PostgreSQL is absent from the Cloud runtime/build and is not a recovery or promotion dependency.
 ## Promotion update 2026-09-20
 Validated Redis-only Cloud staging/runtime 2858ae2a576d77a4a2fee162a776d5d7425d4752 is now promoted to main at 225f952e70f70c12fb2a18c3da17a24da283c683. Production deployment is intentionally separate from this source promotion.
+## Execution update 2026-09-26 — no promotable candidate yet
+- The existing DEVELOPMENT CI Environment `5848c5ff-a2a2-4da4-bd25-9cff8e558433` now binds exact source snapshot `29ce13c6e19db68a295f4106e728044f7febda8375a47aff85ae1f64121ef694`, preserving its DURABLE / DEDICATED / SHARED / inherited policies, but remains `BLOCKED` with workspace and development-tool components `UNKNOWN`.
+- No exact-source Tavall CI job, immutable artifact, frozen delivery bundle, deployment-generation readiness record, or STAGING candidate exists for this rollout. Therefore no DEVELOPMENT-to-STAGING or production A/B promotion was performed.
+- The currently running ChatGPT plugin service has AUTO CD but its existing deployment has empty CI run/evidence identifiers; it is not a candidate for this promotion chain. Production slots and traffic were not changed.
+- Environment `5848c5ff-a2a2-4da4-bd25-9cff8e558433` now binds exact source snapshot `b6a8b43b314ad2a5b017f271f4974d9562327d13ef66d132ccf14ccca2ea7484` after the TCI source-binding adapter update. It remains `BLOCKED`, so the DEVELOPMENT-to-STAGING path and readiness gates have not run for this candidate.
+## Execution checkpoint 2026-09-26 — Cloud runtime slots and deploy wiring
+- Current Cloud source contains `CloudServiceRuntime`, BLUE/GREEN slot types, Redis-backed runtime records, and a per-logical-service router with health-aware route selection. At PR #395 head `0df90c24`, `:tavall-cloud:test` passes with 2 sandbox tests skipped and `:tavall-cloud-node:test` passes 249 tests.
+- The managed deployment provider still activates a shared `current` release and restarts one service unit. The post-deploy authority handler records slot/traffic/environment from static service labels, so the plugin template's `A_B` policy does not select an inactive runtime slot yet.
+- The installed `tavall-cloud-deployment@.service` template exists, but the immutable provider does not use it to run distinct runtime instances. No live candidate, traffic switch, rollback, or production change occurred.
+- The existing DEVELOPMENT Environment now pins TCI `ad695b3`, Cloud `0df90c24`, and Architecture Tests `c0863bfe` at snapshot `be3dd4cd5c6920788aa68581c4e2329080f2fca6c9f859fa0fe930bada63fc48`; it remains `BLOCKED`. TCI refresh and Console execution still stop at `STALE_VERSION` because the clean mounted checkout is at `ef59a10` instead of the pinned TCI source.
 </content>
 </page>
