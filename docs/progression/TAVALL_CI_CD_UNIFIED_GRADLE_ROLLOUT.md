@@ -133,7 +133,7 @@ No Tavall CI Cloud job, immutable artifact, frozen delivery bundle, DEVELOPMENT 
 ## Validation evidence
 
 - Cloud focused core/node/ChatGPT suites on the PR source: **658 tests, 0 failures, 0 errors, 2 skipped sandbox tests**.
-- Cloud `:tavall-cloud-test-suite:architectureTest` fails on existing repository-role, direct-thread, and production-`var` violations across unrelated Cloud modules; no pass is claimed.
+- Cloud `:tavall-cloud-test-suite:architectureTest` fails with 120 existing findings: 44 repository-role, 34 direct-thread, and 42 production-`var` violations across unrelated Cloud modules. The changed clean-worktree recovery provider is not listed; no Architecture Test pass is claimed.
 - Tavall CI full `check`, its Architecture Tests suite, and runtime distribution packaging passed on Java 25 / Gradle 9.6.1 with exact Cloud API and Architecture Tests composites (46 actionable tasks in the prior validation run).
 - Exact-head CI definition planning: **60/60 pass**, correct source identity, zero plan failures. This does not claim any configured repository build ran.
 - Live Cloud status: Agent, Control, and developer storage are ready; the selected DEVELOPMENT Environment remains blocked as described above.
