@@ -21,7 +21,7 @@ This is a progression record, not a second architecture authority. The accepted 
 
 Live GitHub inventory found **55 repositories**. There are **47 canonical local roots** at the required `/srv/dev-storage/workspaces/<repo>/repo_root` location (46 with commits and the empty `tavall-roblox` repository), the seven user-designated GitHub-only repositories, and excluded `TavallMonoRepo`. The `tavall-project-novus/repo_root` path and `tavall-mc/repo_root` share the same device/inode; this is one materialization, not two. A separate dirty Novus worktree is retained under `tavall-mc/tavall-mc`.
 
-The active source-side inventory contains **58 open `.tavallci/ci.yaml` PR heads across 52 repositories**. The additional local `tavall-docs` branch has its own `.tavallci`; `tavall-roblox` is empty and has no source commit or default branch, so it cannot yet own a CI definition. All 58 PR definitions passed exact-head `ci plan` parsing/planning through Tavall CI with exact Architecture Tests and Cloud API source composites. This is schema and plan evidence, not build/test execution.
+The active source-side inventory contains **60 open `.tavallci/ci.yaml` PR heads across 52 repositories**. The additional local `tavall-docs` branch has its own `.tavallci`; `tavall-roblox` is empty and has no source commit or default branch, so it cannot yet own a CI definition. All 60 PR definitions passed exact-head `ci plan` parsing/planning through Tavall CI with exact Architecture Tests and Cloud API source composites. This is schema and plan evidence, not build/test execution.
 
 | GitHub repository | Canonical local repository | `.tavallci/ci.yaml` source | Gradle / build tool |
 | --- | --- | --- | --- |
@@ -33,7 +33,7 @@ The active source-side inventory contains **58 open `.tavallci/ci.yaml` PR heads
 | `TavallStudios/minecraft-bot` | GitHub only; no local repo | PR #2@791f48b9c9a9 | non-Gradle (node) |
 | `TavallStudios/tavall-ai` | `/srv/dev-storage/workspaces/tavall-ai/repo_root` (working/orchestrator-hook/tj@d8d87938922b) | PR #44@b323bf5d5b3a | 9.6.1 |
 | `TavallStudios/tavall-ai-memory` | `/srv/dev-storage/workspaces/tavall-ai-memory/repo_root` (main@5b3ff8c0e558) | PR #1@ea82182854f6 | non-Gradle (none) |
-| `TavallStudios/tavall-analytics` | `/srv/dev-storage/workspaces/tavall-analytics/repo_root` (feature/full-analytics-platform@16001c3a0e8a) | local `feature/full-analytics-platform@16001c3a0e8a`; PR #1@16001c3a0e8a, #9@6431d5823636 | 9.6.1; wrapper PR #1 |
+| `TavallStudios/tavall-analytics` | `/srv/dev-storage/workspaces/tavall-analytics/repo_root` (feature/full-analytics-platform@16001c3a0e8a) | local `feature/full-analytics-platform@16001c3a0e8a`; PR #1@16001c3a0e8a, #7@415e5cf6dea7, #9@6431d5823636 | 9.6.1; wrapper PR #1, #7 |
 | `TavallStudios/Tavall-Architecture-Tests` | `/srv/dev-storage/workspaces/Tavall-Architecture-Tests/repo_root` (working/unified-ci-exact-artifact-versions-20260925@c0863bfe9e3e) | local `working/unified-ci-exact-artifact-versions-20260925@c0863bfe9e3e`; PR #14@c0863bfe9e3e | 9.6.1; wrapper PR #14 |
 | `TavallStudios/tavall-cache` | `/srv/dev-storage/workspaces/tavall-cache/repo_root` (main@c8ed248a895e) | PR #11@7af38d81537f | 9.6.1 |
 | `TavallStudios/tavall-ci` | `/srv/dev-storage/workspaces/tavall-ci/repo_root` (working/unified-gradle-cicd-20260924@f3ad7942eb77) | local `working/unified-gradle-cicd-20260924@f3ad7942eb77`; PR #14@f3ad7942eb77 | 9.6.1 |
@@ -53,7 +53,7 @@ The active source-side inventory contains **58 open `.tavallci/ci.yaml` PR heads
 | `TavallStudios/tavall-java-tools` | `/srv/dev-storage/workspaces/tavall-java-tools/repo_root` (working/verify-canonical-gitlinks@e3dee56ab2f7) | local `working/verify-canonical-gitlinks@e3dee56ab2f7`; PR #1@85965871ca65, #2@ed16dedfa031, #3@e3dee56ab2f7 | non-Gradle (none,shell) |
 | `TavallStudios/tavall-java-utils` | `/srv/dev-storage/workspaces/tavall-java-utils/repo_root` (main@d9056d88b845) | PR #2@c74d9c22cda9 | non-Gradle (none) |
 | `TavallStudios/tavall-logging` | `/srv/dev-storage/workspaces/tavall-logging/repo_root` (main@793e26bd9969) | PR #7@f3f3fbf344d8 | 9.6.1 |
-| `TavallStudios/tavall-mc` | `/srv/dev-storage/workspaces/tavall-mc/repo_root` (working/combined-ci-profile-semantics-20260829@cab4fba24982) | local `working/combined-ci-profile-semantics-20260829@cab4fba24982`; PR #271@cab4fba24982 | 9.6.1 |
+| `TavallStudios/tavall-mc` | `/srv/dev-storage/workspaces/tavall-mc/repo_root` (working/combined-ci-profile-semantics-20260829@cab4fba24982) | local `working/combined-ci-profile-semantics-20260829@cab4fba24982`; PR #271@cab4fba24982, #301@32e3ce039c57 | 9.6.1 |
 | `TavallStudios/tavall-mc-bot-testing` | `/srv/dev-storage/workspaces/tavall-mc-bot-testing/repo_root` (working/tavallci-node-20260926@40e3f4233ffe) | local `working/tavallci-node-20260926@40e3f4233ffe`; PR #5@7bbed95e555e, #6@40e3f4233ffe | non-Gradle (node) |
 | `TavallStudios/tavall-mc-paper` | `/srv/dev-storage/workspaces/tavall-mc-paper/repo_root` (working/canonical-gradle-wrapper-20260925@ddafabdd4e57) | local `working/canonical-gradle-wrapper-20260925@ddafabdd4e57`; PR #6@ddafabdd4e57 | 9.6.1; wrapper PR #6 |
 | `TavallStudios/tavall-minecraft-framework` | `/srv/dev-storage/workspaces/tavall-minecraft-framework/repo_root` (working/unified-gradle-cicd-20260925@f8302030cbbd) | local `working/unified-gradle-cicd-20260925@f8302030cbbd`; PR #11@f8302030cbbd | 9.6.1; wrapper PR #11 |
@@ -85,11 +85,20 @@ The seven GitHub-only repositories each have source-owned CI configuration in th
 
 ## Unified Gradle status
 
-- Every Gradle `.tavallci` PR head with a committed wrapper was checked at its exact SHA: **34 Gradle PR heads, all Gradle Wrapper 9.6.1 with `gradlew` present**.
-- Eleven active PRs change wrapper files; every exact wrapper-properties blob reports Gradle 9.6.1. The two canonical local `main` refs that still lack wrappers, `tavall-custom-enum-java` and `tavall-discord`, have open PRs #8 and #6 that add the 9.6.1 standard wrapper.
+- Every Gradle `.tavallci` PR head with a committed wrapper was checked at its exact SHA: **36 Gradle PR heads, all Gradle Wrapper 9.6.1 with `gradlew` present**.
+- Twelve active PRs change wrapper files; every exact wrapper-properties blob reports Gradle 9.6.1. The two canonical local `main` refs that still lack wrappers, `tavall-custom-enum-java` and `tavall-discord`, have open PRs #8 and #6 that add the 9.6.1 standard wrapper.
 - The approved Cloud Executor Java is `/opt/jdk-25.0.1`. Its shared execution surface maps `/var/cache/tavall-local-sandbox/gradle` to `/tavall/shared-tools/gradle`; the live service sets `GRADLE_USER_HOME=/tavall/shared-tools/gradle`. The durable sandbox service is active. The `DEVELOPMENT_SHARED` runner has a separate Tavall-owned shared cache at `/srv/dev-storage/tavall-cache/shared-ci/gradle`, selected by `/usr/local/libexec/tavall-development-shared-ci` and isolated from per-job HOME/output state. Both are executor-owned shared caches, not repository identity.
 - Cache classification from current configuration: `/var/cache/tavall-local-sandbox/gradle` is canonical/current and active; `/srv/dev-storage/tavall-cache/shared-ci/gradle` is active for the existing shared-CI provider; `/srv/dev-storage/tavall-cache/host-local-sandbox/gradle` is an empty but still referenced provider cache, retained. `/var/lib/tavall-local-sandbox/home/.gradle` (155 MB, last wrapper distribution files from 2026-08-15) was retired after confirming the active sandbox sets `GRADLE_USER_HOME=/tavall/shared-tools/gradle` and no running Gradle process used the old directory. The user-owned `/home/ubuntu/.gradle` cache used by local validation was preserved.
 - Tavall CI remains a typed `GRADLE` executor. The exact-source composite planner records repository/SHA identities and source manifests. Maven Local, mutable sibling substitutions, and SNAPSHOT workspace references are not the internal dependency contract.
+
+## GitHub Actions ownership audit
+
+The current open-PR audit found 27 branches that delete `.github/workflows/*` files used for Tavall build, test, release, integration, or source-based deployment work. The exact CI migration branches in the repository table retire build/test workflows; private `publish.yml` jobs for internal artifacts are retired where exact-source or immutable Tavall artifact composition replaces them. These PRs remain unmerged, so default-branch retirement is not claimed.
+
+The analytics ingestion stack PR #7 now removes its manual `ubuntu-latest` Gradle validation workflow and carries the exact source-owned Tavall CI plan plus the Gradle 9.6.1 Wrapper. Its exact-head plan passes; no build green is claimed. In Tavall MC PR #294, `.github/workflows/open-upstream-pr.yml` was restored from that PR's exact base because it only opens a contribution PR from the maintainer's personal fork and does not perform Tavall build/deploy compute. PR #294 head is now `937f90f4d0e2eb45b410485dcc0b8adb706f3de8`.
+
+Tavall MC PR #301 (`working/complete-minecraft-framework-extraction-20260920`) now removes `.github/workflows/cloud-runtime-deployment.yml` and declares the exact-source build plus `novus-runtime-deploy.jar` artifact in `.tavallci`; its four-check plan passes. PR #294 also retires the old source workflow in the existing promotion lineage. Neither branch has run through the live Cloud Executor. PR #271’s `open-upstream-pr.yml` automation remains a contribution-PR integration; PR #294 restores that file from its exact base. `TavallMonoRepo` workflow work is excluded from this rollout.
+Function Catalog is public. The rollout PR #14 removes its old Gradle CI workflow but keeps `publish.yml`. Separate open PRs #12 and #18 delete that public package-publishing workflow and add scripts that invoke `./gradlew publish` locally. Those branches are not part of this CI migration and should not be promoted until public publication is routed through an approved Tavall CI release flow or explicitly retained as a release-only provider operation. Private `tavall-discord` and `tavall-minecraft-framework` package-publish workflows are internal and are removed by their exact-source migration PRs.
 
 ## Service/runtime CD state
 
@@ -116,7 +125,7 @@ No Tavall CI Cloud job, immutable artifact, frozen delivery bundle, DEVELOPMENT 
 - Cloud focused core/node/ChatGPT suites on the PR source: **658 tests, 0 failures, 0 errors, 2 skipped sandbox tests**.
 - Cloud `:tavall-cloud-test-suite:architectureTest` fails on existing repository-role, direct-thread, and production-`var` violations across unrelated Cloud modules; no pass is claimed.
 - Tavall CI full `check`, its Architecture Tests suite, and runtime distribution packaging passed on Java 25 / Gradle 9.6.1 with exact Cloud API and Architecture Tests composites (46 actionable tasks in the prior validation run).
-- Exact-head CI definition planning: **58/58 pass**, correct source identity, zero plan failures. This does not claim any configured repository build ran.
+- Exact-head CI definition planning: **60/60 pass**, correct source identity, zero plan failures. This does not claim any configured repository build ran.
 - Live Cloud status: Agent, Control, and developer storage are ready; the selected DEVELOPMENT Environment remains blocked as described above.
 - `tavall-docs` checked-in architecture/progression exports are updated through PR #31. This client has no live Notion connector, so Notion was not written or represented as updated.
 
@@ -125,7 +134,7 @@ No Tavall CI Cloud job, immutable artifact, frozen delivery bundle, DEVELOPMENT 
 - [`tavall-cloud#395`](https://github.com/TavallStudios/tavall-cloud/pull/395) — current head `2f061cd9f42cd4f44c813d3f8aa0e62b50d1ddac`, Draft, base `staging/runtime`.
 - [`tavall-ci#14`](https://github.com/TavallStudios/tavall-ci/pull/14) — current head `f3ad7942eb775a232e1e92a91a6baf101cac1444`, Draft, base `staging/platform`.
 - [`tavall-docs#31`](https://github.com/TavallStudios/tavall-docs/pull/31) — existing evidence-provenance branch, updated by this record and the architecture clarification.
-- Source-owned `.tavallci` and wrapper work remains in the 58 existing PR heads shown above; no duplicate source PRs were opened.
+- Source-owned `.tavallci` and wrapper work remains in the 60 existing PR heads shown above; no duplicate source PRs were opened.
 
 ## Remaining blockers
 
