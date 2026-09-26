@@ -167,7 +167,7 @@ The validated Redis-only Cloud staging/runtime tree was promoted through existin
 - Cloud PR #395 commit `bf70bd5b1dfa87c69652869a82729394759efa24` declares immutable artifact `tavall-cloud-agent` at `tavall-cloud-node/build/libs/tavall-cloud-agent-all.jar` and runs `:tavall-cloud-node:allJar` in the required runtime profile. This matches the active Agent installer package path.
 - The installed Tavall CI runtime accepted the Cloud `.tavallci` definition and plan at digest `ea834befe4e6da9072f93043e61efffde7ac9d54f714f3d0c95a8af77d10b5ee`; this was definition/plan validation only. No Cloud Executor build or artifact publication occurred.
 ## Service-template identity reconciliation — 2026-09-26
-- The `tavall-cloud-control` template identity is `services/tavall-cloud-control`, matching the TCI `ServiceRuntimeTemplateLoader` identity. Cloud PR #395 commit `a6a34717` aligns Cloud's metadata store to this provider-neutral identity; the template SHA remains `5033fa2b198c3f6c47065eb3e2db202d9203048a350fcda9a240c195b570c9fa`.
-- The CONTROL service remains MANUAL/disabled with no deployment identity. Production was not changed.
+- The registered `tavall-cloud-control` template identity is `services/tavall-cloud-control`, matching the TCI `ServiceRuntimeTemplateLoader` identity. Cloud PR #395 commit `a6a34717` aligns Cloud's metadata store to this provider-neutral identity; the template SHA is `5033fa2b198c3f6c47065eb3e2db202d9203048a350fcda9a240c195b570c9fa` and the TCI loader parsed it.
+- The installed Cloud Agent is older and its CD status response omits template identity/runtime fields, so live Cloud hot-load is unverified. The CONTROL service remains MANUAL/disabled with no deployment identity. Production was not changed.
 </content>
 </page>
