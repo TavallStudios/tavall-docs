@@ -82,6 +82,8 @@ Java 25 is the Tavall default. Gradle repositories use the standard committed Wr
 
 The Executor provides the canonical equivalent of `/tavall/workspace`, `/tavall/dependencies`, and `/tavall/shared-tools/gradle`. Commands run from the exact-source repository root. Source dependencies are materialized at exact Git identities and record repository, commit, dependency role, and source tree digest. Shared Gradle download caches may be reused; job output and operation-specific Gradle state remain isolated per execution.
 
+Tavall CI's Git source materializer resolves a remote and fetchable ref through an injected source locator, then verifies the fetched HEAD against the requested exact SHA and records its tree digest. Planning checkouts use request-scoped paths and are released after the resolved plan has finished; they do not become canonical local repositories. Cloud-backed jobs carry source/tree identities, while CONTROL independently resolves the matching Environment snapshot into the Executor workspace and dependencies. Git credentials remain in the configured transport environment, outside remote URLs and source identities.
+
 Tavall internal dependency composition uses exact source builds or immutable Tavall artifacts. Maven Local, floating sibling workspaces, mutable snapshots, and GitHub Packages are not internal dependency authorities. Gradle remains a typed Tavall CI executor; shell commands remain for work that needs a repository-owned script or non-Gradle tool.
 
 ### Tavall Cloud

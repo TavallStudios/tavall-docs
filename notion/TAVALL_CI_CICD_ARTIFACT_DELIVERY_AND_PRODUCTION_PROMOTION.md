@@ -44,6 +44,12 @@ The CI/CD ownership extraction is **not fully operationally complete** while Tav
 Cloud Job IDs are provider metadata beneath Tavall CI evidence, not the semantic CI identity published to callers or GitHub. GitHub Checks are bound to exact source/head and represent executable Tavall CI evidence only.
 ## Current Implementation
 Tavall Cloud PR #230/#257 introduced the first CI/CD implementation. That implementation has now been replaced as the reusable policy owner: `TavallStudios/tavall-ci` main owns exact-source aggregation, distinct source/release/build/resolution identities, explicit dependency modes, Gradle composite/source substitution, typed evidence serialization, frozen delivery bundles, readiness, human authorization, A/B promotion, and rollback policy. Cloud PR #261 and staging PR #262 removed the duplicate Cloud modules and active writer while retaining environment-owned LOCAL_CI, placement, executors, sandboxing, Console, deployment/scaling, Docker/Kubernetes, storage, and service lifecycle. Development candidate composition uses exact repository + exact SHA source identity rather than an implicit cross-repository `SNAPSHOT` protocol.
+
+## Execution update 2026-09-26 — exact Git source materialization
+- **VERIFIED IN CODE:** Tavall CI PR #14 at `6890de3048939953bbc53624a76f0069c2113132` implements a Git materializer behind the existing source-materialization contract. A source locator supplies the remote/ref; CI verifies the requested SHA and Git tree digest, isolates each request's checkout, and releases those trees after planning/evidence persistence.
+- **VERIFIED IN TESTS:** Java 25 / Gradle 9.6.1 TCI `check` passes with exact Architecture Tests source `c0863bfe` and exact Cloud API source `ff727c5d`; source-provider, cleanup, request-replay, and architecture tests pass.
+- **NOT VERIFIED LIVE:** the materializer is not wired into an independent GitHub Bot caller or live Cloud source binding. The current DEVELOPMENT CI Environment remains `BLOCKED`; no new Cloud CI artifact, delivery bundle, DEVELOPMENT deployment, or STAGING readiness was produced by this implementation checkpoint.
+
 ## Source Evidence
 - [Tavall CI main](https://github.com/TavallStudios/tavall-ci/tree/main) — `00ac2dad0c5c3854357d9cf6252c7962885d1159`
 - [Tavall CI implementation PR #2](https://github.com/TavallStudios/tavall-ci/pull/2) — merged into staging
