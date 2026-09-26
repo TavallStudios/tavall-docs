@@ -88,6 +88,14 @@ When a durable Environment reuses its repository path after a source snapshot ad
 
 Tavall internal dependency composition uses exact source builds or immutable Tavall artifacts. Maven Local, floating sibling workspaces, mutable snapshots, and GitHub Packages are not internal dependency authorities. Gradle remains a typed Tavall CI executor; shell commands remain for work that needs a repository-owned script or non-Gradle tool.
 
+### Source, event, and execution providers
+
+GitHub is an optional source/event/check adapter. GitHub Bot may receive repository events and project typed Tavall CI evidence into GitHub Checks. The source identity and the Tavall CI/CD run do not require GitHub API identities: CI accepts an exact provider-neutral repository and commit, then runs through Tavall Cloud's existing `DEVELOPMENT_SHARED` machine Executor. `origin=github-bot` is caller provenance only; it is not a build, release, artifact, or deployment identity.
+
+The Executor is not a GitHub Actions runner. A self-hosted Actions account or Actions job does not own Tavall build execution. The typed Tavall CI Cloud adapter submits a durable Cloud CI job, and Cloud selects and records its Executor and node. The build receives the resolved exact sources and immutable tool/artifact inputs; it does not receive GitHub API credentials. GitHub Actions can request a run or display its result, but it must not perform Tavall build, test, architecture, integration, artifact-production, or deployment compute.
+
+Once exact sources, CI evidence, and immutable artifacts are available in Tavall authorities, delivery, deployment, readiness, promotion, and rollback use Tavall CI, Tavall Storage, and Tavall Cloud. They do not call GitHub. If the selected source provider is unavailable before exact-source materialization, that source-resolution attempt is blocked; another configured source provider may supply the same exact identity without changing the CI/CD identity.
+
 ### Tavall Cloud
 
 Tavall Cloud owns infrastructure and execution capabilities.
