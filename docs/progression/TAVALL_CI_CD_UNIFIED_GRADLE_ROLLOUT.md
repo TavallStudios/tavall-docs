@@ -100,6 +100,16 @@ The analytics ingestion stack PR #7 now removes its manual `ubuntu-latest` Gradl
 Tavall MC PR #301 (`working/complete-minecraft-framework-extraction-20260920`) now removes `.github/workflows/cloud-runtime-deployment.yml` and declares the exact-source build plus `novus-runtime-deploy.jar` artifact in `.tavallci`; its four-check plan passes. PR #294 also retires the old source workflow in the existing promotion lineage. Neither branch has run through the live Cloud Executor. PR #271’s `open-upstream-pr.yml` automation remains a contribution-PR integration; PR #294 restores that file from its exact base. `TavallMonoRepo` workflow work is excluded from this rollout.
 Function Catalog is public. The rollout PR #14 removes its old Gradle CI workflow but keeps `publish.yml`. Separate open PRs #12 and #18 delete that public package-publishing workflow and add scripts that invoke `./gradlew publish` locally. Those branches are not part of this CI migration and should not be promoted until public publication is routed through an approved Tavall CI release flow or explicitly retained as a release-only provider operation. Private `tavall-discord` and `tavall-minecraft-framework` package-publish workflows are internal and are removed by their exact-source migration PRs.
 
+| GitHub workflow boundary | Exact PR head | Status |
+| --- | --- | --- |
+| `tavall-analytics#7` | `415e5cf6dea783069f4fe28a901fd44d01d19617` | Manual `ubuntu-latest` validation workflow removed; exact `.tavallci` and wrapper added; plan passes |
+| `tavall-mc#301` | `32e3ce039c57f33f14ac8a401cff70743f12b230` | GitHub runtime build/deployment workflow removed; exact-source `.tavallci` and `novus-runtime-deploy.jar` artifact added; plan passes |
+| `tavall-mc#294` | `937f90f4d0e2eb45b410485dcc0b8adb706f3de8` | Old source deployment and test workflows removed; unrelated personal-fork upstream PR automation restored |
+| `tavall-mc#271` | `cab4fba24982af0c199f6c143c38a18ada95f55d` | Keeps the unrelated upstream PR workflow; source CI profiles remain in its `.tavallci` |
+| `function-catalog#12` | `e60606c305b0de57fc14120aaa4c9afdf38e93cf` | Separate branch removes public `publish.yml`; do not promote with the local Gradle publisher |
+| `function-catalog#18` | `6a28c5d7371b29f3a213909b5542b6ead1036937` | Separate branch removes public `publish.yml`; do not promote with the local Gradle publisher |
+
+
 ## Service/runtime CD state
 
 The current template loader resolves `/srv/dev-storage/templates/services/<service-id>/.tavallcd/cd.yaml`; no new template leaf was introduced. Deployed lineage is under the existing environment-scoped service roots, for example `/srv/dev-storage/services/environments/tavall-cloud-chatgpt-plugin/.tavallcd/{metadata.json,deployment.json}`.
