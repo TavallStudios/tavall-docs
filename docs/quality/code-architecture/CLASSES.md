@@ -90,6 +90,47 @@ The Repository role repeatedly preserved obsolete persistence layers after Taval
 
 Static classes/methods are for constants, pure transformations, parsing, formatting, and construction-only factories. Runtime behavior requiring DI, state, I/O, replacement, scheduling, persistence, or platform access remains instance-owned.
 
+## Inner and Nested Classes
+
+Inner/nested classes are exceptional in Tavall production code. Prefer a top-level declared type when the type has independent behavior, lifecycle, state, injection, I/O, persistence, registration, platform access, or meaningful reuse outside its enclosing type.
+
+A narrow acceptable pattern is a `static` nested namespace used to express a compile-time hierarchy of closely related constants. The canonical example is [`Routes.java`](../WEB_ARCHITECTURE.md#routesjava):
+
+```java
+public final class Routes {
+
+    private Routes() {}
+
+    public static final class Dashboard {
+        public static final String ROOT = "/dashboard";
+
+        private Dashboard() {}
+
+        public static final class Merchant {
+            public static final String ROOT = Dashboard.ROOT + "/merchant";
+            public static final String SHIPMENTS = ROOT + "/shipments";
+
+            private Merchant() {}
+        }
+    }
+}
+```
+
+This exception requires all of the following:
+
+- the nested type is `static`;
+- it acts as a namespace rather than a runtime collaborator;
+- it has no mutable state;
+- it has no enclosing-instance dependency;
+- it owns no DI, I/O, persistence, scheduling, registration, or platform behavior;
+- nesting makes the compile-time hierarchy materially clearer than a flat constant list or a collection of trivial one-purpose files.
+
+Do not use this exception to hide Services, Handlers, Registries, Builders, data models, or other real production roles inside another class.
+
+##### Why
+
+Most inner classes obscure ownership and couple a real type to an unrelated enclosing implementation. Static namespace classes are different: they model lexical hierarchy without creating runtime coupling. For route constants, `Routes.Dashboard.Merchant.SHIPMENTS` communicates ownership directly while remaining a compile-time constant usable by Spring annotations. Splitting every namespace into a separate file would add filesystem ceremony without creating a meaningful architectural boundary.
+
 ## Persistence-Adjacent Capability Names
 
 If behavior near persistence is real application behavior, name what it actually does: `HistoryReader`, `AuditWriter`, `SynchronizationHandler`, `SnapshotService`, `ImportHandler`, `ExportWriter`, or another precise capability. Do not default back to Repository.
@@ -103,4 +144,6 @@ Reject a class when:
 - it owns mutable keyed state that belongs to Registry/Cache/Tavall Database/operation runtime;
 - it constructor-injects Tavall-managed dependencies;
 - it ends in `Repository` and is not already grandfathered migration debt;
-- it exists mainly as a forwarding wrapper with no independent behavior or lifecycle.
+- it exists mainly as a forwarding wrapper with no independent behavior or lifecycle;
+- it uses an inner/nested type for a real runtime role that should have explicit top-level ownership;
+- a nested namespace type violates the narrow static, stateless, compile-time-only exception above.
