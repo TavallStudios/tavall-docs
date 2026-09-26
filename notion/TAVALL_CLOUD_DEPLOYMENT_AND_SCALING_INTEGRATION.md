@@ -87,5 +87,10 @@ The Tavall Web canonical routing/module contract lives in [TAVALL_WEB_HOST_AND_M
 ## Execution update 2026-09-19 — current Cloud lineage
 - **VERIFIED IN CODE / VERIFIED IN TESTS:** the Edge Director CONTROL-only restriction remains removed in the current Cloud lineage; typed networking bootstrap and AGENT-mode coverage are preserved in the PR #288 continuation.
 - **NOT VERIFIED LIVE:** no production networking mutation was performed. The live development agent is READY, but Edge placement acceptance remains a source/test result rather than production-network proof.
+## Execution update 2026-09-26 — current CD template and bootstrap boundary
+- The current loader uses `/srv/dev-storage/templates/services/<service-id>/.tavallcd/cd.yaml`. The existing deployable `tavall-cloud-chatgpt-plugin` template is hot-loaded with AUTO CD.
+- Its current service deployment still points to artifact `ba4549655ea561430dcb75e20900e62a20a9a356818e41f713bd0d980c4ab986` from `tavall-cloud@d4fad9dbcee62d3210c14262d65cdea2e6f529ac`; CI run/evidence IDs are empty. This is not a rollout delivery bundle.
+- `tavall-cloud-control` remains a CONTROL_PLANE service with CD `MANUAL`/disabled and no deployment identity. Its installed systemd unit starts a fixed `/opt/tavall-cloud/tavall-cloud-agent.jar`; no safe immutable-artifact bootstrap is configured. No restart or deployment was attempted.
+- No rollout artifact, frozen delivery bundle, new DEVELOPMENT deployment, or STAGING readiness evidence exists. Production remains unchanged.
 </content>
 </page>

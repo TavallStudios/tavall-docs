@@ -241,5 +241,9 @@ Any older relational/PostgreSQL runtime wording is superseded historical provena
 The accepted integrated staging/runtime head is 2858ae2a576d77a4a2fee162a776d5d7425d4752. Agent deployment from this exact source is READY; live Console and exact-source Cloud Job execution succeeded through Redis-backed coordination and Tavall Storage evidence. PostgreSQL is absent from the Cloud runtime/build and is not a recovery or promotion dependency.
 ## Promotion update 2026-09-20
 Validated Redis-only Cloud staging/runtime 2858ae2a576d77a4a2fee162a776d5d7425d4752 is now promoted to main at 225f952e70f70c12fb2a18c3da17a24da283c683. Production deployment is intentionally separate from this source promotion.
+## Execution update 2026-09-26 — no promotable candidate yet
+- The existing DEVELOPMENT CI Environment `5848c5ff-a2a2-4da4-bd25-9cff8e558433` now binds exact source snapshot `29ce13c6e19db68a295f4106e728044f7febda8375a47aff85ae1f64121ef694`, preserving its DURABLE / DEDICATED / SHARED / inherited policies, but remains `BLOCKED` with workspace and development-tool components `UNKNOWN`.
+- No exact-source Tavall CI job, immutable artifact, frozen delivery bundle, deployment-generation readiness record, or STAGING candidate exists for this rollout. Therefore no DEVELOPMENT-to-STAGING or production A/B promotion was performed.
+- The currently running ChatGPT plugin service has AUTO CD but its existing deployment has empty CI run/evidence identifiers; it is not a candidate for this promotion chain. Production slots and traffic were not changed.
 </content>
 </page>
