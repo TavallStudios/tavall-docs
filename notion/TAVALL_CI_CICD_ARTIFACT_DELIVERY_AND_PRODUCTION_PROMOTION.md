@@ -163,5 +163,8 @@ The validated Redis-only Cloud staging/runtime tree was promoted through existin
 - Tavall Cloud PR #395 commit `04d2f2efa52857f1c6ea4a3bda7169a82ed396c8` binds the logical Environment repository path to a clean exact `PRIMARY` workspace at the current source-snapshot generation. `SHARED_DEP` and `ENVIRONMENT_DEP` inputs remain dependencies and cannot become a job/Console workspace.
 - An Environment Console request without `repository` now resolves to the `PRIMARY` source explicitly. Tests cover exact-generation link recovery, preservation of stale generations, and primary selection when dependencies sort first.
 - These tests have not run at commit `bf70bd5b`. The Cloud `.tavallci` runtime profile now also declares `tavall-cloud-agent` from the existing self-contained `:tavall-cloud-node:allJar` task. The live Environment cannot materialize its current TCI/Cloud heads, so no Agent artifact or delivery evidence is claimed.
+## Cloud Agent artifact plan — 2026-09-26
+- Cloud PR #395 commit `bf70bd5b1dfa87c69652869a82729394759efa24` declares immutable artifact `tavall-cloud-agent` at `tavall-cloud-node/build/libs/tavall-cloud-agent-all.jar` and runs `:tavall-cloud-node:allJar` in the required runtime profile. This matches the active Agent installer package path.
+- The installed Tavall CI runtime accepted the Cloud `.tavallci` definition and plan at digest `ea834befe4e6da9072f93043e61efffde7ac9d54f714f3d0c95a8af77d10b5ee`; this was definition/plan validation only. No Cloud Executor build or artifact publication occurred.
 </content>
 </page>
