@@ -102,7 +102,7 @@ The seven GitHub-only repositories each have source-owned CI configuration in th
 | `/srv/dev-storage/environments/**/.gradle` | One cache under the blocked DEVELOPMENT Environment | Active environment materialization; retained. |
 | `/srv/dev-storage/lanes/**/.gradle`, `/var/tmp/**/.gradle` | None found in the targeted scan | No cleanup target found. |
 | `/home/ubuntu/.gradle` | User-owned wrapper cache used by local validation | Outside Tavall ownership; preserved. |
-- Tavall CI remains a typed `GRADLE` executor. The exact-source composite planner records repository/SHA identities and source manifests. Maven Local, mutable sibling substitutions, and SNAPSHOT workspace references are not the internal dependency contract.
+- Tavall CI remains a typed `GRADLE` executor. A scan of the 47 canonical local repository roots found no `mavenLocal()` declarations. During typed execution, TCI composes only source roots from the exact aggregate manifest and removes Maven Local, Tavall internal GitHub Package, and mutable file repositories from dependency/project resolution. Some repository-owned build files still declare `SNAPSHOT` coordinates; in TCI plans those are substituted by the declared exact-source composite inputs, so the mutable coordinate is not the source-composition identity. Upstream SNAPSHOT API dependencies remain external inputs where their owners require them.
 
 ## GitHub Actions ownership audit
 
