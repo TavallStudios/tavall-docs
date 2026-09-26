@@ -18,6 +18,7 @@ Use this directory for shared Tavall engineering and documentation policy.
 ## Engineering Policy
 
 - [CODE_ARCHITECTURE.md](CODE_ARCHITECTURE.md)
+- [WEB_ARCHITECTURE.md](WEB_ARCHITECTURE.md) — canonical Tavall web architecture, beginning with endpoint and routing ownership.
 - [GIT_WORKFLOW.md](GIT_WORKFLOW.md)
 - [`code-architecture/`](code-architecture/)
 
@@ -33,12 +34,19 @@ Shared quality documents define Tavall-wide defaults. Repository-local documenta
 
 The historical `DOC_DESIGN_RULES.md` lineage (Project Novus/Tavall MC `b5e690859` / `dff1d0818`) has been fully reconciled and superseded by [DOCUMENTATION_STANDARDS.md](DOCUMENTATION_STANDARDS.md) and [DOCUMENT_TYPES.md](DOCUMENT_TYPES.md), which own the binding Design/Technical subtype, delegation, and lifecycle rules organization-wide.
 
+## Production Examples
+
+Binding architecture documentation should link to canonical production implementations once those examples exist and have been validated as representative of the documented pattern. Production examples are evidence and reference implementations; they do not replace the owning documentation contract.
+
+Do not link temporary branches, experiments, migration code, or known-debt implementations as canonical examples merely because they happen to contain similar code.
+
 ## DOC TODO:
 
 ### Document next steps
 
 - [ ] Keep this index synchronized as shared quality documents are added, renamed, or superseded.
 - [ ] Keep `DOCUMENT_ROUTING.yml` synchronized when an owning document or exact routing signal changes.
+- [ ] Add canonical production-example links to `WEB_ARCHITECTURE.md`, `CLASSES.md`, and other applicable architecture chapters as validated production implementations of each pattern are created.
 - [x] Link the canonical `DOC_DESIGN_RULES.md` location once reconciled (completed: superseded by `DOCUMENTATION_STANDARDS.md` and `DOCUMENT_TYPES.md`).
 
 ### System next steps
