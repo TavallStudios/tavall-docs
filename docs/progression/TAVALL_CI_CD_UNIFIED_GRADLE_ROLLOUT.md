@@ -138,7 +138,7 @@ The current template loader resolves `/srv/dev-storage/templates/services/<servi
 | Current Cloud service | `.tavallcd` / deployment state |
 | --- | --- |
 | `tavall-cloud-chatgpt-plugin` | Template exists; live Redis read on 2026-09-26 reports configuration 10, runtime generation 60, actual RUNNING in DEVELOPMENT/SINGLE. The legacy artifact lineage (`ba454965…`) still has blank CI run/evidence IDs. It is not a rollout candidate. |
-| `tavall-cloud-control` | Template exists; CONTROL_PLANE is RUNNING from `/opt/tavall-cloud/tavall-cloud-agent.jar` (SHA-256 `b3edfd20…`), but that digest is absent from the 14 objects in `/var/lib/tavall-cloud/artifacts/sha256`. CD remains manual and no immutable bootstrap artifact is registered. It was not redeployed. |
+| `tavall-cloud-control` | The live `.tavallcd/cd.yaml` is SHA-256 `5033fa2b…`; Cloud PR #398 packages those exact bytes under the canonical services template leaf. CONTROL_PLANE remains RUNNING from `/opt/tavall-cloud/tavall-cloud-agent.jar` (SHA-256 `b3edfd20…`), which is absent from the 14 immutable artifacts. CD remains disabled/MANUAL; no immutable bootstrap artifact is registered and the service was not redeployed. |
 | `novus-ffa-east-backend` | Registry entry is RUNNING desired / UNKNOWN observed; no canonical service template was found and Cloud reports invalid CD request. No template was guessed. |
 | `tavall-cloud-redis` | Infrastructure service; no application `.tavallcd` required. |
 | `tavall-cloud-storage-prepare` | Infrastructure service; no application `.tavallcd` required. |
@@ -201,6 +201,7 @@ No Tavall CI Cloud job, immutable artifact, frozen delivery bundle, DEVELOPMENT 
 
 - [`tavall-cloud#397`](https://github.com/TavallStudios/tavall-cloud/pull/397) — Draft `staging/runtime` root to `main`; head contains the Cloud #395 merge at `7a822eb5…`.
 - [`tavall-cloud#395`](https://github.com/TavallStudios/tavall-cloud/pull/395) — merged into `staging/runtime` at `7a822eb5abae923b92a085b768f19026ec2f0ea6`; not promoted to `main`.
+- [`tavall-cloud#398`](https://github.com/TavallStudios/tavall-cloud/pull/398) — Draft child PR packages the byte-identical live `tavall-cloud-control/.tavallcd/cd.yaml` under Cloud's existing services template leaf.
 - [`tavall-ci#15`](https://github.com/TavallStudios/tavall-ci/pull/15) — Draft `staging/platform` root to `main`, head `bde88767288ab38df8a157818e923d11bb6537ae`.
 - [`tavall-ci#14`](https://github.com/TavallStudios/tavall-ci/pull/14) — merged exact-source CI/CD implementation into `staging/platform` at `bde88767288ab38df8a157818e923d11bb6537ae`; feature source head `f3ad7942eb775a232e1e92a91a6baf101cac1444`.
 - [`tavall-github-bot#2`](https://github.com/TavallStudios/tavall-github-bot/pull/2) — Draft Bot staging root to `main`.
