@@ -115,6 +115,47 @@ System documents use uppercase descriptive filenames with the system name first.
 - A progression document never becomes a final document. They answer different questions.
 - Planned behavior in a final contract must still be reported accurately in progression as `Designed`, `Partially Implemented`, or another evidence-backed status.
 
+## 3.1 Notion ↔ GitHub Surface Placement and 1:1 Synchronization
+
+Tavall uses Notion and GitHub as coordinated documentation surfaces, but not every document type belongs on both.
+
+### Default placement rules
+
+| Document type | Notion | GitHub | Default sync behavior |
+| --- | --- | --- | --- |
+| Design Draft / Final | Required | Required | 1:1 shared document. |
+| Technical Draft / Final | Required | Required | 1:1 shared document. |
+| Progression / Evidence | Required | Required | 1:1 shared document. |
+| GENERAL | Required | Prohibited by default | Notion-only. Do not create or mirror GENERAL documents in GitHub unless TJ explicitly changes the rule. |
+| ARTICLE / PRODUCT / USER EXPERIENCE | Allowed | By request | Share only when explicitly requested or when a narrower owning rule designates the document as dual-surface. |
+| Quality / standards / operational / reference documents | Allowed | Allowed | Share by request or explicit document-specific policy. This document is explicitly dual-surface. |
+
+A 1:1 shared document is one logical document with two surface representations, not two independent authorities. Surface-native formatting, links, mentions, and tables may differ, but the owned rules, status, lifecycle, and substantive content must remain equivalent.
+
+When a shared document changes, update both surfaces in the same coherent documentation pass whenever practical. Do not intentionally leave one surface as a stale secondary copy. If drift is discovered, reconcile from verifiable current evidence rather than guessing which prose is newer.
+
+GENERAL remains the human-readable rendezvous point in Notion. It may link to shared Design, Technical, and Progression documents, but it must not be committed to GitHub merely to make the surfaces symmetrical. Symmetry is useful. Pointless duplication is how humans manufacture chores for future humans.
+
+Other document types are shared only by request. A document-specific rule may opt a quality or operational document into 1:1 synchronization without changing the default for its whole type.
+
+### Progression Documentation Consolidation Loop
+
+The recurring documentation automation is a **documentation reconciliation worker**, not a coding worker.
+
+Its responsibilities are to:
+
+- find duplicate, split, stale, or contradictory progression/evidence documents across Tavall repositories;
+- consolidate implementation evidence into the correct progression owner without inventing product behavior;
+- keep required Notion ↔ GitHub shared documents synchronized 1:1;
+- preserve GENERAL as Notion-only;
+- sync optional document types only when explicitly requested or already designated dual-surface;
+- backfill and maintain the Documentation Update State section from verifiable Git/Notion history;
+- update links after document moves or renames;
+- use source, commits, PRs, tests, runtime evidence, and accepted Final/Design documents only as evidence for documentation state;
+- never turn a documentation reconciliation run into opportunistic production-code work.
+
+A documentation-only pass may use the repository's authorized documentation fast path for PR → `main` promotion when checks pass and the change contains no production code, runtime configuration, schema, dependency, or executable behavior changes.
+
 ## 4. Final Tech and Design Document
 
 The final tech/design document is the main source of truth for one system.
@@ -196,6 +237,8 @@ They must not:
 
 Update progression in the same coherent change as the implementation/audit evidence it reports.
 
+Progression consolidation may merge or retire duplicate trackers, but only after preserving unique evidence and updating inbound links. Consolidation must never erase a historical implementation claim merely because the current state changed; superseded evidence should remain attributable to the source commit or archived history.
+
 ## 8. Folder and Delegation Rules
 
 System documentation lives beneath the narrowest owning system folder when the repository has a system-doc tree:
@@ -244,6 +287,10 @@ Before accepting a documentation change, confirm:
 
 - [ ] Document type/lifecycle/authority are explicit.
 - [ ] Shared quality policy and repository/system specialization have correct precedence.
+- [ ] Required Notion ↔ GitHub surface placement is correct for the document type.
+- [ ] 1:1 shared documents were reconciled on both surfaces, or the unresolved sync gap is explicitly recorded.
+- [ ] GENERAL remains Notion-only unless TJ explicitly changed the rule.
+- [ ] The Documentation Update State footer exists and contains only documentation-state metadata.
 - [ ] Root/delegated routing appears before enough duplicate detail for readers to stop early.
 - [ ] A root summary does not compete with a delegated chapter for the same mechanics/examples.
 - [ ] Multi-topic architecture guidance names every specialized chapter readers must inspect.
@@ -260,3 +307,51 @@ Before accepting a documentation change, confirm:
 - [ ] Production examples are linked inline to source instead of copied into a competing evidence catalog.
 - [ ] Links resolve and examples use current repository/module/class names.
 - [ ] Obsolete drafts are removed, archived, or clearly marked so they cannot compete with accepted contracts.
+
+## 11. Documentation Update State
+
+Every maintained document ends with one dedicated collapsed **Documentation Update State** section. This section is metadata about the document itself. It must not contain product state, engineering acceptance state, implementation TODOs, design decisions, or roadmap work.
+
+Use two tables:
+
+1. **Current Locations** — where the logical document currently lives on each applicable surface.
+2. **Update History** — an append-only event log of document creation, content updates, synchronization, moves, renames, archive/restoration, imports, and historical backfill.
+
+Required current-location columns:
+
+| Surface | Sync State | Location | Last Updated | Evidence |
+| --- | --- | --- | --- | --- |
+| GitHub / Notion / other designated surface | `PRIMARY`, `1:1`, `NOT_APPLICABLE`, or explicit temporary drift state | Current path or page | ISO-8601 timestamp with timezone | Commit, PR, page/revision metadata, or other verifiable source |
+
+Required update-history columns:
+
+| Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| ISO-8601 timestamp with timezone | GitHub / Notion / designated surface | `CREATED`, `UPDATED`, `SYNCED`, `MOVED`, `RENAMED`, `ARCHIVED`, `RESTORED`, `IMPORTED`, or `BACKFILLED` | Location after the event | Prior path/page when applicable | Commit SHA, PR, or page metadata | Optional short explanation |
+
+For Git-backed documents, historical backfill should use repository commit history for the file, including rename/move history. Prefer evidence equivalent to `git log --follow --name-status -- <path>` or GitHub's commit/file history. Preserve the original commit timestamp and SHA. Use rename detection when available; do not invent a move or rename that cannot be supported by history.
+
+For Notion, record future updates at synchronization time and backfill only history that can be verified from available page metadata, revision/export evidence, prior synchronization records, or linked Git history. A current `last_edited_time` proves the latest edit time, not every historical Notion edit. Missing revision history is a gap, not an invitation to hallucinate a very organized past.
+
+When a document moves or is renamed, preserve the old location in Update History and update Current Locations. The footer travels with the logical document.
+
+For historical repositories, the consolidation loop should backfill these rows incrementally across `TavallStudios/tavall-docs` and other TavallStudios repositories rather than rewriting unrelated document content.
+
+<details>
+<summary>Documentation Update State</summary>
+
+### Current Locations
+
+| Surface | Sync State | Location | Last Updated | Evidence |
+| --- | --- | --- | --- | --- |
+| GitHub | `1:1` | `TavallStudios/tavall-docs/docs/quality/DOCUMENTATION_STANDARDS.md` | 2026-09-26T09:22:00-07:00 | Docs-only PR for the Notion/GitHub 1:1 policy migration. |
+| Notion | `1:1` | [Tavall Documentation Standards](https://app.notion.com/p/3e738458ddfd813aa513f13de0975985?pvs=204) | 2026-09-26T09:22:00-07:00 | Notion twin created during the same documentation pass. |
+
+### Update History
+
+| Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2026-09-26T09:22:00-07:00 | Notion | `CREATED` | `Tavall / Tavall Documentation Standards` | — | Notion page creation | Created as the requested 1:1 shared counterpart to the GitHub documentation standards. |
+| 2026-09-26T09:22:00-07:00 | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/DOCUMENTATION_STANDARDS.md` | Same path | Docs-only PR | Added 1:1 surface placement, progression consolidation automation, and documentation update-state rules. |
+
+</details>
