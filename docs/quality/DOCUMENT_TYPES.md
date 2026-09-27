@@ -95,7 +95,7 @@ Use [PRODUCT_DOCUMENT_TEMPLATE.md](PRODUCT_DOCUMENT_TEMPLATE.md).
 
 ### Style reference
 
-**Tavall Contractors — Product, Marketplace & Growth Operating Record** is the strongest current precedent: product thesis, customer/provider flows, marketplace surfaces, fulfillment, acquisition, monetization, evidence boundaries, and commercial priorities.
+**Tavall Contractors — Product, Marketplace & Growth Operating Record** is the strongest current precedent: product thesis, customer/provider flows, marketplace surfaces, fulfillment, acquisition, monetization boundaries, evidence, and growth priorities.
 
 ## USER EXPERIENCE
 
@@ -289,13 +289,14 @@ All maintained documents follow the shared `DOC TODO:` maintenance-handoff contr
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PENDING_SYNC` | `TavallStudios/tavall-docs/docs/quality/DOCUMENT_TYPES.md` | 2026-09-27 2:58 PM PDT | Direct docs-only update to `main`; PROGRESSION hierarchy formalized. |
-| Notion | `PENDING_SYNC` | `Tavall / Tavall Documentation Types — GENERAL, ARTICLE, PRODUCT & USER EXPERIENCE` | 2026-09-27 11:54 AM PDT | Needs the matching PROGRESSION taxonomy update. |
+| GitHub | `1:1` | `TavallStudios/tavall-docs/docs/quality/DOCUMENT_TYPES.md` | 2026-09-27 3:02 PM PDT | Direct docs-only update to `main`; PROGRESSION hierarchy and template synced. |
+| Notion | `1:1` | `Tavall / Tavall Documentation Types — GENERAL, ARTICLE, PRODUCT, USER EXPERIENCE, PROGRESSION & DEPLOYMENT` | 2026-09-27 3:02 PM PDT | Notion taxonomy updated with module/system PROGRESSION ownership, table timelines, aggregation, and sync rules. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| 2026-09-27 3:02 PM PDT | Notion | `SYNCED` | `Tavall / Tavall Documentation Types — GENERAL, ARTICLE, PRODUCT, USER EXPERIENCE, PROGRESSION & DEPLOYMENT` | Same page | Notion page update | Added canonical module/system PROGRESSION scopes, timeline-table rules, aggregation authority, and required footer/sync behavior. |
 | 2026-09-27 2:58 PM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/DOCUMENT_TYPES.md` | Same path | Direct docs-only update to `main`. | Formalized module/system PROGRESSION scopes, table timelines, aggregation authority, module-type lens, and required footer/sync behavior. |
 | 2026-09-27 11:54 AM PDT | Notion | `SYNCED` | `Tavall / Tavall Documentation Types — GENERAL, ARTICLE, PRODUCT & USER EXPERIENCE` | Same page | Notion page update | Added Deployment type, relationships, lifecycle, and template link. |
 | 2026-09-27 11:54 AM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/DOCUMENT_TYPES.md` | Same path | Direct docs-only update to `main`. | Added Deployment type, ownership, lifecycle, naming, and sync rules. |
