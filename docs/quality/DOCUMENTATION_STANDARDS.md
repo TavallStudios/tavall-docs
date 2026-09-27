@@ -1,8 +1,8 @@
 # Tavall Documentation Standards
 
 > **Status:** Active  
-> **Applies to:** Tavall system, architecture, command, message, format, progression, operational, and quality documentation  
-> **Purpose:** Keep each document's authority clear and prevent planned behavior, implementation status, and final contracts from collapsing into one contradictory pile.
+> **Applies to:** Tavall system, architecture, command, message, format, progression, deployment, repository README, operational, and quality documentation  
+> **Purpose:** Keep each document's authority clear and prevent planned behavior, implementation status, deployment state, and final contracts from collapsing into one contradictory pile.
 
 ## 1. Core Rules
 
@@ -48,6 +48,21 @@ Documentation should reduce ambiguity. Producing three files that disagree with 
 A TavallStudios Git repository must not hand-maintain `AGENT.md` or `AGENTS.md` unless explicitly allowlisted because a required external tool mandates that tracked path. Actual Tavall agent definitions under explicit agent-definition directories (e.g., `plugins/tavall-ai/agents/<agent>/agent.md` or `/srv/dev-storage/.ai/plugins/Tavall/agents/`) are exempt.
 
 Authored engineering guidance, architecture rules, workflow instructions, and contribution requirements belong in normal repository documentation (`CONTRIBUTING.md`, `README.md`, `docs/architecture/**`, etc.) and the canonical organization authority in `TavallStudios/tavall-docs`.
+
+### Repository and Module README Policy
+
+Repository and module READMEs are **orientation and routing surfaces**, not competing design, architecture, progression, deployment, Git-workflow, or engineering-policy documents.
+
+Canonical README policy and templates live in:
+
+- [README_STANDARDS.md](README_STANDARDS.md);
+- [PRIVATE_REPOSITORY_README_TEMPLATE.md](PRIVATE_REPOSITORY_README_TEMPLATE.md);
+- [PUBLIC_REPOSITORY_README_TEMPLATE.md](PUBLIC_REPOSITORY_README_TEMPLATE.md);
+- [MODULE_README_TEMPLATE.md](MODULE_README_TEMPLATE.md).
+
+Every real source/build module with an independent responsibility boundary has its own README. Module repository-structure graphs visibly mark the current module in **bold** with `← This Module`. Private repository READMEs optimize for getting work done; public repository READMEs optimize for external understanding, adoption, proof, and contribution.
+
+A README `Documentation` section routes to the real owning documents. Do not create a second `Documentation Index` section or duplicate the content of those documents. A deployable README shows only basic current deployment orientation and links the owning Deployment document for the complete current/historical record.
 
 ### Canonical Implementation and Tool Authority
 
@@ -127,6 +142,7 @@ Tavall uses Notion and GitHub as coordinated documentation surfaces, but not eve
 | Design Draft / Final | Required | Required | 1:1 shared document. |
 | Technical Draft / Final | Required | Required | 1:1 shared document. |
 | Progression / Evidence | Required | Required | 1:1 shared document. |
+| Deployment | Required for deployable systems | Required for deployable systems | 1:1 shared operational deployment record. |
 | GENERAL | Required | Prohibited by default | Notion-only. Do not create or mirror GENERAL documents in GitHub unless TJ explicitly changes the rule. |
 | ARTICLE / PRODUCT / USER EXPERIENCE | Allowed | By request | Share only when explicitly requested or when a narrower owning rule designates the document as dual-surface. |
 | Quality / standards / operational / reference documents | Allowed | Allowed | Share by request or explicit document-specific policy. This document is explicitly dual-surface. |
@@ -135,7 +151,7 @@ A 1:1 shared document is one logical document with two surface representations, 
 
 When a shared document changes, update both surfaces in the same coherent documentation pass whenever practical. Do not intentionally leave one surface as a stale secondary copy. If drift is discovered, reconcile from verifiable current evidence rather than guessing which prose is newer.
 
-GENERAL remains the human-readable rendezvous point in Notion. It may link to shared Design, Technical, and Progression documents, but it must not be committed to GitHub merely to make the surfaces symmetrical. Symmetry is useful. Pointless duplication is how humans manufacture chores for future humans.
+GENERAL remains the human-readable rendezvous point in Notion. It may link to shared Design, Technical, Progression, and Deployment documents, but it must not be committed to GitHub merely to make the surfaces symmetrical. Symmetry is useful. Pointless duplication is how humans manufacture chores for future humans.
 
 Other document types are shared only by request. A document-specific rule may opt a quality or operational document into 1:1 synchronization without changing the default for its whole type.
 
@@ -249,12 +265,13 @@ System documentation lives beneath the narrowest owning system folder when the r
 docs/<system>/
 ├── SOME_SYSTEM_FINAL.md
 ├── SOME_SYSTEM_PROGRESSION.md
+├── SOME_SYSTEM_DEPLOYMENT.md
 ├── SOME_SYSTEM_COMMANDS_AND_PERMISSIONS_DRAFT.md
 ├── SOME_SYSTEM_MESSAGES_AND_FORMATS_DRAFT.md
 └── imgs/
 ```
 
-Only create files the system actually needs.
+Only create files the system actually needs. `SOME_SYSTEM_DEPLOYMENT.md` exists only for an independently deployable system; a repository with one unambiguous deployable system may use `DEPLOYMENT.md` instead.
 
 Cross-project engineering policy belongs under `docs/quality`, including:
 
@@ -292,6 +309,8 @@ Before accepting a documentation change, confirm:
 - [ ] Required Notion ↔ GitHub surface placement is correct for the document type.
 - [ ] 1:1 shared documents were reconciled on both surfaces, or the unresolved sync gap is explicitly recorded.
 - [ ] GENERAL remains Notion-only unless TJ explicitly changed the rule.
+- [ ] Deployment documents exist only for independently deployable systems and preserve exact current/history evidence without replacing Progression or Technical authority.
+- [ ] Repository/module READMEs route to owning docs and do not become competing architecture/progression/deployment/Git documents.
 - [ ] The Documentation Update State footer exists and contains only documentation-state metadata.
 - [ ] Human-facing times use a 12-hour Pacific Time clock with `AM`/`PM` and the applicable `PST`/`PDT` label.
 - [ ] Root/delegated routing appears before enough duplicate detail for readers to stop early.
@@ -347,13 +366,14 @@ For historical repositories, the consolidation loop should backfill these rows i
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `1:1` | `TavallStudios/tavall-docs/docs/quality/DOCUMENTATION_STANDARDS.md` | 2026-09-26 9:22 AM PDT | Docs-only PR for the Notion/GitHub 1:1 policy migration. |
-| Notion | `1:1` | [Tavall Documentation Standards](https://app.notion.com/p/3e738458ddfd813aa513f13de0975985?pvs=204) | 2026-09-26 9:22 AM PDT | Notion twin created during the same documentation pass. |
+| GitHub | `1:1` | `TavallStudios/tavall-docs/docs/quality/DOCUMENTATION_STANDARDS.md` | 2026-09-27 11:45 AM PDT | Direct docs-only update to `main`; README and Deployment policy integration. |
+| Notion | `1:1` | [Tavall Documentation Standards](https://app.notion.com/p/3e738458ddfd813aa513f13de0975985?pvs=204) | 2026-09-26 9:22 AM PDT | Existing Notion twin; synchronization required for this update. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| 2026-09-27 11:45 AM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/DOCUMENTATION_STANDARDS.md` | Same path | Direct docs-only update to `main`. | Added README routing authority and required 1:1 Deployment placement. |
 | 2026-09-26 9:22 AM PDT | Notion | `CREATED` | `Tavall / Tavall Documentation Standards` | — | Notion page creation | Created as the requested 1:1 shared counterpart to the GitHub documentation standards. |
 | 2026-09-26 9:22 AM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/DOCUMENTATION_STANDARDS.md` | Same path | Docs-only PR | Added 1:1 surface placement, progression consolidation automation, and documentation update-state rules. |
 
