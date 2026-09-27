@@ -244,7 +244,7 @@ No Tavall CI Cloud job, immutable artifact, frozen delivery bundle, DEVELOPMENT 
 - The docs staging child PR #31 now includes the current `staging/quality` root commit, and Draft root PR #34 restores the active `staging/quality` -> `main` ancestry after the prior root was promoted. Both PRs remain Draft; no merge to `main` occurred. Docs validation on the merged child head passed (`trackedDocs=33`).
 - Exact-head CI definition planning: **60/60 pass**, correct source identity, zero plan failures. This does not claim any configured repository build ran.
 - Live Cloud status: Agent, Control, and developer storage are ready; the selected DEVELOPMENT Environment remains blocked as described above.
-- `tavall-docs` checked-in architecture/progression exports are updated through PR #31. This client has no live Notion connector, so Notion was not written or represented as updated.
+- At the 2026-09-26 snapshot, the checked-in Notion exports were the available mirror and no live Notion write was made. The Cloud Progression twin was synchronized from the merged GitHub progression on 2026-09-27 after Cloud PR #414.
 
 ## Open rollout pull requests
 
