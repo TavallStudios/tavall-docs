@@ -90,9 +90,11 @@ Tavall internal dependency composition uses exact source builds or immutable Tav
 
 ### Source, event, and execution providers
 
-GitHub is an optional source/event/check adapter. GitHub Bot may receive repository events and project typed Tavall CI evidence into GitHub Checks. The source identity and the Tavall CI/CD run do not require GitHub API identities: CI accepts an exact provider-neutral repository and commit, then runs through Tavall Cloud's existing `DEVELOPMENT_SHARED` machine Executor. `origin=github-bot` is caller provenance only; it is not a build, release, artifact, or deployment identity.
+GitHub is an optional source/event/check integration. A GitHub App or other configured provider adapter may deliver repository events to the Tavall GitHub Bot, which submits a typed Tavall CI request and projects typed results into GitHub Checks. Direct operator callers use the Tavall CI API/Console/CLI. The source identity and the Tavall CI/CD run do not require GitHub API identities: CI accepts an exact provider-neutral repository and commit, then runs through Tavall Cloud's existing `DEVELOPMENT_SHARED` machine Executor. `origin=github-bot` is caller provenance only; it is not a build, release, artifact, or deployment identity.
 
-The self-hosted `tavall-github-runner` account, when present, belongs to the GitHub Actions service. It can forward an event or typed CI request; it does not own build execution or receive host/CONTROL authority. The typed Tavall CI Cloud adapter submits a durable Cloud CI job, and CONTROL selects and records the existing `DEVELOPMENT_SHARED` machine Executor and node. The build receives resolved exact sources and immutable tool/artifact inputs, without GitHub API credentials. GitHub Actions may request a run or display its result; Tavall build, test, architecture, integration, artifact-production, and deployment compute runs through Tavall Cloud Executors.
+No GitHub Actions workflow or job may trigger, schedule, execute, carry, publish, or gate a Tavall CI/CD job, artifact, deployment, or promotion. Tavall CI/CD build, test, architecture, integration, artifact-production, and deployment compute runs through the local Tavall job system and Tavall Cloud Executors. GitHub Checks are projected by the Bot/API integration; Actions workflows are not used as event bridges or result relays.
+
+The legacy `tavall-github-runner` operating-system account belonged to a self-hosted GitHub Actions service; it is not the Tavall GitHub Bot or a Tavall Executor. It has no role in the CI/CD execution path and must not receive host or CONTROL authority. The typed Tavall CI Cloud adapter submits a durable Cloud CI job, and CONTROL selects and records the existing `DEVELOPMENT_SHARED` machine Executor and node. Builds receive resolved exact sources and immutable tool/artifact inputs without GitHub API credentials.
 
 Once exact sources, CI evidence, and immutable artifacts are available in Tavall authorities, delivery, deployment, readiness, promotion, and rollback use Tavall CI, Tavall Storage, and Tavall Cloud. They do not call GitHub. If the selected source provider is unavailable before exact-source materialization, that source-resolution attempt is blocked; another configured source provider may supply the same exact identity without changing the CI/CD identity.
 
@@ -153,7 +155,7 @@ GitHub is the authoritative surface for:
 - GitHub events.
 - Check presentation.
 
-GitHub-hosted Actions are not Tavall's primary CI/CD compute plane.
+GitHub Actions jobs are not part of Tavall CI/CD. All Tavall CI/CD jobs run through the local Tavall job system and Tavall Cloud Executors.
 
 Tavall builds, tests, architecture checks, integration tests, runtime validation, and deployment validation run on Tavall/local infrastructure unless a narrower documented exception explicitly requires another provider.
 
@@ -723,15 +725,9 @@ Application, data, and infrastructure rollback may have different safety rules.
 
 ## GitHub Actions
 
-GitHub Actions may be used as a bounded integration or adapter where needed.
+GitHub Actions workflows and jobs must not be used to trigger, schedule, transport, execute, publish, or gate Tavall CI/CD work. Tavall repositories must not depend on Actions job status as CI/CD evidence.
 
-It must not become the hidden primary Tavall CI/CD implementation.
-
-Do not move Tavall builds, integration tests, architecture validation, or deployment authority into hosted Actions merely because a YAML file can technically run them.
-
-The primary Tavall execution plane remains Tavall/local infrastructure.
-
-GitHub remains the SCM, review, event, and status surface.
+GitHub remains an SCM, review, source-event, and Check surface. A GitHub App/Bot calls Tavall CI directly and projects its typed result through the GitHub API. Operators may also invoke Tavall CI through its typed API, Console, or CLI. These paths submit work to Tavall Cloud's existing job system, where CONTROL selects the authorized shared machine Executor.
 
 ## Validation Rules
 
@@ -752,27 +748,25 @@ Before CI evidence is accepted:
 
 ## Anti-Patterns
 
-### GitHub Actions as the CI Platform
+### GitHub Actions as Tavall CI/CD job infrastructure
 
 Bad:
 
 ```text
-GitHub PR
+GitHub PR / event
    |
    v
-GitHub Actions
+GitHub Actions job
    |
-   +--> build
-   +--> integration tests
-   +--> architecture tests
-   +--> deployment
+   +--> request CI
+   +--> run checks
+   +--> publish artifacts
+   +--> deploy
 ```
 
 Why?
 
-It moves Tavall execution authority back into an external hosted CI plane and bypasses the infrastructure built to perform that work.
-
-GitHub should request and display CI, not secretly become CI.
+It creates jobs on GitHub and bypasses the local Tavall job system and Executor placement authority. The Bot/API integration sends a typed request directly to Tavall CI; GitHub Checks display the result afterward.
 
 ### CI Policy in Tavall Cloud
 
@@ -861,7 +855,7 @@ Use an exact source candidate or an approved immutable release.
 - Tavall Cloud owns execution, deployment, storage, placement, routing, and runtime infrastructure.
 - `tavall-cloud-api` is the generic boundary between CI and Cloud capabilities.
 - Tavall GitHub Bot owns GitHub events, exact-head reconciliation, and Check publication.
-- GitHub-hosted Actions are not Tavall's primary CI compute plane.
+- GitHub Actions jobs are not part of Tavall CI/CD; CI/CD execution and evidence belong to Tavall CI and Tavall Cloud Executors.
 - CI definitions are source-controlled under `.tavallci`.
 - CI is exact-source fenced.
 - Cross-repository development uses exact-source composition, not floating `SNAPSHOT` selection.
