@@ -82,7 +82,8 @@ Deployment record: [`<RUNTIME>_DEPLOYMENT.md`](...)
 - **Runtime:** `Self` / `<runtime-module>` / `None`
 - **Current PR Stack:** ...
 - **Runtime PR:** ... <only when a non-runtime module's current work is carried by or depends on an owning runtime PR>
-- Repository/module-specific development notes or owning development documents: ...
+- **Development workflow owner/docs:** ... <link the existing repository/module-local development or contribution document when one exists; otherwise delegate to Tavall Docs without restating shared rules>
+- Repository/module-specific development notes: ...
 
 Shared Git policy remains delegated to Tavall Docs. Do not add a generic `Git Workflow` metadata row.
 
