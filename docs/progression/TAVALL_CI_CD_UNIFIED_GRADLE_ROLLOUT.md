@@ -151,6 +151,27 @@ The canonical DEVELOPMENT Environment `5848c5ff-a2a2-4da4-bd25-9cff8e558433` rem
 
 The live Environment Git-status command returns `STALE_VERSION` for TCI and Cloud because their bound paths do not match the exact Environment sources. The TCI path is clean at `ef59a10f97668bf38f47616649353e8cca1199bb` on `working/unified-gradle-cicd-20260924`, while the Environment binds `staging/platform@bde88767288ab38df8a157818e923d11bb6537ae`. The Cloud path is clean at `2f1c94b47d38d86a1724067c0ab8be39bd512178` on `main`, while the Environment binds `staging/runtime@7a822eb5abae923b92a085b768f19026ec2f0ea6`. These branch/source mismatches were preserved. Cloud PR #395 is merged into the existing `staging/runtime` branch at `7a822eb5…`; its tree matches the PR source `2738f25a…` (tree `668d2ff…`). The active Agent still runs `/opt/tavall-cloud/tavall-cloud-agent.jar` at SHA-256 `b3edfd20…`, and the shared-CI helper remains SHA-256 `5f91dfc9…`; neither matches the plan-aware staged runtime path.
 
+### Cloud CI exact-source Environment — 2026-09-27
+
+To bind the Cloud `.tavallci` required sources, I created an additional **EPHEMERAL** Environment in the existing lane `f75e1548-c7ab-470a-85aa-b38a770dae78`; the durable TCI Environment above was not replaced or edited. After Cloud PR #398 advanced `staging/runtime`, the same ephemeral Environment was re-resolved in place to source snapshot `b0fff546bff5670a703a736b048f91afbf5851296a7d0ab6cf7700e0bf1e6ad9`, generation 2, with `DEDICATED` work and `SHARED` services. Resource policy inherits the lane's `SYSTEM` default.
+
+| Role | Exact source binding |
+| --- | --- |
+| `PRIMARY` | `TavallStudios/tavall-cloud@c8ed22d9c1cafa6d6ba651ef08050b3c9a94b5f3` (`staging/runtime`) |
+| `SHARED_DEP` | `TavallStudios/function-catalog@ae385f8885a218c5b075dcdb1f0bac2892681ea4` (`agent/pr-1219763363-20-c5dadb1db245`, pinned by Cloud `.tavallci`) |
+| `SHARED_DEP` | `TavallStudios/tavall-cache@c8ed248a895ea0853c107aadd058165b61aae29d` (`main`) |
+| `SHARED_DEP` | `TavallStudios/tavall-concurrency@a83f7bd74d1753f44bbf099c98c8f40345612beb` (`main`) |
+| `SHARED_DEP` | `TavallStudios/tavall-database@ec7672bc435872c999e6955c34ca90dab35bc9c4` (`main`) |
+| `SHARED_DEP` | `TavallStudios/tavall-di@d8ecc02302522e3acecc586c3f9e918007c82ca3` (`main`) |
+| `SHARED_DEP` | `TavallStudios/tavall-eventbus@d66d9c7b7b3329d8f852e7986c20111b454308a8` (`main`) |
+| `SHARED_DEP` | `TavallStudios/tavall-logging@793e26bd9969ef372d3f9410e5a563e78499ed43` (`main`) |
+| `SHARED_DEP` | `TavallStudios/tavall-reflection@8d7ea5937c505da8a9c9fdf84112b2a137217dcd` (`main`) |
+| `SHARED_DEP` | `TavallStudios/tavall-registry@7d8f64d05332dacbe04e55a3b68ad82ad702068d` (`main`) |
+| `SHARED_DEP` | `TavallStudios/tavall-scheduler@2738e7925470f739e596971fa7a1a3213a7694b1` (`main`) |
+| `SHARED_DEP` | `TavallStudios/Tavall-Architecture-Tests@c0863bfe9e3ea38e4872eb295856e69bed30eb28` (`working/unified-ci-exact-artifact-versions-20260925`) |
+
+CONTROL Git status confirms the Function Catalog, Cache, and Architecture Tests materializations are clean at those exact SHAs. The Cloud primary checkout is blocked with `PROVIDER_FAILURE: Workspace UUID mismatch` at `/srv/dev-storage/workspaces/tavall-cloud` (existing workspace ID `6cbfdbc7-8c75-43e3-b84c-79d637fdd332`, requested `8dc5a485-b849-4c43-8af9-771f2e8b415e`). The Environment remains `BLOCKED`; no job was started. The staged Cloud source contains the dedicated, source-snapshot-scoped workspace authority, but the installed Agent still predates it. The new ephemeral Environment is retained for reuse after the plan-aware Agent is provisioned.
+
 A read-only inventory of `/opt/tavall-cloud/tavall-cloud-agent.jar` and its retained backups found no candidate with the frozen-plan CLI option; every inspected JAR reports it absent. The shared CI runtime tool cache is empty, and the content-addressed Cloud artifact root has no object matching the installed Agent digest. No retained binary is a safe substitute for a newly built plan-aware artifact.
 
 The broader artifact search found `/srv/tavall-storage/development/workspaces/tavall-ci/repo_root/tavall-ci-runtime/build/distributions/tavall-ci-runtime-0.1.0.zip` (SHA-256 `33c85b8f799e408a5eb8527e99f3afac4ee27c2cf0df160344a75fd8b5f6cc13`). Its enclosing `workspace.json` claims `main@00ac2dad0c5c3854357d9cf6252c7962885d1159`, while the nested Git checkout is clean at `working/unified-gradle-cicd-20260924@f3ad7942eb775a232e1e92a91a6baf101cac1444`; no TCI job result or artifact-reference record was found beside it. This is an `unknown/preserve` workspace build output, not a verified immutable TCI artifact, and it was not deployed. A retained Cloud `allJar` at `/srv/tavall-storage/development/workspaces/tavall-cloud-github-credential-fix` hashes to the installed Agent SHA and likewise lacks the frozen-plan interface.
