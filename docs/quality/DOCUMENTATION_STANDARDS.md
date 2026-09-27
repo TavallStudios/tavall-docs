@@ -16,6 +16,7 @@ Documentation is part of the engineering contract.
 - Extend an existing owning document before creating a parallel document for the same rules.
 - Split a supporting document only when the main owning document would become materially harder to read.
 - The main system document must summarize and link any delegated command, permission, format, message, schema, or integration document.
+- Human-facing times in maintained documentation use a **12-hour clock in Pacific Time**, with `AM`/`PM` and `PST` or `PDT` as actually applicable. Do not use 24-hour clock, raw UTC, or bare numeric offsets for ordinary prose/tables unless quoting an external or machine-owned timestamp. When an external machine timestamp matters, preserve it as evidence and also give the reader the Pacific-time equivalent.
 
 ### Delegated Architecture Documentation
 
@@ -150,6 +151,7 @@ Its responsibilities are to:
 - preserve GENERAL as Notion-only;
 - sync optional document types only when explicitly requested or already designated dual-surface;
 - backfill and maintain the Documentation Update State section from verifiable Git/Notion history;
+- normalize human-facing document times to the canonical 12-hour Pacific Time format while preserving machine/original timestamps as evidence when needed;
 - update links after document moves or renames;
 - use source, commits, PRs, tests, runtime evidence, and accepted Final/Design documents only as evidence for documentation state;
 - never turn a documentation reconciliation run into opportunistic production-code work.
@@ -291,6 +293,7 @@ Before accepting a documentation change, confirm:
 - [ ] 1:1 shared documents were reconciled on both surfaces, or the unresolved sync gap is explicitly recorded.
 - [ ] GENERAL remains Notion-only unless TJ explicitly changed the rule.
 - [ ] The Documentation Update State footer exists and contains only documentation-state metadata.
+- [ ] Human-facing times use a 12-hour Pacific Time clock with `AM`/`PM` and the applicable `PST`/`PDT` label.
 - [ ] Root/delegated routing appears before enough duplicate detail for readers to stop early.
 - [ ] A root summary does not compete with a delegated chapter for the same mechanics/examples.
 - [ ] Multi-topic architecture guidance names every specialized chapter readers must inspect.
@@ -321,17 +324,17 @@ Required current-location columns:
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub / Notion / other designated surface | `PRIMARY`, `1:1`, `NOT_APPLICABLE`, or explicit temporary drift state | Current path or page | ISO-8601 timestamp with timezone | Commit, PR, page/revision metadata, or other verifiable source |
+| GitHub / Notion / other designated surface | `PRIMARY`, `1:1`, `NOT_APPLICABLE`, or explicit temporary drift state | Current path or page | 12-hour Pacific Time (`YYYY-MM-DD h:mm AM/PM PST/PDT`) | Commit, PR, page/revision metadata, or other verifiable source |
 
 Required update-history columns:
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| ISO-8601 timestamp with timezone | GitHub / Notion / designated surface | `CREATED`, `UPDATED`, `SYNCED`, `MOVED`, `RENAMED`, `ARCHIVED`, `RESTORED`, `IMPORTED`, or `BACKFILLED` | Location after the event | Prior path/page when applicable | Commit SHA, PR, or page metadata | Optional short explanation |
+| 12-hour Pacific Time (`YYYY-MM-DD h:mm AM/PM PST/PDT`) | GitHub / Notion / designated surface | `CREATED`, `UPDATED`, `SYNCED`, `MOVED`, `RENAMED`, `ARCHIVED`, `RESTORED`, `IMPORTED`, or `BACKFILLED` | Location after the event | Prior path/page when applicable | Commit SHA, PR, or page metadata | Optional short explanation |
 
-For Git-backed documents, historical backfill should use repository commit history for the file, including rename/move history. Prefer evidence equivalent to `git log --follow --name-status -- <path>` or GitHub's commit/file history. Preserve the original commit timestamp and SHA. Use rename detection when available; do not invent a move or rename that cannot be supported by history.
+For Git-backed documents, historical backfill should use repository commit history for the file, including rename/move history. Prefer evidence equivalent to `git log --follow --name-status -- <path>` or GitHub's commit/file history. Preserve the original commit timestamp and SHA as evidence, but render human-facing table times in the canonical 12-hour Pacific format. Use rename detection when available; do not invent a move or rename that cannot be supported by history.
 
-For Notion, record future updates at synchronization time and backfill only history that can be verified from available page metadata, revision/export evidence, prior synchronization records, or linked Git history. A current `last_edited_time` proves the latest edit time, not every historical Notion edit. Missing revision history is a gap, not an invitation to hallucinate a very organized past.
+For Notion, record future updates at synchronization time and backfill only history that can be verified from available page metadata, revision/export evidence, prior synchronization records, or linked Git history. A current `last_edited_time` proves the latest edit time, not every historical Notion edit. Convert human-facing displayed times to the canonical Pacific format; preserve source-native timestamps in evidence/notes when they matter. Missing revision history is a gap, not an invitation to hallucinate a very organized past.
 
 When a document moves or is renamed, preserve the old location in Update History and update Current Locations. The footer travels with the logical document.
 
@@ -344,14 +347,14 @@ For historical repositories, the consolidation loop should backfill these rows i
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `1:1` | `TavallStudios/tavall-docs/docs/quality/DOCUMENTATION_STANDARDS.md` | 2026-09-26T09:22:00-07:00 | Docs-only PR for the Notion/GitHub 1:1 policy migration. |
-| Notion | `1:1` | [Tavall Documentation Standards](https://app.notion.com/p/3e738458ddfd813aa513f13de0975985?pvs=204) | 2026-09-26T09:22:00-07:00 | Notion twin created during the same documentation pass. |
+| GitHub | `1:1` | `TavallStudios/tavall-docs/docs/quality/DOCUMENTATION_STANDARDS.md` | 2026-09-26 9:22 AM PDT | Docs-only PR for the Notion/GitHub 1:1 policy migration. |
+| Notion | `1:1` | [Tavall Documentation Standards](https://app.notion.com/p/3e738458ddfd813aa513f13de0975985?pvs=204) | 2026-09-26 9:22 AM PDT | Notion twin created during the same documentation pass. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| 2026-09-26T09:22:00-07:00 | Notion | `CREATED` | `Tavall / Tavall Documentation Standards` | — | Notion page creation | Created as the requested 1:1 shared counterpart to the GitHub documentation standards. |
-| 2026-09-26T09:22:00-07:00 | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/DOCUMENTATION_STANDARDS.md` | Same path | Docs-only PR | Added 1:1 surface placement, progression consolidation automation, and documentation update-state rules. |
+| 2026-09-26 9:22 AM PDT | Notion | `CREATED` | `Tavall / Tavall Documentation Standards` | — | Notion page creation | Created as the requested 1:1 shared counterpart to the GitHub documentation standards. |
+| 2026-09-26 9:22 AM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/DOCUMENTATION_STANDARDS.md` | Same path | Docs-only PR | Added 1:1 surface placement, progression consolidation automation, and documentation update-state rules. |
 
 </details>
