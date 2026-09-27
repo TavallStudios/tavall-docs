@@ -18,7 +18,7 @@ The repository-level documentation pass is complete for the priority repositorie
 
 The GitHub Actions bridge is documented as retired from Tavall CI/CD. Its host runner and broker are disabled; Cloud PR #399 remains open against `staging/runtime` to remove the remaining Cloud Actions workflows. Tavall CI PR #17 defines the typed local caller through Cloud Executors, but remains Draft because the immutable CI runtime artifact has not yet been materialized and no exact-source live run is claimed.
 
-The active DEVELOPMENT Environment remains blocked. Documentation merges and successful static checks do not clear the Cloud Executor, artifact, DEVELOPMENT readiness, or STAGING readiness gates.
+Cloud CONTROL and storage are ready, but no DEVELOPMENT Environment is attached to this session. No exact-source live Executor run, artifact, DEVELOPMENT readiness, or STAGING readiness is claimed; documentation merges and static checks do not clear those gates.
 
 ## Current source and Environment identities
 
