@@ -6,6 +6,20 @@
 
 This is a progression record, not a second architecture authority. The accepted boundary is in [`docs/quality/CI_CD.md`](../quality/CI_CD.md): repositories own build intent and project topology; Tavall CI owns build policy, planning, exact-source composition, evidence, and delivery identity; Cloud Executors own provisioning and execution; Tavall Cloud owns environments, service state, deployment materialization, routing, and runtime readiness.
 
+## Documentation consolidation update — 2026-09-27
+
+The repository-level documentation pass is complete for the priority repositories. These merges record documentation state only and do not establish runtime readiness.
+
+| Repository | Documentation change | Main state |
+| --- | --- | --- |
+| `TavallStudios/tavall-ci` | PR #16 consolidated the CI system design, progression, and module references. | Merged to `main` at `3147a350f30d6c4004f9e6819400c7b9801564b1`. |
+| `TavallStudios/tavall-cloud` | PRs #400–406 and #408–414 consolidated the system and module surfaces, retired Actions-route status, and progression metadata. PR #407 was a duplicate closed without merge. | Latest documentation merge is PR #414 at `cb9c293f2d6b7d6e4ea05aab51b57569848cb7ea`. |
+| Cloud Progression Notion twin | Full content was synchronized from the merged GitHub progression after PR #414. | Verified at 2026-09-27 10:06 AM PDT. |
+
+The GitHub Actions bridge is documented as retired from Tavall CI/CD. Its host runner and broker are disabled; Cloud PR #399 remains open against `staging/runtime` to remove the remaining Cloud Actions workflows. Tavall CI PR #17 defines the typed local caller through Cloud Executors, but remains Draft because the immutable CI runtime artifact has not yet been materialized and no exact-source live run is claimed.
+
+The active DEVELOPMENT Environment remains blocked. Documentation merges and successful static checks do not clear the Cloud Executor, artifact, DEVELOPMENT readiness, or STAGING readiness gates.
+
 ## Current source and Environment identities
 
 | Item | Exact identity |
@@ -237,7 +251,7 @@ No Tavall CI Cloud job, immutable artifact, frozen delivery bundle, DEVELOPMENT 
 - [`tavall-cloud#397`](https://github.com/TavallStudios/tavall-cloud/pull/397) — Draft `staging/runtime` root to `main`; head contains the Cloud #395 merge at `7a822eb5…`.
 - [`tavall-cloud#395`](https://github.com/TavallStudios/tavall-cloud/pull/395) — merged into `staging/runtime` at `7a822eb5abae923b92a085b768f19026ec2f0ea6`; not promoted to `main`.
 - [`tavall-cloud#398`](https://github.com/TavallStudios/tavall-cloud/pull/398) — merged into `staging/runtime` at `c8ed22d9c1cafa6d6ba651ef08050b3c9a94b5f3`; packages the byte-identical live `tavall-cloud-control/.tavallcd/cd.yaml` under Cloud's existing services template leaf.
-- [`tavall-cloud#399`](https://github.com/TavallStudios/tavall-cloud/pull/399) — Draft child of `staging/runtime`; removes the remaining Cloud Actions operation/validation workflows and retires their bridge documentation.
+- [`tavall-cloud#399`](https://github.com/TavallStudios/tavall-cloud/pull/399) — Draft child of `staging/runtime`; removes the remaining Cloud Actions operation/validation workflows. The host runner and broker are disabled; the documentation retirement is merged through Cloud PRs #410–414.
 - [`tavall-ci#15`](https://github.com/TavallStudios/tavall-ci/pull/15) — Draft `staging/platform` root to `main`, head `bde88767288ab38df8a157818e923d11bb6537ae`.
 - [`tavall-ci#14`](https://github.com/TavallStudios/tavall-ci/pull/14) — merged exact-source CI/CD implementation into `staging/platform` at `bde88767288ab38df8a157818e923d11bb6537ae`; feature source head `f3ad7942eb775a232e1e92a91a6baf101cac1444`.
 - [`tavall-github-bot#2`](https://github.com/TavallStudios/tavall-github-bot/pull/2) — Draft Bot staging root to `main`.
@@ -252,4 +266,4 @@ No Tavall CI Cloud job, immutable artifact, frozen delivery bundle, DEVELOPMENT 
 - **Implementation:** install the exact Cloud Agent recovery and serialized-plan support through the existing immutable-artifact/CONTROL authority path; complete any required GitHub Bot application composition before treating event ingress as operational.
 - **Validation:** clear the existing Cloud Architecture Tests backlog and run representative exact Gradle jobs on the real Tavall Cloud Executor; validate shared-cache concurrency there.
 - **Deployment:** provision an immutable bootstrap artifact for `tavall-cloud-control`, repair the exact-source Environment via updated CONTROL, then produce artifact/bundle lineage, DEVELOPMENT readiness, and STAGING readiness.
-- **External/provider:** no GitHub provider outage was observed. Live Notion update remains unavailable in this client.
+- **External/provider:** no GitHub provider outage was observed. The prior Notion update limitation was cleared for the Cloud Progression twin; the CI/CD, DEVELOPMENT, and STAGING readiness gates remain separate.
