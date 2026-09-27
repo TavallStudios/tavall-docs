@@ -12,7 +12,7 @@ Use this directory for shared Tavall engineering and documentation policy.
 - [README_STANDARDS.md](README_STANDARDS.md) — canonical private/public repository README and module README routing/ownership rules.
 - [PRIVATE_REPOSITORY_README_TEMPLATE.md](PRIVATE_REPOSITORY_README_TEMPLATE.md) — operational private repository root README template.
 - [PUBLIC_REPOSITORY_README_TEMPLATE.md](PUBLIC_REPOSITORY_README_TEMPLATE.md) — external-facing public repository root README template.
-- [MODULE_README_TEMPLATE.md](MODULE_README_TEMPLATE.md) — per-module orientation, runtime, documentation, deployment-summary, and development-routing template.
+- [MODULE_README_TEMPLATE.md](MODULE_README_TEMPLATE.md) — per-module orientation, runtime, module-local `.tavallci`, documentation, deployment-summary, and development-routing template.
 - [DEPLOYMENT_DOCUMENT_TEMPLATE.md](DEPLOYMENT_DOCUMENT_TEMPLATE.md) — current/historical deployment record template for independently deployable systems.
 - [GENERAL_DOCUMENT_TEMPLATE.md](GENERAL_DOCUMENT_TEMPLATE.md) — readable product/system overview.
 - [ARTICLE_DOCUMENT_TEMPLATE.md](ARTICLE_DOCUMENT_TEMPLATE.md) — reasoning/argument/explainer.
@@ -23,6 +23,8 @@ Use this directory for shared Tavall engineering and documentation policy.
 ## Engineering Policy
 
 - [CODE_ARCHITECTURE.md](CODE_ARCHITECTURE.md)
+- [CI_CD.md](CI_CD.md) — organization-wide CI/CD, module-local `.tavallci`, exact-source, evidence, artifact, staging, and promotion policy.
+- [VERSIONING.md](VERSIONING.md) — source/build/resolution/artifact/release identity, snapshot numbering, and artifact-channel policy.
 - [MODULE_TYPES.md](MODULE_TYPES.md) — canonical `RUNTIME`, `APPLICATION`, `API`, `LIBRARY`, `PROVIDER`, `ADAPTER`, `INTEGRATION`, `TOOLING`, and `TEST_SUITE` module classifications plus runtime-ownership rules.
 - [WEB_ARCHITECTURE.md](WEB_ARCHITECTURE.md) — canonical Tavall web architecture, beginning with endpoint and routing ownership.
 - [GIT_WORKFLOW.md](GIT_WORKFLOW.md)

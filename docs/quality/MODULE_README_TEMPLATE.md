@@ -2,7 +2,7 @@
 
 > **Status:** Active template  
 > **Use when:** Creating or materially restructuring the README of a real Tavall source/build module  
-> **Authority:** [README_STANDARDS.md](README_STANDARDS.md) and [MODULE_TYPES.md](MODULE_TYPES.md)
+> **Authority:** [README_STANDARDS.md](README_STANDARDS.md), [MODULE_TYPES.md](MODULE_TYPES.md), and [CI_CD.md](CI_CD.md)
 
 Use only sections that apply. Delete instructional placeholders when instantiating the template.
 
@@ -21,11 +21,13 @@ Use only sections that apply. Delete instructional placeholders when instantiati
 
 ## Repository Structure
 
-<Show enough of the parent repository to orient the reader. The current module must be bold and suffixed with `← This Module`.>
+<Show enough of the parent repository to orient the reader. The current module must be bold and suffixed with `← This Module`. Every source/build module carries its own `.tavallci/` definition.>
 
 <repo>/
 ├── module-a/
 ├── **module-name/ ← This Module**
+│   ├── .tavallci/
+│   │   └── ci.yaml
 │   ├── src/main/...
 │   └── src/test/...
 ├── module-c/
@@ -80,12 +82,13 @@ Deployment record: [`<RUNTIME>_DEPLOYMENT.md`](...)
 
 - **Module Type:** `API` / `RUNTIME` / `APPLICATION` / `LIBRARY` / `PROVIDER` / `ADAPTER` / `INTEGRATION` / `TOOLING` / `TEST_SUITE`
 - **Runtime:** `Self` / `<runtime-module>` / `None`
+- **CI Definition:** [`.tavallci/ci.yaml`](.tavallci/ci.yaml) — required for every Tavall source/build module; repository-root `.tavallci` may aggregate but does not replace this module-local definition.
 - **Current PR Stack:** ...
 - **Runtime PR:** ... <only when a non-runtime module's current work is carried by or depends on an owning runtime PR>
 - **Development workflow owner/docs:** ... <link the existing repository/module-local development or contribution document when one exists; otherwise delegate to Tavall Docs without restating shared rules>
 - Repository/module-specific development notes: ...
 
-Shared Git policy remains delegated to Tavall Docs. Do not add a generic `Git Workflow` metadata row.
+Shared Git policy remains delegated to Tavall Docs. Shared CI/CD and versioning policy remain delegated to `CI_CD.md` and `VERSIONING.md`. Do not add a generic `Git Workflow` metadata row.
 
 ## Documentation Update State
 
@@ -96,9 +99,10 @@ Shared Git policy remains delegated to Tavall Docs. Do not add a generic `Git Wo
 
 - Module READMEs are contextual routing surfaces, not mini root READMEs.
 - The repository structure graph must visibly mark the current module as **bold** and `← This Module`.
+- Every Tavall source/build module must carry `.tavallci/ci.yaml`; root repository CI aggregation cannot substitute for the module-local definition.
 - Non-runtime modules point to the runtime module and current runtime PR/PR stack when applicable.
 - Deployment history belongs in the Deployment document, not here.
-- Do not duplicate shared build/test/Git/architecture rules.
+- Do not duplicate shared build/test/Git/architecture/versioning rules.
 
 ## Documentation Update State
 
@@ -109,13 +113,14 @@ Shared Git policy remains delegated to Tavall Docs. Do not add a generic `Git Wo
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/MODULE_README_TEMPLATE.md` | 2026-09-27 11:45 AM PDT | Direct docs-only update to `main`. |
-| Notion | `NOT_APPLICABLE` | — | 2026-09-27 11:45 AM PDT | Quality template; no 1:1 requirement assigned. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/MODULE_README_TEMPLATE.md` | 2026-09-27 2:46 PM PDT | Docs sync branch `docs/ci-versioning-notion-sync-20260927`. |
+| Notion | `NOT_APPLICABLE` | — | 2026-09-27 2:46 PM PDT | Quality template; no 1:1 requirement assigned. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| 2026-09-27 2:46 PM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/MODULE_README_TEMPLATE.md` | Same path | Docs sync branch `docs/ci-versioning-notion-sync-20260927` | Added required module-local `.tavallci/ci.yaml` shape and CI/versioning routing. |
 | 2026-09-27 11:45 AM PDT | GitHub | `CREATED` | `TavallStudios/tavall-docs/docs/quality/MODULE_README_TEMPLATE.md` | — | Direct docs-only update to `main`. | Added canonical module README template including current-module tree marking and runtime/PR routing. |
 
 </details>
