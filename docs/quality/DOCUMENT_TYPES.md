@@ -1,7 +1,7 @@
 # Tavall Documentation Types
 
 > **Status:** Active  
-> **Applies to:** Tavall GENERAL, ARTICLE, PRODUCT, USER EXPERIENCE, Design, Technical, Progression/Evidence, Deployment, and related documentation  
+> **Applies to:** Tavall GENERAL, ARTICLE, PRODUCT, USER EXPERIENCE, Design, Technical, PROGRESSION, Deployment, and related documentation  
 > **Purpose:** Make each document answer one kind of question well instead of forcing product explanation, reasoning, commercial strategy, UX, technical architecture, implementation evidence, and live deployment state into one giant file.
 
 Document **type** and document **lifecycle** are separate dimensions.
@@ -16,10 +16,10 @@ Document **type** and document **lifecycle** are separate dimensions.
 | `USER EXPERIENCE` | What is it actually like for different users? | Target journeys, archetypes, friction, outcomes, recovery, and cross-surface continuity. |
 | Design | What behavior is accepted? | Detailed product/system behavior according to the current Draft/Final lifecycle. |
 | Technical | How is it built and operated? | Detailed implementation/architecture contract according to the current Draft/Final lifecycle. |
-| Progression / Evidence | What is actually implemented and validated? | Audited implementation state tied to source/evidence. |
+| `PROGRESSION` | What is actually implemented, integrated, validated, blocked, or missing? | Evidence-backed implementation state and chronological progression for one module or aggregate system. |
 | Deployment | What is deployed where now, and what deployment transitions occurred? | Current and historical deployment state for one independently deployable system tied to exact source/release/runtime evidence. |
 
-These types are complementary. A monetizable product may legitimately have GENERAL + PRODUCT + USER EXPERIENCE + ARTICLEs + Design + Technical + Progression + Deployment. A small internal library may need only GENERAL + Design + Technical and no Deployment document at all.
+These types are complementary. A monetizable product may legitimately have GENERAL + PRODUCT + USER EXPERIENCE + ARTICLEs + Design + Technical + PROGRESSION + Deployment. Every real source/build module with an independent responsibility boundary has a module-scoped PROGRESSION document even when it does not need PRODUCT, USER EXPERIENCE, or Deployment.
 
 ## GENERAL
 
@@ -36,7 +36,7 @@ A strong GENERAL document:
 - explains how the major pieces compose;
 - identifies important audiences and boundaries;
 - distinguishes live, being-built, designed, unresolved, and retired behavior;
-- links applicable PRODUCT, USER EXPERIENCE, ARTICLE, Design, Technical, Progression/Evidence, Deployment, and implementation sources.
+- links applicable PRODUCT, USER EXPERIENCE, ARTICLE, Design, Technical, PROGRESSION, Deployment, and implementation sources.
 
 GENERAL is normally continuously maintained rather than promoted to a frozen Final state.
 
@@ -138,6 +138,55 @@ Use [USER_EXPERIENCE_DOCUMENT_TEMPLATE.md](USER_EXPERIENCE_DOCUMENT_TEMPLATE.md)
 
 The promoted Notion records **Cross-product first-join routing and product-specific lobby identities** and **Gameplay-first progressive tutorials after product selection** are useful UX-source examples. They are not full USER EXPERIENCE documents yet, but already capture first-time vs returning behavior, product-specific journeys, skip/replay, re-entry, accessibility, and cross-product handoff concerns.
 
+## PROGRESSION
+
+PROGRESSION is the evidence-backed implementation record.
+
+It answers:
+
+- what is demonstrably implemented, integrated, validated, blocked, superseded, or still missing;
+- what the present implementation state is;
+- which meaningful transitions produced that state;
+- what evidence supports each claim;
+- what remains before the owning module or system reaches its next accepted state.
+
+### Progression scopes
+
+PROGRESSION has two canonical scopes:
+
+| Scope | Required for | Authority |
+| --- | --- | --- |
+| `MODULE` | Every real source/build module with an independent responsibility boundary | Detailed implementation history, integration state, validation, dependencies, blockers, and next work for that module. |
+| `SYSTEM` | A system composed from modules or subordinate systems when aggregate progression is meaningful | Aggregate state, cross-module milestones, system validation, readiness, dependencies, blockers, and next system work. |
+
+Module PROGRESSION is authoritative for module state. System PROGRESSION is authoritative for the aggregate interpretation of child module/system states.
+
+A system PROGRESSION document links child Progression documents and records only transitions that materially change system capability, integration, validation, readiness, ownership, or architecture. It must not become a duplicate ledger of every child milestone.
+
+### Timeline representation
+
+Every PROGRESSION document uses a chronological table ordered **oldest → newest**.
+
+Module timelines use:
+
+| Date / Time | State | Progression | Evidence | Result / Remaining Work |
+| --- | --- | --- | --- | --- |
+
+System timelines use:
+
+| Date / Time | State | System Progression | Affected Modules / Systems | Evidence | Result / Remaining Work |
+| --- | --- | --- | --- | --- | --- |
+
+Timeline rows represent meaningful state transitions or completed slices, not every commit. Current state belongs in a separate `Current Status` table rather than being inferred from the final timeline row.
+
+Progression follows the owning module type. API progression emphasizes contracts and consumer adoption; runtime progression emphasizes lifecycle/integration/operational acceptance; libraries emphasize reusable capability and consumers; integrations emphasize cross-system connectivity and recovery; test suites emphasize coverage and regression evidence. The complete canonical lens is defined by [MODULE_TYPES.md](MODULE_TYPES.md) and [PROGRESSION_DOCUMENT_TEMPLATE.md](PROGRESSION_DOCUMENT_TEMPLATE.md).
+
+PROGRESSION does not define new product behavior and does not replace Deployment. Deployment owns what exact release/runtime is or was deployed; PROGRESSION owns whether implementation and validation are actually complete.
+
+Every maintained PROGRESSION document is a required **1:1 GitHub ↔ Notion** document and ends with the canonical collapsed `Documentation Update State` footer. The footer describes the document itself and must never be mixed into the software Progression Timeline.
+
+Use [PROGRESSION_DOCUMENT_TEMPLATE.md](PROGRESSION_DOCUMENT_TEMPLATE.md).
+
 ## DEPLOYMENT
 
 Deployment is the operational record for one **independently deployable system**.
@@ -156,7 +205,7 @@ Deployment does **not** own:
 - deployment architecture or runtime design — Technical owns that contract;
 - CI/CD, promotion, release, or Git policy — the owning CI/CD and Git documents own those rules;
 - accepted product behavior — Design owns that contract;
-- implementation completeness or validation state — Progression / Evidence owns that evidence.
+- implementation completeness or validation state — PROGRESSION owns that evidence.
 
 The README for a deployable repository/module provides only a basic current deployment summary and links the Deployment document for the complete current and historical record.
 
@@ -171,7 +220,7 @@ Every maintained Deployment document for a deployable Tavall system is a require
 
 Use [DEPLOYMENT_DOCUMENT_TEMPLATE.md](DEPLOYMENT_DOCUMENT_TEMPLATE.md).
 
-## Relationship to Design, Technical, Evidence, and Deployment
+## Relationship to Design, Technical, Progression, and Deployment
 
 GENERAL is the rendezvous point for applicable specialized docs.
 
@@ -182,7 +231,7 @@ GENERAL
 ├── USER EXPERIENCE        lived user journeys, when applicable
 ├── Design Draft / Final   accepted behavior contract
 ├── Technical Draft / Final implementation/architecture contract
-├── Progression / Evidence audited implementation state
+├── PROGRESSION            audited implementation state + historical progression
 └── Deployment             current + historical deployed runtime state, when applicable
 ```
 
@@ -193,7 +242,7 @@ Important authority rules:
 - A USER EXPERIENCE story does not prove implementation.
 - GENERAL summarizes; it does not duplicate every specialist document.
 - Accepted Design/Technical docs own their assigned contract.
-- Progression/Evidence owns audited implementation state at its recorded source.
+- PROGRESSION owns audited implementation state and evidence-backed chronological progression.
 - Deployment owns actual deployed runtime/source state and deployment-event history, not implementation completeness or deployment design.
 
 Every specialized document should backlink to its owning GENERAL document where one exists. GENERAL should link all applicable specialized docs.
@@ -207,7 +256,7 @@ Type and lifecycle are independent.
 - PRODUCT may be Idea / Designing / Validating / Launching / Active / Retired, with explicit approval where commercial commitments require it.
 - USER EXPERIENCE may be Exploring / Draft / Reviewed / Accepted / Needs Revalidation.
 - Design and Technical retain the formal Draft/Final lifecycle originally defined in the early repository `DOC_DESIGN_RULES.md` lineage (Project Novus/Tavall MC `b5e690859` / `dff1d0818`) and now fully codified and superseded by [DOCUMENTATION_STANDARDS.md](DOCUMENTATION_STANDARDS.md) (Sections 3–8) and this taxonomy.
-- Progression/Evidence remains evidence at a recorded source state.
+- PROGRESSION remains an active evidence record while its module/system exists; Current Status changes while Progression Timeline preserves historical transitions.
 - Deployment remains an active operational record while the deployable system exists; its current snapshot changes, while Deployment History remains append-only.
 
 Existing combined Tech + Design Final documents may satisfy both Design and Technical links until there is a material reason to split them. Do not create mass rename churn merely because the taxonomy improved.
@@ -223,13 +272,14 @@ All maintained documents follow the shared `DOC TODO:` maintenance-handoff contr
 - [ ] Keep templates synchronized with this taxonomy.
 - [x] Reconcile the detailed Design/Technical type and lifecycle rules with the active `DOC_DESIGN_RULES.md` lineage (completed: lineage verified through commits `b5e690859`/`dff1d0818` and fully superseded by canonical `DOCUMENTATION_STANDARDS.md` and `DOCUMENT_TYPES.md`).
 - [x] Add the Deployment document type and template for independently deployable systems.
-- [ ] Add explicit examples/templates for additional document types only when a real recurring documentation responsibility appears.
+- [x] Add the canonical PROGRESSION module/system scope model and template.
 
 ### System next steps
 
 - [ ] Classify existing Tavall documents by type as they are touched; avoid rename churn for healthy existing documents.
 - [ ] Split mixed documents only when separation materially improves readability or authority.
 - [ ] Build USER EXPERIENCE docs for major Tavall products from existing flow/onboarding/player-experience evidence.
+- [ ] Add/synchronize module and system PROGRESSION documents from verifiable evidence; do not fabricate historical events.
 - [ ] Add/synchronize Deployment documents as deployable modules and services are touched; do not fabricate historical deployments that cannot be evidenced.
 
 <details>
@@ -239,13 +289,14 @@ All maintained documents follow the shared `DOC TODO:` maintenance-handoff contr
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `1:1` | `TavallStudios/tavall-docs/docs/quality/DOCUMENT_TYPES.md` | 2026-09-27 11:54 AM PDT | Direct docs-only update to `main`; Deployment type added and synced. |
-| Notion | `1:1` | [Tavall Documentation Types — GENERAL, ARTICLE, PRODUCT & USER EXPERIENCE](https://app.notion.com/p/3d838458ddfd817f86ece9558577b0a6?pvs=204) | 2026-09-27 11:54 AM PDT | Notion taxonomy page updated with Deployment ownership and 1:1 requirement. |
+| GitHub | `PENDING_SYNC` | `TavallStudios/tavall-docs/docs/quality/DOCUMENT_TYPES.md` | 2026-09-27 2:58 PM PDT | Direct docs-only update to `main`; PROGRESSION hierarchy formalized. |
+| Notion | `PENDING_SYNC` | `Tavall / Tavall Documentation Types — GENERAL, ARTICLE, PRODUCT & USER EXPERIENCE` | 2026-09-27 11:54 AM PDT | Needs the matching PROGRESSION taxonomy update. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| 2026-09-27 2:58 PM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/DOCUMENT_TYPES.md` | Same path | Direct docs-only update to `main`. | Formalized module/system PROGRESSION scopes, table timelines, aggregation authority, module-type lens, and required footer/sync behavior. |
 | 2026-09-27 11:54 AM PDT | Notion | `SYNCED` | `Tavall / Tavall Documentation Types — GENERAL, ARTICLE, PRODUCT & USER EXPERIENCE` | Same page | Notion page update | Added Deployment type, relationships, lifecycle, and template link. |
 | 2026-09-27 11:54 AM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/DOCUMENT_TYPES.md` | Same path | Direct docs-only update to `main`. | Added Deployment type, ownership, lifecycle, naming, and sync rules. |
 
