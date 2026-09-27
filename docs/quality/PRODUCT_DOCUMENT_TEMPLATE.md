@@ -66,7 +66,7 @@ Distinguish designed commercial behavior from actual production capability and v
 - **Design:** TODO
 - **Technical:** TODO
 - **ARTICLEs:** TODO / N/A
-- **Progression / Evidence:** TODO
+- **PROGRESSION:** TODO
 
 ---
 
@@ -81,3 +81,25 @@ Distinguish designed commercial behavior from actual production capability and v
 ### System next steps
 
 - [ ] Track only directly represented commercial validation, launch, fulfillment, or monetization work.
+
+## Documentation Update State
+
+<Use the canonical Documentation Update State footer from DOCUMENTATION_STANDARDS.md.>
+
+<details>
+<summary>Documentation Update State</summary>
+
+### Current Locations
+
+| Surface | Sync State | Location | Last Updated | Evidence |
+| --- | --- | --- | --- | --- |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/PRODUCT_DOCUMENT_TEMPLATE.md` | 2026-09-27 3:03 PM PDT | Direct docs-only update to `main`. |
+| Notion | `NOT_APPLICABLE` | — | 2026-09-27 3:03 PM PDT | Quality template; PRODUCT instances sync only when designated. |
+
+### Update History
+
+| Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2026-09-27 3:03 PM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/PRODUCT_DOCUMENT_TEMPLATE.md` | Same path | Direct docs-only update to `main`. | Added required Documentation Update State footer and canonical PROGRESSION naming. |
+
+</details>
