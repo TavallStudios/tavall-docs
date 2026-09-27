@@ -70,6 +70,17 @@ routes:
       - docs/quality/DOCUMENTATION_STANDARDS.md
       - docs/quality/DOCUMENT_TYPES.md
 
+  - id: progression-document-template
+    signals:
+      - progression document template
+      - module progression document
+      - system progression document
+      - module progression
+      - system progression
+    documents:
+      - docs/quality/PROGRESSION_DOCUMENT_TEMPLATE.md
+      - docs/quality/MODULE_TYPES.md
+
   - id: deployment-document
     signals:
       - deployment document
