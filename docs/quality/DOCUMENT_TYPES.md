@@ -1,8 +1,8 @@
 # Tavall Documentation Types
 
 > **Status:** Active  
-> **Applies to:** Tavall GENERAL, ARTICLE, PRODUCT, USER EXPERIENCE, Design, Technical, PROGRESSION, Deployment, and related documentation  
-> **Purpose:** Make each document answer one kind of question well instead of forcing product explanation, reasoning, commercial strategy, UX, technical architecture, implementation evidence, and live deployment state into one giant file.
+> **Applies to:** Tavall GENERAL, ARTICLE, PRODUCT, USER EXPERIENCE, DESIGN, Technical, PROGRESSION, Deployment, and related documentation  
+> **Purpose:** Make each document answer one kind of question well instead of forcing product explanation, reasoning, commercial strategy, UX, accepted design, technical architecture, implementation evidence, and live deployment state into one giant file.
 
 Document **type** and document **lifecycle** are separate dimensions.
 
@@ -14,12 +14,12 @@ Document **type** and document **lifecycle** are separate dimensions.
 | `ARTICLE` | Why do we believe or choose this? | Reasoning, argument, policy position, and explainer. |
 | `PRODUCT` | How does this create and capture value? | Commercial/product operating model for systems that sell or should sell something. |
 | `USER EXPERIENCE` | What is it actually like for different users? | Target journeys, archetypes, friction, outcomes, recovery, and cross-surface continuity. |
-| Design | What behavior is accepted? | Detailed product/system behavior according to the current Draft/Final lifecycle. |
+| `DESIGN` | What behavior, boundaries, composition, and consumer shape are accepted? | Detailed accepted or proposed design contract for one module or aggregate system according to the current Draft/Final lifecycle. |
 | Technical | How is it built and operated? | Detailed implementation/architecture contract according to the current Draft/Final lifecycle. |
 | `PROGRESSION` | What is actually implemented, integrated, validated, blocked, or missing? | Evidence-backed implementation state and chronological progression for one module or aggregate system. |
 | Deployment | What is deployed where now, and what deployment transitions occurred? | Current and historical deployment state for one independently deployable system tied to exact source/release/runtime evidence. |
 
-These types are complementary. A monetizable product may legitimately have GENERAL + PRODUCT + USER EXPERIENCE + ARTICLEs + Design + Technical + PROGRESSION + Deployment. Every real source/build module with an independent responsibility boundary has a module-scoped PROGRESSION document even when it does not need PRODUCT, USER EXPERIENCE, or Deployment.
+These types are complementary. A monetizable product may legitimately have GENERAL + PRODUCT + USER EXPERIENCE + ARTICLEs + DESIGN + Technical + PROGRESSION + Deployment. Every real source/build module with an independent responsibility boundary has a module-scoped DESIGN document and a module-scoped PROGRESSION document even when it does not need PRODUCT, USER EXPERIENCE, or Deployment. Systems composed from modules or subordinate systems have a system-scoped DESIGN document whenever aggregate behavior, composition, ownership, or cross-module boundaries are meaningful.
 
 ## GENERAL
 
@@ -36,7 +36,7 @@ A strong GENERAL document:
 - explains how the major pieces compose;
 - identifies important audiences and boundaries;
 - distinguishes live, being-built, designed, unresolved, and retired behavior;
-- links applicable PRODUCT, USER EXPERIENCE, ARTICLE, Design, Technical, PROGRESSION, Deployment, and implementation sources.
+- links applicable PRODUCT, USER EXPERIENCE, ARTICLE, DESIGN, Technical, PROGRESSION, Deployment, and implementation sources.
 
 GENERAL is normally continuously maintained rather than promoted to a frozen Final state.
 
@@ -60,7 +60,7 @@ An ARTICLE normally:
 6. distinguishes implemented, being built, and designed behavior;
 7. ends with a memorable thesis.
 
-ARTICLE is persuasive/explanatory, not a substitute for Design or Technical authority.
+ARTICLE is persuasive/explanatory, not a substitute for DESIGN or Technical authority.
 
 ARTICLEs may later feed public website copy, partner briefs, videos, social material, or other Tavall Content outputs after review.
 
@@ -130,13 +130,43 @@ For each meaningful archetype, document:
 
 UX docs may include journey tables, branching scenarios, screenshots, prototypes, visual references, analytics/playtest evidence, or narrative walkthroughs.
 
-USER EXPERIENCE should tell Design, QA, and engineering what human experience must be preserved without dictating implementation internals.
+USER EXPERIENCE should tell DESIGN, QA, and engineering what human experience must be preserved without dictating implementation internals.
 
 Use [USER_EXPERIENCE_DOCUMENT_TEMPLATE.md](USER_EXPERIENCE_DOCUMENT_TEMPLATE.md).
 
 ### Existing source precedents
 
 The promoted Notion records **Cross-product first-join routing and product-specific lobby identities** and **Gameplay-first progressive tutorials after product selection** are useful UX-source examples. They are not full USER EXPERIENCE documents yet, but already capture first-time vs returning behavior, product-specific journeys, skip/replay, re-entry, accessibility, and cross-product handoff concerns.
+
+## DESIGN
+
+DESIGN is the accepted or proposed behavior, ownership, composition, boundary, and consumer-shape contract for a module or aggregate system.
+
+It answers:
+
+- what the module/system is supposed to do;
+- what it owns and explicitly does not own;
+- how it composes with parent, child, and sibling boundaries;
+- what public/consumer-facing shape implementation must preserve;
+- which lifecycle, state, failure, recovery, compatibility, security, or interaction rules are part of the design contract;
+- what validation must eventually prove before implementation can claim design acceptance.
+
+### DESIGN scopes
+
+DESIGN has two canonical scopes:
+
+| Scope | Required for | Authority |
+| --- | --- | --- |
+| `MODULE` | Every real source/build module with an independent responsibility boundary | Module behavior, ownership, consumer/developer shape, extension points, composition contract, and boundaries with parent/sibling modules. |
+| `SYSTEM` | A system composed from modules or subordinate systems when aggregate behavior, composition, ownership, or cross-module boundaries are meaningful | Aggregate behavior, child composition, cross-module ownership, shared invariants, and system-level consumer/operator contract. |
+
+Module DESIGN is authoritative for the accepted design of that module. System DESIGN is authoritative for aggregate composition and system-level behavior, but it must link child DESIGN documents rather than restating every child contract.
+
+DESIGN does not replace Technical or PROGRESSION. Technical owns detailed implementation/architecture mechanics. PROGRESSION owns audited implementation and validation evidence. A DESIGN requirement is not proof that the code currently implements it.
+
+Every maintained DESIGN document is a required **1:1 GitHub ↔ Notion** document and follows the standard Draft/Final lifecycle. Surface-native formatting may differ, but scope, lifecycle, substantive rules, and authority must remain equivalent.
+
+Use [DESIGN_DOCUMENT_TEMPLATE.md](DESIGN_DOCUMENT_TEMPLATE.md).
 
 ## PROGRESSION
 
@@ -204,7 +234,7 @@ Deployment does **not** own:
 
 - deployment architecture or runtime design — Technical owns that contract;
 - CI/CD, promotion, release, or Git policy — the owning CI/CD and Git documents own those rules;
-- accepted product behavior — Design owns that contract;
+- accepted product behavior — DESIGN owns that contract;
 - implementation completeness or validation state — PROGRESSION owns that evidence.
 
 The README for a deployable repository/module provides only a basic current deployment summary and links the Deployment document for the complete current and historical record.
@@ -220,7 +250,7 @@ Every maintained Deployment document for a deployable Tavall system is a require
 
 Use [DEPLOYMENT_DOCUMENT_TEMPLATE.md](DEPLOYMENT_DOCUMENT_TEMPLATE.md).
 
-## Relationship to Design, Technical, Progression, and Deployment
+## Relationship to DESIGN, Technical, Progression, and Deployment
 
 GENERAL is the rendezvous point for applicable specialized docs.
 
@@ -229,7 +259,7 @@ GENERAL
 ├── ARTICLE(s)             reasoning / arguments
 ├── PRODUCT                commercial model, when applicable
 ├── USER EXPERIENCE        lived user journeys, when applicable
-├── Design Draft / Final   accepted behavior contract
+├── DESIGN Draft / Final   accepted module/system behavior and composition contract
 ├── Technical Draft / Final implementation/architecture contract
 ├── PROGRESSION            audited implementation state + historical progression
 └── Deployment             current + historical deployed runtime state, when applicable
@@ -237,11 +267,11 @@ GENERAL
 
 Important authority rules:
 
-- A persuasive ARTICLE does not override Design/Technical Final authority.
+- A persuasive ARTICLE does not override DESIGN/Technical Final authority.
 - A PRODUCT pricing or packaging idea does not silently become an entitlement or payment contract.
 - A USER EXPERIENCE story does not prove implementation.
 - GENERAL summarizes; it does not duplicate every specialist document.
-- Accepted Design/Technical docs own their assigned contract.
+- Accepted DESIGN/Technical docs own their assigned contract.
 - PROGRESSION owns audited implementation state and evidence-backed chronological progression.
 - Deployment owns actual deployed runtime/source state and deployment-event history, not implementation completeness or deployment design.
 
@@ -255,11 +285,11 @@ Type and lifecycle are independent.
 - ARTICLE may be Draft / Reviewed / Published / Historical.
 - PRODUCT may be Idea / Designing / Validating / Launching / Active / Retired, with explicit approval where commercial commitments require it.
 - USER EXPERIENCE may be Exploring / Draft / Reviewed / Accepted / Needs Revalidation.
-- Design and Technical retain the formal Draft/Final lifecycle originally defined in the early repository `DOC_DESIGN_RULES.md` lineage (Project Novus/Tavall MC `b5e690859` / `dff1d0818`) and now fully codified and superseded by [DOCUMENTATION_STANDARDS.md](DOCUMENTATION_STANDARDS.md) (Sections 3–8) and this taxonomy.
+- DESIGN and Technical retain the formal Draft/Final lifecycle originally defined in the early repository `DOC_DESIGN_RULES.md` lineage (Project Novus/Tavall MC `b5e690859` / `dff1d0818`) and now fully codified and superseded by [DOCUMENTATION_STANDARDS.md](DOCUMENTATION_STANDARDS.md) (Sections 3–8) and this taxonomy.
 - PROGRESSION remains an active evidence record while its module/system exists; Current Status changes while Progression Timeline preserves historical transitions.
 - Deployment remains an active operational record while the deployable system exists; its current snapshot changes, while Deployment History remains append-only.
 
-Existing combined Tech + Design Final documents may satisfy both Design and Technical links until there is a material reason to split them. Do not create mass rename churn merely because the taxonomy improved.
+Existing combined Tech + Design Final documents may satisfy both DESIGN and Technical links until there is a material reason to split them. During the organization-wide DESIGN rollout, preserve healthy combined documents when they already provide a clear module/system design contract; do not manufacture rename churn merely to satisfy a filename fashion.
 
 ## `DOC TODO:`
 
@@ -270,12 +300,14 @@ All maintained documents follow the shared `DOC TODO:` maintenance-handoff contr
 ### Document next steps
 
 - [ ] Keep templates synchronized with this taxonomy.
-- [x] Reconcile the detailed Design/Technical type and lifecycle rules with the active `DOC_DESIGN_RULES.md` lineage (completed: lineage verified through commits `b5e690859`/`dff1d0818` and fully superseded by canonical `DOCUMENTATION_STANDARDS.md` and `DOCUMENT_TYPES.md`).
+- [x] Reconcile the detailed DESIGN/Technical type and lifecycle rules with the active `DOC_DESIGN_RULES.md` lineage (completed: lineage verified through commits `b5e690859`/`dff1d0818` and fully superseded by canonical `DOCUMENTATION_STANDARDS.md` and `DOCUMENT_TYPES.md`).
 - [x] Add the Deployment document type and template for independently deployable systems.
 - [x] Add the canonical PROGRESSION module/system scope model and template.
+- [x] Add the canonical DESIGN module/system scope model, required 1:1 synchronization rule, and reusable template.
 
 ### System next steps
 
+- [ ] Reconcile every maintained TavallStudios repository, excluding the current hard-excluded repositories, so every real source/build module with an independent responsibility boundary has a module-scoped DESIGN document and aggregate systems have system-scoped DESIGN where meaningful.
 - [ ] Classify existing Tavall documents by type as they are touched; avoid rename churn for healthy existing documents.
 - [ ] Split mixed documents only when separation materially improves readability or authority.
 - [ ] Build USER EXPERIENCE docs for major Tavall products from existing flow/onboarding/player-experience evidence.
@@ -289,13 +321,15 @@ All maintained documents follow the shared `DOC TODO:` maintenance-handoff contr
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `1:1` | `TavallStudios/tavall-docs/docs/quality/DOCUMENT_TYPES.md` | 2026-09-27 3:02 PM PDT | Direct docs-only update to `main`; PROGRESSION hierarchy and template synced. |
-| Notion | `1:1` | `Tavall / Tavall Documentation Types — GENERAL, ARTICLE, PRODUCT, USER EXPERIENCE, PROGRESSION & DEPLOYMENT` | 2026-09-27 3:02 PM PDT | Notion taxonomy updated with module/system PROGRESSION ownership, table timelines, aggregation, and sync rules. |
+| GitHub | `1:1` | `TavallStudios/tavall-docs/docs/quality/DOCUMENT_TYPES.md` | 2026-09-27 4:40 PM PDT | Direct docs-only update to `main`; DESIGN module/system scope and template canonicalized. |
+| Notion | `1:1` | `Tavall / Tavall Documentation Types — GENERAL, DESIGN, ARTICLE, PRODUCT, USER EXPERIENCE, PROGRESSION & DEPLOYMENT` | 2026-09-27 4:40 PM PDT | Notion taxonomy synchronization required/completed in the same documentation pass. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| 2026-09-27 4:40 PM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/DOCUMENT_TYPES.md` | Same path | Direct docs-only update to `main`. | Added required MODULE/SYSTEM DESIGN scopes, 1:1 sync behavior, template routing, and org-wide rollout requirement. |
+| 2026-09-27 4:40 PM PDT | GitHub | `CREATED` | `TavallStudios/tavall-docs/docs/quality/DESIGN_DOCUMENT_TEMPLATE.md` | — | Commit `66e42cd4d7e3cbbd70bf0ed15678e2537d5557fb` | Added canonical reusable DESIGN template for module/system scope. |
 | 2026-09-27 3:02 PM PDT | Notion | `SYNCED` | `Tavall / Tavall Documentation Types — GENERAL, ARTICLE, PRODUCT, USER EXPERIENCE, PROGRESSION & DEPLOYMENT` | Same page | Notion page update | Added canonical module/system PROGRESSION scopes, timeline-table rules, aggregation authority, and required footer/sync behavior. |
 | 2026-09-27 2:58 PM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/DOCUMENT_TYPES.md` | Same path | Direct docs-only update to `main`. | Formalized module/system PROGRESSION scopes, table timelines, aggregation authority, module-type lens, and required footer/sync behavior. |
 | 2026-09-27 11:54 AM PDT | Notion | `SYNCED` | `Tavall / Tavall Documentation Types — GENERAL, ARTICLE, PRODUCT & USER EXPERIENCE` | Same page | Notion page update | Added Deployment type, relationships, lifecycle, and template link. |
