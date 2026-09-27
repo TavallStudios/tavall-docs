@@ -1,8 +1,8 @@
 # Tavall Documentation Types
 
 > **Status:** Active  
-> **Applies to:** Tavall GENERAL, ARTICLE, PRODUCT, USER EXPERIENCE, Design, Technical, Progression/Evidence, and related documentation  
-> **Purpose:** Make each document answer one kind of question well instead of forcing product explanation, reasoning, commercial strategy, UX, technical architecture, and implementation evidence into one giant file.
+> **Applies to:** Tavall GENERAL, ARTICLE, PRODUCT, USER EXPERIENCE, Design, Technical, Progression/Evidence, Deployment, and related documentation  
+> **Purpose:** Make each document answer one kind of question well instead of forcing product explanation, reasoning, commercial strategy, UX, technical architecture, implementation evidence, and live deployment state into one giant file.
 
 Document **type** and document **lifecycle** are separate dimensions.
 
@@ -17,8 +17,9 @@ Document **type** and document **lifecycle** are separate dimensions.
 | Design | What behavior is accepted? | Detailed product/system behavior according to the current Draft/Final lifecycle. |
 | Technical | How is it built and operated? | Detailed implementation/architecture contract according to the current Draft/Final lifecycle. |
 | Progression / Evidence | What is actually implemented and validated? | Audited implementation state tied to source/evidence. |
+| Deployment | What is deployed where now, and what deployment transitions occurred? | Current and historical deployment state for one independently deployable system tied to exact source/release/runtime evidence. |
 
-These types are complementary. A monetizable product may legitimately have GENERAL + PRODUCT + USER EXPERIENCE + ARTICLEs + Design + Technical + Progression. A small internal library may need only GENERAL + Design + Technical.
+These types are complementary. A monetizable product may legitimately have GENERAL + PRODUCT + USER EXPERIENCE + ARTICLEs + Design + Technical + Progression + Deployment. A small internal library may need only GENERAL + Design + Technical and no Deployment document at all.
 
 ## GENERAL
 
@@ -35,7 +36,7 @@ A strong GENERAL document:
 - explains how the major pieces compose;
 - identifies important audiences and boundaries;
 - distinguishes live, being-built, designed, unresolved, and retired behavior;
-- links applicable PRODUCT, USER EXPERIENCE, ARTICLE, Design, Technical, Progression/Evidence, and implementation sources.
+- links applicable PRODUCT, USER EXPERIENCE, ARTICLE, Design, Technical, Progression/Evidence, Deployment, and implementation sources.
 
 GENERAL is normally continuously maintained rather than promoted to a frozen Final state.
 
@@ -137,7 +138,40 @@ Use [USER_EXPERIENCE_DOCUMENT_TEMPLATE.md](USER_EXPERIENCE_DOCUMENT_TEMPLATE.md)
 
 The promoted Notion records **Cross-product first-join routing and product-specific lobby identities** and **Gameplay-first progressive tutorials after product selection** are useful UX-source examples. They are not full USER EXPERIENCE documents yet, but already capture first-time vs returning behavior, product-specific journeys, skip/replay, re-entry, accessibility, and cross-product handoff concerns.
 
-## Relationship to Design, Technical, and Evidence
+## DEPLOYMENT
+
+Deployment is the operational record for one **independently deployable system**.
+
+It answers:
+
+- which deployment targets exist;
+- what exact source/release/artifact is currently running at each target;
+- which runtime/service identity owns that deployment;
+- when the current deployment changed;
+- what evidence proves the deployment event;
+- what previous deploy/promote/replace/rollback/restore/disable/retire/failure events occurred.
+
+Deployment does **not** own:
+
+- deployment architecture or runtime design — Technical owns that contract;
+- CI/CD, promotion, release, or Git policy — the owning CI/CD and Git documents own those rules;
+- accepted product behavior — Design owns that contract;
+- implementation completeness or validation state — Progression / Evidence owns that evidence.
+
+The README for a deployable repository/module provides only a basic current deployment summary and links the Deployment document for the complete current and historical record.
+
+Naming:
+
+- use `<DEPLOYABLE_SYSTEM>_DEPLOYMENT.md` in a repository with multiple deployable systems;
+- use plain `DEPLOYMENT.md` only when one deployable system is unambiguous.
+
+Deployment History is append-only operational evidence. Replacing a deployment does not erase the previous event.
+
+Every maintained Deployment document for a deployable Tavall system is a required **1:1 GitHub ↔ Notion** document.
+
+Use [DEPLOYMENT_DOCUMENT_TEMPLATE.md](DEPLOYMENT_DOCUMENT_TEMPLATE.md).
+
+## Relationship to Design, Technical, Evidence, and Deployment
 
 GENERAL is the rendezvous point for applicable specialized docs.
 
@@ -148,7 +182,8 @@ GENERAL
 ├── USER EXPERIENCE        lived user journeys, when applicable
 ├── Design Draft / Final   accepted behavior contract
 ├── Technical Draft / Final implementation/architecture contract
-└── Progression / Evidence audited implementation state
+├── Progression / Evidence audited implementation state
+└── Deployment             current + historical deployed runtime state, when applicable
 ```
 
 Important authority rules:
@@ -159,6 +194,7 @@ Important authority rules:
 - GENERAL summarizes; it does not duplicate every specialist document.
 - Accepted Design/Technical docs own their assigned contract.
 - Progression/Evidence owns audited implementation state at its recorded source.
+- Deployment owns actual deployed runtime/source state and deployment-event history, not implementation completeness or deployment design.
 
 Every specialized document should backlink to its owning GENERAL document where one exists. GENERAL should link all applicable specialized docs.
 
@@ -172,6 +208,7 @@ Type and lifecycle are independent.
 - USER EXPERIENCE may be Exploring / Draft / Reviewed / Accepted / Needs Revalidation.
 - Design and Technical retain the formal Draft/Final lifecycle originally defined in the early repository `DOC_DESIGN_RULES.md` lineage (Project Novus/Tavall MC `b5e690859` / `dff1d0818`) and now fully codified and superseded by [DOCUMENTATION_STANDARDS.md](DOCUMENTATION_STANDARDS.md) (Sections 3–8) and this taxonomy.
 - Progression/Evidence remains evidence at a recorded source state.
+- Deployment remains an active operational record while the deployable system exists; its current snapshot changes, while Deployment History remains append-only.
 
 Existing combined Tech + Design Final documents may satisfy both Design and Technical links until there is a material reason to split them. Do not create mass rename churn merely because the taxonomy improved.
 
@@ -185,6 +222,7 @@ All maintained documents follow the shared `DOC TODO:` maintenance-handoff contr
 
 - [ ] Keep templates synchronized with this taxonomy.
 - [x] Reconcile the detailed Design/Technical type and lifecycle rules with the active `DOC_DESIGN_RULES.md` lineage (completed: lineage verified through commits `b5e690859`/`dff1d0818` and fully superseded by canonical `DOCUMENTATION_STANDARDS.md` and `DOCUMENT_TYPES.md`).
+- [x] Add the Deployment document type and template for independently deployable systems.
 - [ ] Add explicit examples/templates for additional document types only when a real recurring documentation responsibility appears.
 
 ### System next steps
@@ -192,3 +230,4 @@ All maintained documents follow the shared `DOC TODO:` maintenance-handoff contr
 - [ ] Classify existing Tavall documents by type as they are touched; avoid rename churn for healthy existing documents.
 - [ ] Split mixed documents only when separation materially improves readability or authority.
 - [ ] Build USER EXPERIENCE docs for major Tavall products from existing flow/onboarding/player-experience evidence.
+- [ ] Add/synchronize Deployment documents as deployable modules and services are touched; do not fabricate historical deployments that cannot be evidenced.
