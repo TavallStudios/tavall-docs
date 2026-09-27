@@ -153,6 +153,12 @@ The live Environment Git-status command returns `STALE_VERSION` for TCI and Clou
 
 ### Cloud CI exact-source Environment — 2026-09-27
 
+Cloud's `.tavallci` selects `function-catalog@ae385f8885a218c5b075dcdb1f0bac2892681ea4` and requires exact shared sources for Cache, Concurrency, Database, DI, Event Bus, Logging, Reflection, Registry, Scheduler, and Architecture Tests. I created a separate **EPHEMERAL** Environment `d93dc1c9-8c3f-43fd-9d2a-76adf1582b01` in lane `f75e1548-c7ab-470a-85aa-b38a770dae78`, then re-resolved it in place after Cloud `staging/runtime` advanced to `c8ed22d9c1cafa6d6ba651ef08050b3c9a94b5f3`. It is generation 2, source snapshot `b0fff546bff5670a703a736b048f91afbf5851296a7d0ab6cf7700e0bf1e6ad9`, `EPHEMERAL`, `DEDICATED` work, `SHARED` services, and inherits the lane's `SYSTEM` resources. The durable TCI Environment `5848c5ff…` was not changed.
+
+CONTROL confirms the Function Catalog, Cache, and Architecture Tests workspaces are clean at their exact bound SHAs. Cloud primary status fails before a Job starts with `PROVIDER_FAILURE: Workspace UUID mismatch` at `/srv/dev-storage/workspaces/tavall-cloud` (existing workspace ID `6cbfdbc7-8c75-43e3-b84c-79d637fdd332`, requested `8dc5a485-b849-4c43-8af9-771f2e8b415e`). Its WORKSPACE and DEVELOPMENT_TOOL components remain `UNKNOWN`. The staged Cloud source contains the dedicated, source-snapshot-scoped workspace authority; the installed Agent predates it. The EPHEMERAL Environment is retained for reuse after that Agent is provisioned. No Cloud build Job was submitted.
+
+### Cloud CI exact-source Environment — 2026-09-27
+
 To bind the Cloud `.tavallci` required sources, I created an additional **EPHEMERAL** Environment in the existing lane `f75e1548-c7ab-470a-85aa-b38a770dae78`; the durable TCI Environment above was not replaced or edited. After Cloud PR #398 advanced `staging/runtime`, the same ephemeral Environment was re-resolved in place to source snapshot `b0fff546bff5670a703a736b048f91afbf5851296a7d0ab6cf7700e0bf1e6ad9`, generation 2, with `DEDICATED` work and `SHARED` services. Resource policy inherits the lane's `SYSTEM` default.
 
 | Role | Exact source binding |
@@ -198,7 +204,7 @@ Three 15 MB Tavall artifact files under `/tmp/tavall-ci-artifact-store-*` were b
 
 The canonical `/var/cache/tavall-local-sandbox/gradle` cache (1.0 GB) and active `/srv/dev-storage/tavall-cache/shared-ci/gradle` cache (286 MB) remain. The 494 MB GitHub Actions account Gradle cache is transitional because default-branch Actions retirement is still pending. User-owned `/home/ubuntu/.gradle`, active Executor operation roots, the 976 MB Cloud rollback-backup tree, stale-environment quarantine, immutable artifacts, source materializations, and unrelated product files were preserved. No repository worktree, active execution, or durable evidence was deleted.
 
-The Environment inventory contains two other RUNNING DEVELOPMENT environments, but neither is a valid substitute: one is owned by `web-design-agent/e2e` and binds personal Portfolio/Agent sources; the other is owned by `tavall-web/repository-extraction` and binds Web sources. Both were left unchanged. No replacement Environment was created.
+The Environment inventory contains two other RUNNING DEVELOPMENT environments, but neither is a valid substitute: one is owned by `web-design-agent/e2e` and binds personal Portfolio/Agent sources; the other is owned by `tavall-web/repository-extraction` and binds Web sources. Both and the canonical durable Environment were left unchanged; the Cloud validation Environment above is separate and EPHEMERAL.
 
 No Tavall CI Cloud job, immutable artifact, frozen delivery bundle, DEVELOPMENT deployment, STAGING readiness evidence, or production promotion was produced. The live service and production traffic were not changed. The existing service registry and templates are not being treated as proof of rollout deployment.
 
