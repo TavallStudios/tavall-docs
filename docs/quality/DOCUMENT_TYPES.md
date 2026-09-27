@@ -231,3 +231,22 @@ All maintained documents follow the shared `DOC TODO:` maintenance-handoff contr
 - [ ] Split mixed documents only when separation materially improves readability or authority.
 - [ ] Build USER EXPERIENCE docs for major Tavall products from existing flow/onboarding/player-experience evidence.
 - [ ] Add/synchronize Deployment documents as deployable modules and services are touched; do not fabricate historical deployments that cannot be evidenced.
+
+<details>
+<summary>Documentation Update State</summary>
+
+### Current Locations
+
+| Surface | Sync State | Location | Last Updated | Evidence |
+| --- | --- | --- | --- | --- |
+| GitHub | `1:1` | `TavallStudios/tavall-docs/docs/quality/DOCUMENT_TYPES.md` | 2026-09-27 11:54 AM PDT | Direct docs-only update to `main`; Deployment type added and synced. |
+| Notion | `1:1` | [Tavall Documentation Types — GENERAL, ARTICLE, PRODUCT & USER EXPERIENCE](https://app.notion.com/p/3d838458ddfd817f86ece9558577b0a6?pvs=204) | 2026-09-27 11:54 AM PDT | Notion taxonomy page updated with Deployment ownership and 1:1 requirement. |
+
+### Update History
+
+| Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2026-09-27 11:54 AM PDT | Notion | `SYNCED` | `Tavall / Tavall Documentation Types — GENERAL, ARTICLE, PRODUCT & USER EXPERIENCE` | Same page | Notion page update | Added Deployment type, relationships, lifecycle, and template link. |
+| 2026-09-27 11:54 AM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/DOCUMENT_TYPES.md` | Same path | Direct docs-only update to `main`. | Added Deployment type, ownership, lifecycle, naming, and sync rules. |
+
+</details>
