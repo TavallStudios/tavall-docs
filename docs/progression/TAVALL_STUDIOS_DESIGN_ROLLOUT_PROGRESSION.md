@@ -6,7 +6,7 @@
 > **Owns:** Aggregate audit state and evidence ledger for DESIGN coverage across currently maintained TavallStudios repositories and source/build module candidates  
 > **Aggregates:** Repository and module DESIGN / PROGRESSION records; this ledger does not replace those owners  
 > **Does Not Own:** Product or module design decisions, source implementation, deployment history, or Git workflow policy  
-> **Last Reconciled:** `2026-09-27 8:14 PM PDT`
+> **Last Reconciled:** `2026-09-27 8:15 PM PDT`
 
 ## About
 
@@ -149,13 +149,18 @@ Continue with the highest-impact source graph first: review open documentation P
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PENDING_SYNC` | `TavallStudios/tavall-docs/docs/progression/TAVALL_STUDIOS_DESIGN_ROLLOUT_PROGRESSION.md` on `docs/tavall-ledger-glicko2-addendum-2026-09-28` (stacked on PR #38) | 2026-09-27 8:14 PM PDT | Addendum records Glicko-2 PR #8; the 43-repository main snapshot remains at 7:15 PM PDT. |
-| Notion | `PENDING_SYNC` | [TavallStudios DESIGN Rollout — PROGRESSION](https://app.notion.com/p/3e938458ddfd81168a66e8c6c9eff13f?pvs=204) | 2026-09-27 8:14 PM PDT | Update the existing 1:1 twin with the same addendum. |
+| GitHub | `SYNCHRONIZED` | [GitHub ledger](https://github.com/TavallStudios/tavall-docs/blob/docs/tavall-ledger-glicko2-addendum-2026-09-28/docs/progression/TAVALL_STUDIOS_DESIGN_ROLLOUT_PROGRESSION.md) | 2026-09-27 8:15 PM PDT | Stacked Draft PR #39 on baseline PR #38; full coverage audit remains IN_PROGRESS. |
+| Notion | `SYNCHRONIZED` | [Notion twin](https://app.notion.com/p/3e938458ddfd81168a66e8c6c9eff13f?pvs=204) | 2026-09-27 8:15 PM PDT | 1:1 twin includes the Glicko-2 PR #8 addendum; full coverage audit remains IN_PROGRESS. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| 2026-09-27 8:14 PM PDT | GitHub | `UPDATED` | TavallStudios DESIGN Rollout Progression | 2026-09-27 7:41 PM PDT | Glicko-2 docs-only Draft PR #8 and synchronized Notion module twins | Baseline inventory unchanged; Glicko-2 candidate boundary review remains pending. |
+| 2026-09-27 7:33 PM PDT | GitHub | `CREATED` | TavallStudios DESIGN Rollout Progression | — | Current filtered org inventory, exact main heads, recursive trees, build/source candidates, and active documentation PRs | Baseline ledger; Notion twin creation and synchronization were in progress; no repo/module DESIGN coverage completion is claimed. |
+| 2026-09-27 7:35 PM PDT | GitHub + Notion | `SYNCHRONIZED` | TavallStudios DESIGN Rollout Progression | 2026-09-27 7:33 PM PDT | GitHub branch document and Notion page creation verified | Linked the 1:1 twins; candidate-boundary review remains incomplete and no DESIGN coverage completion is claimed. |
+| 2026-09-27 7:39 PM PDT | GitHub + Notion | `UPDATED` | TavallStudios DESIGN Rollout Progression | 2026-09-27 7:35 PM PDT | Draft [PR #38](https://github.com/TavallStudios/tavall-docs/pull/38), head `8dd7d3926ef7be1d7012d2b27117d55b6fb61bee` | Added the reviewable ledger PR to both DUS copies; no audit completion is claimed. |
+| 2026-09-27 7:41 PM PDT | GitHub + Notion | `UPDATED` | TavallStudios DESIGN Rollout Progression | 2026-09-27 7:39 PM PDT | Draft [PR #38](https://github.com/TavallStudios/tavall-docs/pull/38), head `8758cf52806c837482a5c7e4f204e042347d0814` | Confirmed the open reviewable ledger PR and synchronized the DUS locations; no audit completion is claimed. |
+| 2026-09-27 8:14 PM PDT | GitHub | `UPDATED` | TavallStudios DESIGN Rollout Progression | 2026-09-27 7:41 PM PDT | Draft [PR #39](https://github.com/TavallStudios/tavall-docs/pull/39), stacked on Draft PR #38 | Added the Glicko-2 module documentation PR #8 without changing the 7:15 PM PDT inventory baseline or promoting module boundaries. |
+| 2026-09-27 8:15 PM PDT | GitHub + Notion | `SYNCHRONIZED` | TavallStudios DESIGN Rollout Progression | 2026-09-27 8:14 PM PDT | Draft [PR #39](https://github.com/TavallStudios/tavall-docs/pull/39) and Notion twin re-fetched | Synced the addendum; the overall DESIGN rollout remains IN_PROGRESS. |
 
 </details>
