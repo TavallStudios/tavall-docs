@@ -269,7 +269,7 @@ def validate_routing(root: Path) -> None:
 
 
 def write_evidence(mode: str, docs_count: int) -> None:
-    raw_directory = os.environ.get("TAVALL_CI_EVIDENCE_DIRECTORY")
+    raw_directory = os.environ.get("TAVALL_JOB_DIRECTORY") or os.environ.get("TAVALL_CI_EVIDENCE_DIRECTORY")
     if not raw_directory:
         return
     directory = Path(raw_directory)
