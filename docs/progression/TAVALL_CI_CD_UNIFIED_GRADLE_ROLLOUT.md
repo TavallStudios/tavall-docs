@@ -60,7 +60,7 @@ The prior source-side inventory recorded **60 open `.tavallci/ci.yaml` PR heads 
 | `TavallStudios/tavall-database` | `/srv/dev-storage/workspaces/tavall-database/repo_root` (main@ec7672bc4358) | PR #17@7e437de57578 | 9.6.1 |
 | `TavallStudios/tavall-di` | `/srv/dev-storage/workspaces/tavall-di/repo_root` (main@d8ecc0230252) | PR #13@1b638153f114 | 9.6.1 |
 | `TavallStudios/tavall-discord` | `/srv/dev-storage/workspaces/tavall-discord/repo_root` (main@a37665d66b27) | PR #6@5cc474a13c5f | 9.6.1 in PR #6 (selected local ref pending) |
-| `TavallStudios/tavall-docs` | `/srv/dev-storage/workspaces/tavall-docs/repo_root` (`working/tavall-ci-evidence-provenance-20260925@a432e4d8c4e1`) | Existing PR #31, current pushed head `a432e4d8c4e1c8e8af90919d71c55fdc1aff9e80` | Python docs-quality profile |
+| `TavallStudios/tavall-docs` | `/srv/dev-storage/workspaces/tavall-docs/repo_root` (`working/tavall-ci-evidence-provenance-20260925`; PR #31) | Existing PR #31 branch; exact-source quality evidence is recorded below | Python docs-quality profile |
 | `TavallStudios/tavall-docs-private` | `/srv/dev-storage/workspaces/tavall-docs-private/repo_root` (main@412731ab2a98) | PR #1@98399a7ff95d | non-Gradle (none) |
 | `TavallStudios/tavall-eventbus` | `/srv/dev-storage/workspaces/tavall-eventbus/repo_root` (main@d66d9c7b7b33) | PR #7@db22c5b9d599 | 9.6.1 |
 | `TavallStudios/tavall-github-bot` | `/srv/dev-storage/workspaces/tavall-github-bot/repo_root` (working/extract-github-bot-20260918@2984a157cff1) | local `working/extract-github-bot-20260918@2984a157cff1`; PR #1@2984a157cff1 | 9.6.1; wrapper PR #1 |
