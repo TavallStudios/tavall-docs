@@ -6,7 +6,7 @@
 > **Owns:** Aggregate audit state and evidence ledger for DESIGN coverage across currently maintained TavallStudios repositories and source/build module candidates  
 > **Aggregates:** Repository and module DESIGN / PROGRESSION records; this ledger does not replace those owners  
 > **Does Not Own:** Product or module design decisions, source implementation, deployment history, or Git workflow policy  
-> **Last Reconciled:** `2026-09-27 7:33 PM PDT`
+> **Last Reconciled:** `2026-09-27 7:35 PM PDT`
 
 ## About
 
@@ -101,6 +101,7 @@ Each module-path cell is an explicit per-path checklist. All candidate paths rem
 | Date / Time | State | System Progression | Affected Modules / Systems | Evidence | Result / Remaining Work |
 | --- | --- | --- | --- | --- | --- |
 | `2026-09-27 7:15 PM PDT` | IN_PROGRESS | Refreshed the 43-repository in-scope default-branch snapshot and recorded source/build paths, existing documentation candidates, and open documentation/boundary PRs. | TavallStudios organization documentation rollout | Per-repository commit/tree links in the ledger; GitHub PR links per row | 185 paths are tracked (184 initial scan candidates plus one nonstandard-layout path); none are promoted to confirmed module counts until responsibility review. |
+| `2026-09-27 7:35 PM PDT` | PARTIAL | Published the scoped repository/module-candidate baseline ledger in GitHub and Notion. | TavallStudios DESIGN rollout record | [GitHub ledger](https://github.com/TavallStudios/tavall-docs/blob/working/tavall-design-rollout-ledger-2026-09-28/docs/progression/TAVALL_STUDIOS_DESIGN_ROLLOUT_PROGRESSION.md); [Notion twin](https://app.notion.com/p/3e938458ddfd81168a66e8c6c9eff13f?pvs=204) | The 43-repository map is reviewable; source responsibility audits and DESIGN coverage are still pending. |
 | `2026-09-27 7:15 PM PDT` | PARTIAL | Resolved current repository-boundary evidence for the empty `tavall-roblox` repository and corrected nonstandard source-root coverage for `tavall-mc-bot-testing`. | `tavall-roblox`; `tavall-mc-bot-testing` | [Empty repository metadata](https://github.com/TavallStudios/tavall-roblox); [bot-testing source tree](https://github.com/TavallStudios/tavall-mc-bot-testing/tree/064b9df4fca49a5bdf9606b5754868dd54c6bdaa) | Keep the empty repo as an explicit skip candidate. Review both bot-testing roots against package/build ownership before module docs are assigned. |
 | `2026-09-27 7:15 PM PDT` | BLOCKED | Attempted to bootstrap Tavall Cloud DEVELOPMENT and read the eligible runner catalog. | Exact-source framework implementation and org-wide validation | Tavall Cloud v2 `cloud_status`, `cloud_dev_session_bootstrap`, and `cloud_catalog_list` results in this session | CONTROL is ready, but bootstrap reports `environmentAttached=false`; the catalog exposes no durable job/executor. Keep implementation and tests pending. |
 
@@ -146,13 +147,14 @@ Continue with the highest-impact source graph first: review open documentation P
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `SYNC_IN_PROGRESS` | `TavallStudios/tavall-docs/docs/progression/TAVALL_STUDIOS_DESIGN_ROLLOUT_PROGRESSION.md` on PR branch | `2026-09-27 7:33 PM PDT` | Notion twin is being created. |
-| Notion | `SYNC_IN_PROGRESS` | Notion page pending creation | `2026-09-27 7:33 PM PDT` | Will be synchronized with the GitHub ledger in this pass. |
+| GitHub | `SYNCHRONIZED` | [GitHub document](https://github.com/TavallStudios/tavall-docs/blob/working/tavall-design-rollout-ledger-2026-09-28/docs/progression/TAVALL_STUDIOS_DESIGN_ROLLOUT_PROGRESSION.md) | `2026-09-27 7:35 PM PDT` | 1:1 twin; rollout audit remains IN_PROGRESS. |
+| Notion | `SYNCHRONIZED` | [Notion twin](https://app.notion.com/p/3e938458ddfd81168a66e8c6c9eff13f?pvs=204) | `2026-09-27 7:35 PM PDT` | 1:1 twin; rollout audit remains IN_PROGRESS. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| 2026-09-27 7:33 PM PDT | GitHub | `CREATED` | TavallStudios DESIGN Rollout Progression | — | Current filtered org inventory, exact main heads, recursive trees, build/source candidates, and active documentation PRs | Baseline ledger; Notion twin creation and synchronization are in progress; no repo/module DESIGN coverage completion is claimed. |
+| 2026-09-27 7:33 PM PDT | GitHub | `CREATED` | TavallStudios DESIGN Rollout Progression | — | Current filtered org inventory, exact main heads, recursive trees, build/source candidates, and active documentation PRs | Baseline ledger; Notion twin creation and synchronization were in progress; no repo/module DESIGN coverage completion is claimed. |
+| 2026-09-27 7:35 PM PDT | GitHub + Notion | `SYNCHRONIZED` | TavallStudios DESIGN Rollout Progression | 2026-09-27 7:33 PM PDT | GitHub branch document and Notion page creation verified | Linked the 1:1 twins; candidate-boundary review remains incomplete and no DESIGN coverage completion is claimed. |
 
 </details>
