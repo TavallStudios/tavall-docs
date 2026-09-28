@@ -330,7 +330,7 @@ This entry supersedes the earlier open-PR and no-live-readiness statements above
 This continuation records the current remote-only CI validation and cleanup. It does not change the canonical repository mapping, service identity, or PR merge state.
 
 - The live inventory remains 56 TavallStudios GitHub repositories: 48 normal repositories use their one canonical root under `/srv/dev-storage/workspaces/<repo>/repo_root`; the seven designated repositories remain GitHub-only; `TavallMonoRepo` remains excluded. The canonical renamed architecture repository is `tavall-test-suite-tools`; no legacy-name canonical workspace was created.
-- The exact-source runs below used the Tavall CI caller artifact `387d95b52ea307586159db2b5db267eb6289541165f326dfd5dbff873ab9ca74` and runtime artifact `cd452b5ce35af7235b707d358557e914b6ba17417f34009ac1ab3ccb6004ac38`. The caller selected `sourceProvider=GITHUB` for these remote-only inputs; Cloud recorded `LOCAL_CI` on `DEVELOPMENT_SHARED`, node `dev-storage`. No GitHub Actions job was created or used.
+- The exact-source runs below used the Tavall CI caller artifact `387d95b52ea307586159db2b5db267eb6289541165f326dfd5dbff873ab9ca74` and runtime artifact `cd452b5ce35af7235b707d358557e914b6ba17417f34009ac1ab3ccb6004ac38`. The caller selected `sourceProvider=GITHUB` for these remote-only inputs; Cloud recorded `LOCAL_CI` on `DEVELOPMENT_SHARED`, node `dev-storage`. No GitHub Actions job was created or used. A live permission audit of all 24 repositories with workflow files or current remote-only migration branches reports `actions.enabled=false`; Dependabot was left unchanged.
 
 | Repository and existing PR | Exact source | Shared Executor result | Durable evidence / artifact |
 |---|---|---|---|
