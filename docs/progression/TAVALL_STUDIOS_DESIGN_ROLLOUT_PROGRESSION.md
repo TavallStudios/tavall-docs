@@ -6,7 +6,7 @@
 > **Owns:** Aggregate audit state and evidence ledger for DESIGN coverage across currently maintained TavallStudios repositories and source/build module candidates  
 > **Aggregates:** Repository and module DESIGN / PROGRESSION records; this ledger does not replace those owners  
 > **Does Not Own:** Product or module design decisions, source implementation, deployment history, or Git workflow policy  
-> **Last Reconciled:** `2026-09-27 7:35 PM PDT`
+> **Last Reconciled:** `2026-09-27 7:39 PM PDT`
 
 ## About
 
@@ -24,6 +24,7 @@ The snapshot is limited to 43 current, in-scope TavallStudios repositories after
 | Module Boundary Audit | 185 source/build candidate paths across 27 repositories (184 from the initial root scan plus one nonstandard module path found by direct tree inspection); candidates are not yet confirmed as independent responsibility boundaries. |
 | Existing Design Coverage | No organization-wide coverage count is claimed. Existing architecture/Final/Technical paths and open documentation PRs require source, Notion, and responsibility reconciliation. |
 | Tavall Web Frontend | System + six current module DESIGN/PROGRESSION documents and README routing are on open [PR #44](https://github.com/TavallStudios/tavall-web/pull/44), synchronized with Notion. Source migration and validation remain incomplete. |
+| Rollout Ledger Review | Draft [PR #38](https://github.com/TavallStudios/tavall-docs/pull/38) is open and mergeable; this baseline audit is not complete. |
 | Validation | No exact-source implementation or E2E evidence is claimed. Tavall Cloud CONTROL is ready, but DEVELOPMENT has no attached environment or durable executor. |
 | Primary Blocker | Durable Tavall Cloud DEVELOPMENT workspace/executor unavailable for the authorized implementation and validation workflow. |
 | Next System Slice | Complete exact module-boundary reviews; reuse only accepted DESIGN/Technical docs that pass ownership checks; create and reconcile true module/system twins, README routes, and Documentation Update State. |
@@ -147,8 +148,8 @@ Continue with the highest-impact source graph first: review open documentation P
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `SYNCHRONIZED` | [GitHub document](https://github.com/TavallStudios/tavall-docs/blob/working/tavall-design-rollout-ledger-2026-09-28/docs/progression/TAVALL_STUDIOS_DESIGN_ROLLOUT_PROGRESSION.md) | `2026-09-27 7:35 PM PDT` | 1:1 twin; rollout audit remains IN_PROGRESS. |
-| Notion | `SYNCHRONIZED` | [Notion twin](https://app.notion.com/p/3e938458ddfd81168a66e8c6c9eff13f?pvs=204) | `2026-09-27 7:35 PM PDT` | 1:1 twin; rollout audit remains IN_PROGRESS. |
+| GitHub | `SYNCHRONIZED` | [GitHub document](https://github.com/TavallStudios/tavall-docs/blob/working/tavall-design-rollout-ledger-2026-09-28/docs/progression/TAVALL_STUDIOS_DESIGN_ROLLOUT_PROGRESSION.md) | `2026-09-27 7:39 PM PDT` | 1:1 twin; Draft PR #38; rollout audit remains IN_PROGRESS. |
+| Notion | `SYNCHRONIZED` | [Notion twin](https://app.notion.com/p/3e938458ddfd81168a66e8c6c9eff13f?pvs=204) | `2026-09-27 7:39 PM PDT` | 1:1 twin; Draft PR #38; rollout audit remains IN_PROGRESS. |
 
 ### Update History
 
@@ -156,5 +157,6 @@ Continue with the highest-impact source graph first: review open documentation P
 | --- | --- | --- | --- | --- | --- | --- |
 | 2026-09-27 7:33 PM PDT | GitHub | `CREATED` | TavallStudios DESIGN Rollout Progression | — | Current filtered org inventory, exact main heads, recursive trees, build/source candidates, and active documentation PRs | Baseline ledger; Notion twin creation and synchronization were in progress; no repo/module DESIGN coverage completion is claimed. |
 | 2026-09-27 7:35 PM PDT | GitHub + Notion | `SYNCHRONIZED` | TavallStudios DESIGN Rollout Progression | 2026-09-27 7:33 PM PDT | GitHub branch document and Notion page creation verified | Linked the 1:1 twins; candidate-boundary review remains incomplete and no DESIGN coverage completion is claimed. |
+| 2026-09-27 7:39 PM PDT | GitHub + Notion | `UPDATED` | TavallStudios DESIGN Rollout Progression | 2026-09-27 7:35 PM PDT | Draft [PR #38](https://github.com/TavallStudios/tavall-docs/pull/38), head `8dd7d3926ef7be1d7012d2b27117d55b6fb61bee` | Added the reviewable ledger PR to both DUS copies; no audit completion is claimed. |
 
 </details>
