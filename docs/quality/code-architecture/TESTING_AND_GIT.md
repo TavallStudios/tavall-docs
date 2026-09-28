@@ -22,7 +22,7 @@ Repository-specific test skills and canonical Tavall architecture tests may impo
 
 ## Canonical Architecture-Test Boundary
 
-[`TavallStudios/Tavall-Architecture-Tests`](https://github.com/TavallStudios/Tavall-Architecture-Tests) owns the reusable executable subset of Tavall-wide architecture policy. This documentation remains the human-readable authority for the policy itself; an executable rule implements policy, it does not replace or silently redefine it.
+[`TavallStudios/tavall-test-suite-tools`](https://github.com/TavallStudios/tavall-test-suite-tools) owns the reusable executable subset of Tavall-wide architecture policy. This documentation remains the human-readable authority for the policy itself; an executable rule implements policy, it does not replace or silently redefine it.
 
 The default consumer boundary is the repository's canonical testing suite:
 
@@ -36,7 +36,7 @@ The default consumer boundary is the repository's canonical testing suite:
 
 A genuinely single-module repository may use its root verification project as the suite boundary. The important invariant is that the architecture engine inspects the real production source/classes that are built and shipped rather than a copied fixture, stale source mirror, or independently reconstructed model of the application.
 
-Repository-specific tests remain responsible for behavior that cannot or should not be generalized into Tavall-wide architecture rules, including product-specific adapters, runtime simulations, live infrastructure/platform behavior, and explicit temporary architecture debt. When a repository-specific rule becomes reusable Tavall-wide policy, move the reusable enforcement into `Tavall-Architecture-Tests` and update this documentation in the same coherent design/review boundary.
+Repository-specific tests remain responsible for behavior that cannot or should not be generalized into Tavall-wide architecture rules, including product-specific adapters, runtime simulations, live infrastructure/platform behavior, and explicit temporary architecture debt. When a repository-specific rule becomes reusable Tavall-wide policy, move the reusable enforcement into `tavall-test-suite-tools` and update this documentation in the same coherent design/review boundary.
 
 ##### Why
 

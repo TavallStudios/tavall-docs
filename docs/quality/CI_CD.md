@@ -420,7 +420,7 @@ Do not:
 - Treat the presence of architecture-test source files as proof that architecture tests ran.
 - Replace canonical architecture validation with repository-specific approximations.
 
-The canonical implementation belongs to `TavallStudios/Tavall-Architecture-Tests`.
+The canonical implementation belongs to `TavallStudios/tavall-test-suite-tools`.
 
 Tavall CI orchestrates it against the source actually being built.
 
