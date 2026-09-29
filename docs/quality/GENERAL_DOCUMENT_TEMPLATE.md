@@ -113,9 +113,13 @@ Link ARTICLEs that explain important reasoning.
 
 - TODO / N/A
 
-### Progression / Evidence
+### PROGRESSION
 
-- TODO
+- TODO — current aggregate/module progression owners as applicable.
+
+### Deployment
+
+- TODO / N/A
 
 ### Implementation
 
@@ -136,9 +140,31 @@ End with the few sentences or bullets somebody should remember after closing the
 - [ ] Keep the product/system promise and Current Direction accurate.
 - [ ] Link current Design and Technical documents.
 - [ ] Link PRODUCT, USER EXPERIENCE, and important ARTICLEs where applicable.
-- [ ] Link progression/evidence and implementation lineage.
+- [ ] Link PROGRESSION, Deployment when applicable, and implementation lineage.
 - [ ] Remove stale/superseded claims instead of letting GENERAL become a museum.
 
 ### System next steps
 
-- [ ] Record only major next system steps useful at GENERAL altitude; detailed implementation work belongs in Design/Technical/Progression/task tracking.
+- [ ] Record only major next system steps useful at GENERAL altitude; detailed implementation work belongs in Design/Technical/PROGRESSION/task tracking.
+
+## Documentation Update State
+
+<Use the canonical Documentation Update State footer from DOCUMENTATION_STANDARDS.md.>
+
+<details>
+<summary>Documentation Update State</summary>
+
+### Current Locations
+
+| Surface | Sync State | Location | Last Updated | Evidence |
+| --- | --- | --- | --- | --- |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/GENERAL_DOCUMENT_TEMPLATE.md` | 2026-09-27 3:03 PM PDT | Direct docs-only update to `main`. |
+| Notion | `NOT_APPLICABLE` | — | 2026-09-27 3:03 PM PDT | Quality template; GENERAL instances are Notion-only by default. |
+
+### Update History
+
+| Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2026-09-27 3:03 PM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/GENERAL_DOCUMENT_TEMPLATE.md` | Same path | Direct docs-only update to `main`. | Added the required Documentation Update State footer and PROGRESSION/Deployment routing. |
+
+</details>
