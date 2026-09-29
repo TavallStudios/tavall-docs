@@ -55,20 +55,13 @@ Tavall CI owns:
 
 Tavall CI does not own node placement, service processes, Docker, Kubernetes, runtime routing, infrastructure storage, or Cloud scheduling.
 
-### Repository
+### Repositories and Modules
 
-Each repository owns its actual build and test graph.
+Repositories own their aggregate build/test topology. Each Tavall source/build module owns the build and test definition for the source it contains.
 
-Examples include:
+**Every Tavall source/build module ships its own `.tavallci/ci.yaml`.** A repository root may also define `.tavallci/ci.yaml` for repository-wide and aggregate validation, but the root definition does not replace module-local CI ownership.
 
-- Gradle tasks.
-- Test suites.
-- Integration tests.
-- Runtime acceptance scripts.
-- Repository-specific verification.
-- Required architecture checks.
-
-Tavall CI orchestrates those definitions. It does not maintain a second hard-coded version of every repository's build.
+Tavall CI orchestrates the source-controlled definitions. It does not maintain a second hard-coded build graph for every module.
 
 ### Gradle and Build Tools
 
@@ -157,42 +150,39 @@ GitHub is the authoritative surface for:
 
 GitHub Actions jobs are not part of Tavall CI/CD. All Tavall CI/CD jobs run through the local Tavall job system and Tavall Cloud Executors.
 
-Tavall builds, tests, architecture checks, integration tests, runtime validation, and deployment validation run on Tavall/local infrastructure unless a narrower documented exception explicitly requires another provider.
+Tavall builds, tests, architecture checks, integration tests, runtime validation, deployment validation, and all other Tavall CI/CD jobs run through Tavall's local job system and Tavall Cloud Executors. There are no GitHub Actions exceptions for CI/CD jobs.
 
-## Repository CI Definitions
+## Repository and Module CI Definitions
 
-Repository CI definitions live with the repository source they validate.
-
-The standard location is:
+CI definitions live with the exact source they validate:
 
 ```text
-.tavallci/
-└── ci.yaml
+<repository>/
+├── .tavallci/ci.yaml                 # optional repository-wide aggregate
+├── module-a/.tavallci/ci.yaml        # required for each source/build module
+└── module-b/.tavallci/ci.yaml        # required for each source/build module
 ```
 
-A `.tavallci` definition is ordinary source-controlled configuration.
-
-It may define typed work such as:
-
-- Gradle tasks.
-- Repository verification.
-- Architecture checks.
-- Behavior tests.
-- Integration tests.
-- Runtime acceptance.
-- Required aggregate checks.
-- Additional tools or immutable dependencies required by the workflow.
+A `.tavallci` definition is ordinary source-controlled configuration. It may define typed Gradle tasks, repository/module verification, architecture checks, behavior and integration tests, runtime acceptance, additional tools, immutable dependencies, and bounded source-controlled scripts.
 
 Rules:
 
-- CI definitions are reviewed with the source they affect.
-- CI definitions use typed executors or bounded repository-owned commands.
-- Tavall CI reads and validates the definition.
-- Tavall CI must not require an opaque database copy to determine the repository's canonical CI graph.
+- Every Tavall source/build module has its own `.tavallci/ci.yaml`.
+- The repository root definition is optional and aggregates module definitions when repository-wide checks are needed.
+- Root aggregation composes module validation; it does not replace or duplicate module-owned definitions.
+- Definitions are reviewed with the source they affect and resolved from the exact source candidate.
+- Changing a module or root `.tavallci` definition changes source state and requires fresh exact-source evidence.
+- Tavall CI validates definitions without requiring an opaque database copy to determine canonical policy.
 - CI configuration must not silently invent missing dependencies or versions.
-- Repository-specific validation remains repository-owned.
-- `SYSTEM` is the default resource mode unless an explicit platform policy selects another approved mode.
+- Module-specific build/test behavior remains module-owned.
+- `SYSTEM` is the default resource mode unless an explicit canonical override exists.
 - Provider metadata may identify where source events came from, but CI identities and build execution do not require GitHub APIs.
+
+Where a module exposes stable scripts such as `scripts/ci/run` or `scripts/ci/verify`, those remain source-owned boundaries. Tavall CI must resolve the module graph rather than maintain a stale copy of it.
+
+### Root-only CI for multi-module repositories is an anti-pattern
+
+A multi-module repository must not replace module-local CI ownership with only a root `.tavallci/ci.yaml`. Each source/build module needs a definition that travels with its source.
 
 Where a repository exposes stable CI scripts such as:
 
@@ -217,7 +207,7 @@ Dependencies may include:
 - An MCP or other bounded execution capability.
 - Repository-specific workflow support.
 
-These inputs must be declared through the repository's CI definition or another explicit typed dependency boundary.
+These inputs must be declared through the relevant module/repository `.tavallci` definition or another explicit typed dependency boundary.
 
 CI dependencies must be reproducible.
 
@@ -242,7 +232,7 @@ At minimum, an execution must identify:
 ```text
 repository
 exact Git SHA
-CI definition
+resolved repository/module CI definition set
 execution profile
 execution origin
 ```
@@ -263,9 +253,9 @@ Stale source fails closed.
 
 Do not run tests against one commit and publish success against another because both commits looked emotionally similar.
 
-## CI Identities
+## Versioning and Build Identity
 
-Tavall CI separates identities that represent different things.
+The binding versioning rules live in [VERSIONING.md](VERSIONING.md). Tavall CI keeps these identities distinct:
 
 ### Source Identity
 
@@ -288,6 +278,14 @@ The exact Tavall build and CI policy used for the execution.
 ### Dependency Resolution Identity
 
 The exact resolved dependency graph used by the build.
+
+### Build Identity
+
+Build identity binds the exact source to build policy, dependency resolution, and an optional explicit release identity. Ordinary development builds do not need a fabricated release identity.
+
+### Artifact Identity
+
+An artifact identity includes the artifact name, human/tool-facing version, channel, exact source and build identity, immutable storage reference, and SHA-256 digest. The digest remains the immutable identity of the produced bytes; version and channel are required metadata and do not replace it.
 
 These identities must not be collapsed into one generic version string.
 
@@ -434,6 +432,7 @@ Evidence should identify, where applicable:
 - Exact source SHA.
 - Cross-repository candidate identity.
 - CI definition.
+- Module-local `.tavallci` identity/digest and the resolved aggregate definition set.
 - Build-policy identity.
 - Dependency-resolution identity.
 - Java version.
@@ -441,7 +440,7 @@ Evidence should identify, where applicable:
 - Commands or tasks executed.
 - Typed checks.
 - Check results.
-- Artifact digests.
+- Artifact name, version, channel, and digest.
 - Executor identity.
 - Environment identity.
 - Runtime identity.
@@ -500,13 +499,13 @@ AI review may contribute review evidence. It does not become a human approval me
 
 Artifacts intended for delivery must be immutable.
 
-An artifact identity binds the built output to its source and evidence.
+An artifact identity binds the built output to its exact source/build identity, version, channel, immutable storage reference, digest, and evidence as defined by [VERSIONING.md](VERSIONING.md).
 
 At minimum, promoted artifact evidence must make it possible to determine:
 
 ```text
 source
-artifact
+artifact version/channel
 artifact digest
 CI evidence
 ```
@@ -550,6 +549,7 @@ A delivery candidate should bind:
 - Exact source.
 - Build identity.
 - Immutable artifact.
+- Artifact version and channel.
 - Artifact digest.
 - Required CI evidence.
 - Deployment target.
@@ -748,6 +748,18 @@ Before CI evidence is accepted:
 
 ## Anti-Patterns
 
+### Root-only CI definition for a multi-module repository
+
+Bad:
+
+```text
+repo/.tavallci/ci.yaml
+module-a/   # no .tavallci/ci.yaml
+module-b/   # no .tavallci/ci.yaml
+```
+
+The root becomes a second hard-coded model of module validation, and module CI cannot travel independently with module source. Keep the root definition as an optional aggregate and give every source/build module its own definition.
+
 ### GitHub Actions as Tavall CI/CD job infrastructure
 
 Bad:
@@ -850,13 +862,16 @@ Use an exact source candidate or an approved immutable release.
 ## Final Rules Summary
 
 - `tavall-docs` owns organization-wide CI/CD policy.
+- `VERSIONING.md` owns source/build/dependency/artifact version and channel identity policy.
 - `tavall-ci` owns reusable CI/CD semantics.
-- Repositories own their CI definitions and build/test graphs.
+- Repositories own aggregate build/test topology; every source/build module owns `.tavallci/ci.yaml`.
+- Repository-root `.tavallci` may aggregate module definitions but cannot replace them.
 - Tavall Cloud owns execution, deployment, storage, placement, routing, and runtime infrastructure.
 - `tavall-cloud-api` is the generic boundary between CI and Cloud capabilities.
 - Tavall GitHub Bot owns GitHub events, exact-head reconciliation, and Check publication.
 - GitHub Actions jobs are not part of Tavall CI/CD; CI/CD execution and evidence belong to Tavall CI and Tavall Cloud Executors.
 - CI definitions are source-controlled under `.tavallci`.
+- Artifact digests remain immutable identities, with version and channel recorded alongside them.
 - CI is exact-source fenced.
 - Cross-repository development uses exact-source composition, not floating `SNAPSHOT` selection.
 - Architecture Tests run against the real production source.

@@ -70,6 +70,78 @@ routes:
       - docs/quality/DOCUMENTATION_STANDARDS.md
       - docs/quality/DOCUMENT_TYPES.md
 
+  - id: progression-document-template
+    signals:
+      - progression document template
+      - module progression document
+      - system progression document
+      - module progression
+      - system progression
+    documents:
+      - docs/quality/PROGRESSION_DOCUMENT_TEMPLATE.md
+      - docs/quality/MODULE_TYPES.md
+
+  - id: deployment-document
+    signals:
+      - deployment document
+      - deployment record
+      - deployment history
+      - current deployment
+    documents:
+      - docs/quality/DOCUMENTATION_STANDARDS.md
+      - docs/quality/DOCUMENT_TYPES.md
+
+  - id: deployment-document-template
+    signals:
+      - deployment document template
+    documents:
+      - docs/quality/DEPLOYMENT_DOCUMENT_TEMPLATE.md
+
+  - id: repository-readme-standards
+    signals:
+      - repository readme
+      - repo readme
+      - private readme
+      - public readme
+      - module readme
+    documents:
+      - docs/quality/README_STANDARDS.md
+
+  - id: private-repository-readme-template
+    signals:
+      - private repository readme template
+      - private readme template
+    documents:
+      - docs/quality/PRIVATE_REPOSITORY_README_TEMPLATE.md
+
+  - id: public-repository-readme-template
+    signals:
+      - public repository readme template
+      - public readme template
+    documents:
+      - docs/quality/PUBLIC_REPOSITORY_README_TEMPLATE.md
+
+  - id: module-readme-template
+    signals:
+      - module readme template
+    documents:
+      - docs/quality/MODULE_README_TEMPLATE.md
+
+  - id: module-types
+    signals:
+      - module type
+      - module types
+      - runtime module
+      - api module
+      - library module
+      - provider module
+      - adapter module
+      - integration module
+      - tooling module
+      - test suite module
+    documents:
+      - docs/quality/MODULE_TYPES.md
+
   - id: general-document
     signals:
       - general document

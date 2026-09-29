@@ -84,7 +84,7 @@ Link playtests, analytics, screenshots/prototypes, user feedback, session record
 - **Design:** TODO
 - **Technical:** TODO
 - **ARTICLEs:** TODO / N/A
-- **Progression / Evidence:** TODO
+- **PROGRESSION:** TODO
 
 ---
 
@@ -93,9 +93,31 @@ Link playtests, analytics, screenshots/prototypes, user feedback, session record
 ### Document next steps
 
 - [ ] Add missing archetypes only when they materially change the journey.
-- [ ] Reconcile intended flows with current Design/Technical/Progression evidence.
+- [ ] Reconcile intended flows with current Design/Technical/PROGRESSION evidence.
 - [ ] Add visual/prototype evidence where it improves understanding.
 
 ### System next steps
 
 - [ ] Track only user-flow, usability, accessibility, recovery, or experience-validation work represented by this document.
+
+## Documentation Update State
+
+<Use the canonical Documentation Update State footer from DOCUMENTATION_STANDARDS.md.>
+
+<details>
+<summary>Documentation Update State</summary>
+
+### Current Locations
+
+| Surface | Sync State | Location | Last Updated | Evidence |
+| --- | --- | --- | --- | --- |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/USER_EXPERIENCE_DOCUMENT_TEMPLATE.md` | 2026-09-27 3:03 PM PDT | Direct docs-only update to `main`. |
+| Notion | `NOT_APPLICABLE` | — | 2026-09-27 3:03 PM PDT | Quality template; USER EXPERIENCE instances sync only when designated. |
+
+### Update History
+
+| Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2026-09-27 3:03 PM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/USER_EXPERIENCE_DOCUMENT_TEMPLATE.md` | Same path | Direct docs-only update to `main`. | Added required Documentation Update State footer and canonical PROGRESSION naming. |
+
+</details>

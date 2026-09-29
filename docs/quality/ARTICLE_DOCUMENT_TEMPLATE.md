@@ -50,7 +50,7 @@ Clearly separate:
 - **Technical:** TODO
 - **PRODUCT:** TODO / N/A
 - **USER EXPERIENCE:** TODO / N/A
-- **Evidence / Progression:** TODO
+- **PROGRESSION:** TODO
 
 ## Closing Thesis
 
@@ -62,10 +62,32 @@ End with the memorable product promise or argument the reader should retain.
 
 ### Document next steps
 
-- [ ] Verify claims against current Design/Technical/Progression sources.
+- [ ] Verify claims against current Design/Technical/PROGRESSION sources.
 - [ ] Link the owning GENERAL record.
 - [ ] Mark publication state and audience accurately.
 
 ### System next steps
 
 - [ ] Keep implementation work out of the ARTICLE unless it materially changes the argument; track implementation in the owning system docs.
+
+## Documentation Update State
+
+<Use the canonical Documentation Update State footer from DOCUMENTATION_STANDARDS.md.>
+
+<details>
+<summary>Documentation Update State</summary>
+
+### Current Locations
+
+| Surface | Sync State | Location | Last Updated | Evidence |
+| --- | --- | --- | --- | --- |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/ARTICLE_DOCUMENT_TEMPLATE.md` | 2026-09-27 3:03 PM PDT | Direct docs-only update to `main`. |
+| Notion | `NOT_APPLICABLE` | — | 2026-09-27 3:03 PM PDT | Quality template; ARTICLE instances sync only when designated. |
+
+### Update History
+
+| Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2026-09-27 3:03 PM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/ARTICLE_DOCUMENT_TEMPLATE.md` | Same path | Direct docs-only update to `main`. | Added required Documentation Update State footer and canonical PROGRESSION naming. |
+
+</details>
