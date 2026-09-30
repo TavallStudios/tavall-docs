@@ -471,3 +471,48 @@ This entry records the corrected Cloud Agent/runtime code on existing Cloud PR #
 - The earlier composed root after PR #41, `be1524db391249ea66eb1c1915a161a27185d82b`, passed in job `5a117cec-0e26-4dd1-8839-8167e65e6814`; the progression now retains both root results. Current root PR #34 remains Draft to `main`; no main merge, product deployment, or Production cutover occurred.
 - Cloud PR #420 remains Draft with exact-source seven-profile evidence and the DEVELOPMENT Agent/runtime-removal acceptance recorded above. The Cloud service removal and storage-reference/digest blockers are resolved in the installed DEVELOPMENT Agent; module-local `.tavallci` discovery, persistent Bot service access/webhook delivery, and the remaining repository profile matrix remain open.
 - No GitHub Actions job was used. Dependabot is unchanged. Notion was not edited; the two Actions Operations Bridge pages remain superseded for the user's deferred cleanup.
+
+## Live continuation — 2026-09-30 exact roots, current SCM integration, and deployment state
+
+This section supersedes the older PR/root status rows above where the exact commit or current PR state differs. It records only exact source identities and durable Tavall CI evidence.
+
+### Current composed staging roots
+
+| Repository | Current staging root / PR | Exact Executor evidence | Current state |
+|---|---|---|---|
+| `tavall-docs` | PR #34 Draft, `staging/quality@3a5b42013d6f2293b1509014c8394eb8283dc698`; PR #46 merged the fetched `main@fe9ad2edb8e5c551202506ee24171cb2b842b08e` README into the existing root. | Job `b9672948-642a-4646-8d5b-d0e4925506a3`, `quality` and `required/all` passed on `DEVELOPMENT_SHARED`; Java 25, Gradle `not-used`; evidence `tavall-storage://dev-storage/jobs/b9672948-642a-4646-8d5b-d0e4925506a3`. | Draft root, exact composed head passed. Strong no-Actions and module-local CI rules retained. |
+| `tavall-ci` | PR #15 Draft, `staging/platform@39da9720de3ebfc71281c2507dbc59408c590d4d`; PRs #19/#20 remain Draft children. | Job `11dfdba8-40c5-4518-a187-7f33303d7d66`; all six declared profiles passed on `DEVELOPMENT_SHARED`; Java 25, Gradle 9.6.1; evidence `tavall-storage://dev-storage/jobs/11dfdba8-40c5-4518-a187-7f33303d7d66`. | Draft root, exact composed head passed. Current main `2f8c7506d35c5e565ee74bfee68f5b698ad0c21d` includes PR #18 module/system Progression docs not yet integrated into this staging root. |
+| `tavall-cloud` | PR #397 Draft, `staging/runtime@fda84e3eb4de07d3c4488928b887334046f4ae60); PRs #420/#419 merged to this root. | Job `f245d508-0e22-4da0-99f4-df2b0dc4b29d`; all seven declared profiles passed on `DEVELOPMENT_SHARED`; Java 25, Gradle 9.6.1; evidence `tavall-storage://dev-storage/jobs/f245d508-0e22-4da0-99f4-df2b0dc4b29d`. | Draft root, exact composed head passed. Main’s docs PRs #417/#418 are fetched but not in this staged root. |
+| `tavall-github-bot` | PR #2 Draft, `staging/platform@214da4f6b62cfba19ce04a3a9c1f3853c4096cea`; PR #1 and main-sync PR #4 merged into the existing root. | Job `c45f7702-8d91-4680-8998-022f2f046f13`; `quality`, `architecture`, and `required/all` passed on `DEVELOPMENT_SHARED`; Java 25, Gradle 9.6.1; evidence `tavall-storage://dev-storage/jobs/c45f7702-8d91-4680-8998-022f2f046f13`. | Draft root, exact composed head passed. Current main `2d31c444634e17a95b8c9ae2863b650ac0322588` is an ancestor of this root. |
+| `tavall-test-suite-tools` | PR #15 Draft, `staging/platform@d772965aa6c248e0712352965fd6a0028c60ced7`; source PR #14 merged into staging. | Job `896c7b8e-850e-4e48-959f-0f8e631ac202`; `quality` and `required/all` passed on `DEVELOPMENT_SHARED`; Java 25, Gradle 9.6.1; all nine declared immutable artifacts stored; evidence `tavall-storage://dev-storage/jobs/896c7b8e-850e-4e48-959f-0f8e631ac202`. | Draft root, exact composed head passed. Current main `50bd1be8f521beb426561125b6fb403f1dc4903f` includes PR #16 README/module documentation not yet integrated into this staging root. |
+
+For the five rows above, the accepted TCI and GitHub Checks are bound to the listed exact commit and the Cloud shared machine Executor. Each corresponding exact-head GitHub Actions run count was zero. Dependabot was not changed.
+
+### Bot event-to-CI and Check projection
+
+- Bot PR #1 advanced to `9ac5fb43eca43e905e8d376d99186537255fc781`; the existing root and runtime module `.tavallci` definitions now pin Cloud’s current staging source `fda84e3e…`, replacing the stale `050b2a7` branch pin.
+- A real PR synchronize event was consumed by `GitHubBotApplication.main`. Tavall CI job `a7ba1b6c-a09c-4b03-8baa-08e944b8e137` passed `all` on `DEVELOPMENT_SHARED`; GitHub Checks `quality`, `architecture`, and `required/all` passed; Actions run count was zero.
+- The Bot runtime candidate is `tavall-github-bot-runtime@0.1.0-SNAPSHOT`, digest `1572de464cd051e7abb0ebc636dec35c015788875b4b8385f499beea4a5a1667`. The one-shot process used a temporary systemd App credential; it did not prove a persistent Bot service deployment.
+
+### CD and production boundary
+
+- The disposable service `tavall-cicd-rollout-validation` passed immutable artifact digest/reference checks, DEVELOPMENT and STAGING readiness, BLUE/GREEN promotion and rollback, unhealthy activation rollback, and absent/corrupt artifact fail-closed probes. Removal completed with logical/runtime projections stopped and the disposable Environment and runtimes cleaned. The existing C1 evidence and exact commands are recorded above and in Cloud PR #397/#419.
+- `projectnovus.dev` remained Cloudflare → Apache → Tavall Cloud router on port 19091; DEVELOPMENT and STAGING Web runtimes were unchanged. No product Production promotion, public route change, or human cutover authorization occurred.
+- The Bot is not deployed as a persistent service. No Bot `.tavallcd` template is registered under the current `/srv/dev-storage/templates/services` registry. The persistent service identity still lacks a least-privilege Tavall CI caller path; do not grant broad host/CONTROL access.
+- Tavall CI still resolves repository-root `.tavallci` only. Module-local definitions exist in the Bot source, but resolver discovery/aggregation is an implementation blocker. Multi-module definitions remain a follow-up for Cache #11, Database #17, Discord #6, CI #19/#20, and the test suite modules.
+
+### Environment and materialization handling
+
+- CI source materializations for docs PR #46 and root PR #34, TCI root #15, Bot PR #1/#2/#4, and test-suite root #15 used dedicated EPHEMERAL Environments on existing Tavall lanes with SYSTEM-inherited resources. Each successful job was read back as clean at its exact SHA before destruction; Cloud returned `persistedWork=[]` for the explicit cleanup operations. Immutable artifacts, Check projections, and durable job evidence remain.
+- During the docs PR #46 setup, a no-selector `environment create` resolved canonical docs Environment `77cf98b6-9616-46e9-8739-c1fc1f06778f` instead of creating a new one. I then assigned it EPHEMERAL/DEDICATED policy; Cloud lifecycle reconciliation destroyed that Environment. No `git clean`, `reset`, or `stash` command was run. Latest Environment metadata reports its last materialization clean/synced, and no local Environment directory remains. New durable canonical docs Environment `8c17535c-a3b9-4014-8de8-2510b7c53a91` now tracks `staging/quality@3a5b4201…` and reads clean. The original failed rebind reported a dirty developer workspace; its previous physical path was not identified and remains `unknown/preserve` for the broad workspace audit.
+- The per-repository canonical workspace mapping, wrapper status, Gradle cleanup classifications, and repository inventory remain recorded in the earlier rollout inventory in this document. Seven repositories remain GitHub-only, `TavallMonoRepo` remains excluded, and no GitHub Actions job was created. The Notion Operations Bridge pages remain superseded for the user’s deferred cleanup; no Notion mirror was edited.
+
+### Blocker classification
+
+- **Architecture/design:** no new blocker to the accepted provider-neutral source → Tavall CI → immutable artifact → service/runtime template → Tavall Cloud ownership boundary.
+- **Implementation:** Tavall CI module-local `.tavallci` discovery/aggregation is absent; the Bot has no registered `.tavallcd` service template or persistent least-privilege CI caller.
+- **Validation:** module-local CI follow-up, current-main documentation sync for CI/Cloud/test-suite roots, full remaining repository profile matrix, and persistent webhook/service acceptance remain.
+- **Deployment:** no Bot DEVELOPMENT runtime deployment/readiness acceptance; no product Production cutover or public route authorization.
+- **External/provider:** Bot webhooks were not exercised; the tested real event was polled. The shared Executor’s authenticated Codex/Function Catalog integration remains unavailable as recorded earlier.
+
+The user-reported weekly Codex usage at last read was about 97%; this is not a live usage measurement.
