@@ -419,3 +419,47 @@ This checkpoint supersedes earlier pending-status statements for the disposable 
 - **Validation:** run exact-head jobs for docs PR #31 after this update and staging-root PR #34; complete the queued module-local follow-up and remaining repository profile matrix. The production product service has not been authorized or promoted.
 - **Deployment:** disposable A/B promote/rollback passed, but public `projectnovus.dev` has no recorded human cutover authorization. Do not change the current Cloud-backed route pending that decision.
 - **External/provider:** the Bot acceptance was poll-triggered rather than webhook-delivered; Function Catalog's authenticated Codex integration remains unavailable on the shared Executor, as recorded above.
+
+## Live continuation — 2026-09-30 Cloud runtime correction and acceptance
+
+This entry records the corrected Cloud Agent/runtime code on existing Cloud PR #420 and its DEVELOPMENT deployment. It does not change public routing, promote product Production, update Notion, or merge code to `main`.
+
+### Exact-source Cloud CI and Agent delivery
+
+- Cloud PR #420 exact source `TavallStudios/tavall-cloud@34754d602d27d1f4323b5fa793a386170066771c` passed all seven configured profiles on the `dev-storage` shared Executor in job `37408947-e831-4d2c-9e28-065246227593`. The first implementation stopped child runtime units and enforced storage-reference/digest equality.
+- Follow-up exact source `TavallStudios/tavall-cloud@fd6d9ac18616e974ca7b04360847d95939bbf6ca` passed `DEPENDENCIES`, `ARCHITECTURE`, `BEHAVIOR`, `INTEGRATION`, `RUNTIME`, `QUALITY`, and `REQUIRED_ALL` on the same Executor in job `06987876-7a40-440e-af44-15801f082eb7`. Java 25; Gradle 9.6.1; Tavall Gradle/build-platform digest `31e626d392c756a26356b374a7ffe3637bbe026032c8faff2166ecd78f264339`; runtime `tavall-ci-runtime@0.1.0/SNAPSHOT`; `.tavallci` digest `a648fe560136d9ab0ffd2afe91fb8561a30a710afdbbf58856d4a5ee62790d65`; source aggregate `9a85e123a2741e4eb18910398a8eee6aa94a9f8c1a75737cf78ddbd641c925b7`; evidence SHA-256 `782f055a265620ee9cbe1a2a5ac95035bbc3a4811b494a36b655b2975d77e486`.
+- The Executor produced `tavall-cloud-agent` version `all`, channel `SNAPSHOT`, SHA-256 `77f292dc711dafa92a566c4fb879f4b2efdc5f4731bf53f12c05d38f60b04b0c`; the host-operations artifact remains version `development-fd6d9ac18616`, channel `SNAPSHOT`, digest `7eed2038b346ff4e316160818deb85648caa29b07a4fa9dedc338aa4c7804843`.
+- The current DEVELOPMENT Agent was installed through the existing agent-only `ops/tavall-cloud/bootstrap-development-runtime.sh` path using those immutable artifacts. It is active and `tavall status` responds. The previous Agent digest `93c03b26bc6cf7fcd4558602e3be9edfbfb0cbdd032df561979f964ff9d1b807` is backed up at `/var/lib/tavall-cloud/bootstrap-backups/20260930T025543Z`. ChatGPT Web and GitHub credentials/adapters were excluded from the install operation.
+
+### Cloud CD regression results
+
+- The installed Agent rejected a deliberately mismatched immutable reference: declared baseline artifact digest `c5fbd9cb5e171bca75839017fb444aec88220ea2b35b384e03011d37ff2fcb25` paired with the existing candidate object's reference `tavall-storage://artifacts/sha256/975fc58b54c32583cec73b512f2188d4db9cf576ebf1061dc0b492e25bbbc1ae`. It rejected the reference before materializing bytes. The exact Cloud Executor suite also covers missing artifact and corrupt bytes whose SHA-256 does not match their content address.
+- Reissuing removal for disposable service `tavall-cicd-rollout-validation` initially exposed the owner-local tombstone being older than its local service record. The follow-up now advances the tombstone from the higher of the local projection and CONTROL versions; repeated `tavall service remove` can reconcile an already-`REMOVED` desired state.
+- Removal command `cabeec21-e264-4c95-bbeb-6d1650e6579f` completed through CONTROL. The logical service now reports `REMOVED/STOPPED`; all four runtime records are `STOPPED/UNKNOWN/INACTIVE`. Their four instance units are unloaded, ports 19870–19875 are unbound, and the service/runtime environment files are absent. Immutable artifacts, deployed release trees, `.tavallcd` metadata, and readiness lineage remain in Tavall Storage.
+- Earlier C.1 acceptance remains: internal disposable baseline/candidate artifacts passed three generation-matched readiness observations in DEVELOPMENT and STAGING; production BLUE/GREEN promotion and rollback restored the last-known-good baseline; missing artifacts failed closed; an isolated corrupted-byte digest probe failed closed. Prior Hibernate rollback evidence for unhealthy activation was user-relayed and was not rerun in this continuation.
+
+### Public route and production boundary
+
+- `projectnovus.dev` still returns HTTP 200 through Cloudflare → Apache → the Tavall Cloud `tavall-web` router on port 19091. DEVELOPMENT 19092 and STAGING 19093 are unchanged. The `tavall-web` immutable artifact, source SHA, public proxy, and legacy `/srv/novus-web` backup/restore chain are unchanged.
+- The disposable internal service test did not change product traffic. No production cutover was authorized. The user-reported weekly Codex usage was approximately 97% at the last audit read; this is not a live usage measurement.
+
+### Current PR status snapshot
+
+| Repository / PR | Status at this checkpoint |
+|---|---|
+| `tavall-docs#31` | Merged into the existing staging branch; no `main` merge |
+| `tavall-docs#34` | Draft root; exact pre-follow-up composed head `b635ed000f686ad5b0dcf0ba6ead7398564d1541` passed Executor `QUALITY` and `REQUIRED_ALL` in job `46be4d4d-a5c0-4f69-b434-f7dcc1b713d7` |
+| `tavall-cloud#420` | Draft; exact head `fd6d9ac18616e974ca7b04360847d95939bbf6ca` passed all seven Executor profiles; its Agent artifact is deployed in DEVELOPMENT |
+| `tavall-github-bot#1` | Draft; exact head `bbb17a6e372aaf3797e0c2ae2e5561a444d99036` passed TCI and the real polled PR event produced passing Checks; persistent service identity and webhook delivery remain blocked |
+| `tavall-test-suite-tools#14` | Merged into `staging/platform`; current repository name is `tavall-test-suite-tools` |
+| `tavall-ci#19/#20` | Existing Draft staging stack; previously recorded exact-source profiles passed, with exact composed-root validation still queued |
+
+- No GitHub Actions job was used or created. Cloud Actions has historical runs but zero queued/in-progress runs at the check; Dependabot remains unchanged. The Notion pages “GitHub Actions Operations Bridge” and “GitHub Actions Operations Bridge Progression” remain superseded and queued for the user's deferred Notion cleanup.
+
+## Current checkpoint blockers after Cloud correction
+
+- **Architecture/design:** the agreed repository → `.tavallci` → Tavall CI → immutable artifact → service/runtime `.tavallcd` → Tavall Cloud ownership model remains intact.
+- **Implementation:** Tavall CI still does not discover/compose module-local `.tavallci` definitions; the persistent Bot service identity cannot invoke the authorized local Tavall CLI. Cloud PR #420 remains Draft pending normal staging review.
+- **Validation:** complete the remaining repository exact-head matrix, module-local CI follow-up, and the remaining staging-root exact-head jobs. The storage-reference/digest and service-removal defects are fixed in Cloud PR #420 and have exact CI plus DEVELOPMENT Agent/service evidence.
+- **Deployment:** Production/public-route cutover still has no recorded human authorization. Current public routing was not changed.
+- **External/provider:** Bot webhook delivery and the shared Executor's authenticated Codex integration remain unverified/unavailable as previously recorded.

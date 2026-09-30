@@ -17,6 +17,6 @@ topology marker.
 
 ## Current composition
 
-The staging branch was refreshed from `main` at `7b620605c9a9eb9f97394309c7a8a429eaeefdf2` after the previous staging root was promoted. Its active root is [PR #34](https://github.com/TavallStudios/tavall-docs/pull/34). The active documentation child is [PR #31](https://github.com/TavallStudios/tavall-docs/pull/31), targeting this branch. It updates CI/CD ownership guidance, the Notion page source mirrors, and the rollout evidence record; GitHub holds the child's exact current head.
+The staging branch was refreshed from current `main` at `6e1951b9d30bfe3202b125762d0c5e141c7cb262` in commit `38c7c5ba73728be823c627f4a8b253c0d9cf6637`. Its active root is [PR #34](https://github.com/TavallStudios/tavall-docs/pull/34). Child PR #31 merged into this root at `b635ed000f686ad5b0dcf0ba6ead7398564d1541` after its exact-source Executor profile passed. The active documentation child is now [PR #41](https://github.com/TavallStudios/tavall-docs/pull/41), targeting this branch and recording the September 30 Cloud CI/CD runtime acceptance.
 
-PR #31 remains Draft. The documentation validator passes, while its evidence record explicitly leaves the Cloud Executor bootstrap, immutable Agent artifact, DEVELOPMENT validation, and STAGING readiness incomplete. This staging root therefore remains Draft and does not authorize a production promotion.
+Root #34 remains Draft. Its exact composed head `b635ed000f686ad5b0dcf0ba6ead7398564d1541` passed `QUALITY` and `REQUIRED_ALL` on the shared Executor in job `46be4d4d-a5c0-4f69-b434-f7dcc1b713d7`. PR #41 still needs exact child validation and a new exact-root run after merge. This staging branch does not authorize a public-route or Production cutover.
