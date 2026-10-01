@@ -28,6 +28,20 @@ Module type describes the module's **primary responsibility**. Runtime ownership
 - A directory, fixture, generated source tree, or trivial build helper does not become a module merely because it has a folder.
 - Do not invent a new module type for a one-off naming preference. Extend this taxonomy only when a recurring responsibility does not fit an existing type.
 
+## Third-Party Tool Wrapper Ownership
+
+Third-party tools are never exposed as an unowned implementation detail of an arbitrary Tavall product module.
+
+- Every third-party binary, CLI, SDK, MCP server, external runtime, or tool-specific protocol used as a reusable Tavall capability **must be owned behind a Tavall module whose canonical module/artifact name begins with `tavall-`**.
+- Prefer `tavall-<upstream-tool>` when one upstream tool is the boundary, for example `tavall-open-cv`, `tavall-ffmpeg`, `tavall-playwright`, `tavall-chromium`, `tavall-hyperframes`, or `tavall-remotion`.
+- The wrapper normally classifies as `INTEGRATION`, `ADAPTER`, `PROVIDER`, or a justified combination. It owns upstream discovery/version checks, invocation, configuration/environment mapping, protocol/command construction, error translation, lifecycle, and tool-specific observability.
+- Product/domain modules depend on Tavall semantic APIs or Tavall wrapper modules. They do **not** scatter direct vendor imports, raw process commands, MCP tool names, vendor HTTP calls, executable paths, or tool-specific environment variables through business code.
+- A wrapper may live inside an umbrella repository when that is the coherent ownership boundary; the module/artifact name still follows the `tavall-*` rule.
+- Generic modules such as `*-tools`, `common`, or `util` must not become vendor dumping grounds. If a third-party integration is reusable or has meaningful lifecycle/configuration of its own, give it an explicit Tavall wrapper boundary.
+- External adapters such as CLI, HTTP, MCP, or UI surfaces project the Tavall-owned semantic capability. They do not become a second business authority merely because the upstream tool speaks that protocol.
+
+Detailed integration-boundary rules and migration guidance: [Third-Party Tool Boundaries](code-architecture/THIRD_PARTY_TOOL_BOUNDARIES.md).
+
 ## Runtime Ownership
 
 Module READMEs record runtime ownership independently from module type:
@@ -92,8 +106,8 @@ See [README_STANDARDS.md](README_STANDARDS.md) and [MODULE_README_TEMPLATE.md](M
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/MODULE_TYPES.md` | 2026-09-27 2:58 PM PDT | Direct docs-only update to `main`. |
-| Notion | `NOT_APPLICABLE` | — | 2026-09-27 2:58 PM PDT | Quality/reference document; no 1:1 requirement assigned. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/MODULE_TYPES.md` | 2026-09-29 5:08 PM PDT | PR adding canonical third-party tool wrapper ownership. |
+| Notion | `NOT_APPLICABLE` | — | 2026-09-29 5:08 PM PDT | Quality/reference document; no 1:1 requirement assigned. |
 
 ### Update History
 
@@ -101,5 +115,6 @@ See [README_STANDARDS.md](README_STANDARDS.md) and [MODULE_README_TEMPLATE.md](M
 | --- | --- | --- | --- | --- | --- | --- |
 | 2026-09-27 11:45 AM PDT | GitHub | `CREATED` | `TavallStudios/tavall-docs/docs/quality/MODULE_TYPES.md` | — | Direct docs-only update to `main`. | Added the canonical Tavall module-type and runtime-ownership vocabulary. |
 | 2026-09-27 2:58 PM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/MODULE_TYPES.md` | Same path | Direct docs-only update to `main`. | Added required module Progression ownership and type-specific progression lenses. |
+| 2026-09-29 5:08 PM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/MODULE_TYPES.md` | Same path | PR to `main`. | Canonized Tavall-owned `tavall-*` wrapper modules for reusable third-party tools. |
 
 </details>
