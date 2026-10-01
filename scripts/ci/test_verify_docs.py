@@ -4,8 +4,10 @@ from __future__ import annotations
 import contextlib
 import importlib.util
 import io
+import os
 import tempfile
 from pathlib import Path
+from unittest.mock import patch
 
 
 def load_validator():
@@ -103,11 +105,31 @@ def test_text_integrity(validator) -> None:
         )
 
 
+def test_evidence_uses_writable_job_directory(validator) -> None:
+    with tempfile.TemporaryDirectory() as temporary:
+        root = Path(temporary)
+        job_directory = root / "job"
+        evidence_directory = root / "ci-job"
+        job_directory.mkdir()
+        evidence_directory.mkdir()
+        with patch.dict(os.environ, {
+            "TAVALL_JOB_DIRECTORY": str(job_directory),
+            "TAVALL_CI_EVIDENCE_DIRECTORY": str(evidence_directory),
+        }):
+            validator.write_evidence("build", 3)
+
+        assert (job_directory / "docs-validation.txt").read_text(encoding="utf-8") == (
+            "mode=build\ntrackedDocs=3\nresult=PASS\n"
+        )
+        assert not (evidence_directory / "docs-validation.txt").exists()
+
+
 def main() -> int:
     validator = load_validator()
     test_route_specificity(validator)
     test_markdown_link_validation(validator)
     test_text_integrity(validator)
+    test_evidence_uses_writable_job_directory(validator)
     print("tavall-docs CI validator self-tests passed")
     return 0
 
