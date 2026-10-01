@@ -178,7 +178,7 @@ The authoritative cross-repository inventory and authority model is maintained i
 - **Tavall MC Progression Dating (46 trackers)**: [`TavallStudios/tavall-mc#304`](https://github.com/TavallStudios/tavall-mc/pull/304) (`MERGED_PRODUCTION`)
 - **Tavall MC Bot-Testing Link Repair**: [`TavallStudios/tavall-mc#303`](https://github.com/TavallStudios/tavall-mc/pull/303) (`MERGED_PRODUCTION`)
 - **Paper Fork Progression**: [`TavallStudios/tavall-mc-paper#4`](https://github.com/TavallStudios/tavall-mc-paper/pull/4) (`MERGED_PRODUCTION`)
-- **Architecture Tests Progression**: [`TavallStudios/Tavall-Architecture-Tests#11`](https://github.com/TavallStudios/Tavall-Architecture-Tests/pull/11) (`MERGED_PRODUCTION`)
+- **Tavall Test Suite Tools Progression**: [`TavallStudios/tavall-test-suite-tools#11`](https://github.com/TavallStudios/tavall-test-suite-tools/pull/11) (`MERGED_PRODUCTION`; repository renamed from `Tavall-Architecture-Tests`)
 - **Minecraft Bot Testing Progression**: [`TavallStudios/tavall-mc-bot-testing#3`](https://github.com/TavallStudios/tavall-mc-bot-testing/pull/3) (`MERGED_PRODUCTION`)
 - **Tavall Web Runtime Progression**: [`TavallStudios/tavall-web#38`](https://github.com/TavallStudios/tavall-web/pull/38) (`MERGED_PRODUCTION`)
 - **Tavall Web Website Progression**: [`TavallStudios/tavall-web#39`](https://github.com/TavallStudios/tavall-web/pull/39) (`MERGED_PRODUCTION`)
@@ -194,4 +194,3 @@ The authoritative cross-repository inventory and authority model is maintained i
 - **Tavall MC Web Retirement & Store Boundary**: [`TavallStudios/tavall-mc#290`](https://github.com/TavallStudios/tavall-mc/pull/290) (`VALID_UNMERGED_PR`)
 - **Tavall MC Selective Documentation Preflight**: [`TavallStudios/tavall-mc#285`](https://github.com/TavallStudios/tavall-mc/pull/285) (`VALID_UNMERGED_PR`, unblocked & rebased)
 - **Tavall Docs Master Consolidation & Ledger**: [`TavallStudios/tavall-docs#24`](https://github.com/TavallStudios/tavall-docs/pull/24) (`VALID_UNMERGED_PR`)
-

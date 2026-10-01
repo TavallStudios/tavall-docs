@@ -441,7 +441,7 @@ This entry records the corrected Cloud Agent/runtime code on existing Cloud PR #
 ### Public route and production boundary
 
 - `projectnovus.dev` still returns HTTP 200 through Cloudflare → Apache → the Tavall Cloud `tavall-web` router on port 19091. DEVELOPMENT 19092 and STAGING 19093 are unchanged. The `tavall-web` immutable artifact, source SHA, public proxy, and legacy `/srv/novus-web` backup/restore chain are unchanged.
-- The disposable internal service test did not change product traffic. No production cutover was authorized. The user-reported weekly Codex usage was approximately 97% at the last audit read; this is not a live usage measurement.
+- The disposable internal service test did not change product traffic. No production cutover was authorized.
 
 ### Current PR status snapshot
 
@@ -515,4 +515,46 @@ For the five rows above, the accepted TCI and GitHub Checks are bound to the lis
 - **Deployment:** no Bot DEVELOPMENT runtime deployment/readiness acceptance; no product Production cutover or public route authorization.
 - **External/provider:** Bot webhooks were not exercised; the tested real event was polled. The shared Executor’s authenticated Codex/Function Catalog integration remains unavailable as recorded earlier.
 
-The user-reported weekly Codex usage at last read was about 97%; this is not a live usage measurement.
+
+## Live continuation — 2026-10-01 unified Gradle, adapter, and deployment
+
+This entry supersedes earlier cache and Cloud runtime snapshots below. It records DEVELOPMENT and STAGING work only; it does not authorize or perform a production cutover.
+
+### Executor cache and Environment cleanup
+
+- The live host-local Executor mounts `/srv/dev-storage/tavall-cache/executors/host-local/gradle` as `/tavall/shared-tools/gradle`; its Gradle user home is separate from shared CI at `/srv/dev-storage/tavall-cache/shared-ci/gradle`. The active Executor unit and Cloud installer agree on the host-local path. `/var/cache/tavall-local-sandbox/gradle` and `/srv/dev-storage/tavall-cache/host-local-sandbox/gradle` are absent. `/var/cache/tavall-local-sandbox/tools/sha256` remains a separate content-addressed tool-fetch cache, not a Gradle cache.
+- Cloud PR #424 now writes future CI source manifests as `source-roots.executor.txt`. Historical `source-roots.sandbox.txt` files remain unchanged in old evidence records.
+- Temporary CI Environments `02a68af3-c7b1-4c1d-8095-fd7f70e17e63`, `40da2e1b-dc1e-4fc0-8e72-9e101cd19df6`, and `3a2bd17d-d472-4b76-bad8-d23c93ce6ec2` were destroyed through typed Cloud state transitions; each returned `persistedWork=[]`. Two clean exact-source Cloud checkouts beneath destroyed Environment `02a68af3` were retired after confirming their commits were reachable in the canonical local repository. Environment metadata and durable Executor/job evidence remain.
+- Disposable service `tavall-cd-probe-20261001` is `REMOVED/STOPPED`; its hot-loaded test `.tavallcd` template was removed. Durable deployment/readiness lineage remains in Tavall Storage.
+
+### Exact Cloud CI, artifact identity, and service delivery
+
+- Cloud PR #424 is at exact head `ae871a50d59856f8dd05ea4d8a9b594fccc6e38b`. Tavall CI job `2f4b0530-9102-4a41-945e-028367d13b39` passed `DEPENDENCIES`, `ARCHITECTURE`, `BEHAVIOR`, `QUALITY`, `RUNTIME`, `ARCHITECTURE_TESTS`, `INTEGRATION`, and `REQUIRED_ALL` on `DEVELOPMENT_SHARED` at `dev-storage`. It used Java 25, Gradle 9.6.1, exact source aggregate `4551fe6e97ddd29dda5361abc8e7bf244d8039b57460e95c2316e502f1fdb89b`, CI definition digest `389c5639b6c8201914848bc03fac31c05981ff6c7abde2e8add5473e1ac5e910`, build-platform digest `7ec6866387bfc360f23612439305f042c12ec28410bb57520d1601004de62686`, resolution digest `a85296844850da9544c35cb82428edf60a60ba19ed857c2e59f6b74f052ce3e8`, and evidence digest `80a72c9760d7945a28f3234e105c7d2f9bc21dcccaf7188f511d74cbb2548c34`.
+- The repository root `.tavallci` composes all 19 Gradle modules, each with a module-local `.tavallci/ci.yaml`. The Cloud project version and all four emitted artifacts now record `0.1.0-SNAPSHOT` / `SNAPSHOT`: Agent `789c2432feef8d1390caca53642f8cbc5194a4089248daddf5b1d7c7f4e5e00f`, ChatGPT Web `32e65c6ab79024d9d940ce3e85c308d50dbc1a31614a48fcecb255080d7f3607`, host operations `7eed2038b346ff4e316160818deb85648caa29b07a4fa9dedc338aa4c7804843`, and Cloud runtime `e6c602aab38f0579328a339e0915a9b4e697e31c934edf5e26c8279b39d08728`. Digests remain the immutable artifact identities.
+- The existing service/runtime template is `services/tavall-cloud-chatgpt-plugin`, with `.tavallcd` digest `b2112c0d0c7b9ecb1e7ca8b8ef318d728d524923ef57bee1f3e73d616934141f` and runtime ID `chatgpt-web-adapter`. Frozen bundle `262ccbc02e62d457780d8c05796c5fc947f51fb0bcb95b7e0382be295e897d75` passed three DEVELOPMENT readiness observations at generation 160.
+- Repeat exact-head Tavall CI job `08331f70-00d3-4ca4-8fe9-3997eb950b74` passed the same eight profiles and used the same exact source aggregate, build platform, resolution, artifact digests, versions, and channel. The caller froze bundle `a6891d55e63734108936faf9149d7e9d975d38f38cc7ae0c3257f3cdb35c2a43`, then deployed that bundle to DEVELOPMENT and STAGING through the typed Tavall service path. DEVELOPMENT readiness passed three observations at generation 169; STAGING passed three observations at generation 174. No Production target was used.
+- The configured ChatGPT Web tunnel route is `127.0.0.1:7445/mcp`. An authenticated live `tools/list` on that route returned six tools—`cloud_catalog_describe`, `cloud_catalog_list`, `cloud_console_execute`, `cloud_dev_environment_execute`, `cloud_dev_session_bootstrap`, and `cloud_status`—with no sandbox capability. The active managed DEVELOPMENT and STAGING runtimes both report exact source `ae871a50…` and artifact digest `32e65c6a…`.
+- The older loopback-only `tavall-cloud-chatgpt-plugin.service` still listens on port 17445 with source `d4fad9db…` and its old seven-tool catalog. The secure tunnel does not target that port; it targets the Cloud route on 7445. That old unit remains an implementation cleanup item because its service ID is still the base systemd owner, and stopping it independently would bypass Cloud desired-state reconciliation.
+
+### Current public route and legacy restore inventory (read-only)
+
+- `https://projectnovus.dev` still returns HTTP 200 through Cloudflare → Apache → the Tavall Cloud `tavall-web` router on port 19091. The current DEVELOPMENT runtime remains `tavall-web-development-single-09c77d19dd346c34` on port 19092, generation 54; STAGING remains `tavall-web-staging-single-672573a5824ec8d6` on port 19093, generation 40. Both report healthy on artifact digest `085d0955f531dff67c9c0280d14d54c01ffab90cf5e829b6e5b19f92ecac970c`, source `tavall-web@19d443b99d925d69e7578ab515d85af44a20cc32`.
+- Apache remains active with `/etc/apache2/sites-available/projectnovus.dev.conf` proxying to `127.0.0.1:19091`. The old `novus-web.service` is absent. Retained data remains under `/srv/novus-web`, including uploads at `/srv/novus-web/target/novus-content/uploads`, historical content snapshots, and `backups/novus-web-current-20260624125911.jar`.
+- The legacy unit, three drop-ins, and protected environment copy remain in `/var/lib/tavall-cloud/bootstrap-backups/novus-web-legacy-20260929T080827Z/`. The saved Apache vhost is `/var/lib/tavall-cloud/bootstrap-backups/apache-projectnovus-vhost-20260929T075553Z/projectnovus.dev.conf` and targets the former port 19090. The saved vhost's certificate key path `/etc/ssl/private/cloudflare.key` exists now; Apache remains active on port 19091. No route was changed. Restoring the legacy site still requires the human Production decision and a separate verified cutover.
+
+### Current PRs and blockers
+
+| Repository / PR | State | Exact evidence / remaining work |
+|---|---|---|
+| `tavall-cloud#424` | Draft, head `ae871a50d59856f8dd05ea4d8a9b594fccc6e38b` | Exact all-profile Executor runs and DEVELOPMENT/STAGING readiness passed. GitGuardian reports two findings across the PR's 25 commits; its check exposes only a dashboard link, and the repository's GitHub secret-scanning API is disabled. Do not merge until the findings are identified and resolved by the credential-scanning authority. |
+| `tavall-cloud#397` | Draft staging root at `staging/runtime@fda84e3eb4de07d3c4488928b887334046f4ae60` | Root evidence is from its prior exact head. It needs the current main sync and a fresh composed-root Executor run after child changes are integrated. |
+| `tavall-docs#34` | Draft root; local `staging/quality` includes current main `e79f6d1a1751e810343133d0c9e5275d1769a933` | Strong no-Actions wording is present in `CI_CD.md`. New progression evidence is recorded above; exact final root validation is pending. |
+| `tavall-ci#20` | Draft, head `4fc0c58e21f752e8ab6f5f394f5910f860922458` | The runtime used here was produced from exact CI source `328948283c4845d9a160292f607d8abfff03c5d7` and successfully aggregated Cloud's module-local definitions. TCI root/main promotion and its own current exact-root validation remain. |
+| `tavall-github-bot#1` | Merged into `staging/platform`; last exact event evidence remains on the existing progression record | A real polled event produced a passing Tavall CI job and GitHub Checks with zero Actions runs. Persistent webhook/service acceptance remains. |
+
+- No GitHub Actions run was created for either Cloud CI job. Dependabot was not changed. Notion's self-check returned `USER_NOT_LOGGED_IN`; no Notion pages or mirrors were read or edited, per the user's deferred synchronization request.
+- **Architecture/design:** the accepted repository → module-local `.tavallci` → Tavall CI → immutable artifact → service/runtime `.tavallcd` → Tavall Cloud ownership chain has exact DEVELOPMENT and STAGING evidence. Production authorization remains separate.
+- **Implementation:** the old loopback ChatGPT unit still runs the retired sandbox catalog; the tunnel route is clean. Cloud needs an owner-controlled retirement/migration that preserves the active runtime router. Deprecated source-path labels may remain on the legacy service record, although managed delivery consumed immutable artifacts.
+- **Validation:** exact docs root validation is pending; Cloud #397 and TCI #15 root synchronization and exact composed-root runs remain. Full remaining repository profile coverage, Bot webhook/persistent service, and Executor concurrent-cache acceptance remain.
+- **Deployment:** ChatGPT Web DEVELOPMENT and STAGING passed; no product Production deployment or `projectnovus.dev` cutover occurred.
+- **External/provider:** GitGuardian finding details require its dashboard; GitHub secret-scanning is disabled. Notion remains disconnected, and no production cutover authorization is recorded.
