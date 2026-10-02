@@ -194,3 +194,4 @@ The authoritative cross-repository inventory and authority model is maintained i
 - **Tavall MC Web Retirement & Store Boundary**: [`TavallStudios/tavall-mc#290`](https://github.com/TavallStudios/tavall-mc/pull/290) (`VALID_UNMERGED_PR`)
 - **Tavall MC Selective Documentation Preflight**: [`TavallStudios/tavall-mc#285`](https://github.com/TavallStudios/tavall-mc/pull/285) (`VALID_UNMERGED_PR`, unblocked & rebased)
 - **Tavall Docs Master Consolidation & Ledger**: [`TavallStudios/tavall-docs#24`](https://github.com/TavallStudios/tavall-docs/pull/24) (`VALID_UNMERGED_PR`)
+- **Tavall Agent Stack V2 Migration**: [`TAVALL_AGENT_STACK_V2_PROGRESSION.md`](TAVALL_AGENT_STACK_V2_PROGRESSION.md) (`VALID_UNMERGED_WORK`, branch `working/tavall-agent-stack-v2`)
