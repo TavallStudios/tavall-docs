@@ -70,6 +70,19 @@ routes:
       - docs/quality/DOCUMENTATION_STANDARDS.md
       - docs/quality/DOCUMENT_TYPES.md
 
+  - id: repository-todo-projection
+    signals:
+      - global todo
+      - repository todo
+      - repo todo
+      - todo projection
+      - todo synchronization
+      - todo sync
+      - static todo
+    documents:
+      - docs/quality/TODO_STATIC_PROJECTIONS.md
+      - TODO.md
+
   - id: progression-document-template
     signals:
       - progression document template
