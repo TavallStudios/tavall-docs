@@ -196,7 +196,7 @@ _No open global TODO items currently tracked._
 
 ### `TavallStudios/tavall-roblox`
 
-_No open global TODO items currently tracked._
+- [ ] 2026-10-01 — Initialize Git history and the canonical `main` branch so the repository can receive its root `TODO.md` projection through a PR, then add the standard `docs/global-todo-projection` synchronization PR.
 
 ### `TavallStudios/tavall-scheduler`
 
