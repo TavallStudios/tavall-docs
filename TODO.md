@@ -138,7 +138,17 @@ _No open global TODO items currently tracked._
 
 ### `TavallStudios/tavall-hytale-resource-game`
 
-_No open global TODO items currently tracked._
+#### Companion System Future Work
+
+- [ ] 2026-10-01 — Add custom companion skins and cosmetic rarity rules.
+- [ ] 2026-10-01 — Add full companion duel animations and richer cast particles.
+- [ ] 2026-10-01 — Add advanced morale event chains, bonding, voice, and emote hooks.
+- [ ] 2026-10-01 — Add battle replay companion commentary.
+- [ ] 2026-10-01 — Add full wall section visuals for assigned companions.
+- [ ] 2026-10-01 — Expand companion injury and recovery depth beyond first-pass status fields.
+- [ ] 2026-10-01 — Add companion behavior hooks driven by the canonical Kingdom Clock.
+- [ ] 2026-10-01 — Add companion and citizen/job interaction hooks.
+- [ ] 2026-10-01 — Add companion quests, party training, and realm-specific skills.
 
 ### `TavallStudios/tavall-java-tools`
 
