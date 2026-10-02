@@ -81,7 +81,6 @@ routes:
       - static todo
     documents:
       - docs/quality/TODO_STATIC_PROJECTIONS.md
-      - TODO.md
 
   - id: progression-document-template
     signals:
