@@ -306,6 +306,34 @@ routes:
     documents:
       - docs/quality/code-architecture/TESTING_AND_GIT.md
 
+  - id: tavall-terminology
+    signals:
+      - terminology
+      - vocabulary
+      - agent definition
+      - worker
+      - agent mode
+      - agent ledger
+    documents:
+      - docs/quality/TAVALL_TERMINOLOGY.md
+
+  - id: skill-template
+    signals:
+      - skill template
+      - document-backed skill
+      - section adapter
+    documents:
+      - docs/quality/SKILL_TEMPLATE.md
+
+  - id: agent-architecture
+    signals:
+      - agent architecture
+      - agent stack
+      - agent v2
+      - agent routing
+    documents:
+      - docs/quality/AGENT_ARCHITECTURE.md
+
 rules:
   - Do not load docs/quality/README.md as policy unless the user explicitly asks for the documentation index.
   - Do not load CODE_ARCHITECTURE.md merely because source code is being changed.
