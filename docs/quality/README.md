@@ -9,6 +9,7 @@ Use this directory for shared Tavall engineering and documentation policy.
 - [DOCUMENT_ROUTING.yml](DOCUMENT_ROUTING.yml) — small machine-readable exact-signal routing index for selecting only the documentation relevant to the current task.
 - [DOCUMENTATION_STANDARDS.md](DOCUMENTATION_STANDARDS.md) — authority, lifecycle, delegation, evidence, archive, and `DOC TODO:` rules.
 - [DOCUMENT_TYPES.md](DOCUMENT_TYPES.md) — GENERAL, ARTICLE, PRODUCT, USER EXPERIENCE, Design, Technical, PROGRESSION, and Deployment responsibilities.
+- [TODO_STATIC_PROJECTIONS.md](TODO_STATIC_PROJECTIONS.md) — canonical contract for the global TODO ledger and bot-managed root `TODO.md` projections in every maintained TavallStudios repository.
 - [README_STANDARDS.md](README_STANDARDS.md) — canonical private/public repository README and module README routing/ownership rules.
 - [PRIVATE_REPOSITORY_README_TEMPLATE.md](PRIVATE_REPOSITORY_README_TEMPLATE.md) — operational private repository root README template.
 - [PUBLIC_REPOSITORY_README_TEMPLATE.md](PUBLIC_REPOSITORY_README_TEMPLATE.md) — external-facing public repository root README template.
@@ -37,11 +38,15 @@ Shared Tavall policy consumers should resolve this repository's current `main` b
 
 Do not recursively preload this directory as a generic engineering preflight. Detailed architecture chapters may be selected directly without automatically loading `CODE_ARCHITECTURE.md`, and templates should be loaded only when the corresponding document type is being created or materially restructured.
 
+The organization-wide work ledger lives at repository root [`TODO.md`](../../TODO.md). Every other maintained TavallStudios repository receives only its own generated slice according to [TODO_STATIC_PROJECTIONS.md](TODO_STATIC_PROJECTIONS.md).
+
 ## Authority
 
 Shared quality documents define Tavall-wide defaults. Repository-local documentation may specialize them where the owning runtime/product requires stricter rules, but may not silently weaken shared policy.
 
 The historical `DOC_DESIGN_RULES.md` lineage (Project Novus/Tavall MC `b5e690859` / `dff1d0818`) has been fully reconciled and superseded by [DOCUMENTATION_STANDARDS.md](DOCUMENTATION_STANDARDS.md) and [DOCUMENT_TYPES.md](DOCUMENT_TYPES.md), which own the binding Design/Technical subtype, delegation, and lifecycle rules organization-wide.
+
+Root repository `TODO.md` projections do not supersede `DOC TODO:` blocks. `DOC TODO:` remains per-document maintenance handoff; repository TODO projections remain global-work views managed from `tavall-docs/TODO.md`.
 
 ## Production Examples
 
@@ -55,6 +60,7 @@ Do not link temporary branches, experiments, migration code, or known-debt imple
 
 - [ ] Keep this index synchronized as shared quality documents are added, renamed, or superseded.
 - [ ] Keep `DOCUMENT_ROUTING.yml` synchronized when an owning document or exact routing signal changes.
+- [ ] Keep the TODO projection policy indexed here as bot behavior evolves.
 - [ ] Add canonical production-example links to `WEB_ARCHITECTURE.md`, `CLASSES.md`, and other applicable architecture chapters as validated production implementations of each pattern are created.
 - [x] Link the canonical `DOC_DESIGN_RULES.md` location once reconciled (completed: superseded by `DOCUMENTATION_STANDARDS.md` and `DOCUMENT_TYPES.md`).
 
@@ -71,13 +77,14 @@ Do not link temporary branches, experiments, migration code, or known-debt imple
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/README.md` | 2026-09-27 3:04 PM PDT | Direct docs-only update to `main`. |
-| Notion | `NOT_APPLICABLE` | — | 2026-09-27 3:04 PM PDT | GitHub quality index; no 1:1 requirement assigned. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/README.md` | 2026-10-01 | Direct docs-only update to `main`. |
+| Notion | `NOT_APPLICABLE` | — | 2026-10-01 | GitHub quality index; no 1:1 requirement assigned. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | 2026-09-27 3:04 PM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/README.md` | Same path | Direct docs-only update to `main`. | Indexed canonical PROGRESSION rules/template and added the required document-state footer. |
+| 2026-10-01 | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/README.md` | Same path | Direct docs-only update to `main`. | Indexed the canonical repository TODO static-projection contract and clarified its relationship to `DOC TODO:`. |
 
 </details>
