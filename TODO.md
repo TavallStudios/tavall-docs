@@ -122,6 +122,10 @@ _No open global TODO items currently tracked._
   - Define provider-neutral storage interfaces for entity relationships, decision histories, and context retrieval.
   - Implement memory retrieval constraints ensuring memory remains contextual evidence and cannot override canonical docs or live runtime truth.
 - [ ] 2026-10-02 — Promote repository-owned `.tavallci` definition (PR #1) to `main` and execute exact-head CI validation.
+- [ ] 2026-10-02 — Cleanly move `tavall-ai-runtime-memory` out of `TavallStudios/tavall-ai` into the dedicated `TavallStudios/tavall-ai-memory` repository.
+  - Preserve module ownership and relevant history where practical, migrate runtime-memory code, tests, documentation, and configuration without leaving duplicate authority behind.
+  - Update package, dependency, build, CI, agent, and consumer references before removing the old module from `tavall-ai`.
+  - Validate exact-source builds for both repositories and the end-to-end memory-plane integration after cutover.
 
 ### `TavallStudios/tavall-analytics`
 
