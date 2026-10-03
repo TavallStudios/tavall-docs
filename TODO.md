@@ -345,9 +345,10 @@ _No open global TODO items currently tracked._
 #### System — Tavall MC / Project Novus
 
 - [ ] 2026-10-03 — Accept repository/module/runtime separation root PR #333 before resuming the large gameplay stack.
-  - Close Framework producer-purity gaps: Kingdom API/backend contracts and product cosmetics remain in extracted framework modules; Essentials has moved to the Tavall-MC root reactor.
-  - Do not merge PR #301 or stale fan-in #299. Preserve their useful composite/lock changes and build a focused current-main consumer after product persistence ownership is resolved.
-  - The exact-source architecture test, focused module checks, Discord package-backed checks, and staged distribution pass; the full repository check still has 51 Kingdom/server failures out of 277 tests.
+  - Keep `tavall-minecraft-framework` reusable: move Kingdom/Novus policy, product cosmetics, and Tavall runtime-host identity into MC-owned modules; retain generic Minecraft host, API, game, and NMS capabilities in Framework.
+  - Keep runtime schema creation out of Framework and MC launch. Preserve migration intent and leave durable writes blocked until the canonical Tavall Database migration owner is established.
+  - Do not merge PR #301 or stale fan-in #299. Preserve useful composite/lock work and rebuild a focused current-main Framework consumer after producer purity and product persistence ownership are resolved.
+  - Current #333 exact-head checks are pending. The previously observed 51 Kingdom/server failures out of 277 tests are historical evidence from an older candidate and must not be reported as current.
 - [ ] 2026-10-03 — Rebuild the Combined/Paper/Velocity/FFA/Kingdoms staging generation from accepted current main.
   - Keep old roots such as #153, #195, #196, #198, #199, #262, and #294 as historical evidence until useful deltas have reviewed replacements.
   - Keep Web, Cloud Agent, and Ingress process roots out of Tavall-MC.
@@ -477,10 +478,9 @@ _No open global TODO items currently tracked._
 - [ ] 2026-10-02 — Migrate remaining legacy Thymeleaf surfaces onto the pure-Java `AbstractPage<SELF>` framework.
   - Migrate Content/Blog editor script, Progress tracker, and Docs admin pages off Thymeleaf.
 
-#### Module — tavall-web-api
-
-- [ ] 2026-10-02 — Formalize self-typed Page contract in `tavall-web-api`.
-  - Maintain strict transport and container neutrality: zero Spring, Servlet, or HTTP server dependencies in `tavall-web-api`.
+- [ ] 2026-10-03 — Complete Web frontend artifact ownership and retire the deleted `tavall-web-discord` page source (PR #58).
+  - Keep route/surface/exposure contracts in `tavall-web-api`; Page, HTML/CSS, animation, asset, TypeScript, and rendering contracts belong to `tavall-web-frontend`.
+  - Re-run the corrected exact-source branch through Tavall CI's shared Executor, prove package-backed resolution independently from source substitution, and keep browser/deployment acceptance separate.
 
 #### Module — tavall-web-frontend
 
