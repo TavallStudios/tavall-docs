@@ -3,15 +3,15 @@
   "authorities": {
     "docs": {
       "authority": "github.com/TavallStudios/tavall-docs",
-      "observedAt": "2026-10-03T09:07:30Z",
+      "observedAt": "2026-10-03T23:26:02Z",
       "ref": "refs/heads/main",
-      "revision": "566606b"
+      "revision": "1e8856c44e9cb8e4c7ef46eb8f6be6d6d860c0f4"
     },
     "git": {
       "authority": "github.com/TavallStudios/tavall-docs",
-      "observedAt": "2026-10-03T09:07:30Z",
-      "ref": "refs/heads/main",
-      "revision": "566606b8c2fbf034883c8564187141868c7be46d"
+      "observedAt": "2026-10-03T23:26:02Z",
+      "ref": "refs/heads/working/mc-repository-separation-todo-20261003",
+      "revision": "21a74a536ab606e3569fe64a5a35601f9de67373"
     },
     "ledger": {
       "authority": "tavall-agent-ledger",

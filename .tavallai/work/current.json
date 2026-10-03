@@ -1,8 +1,8 @@
 {
   "$schema": "https://tavall.org/schemas/tavallai/work-current/v1.json",
-  "activeWorkId": "work-20261003-provenance-rollout",
-  "description": "Establish repo-local and module-local raw AI work provenance layer.",
-  "status": "COMPLETE",
-  "title": "Canonical .tavallai AI-work provenance architecture rollout",
-  "updatedAt": "2026-10-03T09:07:30Z"
+  "activeWorkId": "work-20261003-mc-repository-separation",
+  "description": "Reconcile Tavall-MC and producer repository/module/runtime ownership before gameplay PR fan-in.",
+  "status": "ACTIVE",
+  "title": "Tavall-MC repository separation generation",
+  "updatedAt": "2026-10-03T23:26:02Z"
 }

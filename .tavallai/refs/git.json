@@ -1,7 +1,8 @@
 {
   "$schema": "https://tavall.org/schemas/tavallai/refs-git/v1.json",
   "authority": "github.com/TavallStudios/tavall-docs",
-  "currentCommit": "566606b8c2fbf034883c8564187141868c7be46d",
+  "currentCommit": "21a74a536ab606e3569fe64a5a35601f9de67373",
   "defaultBranch": "main",
-  "observedAt": "2026-10-03T09:07:30Z"
+  "observedAt": "2026-10-03T23:26:02Z",
+  "ref": "refs/heads/working/mc-repository-separation-todo-20261003"
 }
