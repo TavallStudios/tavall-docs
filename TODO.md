@@ -344,11 +344,21 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall MC / Project Novus
 
-- [ ] 2026-10-02 — Complete `tavall-minecraft-framework` consumption cutover (PR #301 / PR #299).
-  - Remove duplicate framework implementations in `tavall-mc` and switch dependency bindings to the extracted library.
-  - Remove retired `.github/workflows/cloud-runtime-deployment.yml` and validate `novus-runtime-deploy.jar` build through Tavall CI.
-- [ ] 2026-10-02 — Reconcile and promote runtime staging PR #294 (`promotion/runtime-staging-current-20260920`) to `main`.
-  - Validate exact-source composite build on Java 25 / Gradle 9.6.1 on Cloud Executor.
+- [ ] 2026-10-03 — Accept repository/module/runtime separation root PR #333 before resuming the large gameplay stack.
+  - Close Framework producer-purity gaps: Kingdom API/backend contracts and product cosmetics remain in extracted framework modules; Essentials has moved to the Tavall-MC root reactor.
+  - Do not merge PR #301 or stale fan-in #299. Preserve their useful composite/lock changes and build a focused current-main consumer after product persistence ownership is resolved.
+  - The exact-source architecture test, focused module checks, Discord package-backed checks, and staged distribution pass; the full repository check still has 51 Kingdom/server failures out of 277 tests.
+- [ ] 2026-10-03 — Rebuild the Combined/Paper/Velocity/FFA/Kingdoms staging generation from accepted current main.
+  - Keep old roots such as #153, #195, #196, #198, #199, #262, and #294 as historical evidence until useful deltas have reviewed replacements.
+  - Keep Web, Cloud Agent, and Ingress process roots out of Tavall-MC.
+- [ ] 2026-10-03 — Complete the Builder Studio ownership boundary.
+  - Keep compiler, WorldOps, simulation, replay, WorldVision, and worker execution in MC Builder.
+  - Port hosted/admin presentation to Tavall-Web after the typed remote Builder API is defined; PR #258 is closed and unmerged.
+- [ ] 2026-10-03 — Complete product-specific Discord host acceptance.
+  - Tavall-Discord PR #9 publishes the reusable runtime through Tavall private Maven, and MC source-composite/package checks pass locally.
+  - Run wrapper-backed Tavall CI and verify the external Discord host loads the Novus product artifact; retire the transitional JDA contributor as features adopt platform-neutral contracts.
+- [ ] 2026-10-03 — Add a Minecraft-specific Cloud request only when Tavall-Cloud publishes a typed cross-process client.
+  - The MC candidate removes the generic /cloud CLI relay, Cloud runtime dependency, socket, and agent-secret configuration.
 - [ ] 2026-10-02 — Reconcile divergent worktree progression trackers across the 24 identified high-risk systems.
   - Consolidate branch-only progression evidence into canonical `main` documents for Runtime Module System, FFA, Effect, Moderation, Commerce, and Chat.
   - Remove prunable stale worktrees following evidence preservation.
@@ -367,13 +377,14 @@ _No open global TODO items currently tracked._
 
 #### Module — Player Identity & Store
 
-- [ ] 2026-10-02 — Validate Paper runtime and client verification for Player Identity and Crown Store (PR #310).
-  - Verify PostgreSQL migration, entitlement caching, and in-game transaction fulfillment.
+- [ ] 2026-10-03 — Preserve the Player Identity and Crown Store design owners (PR #310) and schedule implementation under the accepted product runtime graph.
+  - Verify PostgreSQL migration, entitlement caching, and in-game transaction fulfillment when the product implementation branch is created.
 
 #### Module — Discord Integration
 
-- [ ] 2026-10-02 — Complete extraction of reusable Discord client into `tavall-discord` (PR #284).
-  - Remove legacy embedded Discord bot classes from `tavall-mc`.
+- [ ] 2026-10-03 — Finish the Tavall-MC Discord adapter migration under the external Tavall-Discord runtime.
+  - Keep product persistence/outbox and feature policy in Tavall-MC; generic JDA lifecycle and ordered dispatch belong to tavall-discord.
+  - Validate isolated-guild startup, shutdown, permissions, outbox retry, and role/support projections.
 
 ### `TavallStudios/tavall-mc-bot-testing`
 
