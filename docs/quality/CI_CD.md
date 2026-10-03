@@ -3,924 +3,314 @@
 > **Status:** Active
 > **Authority:** Binding for Tavall Continuous Integration, Continuous Delivery, validation evidence, artifact promotion, and CI execution boundaries
 > **Applies to:** All Tavall repositories, contributors, automation, AI-assisted development, CI callers, and deployment workflows
+> **NLEW authority:** [NLEW_AND_SERVICE_OWNERSHIP.md](NLEW_AND_SERVICE_OWNERSHIP.md)
+> **Versioning authority:** [VERSIONING.md](VERSIONING.md)
 
-This document defines the required CI/CD architecture for Tavall projects.
+Tavall CI is intentionally simple. It is one Tavall CI system with one shared Gradle orchestration/composition layer. Repositories remain separate repositories and are materialized into separate workspace folders. Cross-repository development is composed from those exact-source workspaces. Containers are optional execution boundaries, not the default CI architecture.
 
-[Git workflow and staging ancestry](GIT_WORKFLOW.md) remain owned by `GIT_WORKFLOW.md`. [NLEW and service ownership](NLEW_AND_SERVICE_OWNERSHIP.md) owns Node/Lane/Environment/Workspace/Executor terminology, the general-purpose Environment model, and the service-to-Environment default. Repository and system documentation may define stricter validation or deployment requirements, but they may not create a competing CI/CD authority or silently weaken exact-source, evidence, promotion, or NLEW ownership requirements.
+Do not turn CI into a mandatory Node -> Lane -> Environment -> Workspace -> Executor pipeline. NLEW objects are Cloud capabilities and ownership/context objects. Tavall CI may use those capabilities where appropriate, but they are not CI stages.
 
-## Purpose
+## Canonical model
 
-Tavall CI/CD exists to make the path from source to production explicit, reproducible, and attributable.
+```text
+GitHub event / Tavall CLI / operator / bot
+                    |
+                    v
+                Tavall CI
+                    |
+                    v
+        exact-source materialization
+                    |
+                    v
+             CI workspace root
+        +-----------+-----------+
+        |           |           |
+        v           v           v
+      repo A      repo B      repo C
+    exact SHA    exact SHA    exact SHA
+        \           |           /
+         \          |          /
+          +---------+---------+
+                    |
+                    v
+       one Tavall CI Gradle system
+   composite builds / source substitution
+                    |
+                    v
+        build / test / validation
+                    |
+                    v
+          evidence + artifacts
+```
 
-The goals are:
+The workspace diagram is logical. Physical paths are provider/materialization details and do not become repository, build, service, Lane, Environment, Workspace, or Executor identity.
 
-- Exact-source validation.
-- Repository-owned build and test definitions.
-- Tavall-owned execution.
-- Typed and durable evidence.
-- Immutable artifacts.
-- Production-equivalent staging.
-- Explicit production authorization.
-- Safe promotion and rollback.
-- Clear ownership between GitHub, Tavall CI, Tavall Cloud, and individual repositories.
+## Core rules
 
-A green icon beside a commit is not the architecture. It is a user interface representing evidence that must exist somewhere substantially less decorative.
+1. Tavall has **one CI system**.
+2. Tavall CI has **one Gradle orchestration/composition system** for Gradle repositories.
+3. Each repository remains a normal independent Gradle repository with its own project tree.
+4. Each repository participating in one candidate is materialized at an exact source identity into its **own workspace folder**.
+5. Cross-repository source development uses Gradle composite builds / `includeBuild(...)` / explicit dependency substitution against those exact workspaces.
+6. Repositories are not flattened into a synthetic monorepo and modules are not copied between repositories to make CI work.
+7. Containers are **optional**. A job may run directly on an authorized execution provider or inside an explicitly selected supported container boundary when isolation or reproducibility requires it.
+8. Container choice does not change source identity, dependency identity, build identity, workspace ownership, or artifact identity.
+9. Lane, Environment, Workspace, Executor, Node, and service objects are not mandatory CI stages.
+10. GitHub is source/review/event/check presentation. GitHub Actions is not Tavall CI compute.
 
 ## Ownership
 
-CI/CD responsibilities are intentionally separated.
+### Repositories
+
+Each repository owns its actual Gradle project:
+
+- `settings.gradle` / `settings.gradle.kts`;
+- `build.gradle` / `build.gradle.kts`;
+- modules and `include(...)` topology;
+- dependency intent;
+- wrapper and repository-specific Gradle behavior;
+- lockfiles and version catalogs where used;
+- source-owned build/test tasks and scripts;
+- module and repository `.tavallci` definitions.
+
+A repository does not surrender its Gradle structure to Tavall CI.
 
 ### Tavall CI
 
-`TavallStudios/tavall-ci` owns reusable CI/CD semantics.
+`TavallStudios/tavall-ci` owns the shared CI system:
 
-Tavall CI owns:
+- parsing repository/module `.tavallci` definitions;
+- resolving exact source;
+- materializing one isolated repository workspace folder per exact source;
+- composing cross-repository development candidates;
+- the shared Gradle planning/orchestration layer;
+- dependency substitution and exact-source aggregation;
+- approved build/dependency policy;
+- build, dependency-resolution, and artifact identities;
+- typed execution planning;
+- validation/evidence collection;
+- immutable artifact publication;
+- delivery validation, promotion policy, and rollback policy.
 
-- CI orchestration.
-- Repository CI-definition parsing and planning.
-- Exact-source candidate composition.
-- Cross-repository source aggregation.
-- Source, release, build-policy, and dependency-resolution identities.
-- Dependency validation.
-- Build orchestration.
-- Typed CI checks.
-- Failure classification.
-- Architecture-test orchestration.
-- CI evidence.
-- Immutable artifact identity and publication.
-- Delivery validation.
-- Production authorization state.
-- Promotion policy.
-- Rollback policy.
+Tavall CI must not duplicate Tavall Cloud's node, provider, NLEW, scheduling, runtime-placement, or service-lifecycle systems.
 
-Tavall CI does not own node placement, service processes, Docker, Kubernetes, runtime routing, infrastructure storage, or Cloud scheduling.
+### Tavall Cloud / execution providers
 
-### Repositories and Modules
+Cloud or another approved local execution provider supplies compute and capabilities requested by Tavall CI. This may include Java, Gradle runtime support, caches, native tools, networking, or optional container isolation.
 
-Repositories own their aggregate build/test topology. Each Tavall source/build module owns the build and test definition for the source it contains.
+The execution provider answers **where/how the planned work runs**. It does not define the CI build graph.
 
-**Every Tavall source/build module ships its own `.tavallci/ci.yaml`.** A repository root may also define `.tavallci/ci.yaml` for repository-wide and aggregate validation, but the root definition does not replace module-local CI ownership.
+NLEW context may be attached when a task genuinely needs it. It is not required merely because CI exists.
 
-Tavall CI orchestrates the source-controlled definitions. It does not maintain a second hard-coded build graph for every module.
+## Workspace model
 
-### Gradle and Build Tools
+A multi-repository candidate is laid out as separate repository workspaces under one CI run/materialization root.
 
-Gradle ownership follows the same boundary:
-
-- The repository owns `settings.gradle(.kts)`, `build.gradle(.kts)`, project topology, dependency intent, lockfiles, version catalogs, and repository-specific tasks.
-- Tavall CI owns approved build policy, exact-source composition, typed Gradle planning, build-platform identity, resolution evidence, and artifact identity.
-- The Tavall Cloud Executor owns execution placement, Java and Gradle provisioning, filesystem isolation, and cache access.
-
-Java 25 is the Tavall default. Gradle repositories use the standard committed Wrapper and the approved platform Gradle version, currently 9.6.1, through `./gradlew`. CI must not depend on a host `gradle` command or an arbitrary user Gradle home.
-
-The Executor provides the canonical equivalent of `/tavall/workspace`, `/tavall/dependencies`, and `/tavall/shared-tools/gradle`. Commands run from the exact-source repository root. Source dependencies are materialized at exact Git identities and record repository, commit, dependency role, and source tree digest. Shared Gradle download caches may be reused; job output and operation-specific Gradle state remain isolated per execution.
-
-Tavall CI's Git source materializer resolves a remote and fetchable ref through an injected source locator, then verifies the fetched HEAD against the requested exact SHA and records its tree digest. Planning checkouts use request-scoped paths and are released after the resolved plan has finished; they do not become canonical local repositories. Cloud-backed jobs carry exact source/tree identities and use the existing shared machine Executor. CONTROL authorizes the Lane when coordination is needed, repository, invocation, and Executor; ordinary CI does not create or require a Cloud Environment merely because a job exists. Exact sources and dependencies are materialized in operation-scoped Workspaces. Git credentials remain in the configured transport environment, outside remote URLs and source identities.
-
-The legacy Environment-owned repository checkout path is being retired as the default for source and CI work. New jobs resolve exact source into an operation-scoped Executor Workspace and do not rebind an Environment checkout unless Environment-owned state is explicitly part of the workflow. Any remaining legacy checkout may be migrated only when it is clean, its origin still names the resolved repository, its branch is unchanged, and its prior exact commit is an ancestor of the newly requested SHA. Dirty, foreign-origin, wrong-branch, or divergent worktrees remain blocked for owner-preserving recovery; they are never reset or cleaned to make provisioning succeed.
-
-Tavall internal dependency composition uses exact source builds or immutable Tavall artifacts. Maven Local, floating sibling workspaces, mutable snapshots, and GitHub Packages are not internal dependency authorities. Gradle remains a typed Tavall CI executor; shell commands remain for work that needs a repository-owned script or non-Gradle tool.
-
-### Source, event, and execution providers
-
-GitHub is an optional source/event/check integration. A GitHub App or other configured provider adapter may deliver repository events to the Tavall GitHub Bot, which submits a typed Tavall CI request and projects typed results into GitHub Checks. Direct operator callers use the Tavall CI API/Console/CLI. The source identity and the Tavall CI/CD run do not require GitHub API identities: CI accepts an exact provider-neutral repository and commit, then runs through Tavall Cloud's existing `DEVELOPMENT_SHARED` machine Executor. `origin=github-bot` is caller provenance only; it is not a build, release, artifact, or deployment identity.
-
-No GitHub Actions workflow or job may trigger, schedule, execute, carry, publish, or gate a Tavall CI/CD job, artifact, deployment, or promotion. Tavall CI/CD build, test, architecture, integration, artifact-production, and deployment compute runs through the local Tavall job system and Tavall Cloud Executors. GitHub Checks are projected by the Bot/API integration; Actions workflows are not used as event bridges or result relays.
-
-The legacy `tavall-github-runner` operating-system account belonged to a self-hosted GitHub Actions service; it is not the Tavall GitHub Bot or a Tavall Executor. It has no role in the CI/CD execution path and must not receive host or CONTROL authority. The typed Tavall CI Cloud adapter submits a durable Cloud CI job, and CONTROL selects and records the existing `DEVELOPMENT_SHARED` machine Executor and node. Builds receive resolved exact sources and immutable tool/artifact inputs without GitHub API credentials.
-
-Once exact sources, CI evidence, and immutable artifacts are available in Tavall authorities, delivery, deployment, readiness, promotion, and rollback use Tavall CI, Tavall Storage, and Tavall Cloud. They do not call GitHub. If the selected source provider is unavailable before exact-source materialization, that source-resolution attempt is blocked; another configured source provider may supply the same exact identity without changing the CI/CD identity.
-
-### Tavall Cloud
-
-Tavall Cloud owns infrastructure and execution capabilities.
-
-This includes:
-
-- General-purpose Environments and their lifecycle, mutability, work, service, resource, and runtime policies.
-- Registered logical services, which default to Environment ownership in DEVELOPMENT, STAGING, and PRODUCTION.
-- Exact-source materialization.
-- Executors.
-- Nodes.
-- Operation-scoped execution isolation.
-- Tavall Console execution.
-- Storage.
-- Deployment.
-- Service lifecycle.
-- Scaling.
-- Runtime placement.
-- Routing.
-- Docker and Kubernetes providers.
-
-Reusable callers access Cloud capabilities through `tavall-cloud-api`.
-
-Cloud Environments are **general-purpose ownership/context boundaries**, not service-only deployment records. Registered logical services default to Environment ownership so long-lived service runtime state does not become owned by a Lane, Workspace, Executor, or host path. Ordinary source repositories, branches, CI jobs, Executor invocations, and build Workspaces do not create an Environment merely by existing. A CI workflow may intentionally use an Environment when Environment-owned integration or runtime state is part of what is being tested. Development Staging remains a workflow role and not an additional Environment classification.
-
-The detailed NLEW contract is binding in [NLEW_AND_SERVICE_OWNERSHIP.md](NLEW_AND_SERVICE_OWNERSHIP.md). In particular, `/srv` and other host paths are provider/materialization details and must not become logical service or Environment identity.
-
-`tavall-cloud-api` is a generic Cloud capability boundary. It must not become another home for Tavall CI policy.
-
-The historical `tavall-cloud-ci` and `tavall-cloud-cd` implementations are retired as CI/CD authorities.
-
-### Tavall GitHub Bot
-
-`TavallStudios/tavall-github-bot` owns GitHub integration.
-
-It is responsible for:
-
-- GitHub App authentication.
-- GitHub event ingestion and normalization.
-- Repository and pull-request discovery.
-- Exact-head reconciliation.
-- Stale-head fencing.
-- Fork and foreign-head trust checks.
-- Requesting CI work from Tavall CI.
-- Publishing Tavall CI evidence as GitHub Checks.
-- GitHub-facing reconciliation and recovery.
-
-The GitHub Bot is not a CI scheduler.
-
-It must not define its own build graph, dependency policy, artifact rules, promotion rules, or Cloud scheduling behavior.
-
-### GitHub
-
-GitHub is the authoritative surface for:
-
-- Source control.
-- Pull requests.
-- Review.
-- Merge history.
-- GitHub events.
-- Check presentation.
-
-GitHub Actions jobs are not part of Tavall CI/CD. All Tavall CI/CD jobs run through the local Tavall job system and Tavall Cloud Executors.
-
-Tavall builds, tests, architecture checks, integration tests, runtime validation, deployment validation, and all other Tavall CI/CD jobs run through Tavall's local job system and Tavall Cloud Executors. There are no GitHub Actions exceptions for CI/CD jobs.
-
-## Repository and Module CI Definitions
-
-CI definitions live with the exact source they validate:
+Example:
 
 ```text
-<repository>/
-├── .tavallci/ci.yaml                 # optional repository-wide aggregate
-├── module-a/.tavallci/ci.yaml        # required for each source/build module
-└── module-b/.tavallci/ci.yaml        # required for each source/build module
+<ci-run-root>/
+└── repos/
+    ├── tavall-mc/                    # exact SHA A
+    ├── tavall-minecraft-framework/   # exact SHA B
+    ├── tavall-java-tools/            # exact SHA C
+    └── Tavall-Architecture-Tests/    # exact SHA D, when required
 ```
-
-A `.tavallci` definition is ordinary source-controlled configuration. It may define typed Gradle tasks, repository/module verification, architecture checks, behavior and integration tests, runtime acceptance, additional tools, immutable dependencies, and bounded source-controlled scripts.
 
 Rules:
 
-- Every Tavall source/build module has its own `.tavallci/ci.yaml`.
-- The repository root definition is optional and aggregates module definitions when repository-wide checks are needed.
-- Root aggregation composes module validation; it does not replace or duplicate module-owned definitions.
-- Definitions are reviewed with the source they affect and resolved from the exact source candidate.
-- Changing a module or root `.tavallci` definition changes source state and requires fresh exact-source evidence.
-- Tavall CI validates definitions without requiring an opaque database copy to determine canonical policy.
-- CI configuration must not silently invent missing dependencies or versions.
-- Module-specific build/test behavior remains module-owned.
-- `SYSTEM` is the default resource mode unless an explicit canonical override exists.
-- Provider metadata may identify where source events came from, but CI identities and build execution do not require GitHub APIs.
+- one repository = one repository workspace folder;
+- the folder contains that repository's normal source tree;
+- exact repository + exact Git SHA is the source identity;
+- workspace folder names/paths are materialization details, not source identity;
+- neighboring folders are not dependencies merely because they exist;
+- Tavall CI explicitly selects and wires participating repositories;
+- duplicate/conflicting exact sources for the same repository fail closed;
+- mutable leftovers from a previous run are not dependency authority.
 
-Where a module exposes stable scripts such as `scripts/ci/run` or `scripts/ci/verify`, those remain source-owned boundaries. Tavall CI must resolve the module graph rather than maintain a stale copy of it.
+A single-repository build is simply the same model with one repository workspace.
 
-### Root-only CI for multi-module repositories is an anti-pattern
+## One Gradle system
 
-A multi-module repository must not replace module-local CI ownership with only a root `.tavallci/ci.yaml`. Each source/build module needs a definition that travels with its source.
+"One Gradle system" means Tavall CI has one shared Gradle planning/composition model rather than each workflow inventing a private dependency/bootstrap mechanism.
 
-Where a repository exposes stable CI scripts such as:
+For one repository:
 
 ```text
-scripts/ci/run
-scripts/ci/verify
+Tavall CI
+  -> repository workspace
+  -> repository's normal Gradle project
+  -> requested typed Gradle tasks
 ```
 
-they remain repository-owned execution boundaries.
-
-## CI Dependencies and Workflow Inputs
-
-A workflow may require more than source code.
-
-Dependencies may include:
-
-- Another exact-source repository.
-- An immutable Tavall artifact.
-- An approved released library.
-- A tool.
-- A test harness.
-- An MCP or other bounded execution capability.
-- Repository-specific workflow support.
-
-These inputs must be declared through the relevant module/repository `.tavallci` definition or another explicit typed dependency boundary.
-
-CI dependencies must be reproducible.
-
-Do not depend on:
-
-- An arbitrary mutable directory.
-- Whichever tool version happens to be installed first in `PATH`.
-- A floating development checkout.
-- An undocumented agent state.
-- A stale executor workspace left over from another job.
-
-Reusable workflows and workflow dependencies may be distributed and hosted independently, but executions must resolve their exact required inputs before becoming valid evidence.
-
-For Gradle composites, Tavall CI includes only resolved exact-source builds and applies declared module substitutions. A candidate never includes a neighboring directory just because it is present on an Executor.
-
-## Exact Source
-
-Authoritative CI is bound to immutable source.
-
-At minimum, an execution must identify:
+For several repositories:
 
 ```text
-repository
-exact Git SHA
-resolved repository/module CI definition set
-execution profile
-execution origin
+Tavall CI
+  -> repo workspace A
+  -> repo workspace B
+  -> repo workspace C
+  -> exact-source composite
+       includeBuild(A/B/C as required)
+       explicit dependency substitution
+  -> requested typed Gradle tasks
 ```
 
-A source-head change creates a new CI identity.
+The shared system owns cross-repository composition and resolution evidence. Each repository still owns its internal Gradle module graph.
 
-Evidence from one source revision must not be reused for another revision.
+Internal development dependencies use exact source or an explicitly selected immutable Tavall artifact. Do not use Maven Local, arbitrary sibling directories, floating mutable snapshots, or a host user's accidental Gradle state as dependency authority.
 
-For GitHub-triggered work:
+Shared download/cache state may be reused when safe. Source workspaces, outputs that require isolation, and run-specific evidence remain attributable to the CI run.
 
-1. The GitHub Bot resolves the exact pull-request or branch head.
-2. Tavall CI accepts work for that exact source.
-3. The execution provider materializes that exact source.
-4. Repository validation verifies the source fence before meaningful execution.
-5. GitHub publication verifies that the result still belongs to the current source.
+## `.tavallci`
 
-Stale source fails closed.
-
-Do not run tests against one commit and publish success against another because both commits looked emotionally similar.
-
-## Versioning and Build Identity
-
-The binding versioning rules live in [VERSIONING.md](VERSIONING.md). Tavall CI keeps these identities distinct:
-
-### Source Identity
-
-The repository and exact Git revision.
+CI intent lives with source.
 
 ```text
-repository + exact Git SHA
+<repository>/
+├── .tavallci/ci.yaml                 # optional repository aggregate
+├── module-a/.tavallci/ci.yaml        # module-owned CI
+└── module-b/.tavallci/ci.yaml        # module-owned CI
 ```
 
-### Release Identity
+Module CI definitions own module checks. A root definition may aggregate them but must not become a stale second copy of every module's build logic.
 
-An explicitly approved immutable release identity.
+`.tavallci` may request typed Gradle work, source-controlled scripts, test harnesses, exact-source repository dependencies, immutable artifacts, tools, and additional approved execution capabilities.
 
-Development source does not need a fake release number.
+## Typed execution
 
-### Build Policy Identity
+Gradle is a first-class typed Tavall CI execution path. Shell remains available for source-owned scripts and work that is not naturally Gradle work. Additional adapters may exist without creating separate CI systems.
 
-The exact Tavall build and CI policy used for the execution.
+The execution type describes how a planned step runs. It does not create a new source/build identity model.
 
-### Dependency Resolution Identity
+## Optional containerization
 
-The exact resolved dependency graph used by the build.
-
-### Build Identity
-
-Build identity binds the exact source to build policy, dependency resolution, and an optional explicit release identity. Ordinary development builds do not need a fabricated release identity.
-
-### Artifact Identity
-
-An artifact identity includes the artifact name, human/tool-facing version, channel, exact source and build identity, immutable storage reference, and SHA-256 digest. The digest remains the immutable identity of the produced bytes; version and channel are required metadata and do not replace it.
-
-These identities must not be collapsed into one generic version string.
-
-A Git SHA is not a release.
-
-A release is not a dependency graph.
-
-A dependency graph is not a build policy.
-
-`SNAPSHOT` must not be used as the protocol for choosing another repository's current development source.
-
-## Cross-Repository Validation
-
-Tavall CI may compose several repositories into one development candidate.
-
-Example:
+Containerization is optional.
 
 ```text
-tavall-project-novus @ exact SHA
-tavall-minecraft-framework @ exact SHA
-tavall-mc-paper @ exact SHA
-                |
-                v
-       exact CI candidate
+CI step
+├── direct/provider-native execution
+└── optional selected container boundary
 ```
 
-Each participating repository must have one unambiguous exact source identity.
+Use a container only when the task needs that isolation/runtime boundary. Do not wrap every build in a container merely because containers exist.
 
-Tavall CI may use:
+The exact supported container-type vocabulary belongs to the execution/provider contract. CI documentation must not invent an enum that has not been canonically defined.
 
-- Source aggregation.
-- Gradle composite builds.
-- Explicit dependency substitution.
-- Immutable internal artifacts where source composition is not appropriate.
+Regardless of execution boundary, the candidate remains the same exact repository workspaces and the same Tavall CI build/dependency graph.
 
-This allows dependent changes to be validated together without publishing fake intermediate releases.
+## NLEW relationship
 
-Materialization paths are execution details. They do not define candidate identity.
+NLEW is not the CI pipeline.
 
-Duplicate or conflicting sources for the same repository fail closed.
-
-## Execution
-
-Tavall CI decides what work is required.
-
-Tavall Cloud decides where authorized work executes.
-
-The normal source-validation boundary is:
+Incorrect:
 
 ```text
-repository / GitHub event
-        |
-        v
-    Tavall CI
-        |
-        v
-  tavall-cloud-api
-        |
-        v
- Tavall Cloud BUILD
-        |
-        v
- Lane when coordination is needed
-        |
-        v
-     Executor
-        |
-        v
-operation Workspace
-        |
-        v
-repository CI graph
+CI -> Lane -> Environment -> Workspace -> Executor -> build
 ```
 
-Executors may provide capabilities such as:
-
-- Java.
-- Gradle.
-- Docker.
-- Testcontainers.
-- Node.
-- Native system tools.
-- Private artifact access.
-- Repository-specific testing tools.
-
-Executors belong to Tavall Cloud's reusable execution lineage and are selected independently from Environment identity. Ordinary source/CI work does not create an Environment by default. A workflow may attach to or create an Environment when the validation materially requires Environment-owned integration/runtime state.
-
-Completed Executor work, metadata, logs, and evidence must remain attributable to the Lane when used, exact source, job, invocation, Executor, and Workspace that produced them. Environment identity is recorded when an Environment actually participates in the execution or when the validated artifact is deployed into a service's default Environment.
-
-For each Executor operation, physical repository materializations are scoped by
-the exact source manifest and invocation under the operation Workspace. A new
-source identity receives its own isolated materialization and preserves prior
-work; it does not automatically create a Cloud Environment. Neither a path nor a source
-snapshot digest replaces the exact repository SHA as source identity.
-
-An executor is not a random temporary folder with a CPU attached.
-
-## CI Origins
-
-CI may be requested through multiple trusted surfaces.
-
-Examples include:
+Also incorrect:
 
 ```text
-github-bot
-chatgpt
-codex
-manual
-scheduler
+CI -> Lane -> Executor -> Workspace -> build
 ```
 
-These are execution origins, not separate CI systems.
-
-Every origin uses the same CI semantics.
-
-An origin must not redefine:
-
-- Source identity.
-- Repository CI policy.
-- Artifact identity.
-- Required checks.
-- Promotion policy.
-
-Trusted development tools may also have stronger raw execution capabilities, but arbitrary console execution is not automatically CI evidence.
-
-## Architecture Tests
-
-Canonical Tavall Architecture Tests are part of the required validation graph where applicable.
-
-Architecture Tests must inspect the real production classes and source roots of the repository being validated.
-
-Do not:
-
-- Copy architecture rules into each repository.
-- Test a fake replacement implementation.
-- Treat the presence of architecture-test source files as proof that architecture tests ran.
-- Replace canonical architecture validation with repository-specific approximations.
-
-The canonical implementation belongs to `TavallStudios/tavall-test-suite-tools`.
-
-Tavall CI orchestrates it against the source actually being built.
-
-## Evidence
-
-CI success requires evidence of what actually ran.
-
-Evidence should identify, where applicable:
-
-- Repository.
-- Exact source SHA.
-- Cross-repository candidate identity.
-- CI definition.
-- Module-local `.tavallci` identity/digest and the resolved aggregate definition set.
-- Build-policy identity.
-- Dependency-resolution identity.
-- Java version.
-- Gradle version.
-- Commands or tasks executed.
-- Typed checks.
-- Check results.
-- Artifact name, version, channel, and digest.
-- Executor identity.
-- Lane identity, when applicable.
-- Workspace/invocation identity.
-- Environment identity, when applicable.
-- Runtime identity, when applicable.
-- Durable log or storage references.
-- Final result and failure classification.
-
-Every caller submission uses a stable provider-neutral request UUID. Tavall CI
-computes its replay identity after resolving the repository definition,
-exact-source manifest, build policy, dependency resolution, profile, and tasks.
-Reusing the UUID with a different resolved plan fails closed. The execution-plan
-SHA is retained with the typed result so that Cloud's durable job and the CI
-record refer to the same frozen plan.
-
-Typed CI evidence is persisted as an immutable record through the existing
-Tavall Cloud Storage capability. The Cloud operation binds it to the completed
-shared Executor `LOCAL_CI` job, exact source manifest, and frozen plan, and rejects replacement with
-different bytes. Raw executor logs and worker result properties remain useful
-diagnostics, but they do not replace the typed CI record used by delivery and
-promotion.
-
-Infrastructure failure is not source failure.
-
-A missing dependency is not a failed unit test.
-
-A timeout is not a compilation error.
-
-A stale source is not a successful execution.
-
-Failure classification must preserve those distinctions.
-
-## GitHub Checks
-
-GitHub Checks present Tavall CI evidence.
-
-They do not replace it.
-
-Canonical check families may include:
+Correct relationship:
 
 ```text
-tavall-ci/dependencies
-tavall-ci/architecture
-tavall-ci/behavior
-tavall-ci/integration
-tavall-ci/runtime
-tavall-ci/quality
-tavall-ci/required/all
-```
-
-A GitHub-specific aggregate may be published when it represents real Tavall CI execution.
-
-PR bookkeeping and automated review are not executable CI Checks.
-
-AI review may contribute review evidence. It does not become a human approval merely because a model used serious punctuation.
-
-## Immutable Artifacts
-
-Artifacts intended for delivery must be immutable.
-
-An artifact identity binds the built output to its exact source/build identity, version, channel, immutable storage reference, digest, and evidence as defined by [VERSIONING.md](VERSIONING.md).
-
-At minimum, promoted artifact evidence must make it possible to determine:
-
-```text
-source
-artifact version/channel
-artifact digest
-CI evidence
-```
-
-Changing the bytes produces a different artifact.
-
-STAGING and PRODUCTION should consume the immutable artifact validated by CI.
-
-Do not independently rebuild the source for every environment and then assume the outputs are equivalent.
-
-The desired relationship is:
-
-```text
-validated artifact
-      |
-      +--> STAGING
-      |
-      +--> PRODUCTION
-```
-
-not:
-
-```text
-source
-  |
-  +--> rebuild A
-  +--> rebuild B
-  +--> rebuild C
-```
-
-Build once, identify it, validate it, and promote that identity.
-
-## Continuous Delivery
-
-Continuous Delivery begins with an already validated candidate.
-
-Tavall CI owns delivery and promotion semantics.
-
-A delivery candidate should bind:
-
-- Exact source.
-- Build identity.
-- Immutable artifact.
-- Artifact version and channel.
-- Artifact digest.
-- Required CI evidence.
-- Deployment target.
-- Validation requirements.
-- Rollback requirements.
-
-Deployment intent belongs to a deployable logical service/runtime template in Tavall Cloud's existing service template registry. The source repository does not own `.tavallcd`; a repository may produce no service, one service, or several independently deployed runtimes. Pure libraries therefore need no CD definition.
-
-The canonical service/runtime template leaf is `templates/services/<service-id>/`, with `.tavallcd/cd.yaml` attached to the template. It binds the logical `serviceId`, a distinct `runtimeId`, artifact selector, required CI checks, allowed environments, readiness requirement, promotion gates, rollback expectation, runtime flags, and production traffic mode. Provider-specific deployment configuration remains beneath Tavall Cloud CONTROL.
-
-Tavall CI freezes the `.tavallcd` template identity and configuration digest into the delivery bundle alongside exact source identity, CI evidence, build-platform and dependency identity, and immutable artifact digest. Tavall Cloud carries that bundle through deployment generation, environment, runtime instance, readiness, promotion, and rollback evidence. A filesystem path or GitHub pull-request state is not release identity.
-
-The deployment path remains the Tavall service flow through `tavall service deploy plan/apply/verify/promote/rollback` and CONTROL. DEVELOPMENT and STAGING consume the frozen artifact and template configuration. PRODUCTION A/B uses two runtime slots beneath one stable logical service identity.
-
-The `tavall-ci-cloud` deployment adapter carries the frozen artifact identity, exact source SHA, CI run/evidence references, delivery-bundle digest, service-template identity/digest, logical runtime, environment, slot, and traffic intent into the existing typed `tavall service deploy plan/apply/verify/promote/rollback` commands. It does not call a provider deployment API directly.
-
-Each templated DEVELOPMENT, STAGING, and PRODUCTION runtime is materialized under its own Cloud runtime instance. The stable logical service and router remain the public identity. PRODUCTION A/B chooses the inactive BLUE/GREEN slot from the durable Cloud runtime registry; CONTROL rejects an apply that targets the active slot.
-
-Production activation uses two existing service-command stages. `tavall service deploy apply` installs the immutable candidate in the inactive slot with `STANDBY` traffic. Tavall CI then gathers the `.tavallcd` count of generation-fenced health and runtime-registry observations. After exact-bundle human approval, `tavall service deploy promote` asks CONTROL to revalidate the candidate generation and inactive-slot fence, then changes router traffic without rebuilding or restarting the candidate. The authorization bundle digest, actor, and time are recorded with the promotion command and delivery lineage.
-
-Readiness requires the number of healthy observations declared by `.tavallcd`. Every observation verifies the immutable source/artifact and reads the Cloud runtime registry again. All samples must identify the same deployment generation, runtime instance, service-template digest, environment, slot, and traffic state. Cloud persists the observations in the deployed service's existing `.tavallcd/deployment.json` lineage alongside source, artifact, CI evidence, delivery bundle, and template identity. No separate service-local evidence tree is introduced.
-
-Tavall CI keeps this evidence typed in `RuntimeReadinessEvidence` and requires matching DEVELOPMENT and STAGING readiness before production authorization. A successful build or single health response alone does not satisfy the template readiness requirement.
-
-Production-relevant changes create a new delivery identity and invalidate authorization that no longer represents the candidate.
-
-Tavall Cloud performs the authorized infrastructure operation.
-
-It does not decide that an unvalidated candidate has somehow become production-ready.
-
-## Development, Staging, and Production
-
-### DEVELOPMENT
-
-DEVELOPMENT is the normal engineering execution surface.
-
-It may use:
-
-- Exact-source Workspaces.
-- Cross-repository source composition.
-- The shared machine Executor for CI and source validation.
-- Environments when durable/integration/runtime context is materially required.
-- Development services, which default to Environment ownership.
-- Integration infrastructure attached to service runtimes.
-- Production-shaped validation against a DEVELOPMENT service runtime.
-
-Tests that can mutate user or player data must use appropriately isolated or protected data boundaries.
-
-### STAGING
-
-STAGING validates production-equivalent artifacts and behavior.
-
-Staging should use the immutable candidate intended for production rather than independently rebuilding its source.
-
-Required checks depend on the system but may include:
-
-- Startup.
-- Readiness.
-- Architecture.
-- Integration.
-- Persistence.
-- Runtime behavior.
-- Deployment.
-- Networking.
-- Upgrade behavior.
-- Rollback behavior.
-
-A development test passing does not prove the production-shaped deployment path works.
-
-### PRODUCTION
-
-PRODUCTION receives an explicitly authorized candidate.
-
-These are separate events:
-
-```text
-merge to main
-CI success
-artifact creation
-staging success
-production authorization
-production deployment
-```
-
-One does not imply all the others.
-
-`main` is production source truth. Reaching `main` does not mean production services have already been changed.
-
-## Staging Ancestry
-
-Git and PR integration topology is defined by [GIT_WORKFLOW.md](GIT_WORKFLOW.md).
-
-CI must validate the actual source composition at every integration tier whose source changed.
-
-Example:
-
-```text
-feature PR
+Tavall CI plan
     |
     v
-Sub-Staging
+approved execution capability
     |
-    v
-Repository Staging
-    |
-    v
-main
+    +--> may use a Node
+    +--> may run on an Executor
+    +--> may attach Lane context
+    +--> may use/create a Cloud Workspace
+    +--> may use an Environment when the test genuinely needs Environment-owned state
+    +--> may use an optional container boundary
 ```
 
-A child PR passing CI does not prove that the composed Sub-Staging or repository Staging head passes.
+Those are execution/context choices around the CI plan, not a mandatory ordered chain.
 
-Changed integration state requires its own exact-head evidence.
+## Exact source and cross-repository candidates
 
-CI evidence and staging ancestry cooperate, but neither replaces the other. Git staging names do not create or imply Cloud Lanes, Environments, Workspaces, or Executors; Cloud topology is selected from execution need and policy.
-
-## Production Authorization
-
-Production promotion requires accountable authorization.
-
-Authorization must identify the exact candidate being promoted.
-
-A changed artifact, source revision, delivery definition, or invalidated required check requires new authorization when the previous authorization no longer represents the candidate.
-
-Automation may:
-
-- Prepare a candidate.
-- Run validation.
-- Produce evidence.
-- Deploy to staging.
-- Prepare promotion.
-
-Automation must not invent human production approval.
-
-## Deployment and Runtime Ownership
-
-Tavall Cloud owns deployment mechanics and resulting runtime state.
-
-This includes:
-
-- Artifact materialization.
-- Environment ownership and service placement.
-- Service process lifecycle.
-- Blue/green or A/B runtime handling.
-- Health observation.
-- Runtime routing.
-- Degradation handling.
-- Infrastructure failover.
-- Rollback execution.
-
-Tavall CI owns whether a candidate is valid and authorized for promotion.
-
-Cloud owns whether and how that candidate is actually running.
-
-Registered logical services default to Environment ownership. Environments remain general-purpose and may own other workloads/resources; a host path such as `/srv` is never logical service or Environment identity.
-
-Requested deployment state is not sufficient evidence of successful deployment. Observed runtime state must agree.
-
-Detailed deployment, router, storage, NLEW, and service-layout behavior belongs in Tavall Cloud documentation rather than being duplicated here.
-
-## Rollback
-
-Rollback is part of delivery design.
-
-A production-capable delivery path should identify:
-
-- The known-good candidate.
-- The artifact to restore.
-- Compatibility requirements.
-- Required readiness validation.
-- State or migration restrictions.
-- Conditions where automatic rollback is unsafe.
-
-Rollback does not mean blindly reversing databases or persistent state.
-
-Application, data, and infrastructure rollback may have different safety rules.
-
-## GitHub Actions
-
-GitHub Actions workflows and jobs must not be used to trigger, schedule, transport, execute, publish, or gate Tavall CI/CD work. Tavall repositories must not depend on Actions job status as CI/CD evidence.
-
-GitHub remains an SCM, review, source-event, and Check surface. A GitHub App/Bot calls Tavall CI directly and projects its typed result through the GitHub API. Operators may also invoke Tavall CI through its typed API, Console, or CLI. These paths submit work to Tavall Cloud's existing job system, where CONTROL selects the authorized shared machine Executor.
-
-## Validation Rules
-
-Before CI evidence is accepted:
-
-- The source identity must match the requested source.
-- Required dependencies must resolve explicitly.
-- The CI definition must be valid.
-- The selected executor must satisfy required capabilities.
-- Required repository checks must actually execute.
-- Required Architecture Tests must run against production source.
-- Evidence must identify the execution that produced it.
-- Artifact hashes must correspond to the produced artifacts.
-- A stale source must invalidate acceptance.
-- Provider or infrastructure failure must not be reported as source success or source failure.
-- Integration tiers must be validated after their composition changes.
-- Deployment acceptance must verify observed state, not merely requested state.
-
-## Anti-Patterns
-
-### Root-only CI definition for a multi-module repository
-
-Bad:
+Every participating repository is identified independently:
 
 ```text
-repo/.tavallci/ci.yaml
-module-a/   # no .tavallci/ci.yaml
-module-b/   # no .tavallci/ci.yaml
+repository A + exact Git SHA A
+repository B + exact Git SHA B
+repository C + exact Git SHA C
 ```
 
-The root becomes a second hard-coded model of module validation, and module CI cannot travel independently with module source. Keep the root definition as an optional aggregate and give every source/build module its own definition.
+Tavall CI records the resolved source set and dependency-resolution identity. A source-head change creates a new candidate and requires fresh evidence.
 
-### GitHub Actions as Tavall CI/CD job infrastructure
+Cross-repository development should validate source together before fake intermediate releases are published.
 
-Bad:
+## GitHub boundary
+
+GitHub owns source control, pull requests, review, merge history, events, and check presentation.
+
+Typical integration:
 
 ```text
-GitHub PR / event
-   |
-   v
-GitHub Actions job
-   |
-   +--> request CI
-   +--> run checks
-   +--> publish artifacts
-   +--> deploy
+GitHub event
+  -> Tavall GitHub Bot
+  -> typed Tavall CI request
+  -> Tavall CI execution
+  -> typed evidence
+  -> GitHub Check
 ```
 
-Why?
+No GitHub Actions workflow/job is Tavall CI compute, scheduler, deployment runner, artifact authority, or promotion authority.
 
-It creates jobs on GitHub and bypasses the local Tavall job system and Executor placement authority. The Bot/API integration sends a typed request directly to Tavall CI; GitHub Checks display the result afterward.
+Direct Tavall CLI/API/operator requests may invoke the same Tavall CI system without GitHub.
 
-### CI Policy in Tavall Cloud
+## Evidence and artifacts
 
-Bad:
+Evidence binds to the exact candidate actually executed. It should include enough identity to reconstruct:
+
+- participating repositories and exact SHAs;
+- resolved `.tavallci` definition set;
+- build/dependency policy identity;
+- resolved cross-repository composition;
+- requested execution profile;
+- execution/provider information relevant to reproducibility;
+- test/validation results;
+- produced artifact identities and digests.
+
+Execution details such as a temporary host path or optional container instance are evidence/provenance, not source identity.
+
+## CD boundary
+
+CI builds and validates immutable artifacts. CD promotes the already validated artifact rather than rebuilding a supposedly equivalent one for each target.
 
 ```text
-Tavall Cloud
-  -> decides required tests
-  -> defines CI check semantics
-  -> defines artifact promotion
+exact source workspaces
+  -> build/test
+  -> immutable artifact + digest
+  -> delivery validation
+  -> deployment target
+  -> readiness
+  -> explicit promotion/authorization
 ```
 
-Why?
+`.tavallcd` is deployment/service-local configuration for deployable services/runtimes. It is not a required source-repository container around ordinary CI and pure libraries do not need deployment state merely to build.
 
-Cloud is the infrastructure provider.
+Service/Environment ownership and deployment topology are governed by Cloud/NLEW authority, not by the CI workspace layout.
 
-Making it own CI policy recreates the retired Cloud CI/CD architecture under a new class name, which is an impressively expensive way to return to where we started.
+## Final rules
 
-### Hard-Coded Repository Build Graph
-
-Bad:
-
-```text
-Tavall CI:
-if repo == "tavall-mc":
-    run these twelve Gradle tasks
-```
-
-Why?
-
-The repository owns its build graph.
-
-CI should read the repository's current definition instead of requiring central code changes whenever the repository changes its tests.
-
-### Stale Evidence
-
-Bad:
-
-```text
-PR SHA A passed
-PR moved to SHA B
-publish SHA A result as current
-```
-
-Why?
-
-The tested source no longer matches the reviewed source.
-
-The result is stale.
-
-### Rebuilding During Promotion
-
-Bad:
-
-```text
-CI build
-STAGING rebuild
-PRODUCTION rebuild
-```
-
-Why?
-
-Each rebuild may produce different bytes or dependency resolution.
-
-Promote the immutable validated artifact instead.
-
-### Floating Development Dependencies
-
-Bad:
-
-```text
-dependency = latest SNAPSHOT
-```
-
-Why?
-
-There is no exact source identity.
-
-Use an exact source candidate or an approved immutable release.
-
-## Final Rules Summary
-
-- `tavall-docs` owns organization-wide CI/CD policy.
-- `NLEW_AND_SERVICE_OWNERSHIP.md` owns organization-wide Node/Lane/Environment/Workspace/Executor terminology and service ownership defaults.
-- `VERSIONING.md` owns source/build/dependency/artifact version and channel identity policy.
-- `tavall-ci` owns reusable CI/CD semantics.
-- Repositories own aggregate build/test topology; every source/build module owns `.tavallci/ci.yaml`.
-- Repository-root `.tavallci` may aggregate module definitions but cannot replace them.
-- Tavall Cloud owns execution, deployment, storage, placement, routing, NLEW implementation, and runtime infrastructure.
-- Environments are general-purpose Cloud ownership/context boundaries; registered logical services default to Environment ownership.
-- Source, CI, and build work do not create Environment records by default, but may intentionally use an Environment when Environment-owned state is part of the workflow.
-- Lanes, Workspaces, Executors, Environments, Git branches, and staging PRs are distinct concepts and must not be used as aliases for one another.
-- Host paths such as `/srv` are implementation/materialization details, not logical service or Environment identity.
-- `tavall-cloud-api` is the generic boundary between CI and Cloud capabilities.
-- Tavall GitHub Bot owns GitHub events, exact-head reconciliation, and Check publication.
-- GitHub Actions jobs are not part of Tavall CI/CD; CI/CD execution and evidence belong to Tavall CI and Tavall Cloud Executors.
-- CI definitions are source-controlled under `.tavallci`.
-- Artifact digests remain immutable identities, with version and channel recorded alongside them.
-- CI is exact-source fenced.
-- Cross-repository development uses exact-source composition, not floating `SNAPSHOT` selection.
-- Architecture Tests run against the real production source.
-- Evidence records what actually ran.
-- Infrastructure failure and source failure remain distinct.
-- Delivery uses immutable artifacts.
-- STAGING validates the candidate intended for production.
-- Production requires accountable authorization.
-- Merge, CI success, artifact creation, staging, authorization, and deployment remain separate states.
-- Every changed staging composition receives its own exact-head validation.
-
-## Documentation Update State
-
-<details>
-<summary>Documentation Update State</summary>
-
-### Current Locations
-
-| Surface | Sync State | Location | Last Updated | Evidence |
-| --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | 2026-10-03 | Corrected the service-only Environment regression introduced by PR #53; aligned with `NLEW_AND_SERVICE_OWNERSHIP.md`. |
-| Notion | `DRIFT_REQUIRES_UPDATE` | `Tavall / Platform & Infrastructure / Tavall Studios CI/CD` | 2026-10-03 | The last recorded Notion synchronization copied PR #53's now-superseded service-only Environment wording. It must not be treated as current authority until reconciled. |
-
-### Update History
-
-| Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
-| --- | --- | --- | --- | --- | --- | --- |
-| 2026-10-02 11:17 PM PDT | GitHub + Notion | `UPDATED` | Canonical CI/CD pair | 2026-09-27 synchronized content | GitHub PR #53 merge `97c92e58f50768a7bbf934e1f18787123d9d637d` | Introduced service-only Cloud Environment wording; this portion is superseded by the 2026-10-03 correction. The no-GitHub-Actions CI/CD policy remains current. |
-| 2026-10-03 | GitHub | `CORRECTED` | `docs/quality/CI_CD.md` + `NLEW_AND_SERVICE_OWNERSHIP.md` | PR #53 service-only wording | Direct main correction | Restored general-purpose Environments, retained service-to-Environment default placement, separated Git staging from NLEW topology, and made `/srv` non-canonical for logical service ownership. Notion remains intentionally marked drift until updated. |
-
-</details>
+- One Tavall CI system.
+- One shared Tavall CI Gradle orchestration/composition system.
+- Normal independent Gradle repositories remain normal independent Gradle repositories.
+- Separate workspace folder per participating repository.
+- Exact source for every repository in a candidate.
+- Cross-repo development through explicit Gradle composite/source substitution or immutable artifacts.
+- No synthetic monorepo requirement.
+- No Maven Local or accidental sibling-workspace dependency authority.
+- Containers are optional execution boundaries.
+- Do not invent container enums that have not been canonically defined.
+- NLEW is available to CI; NLEW is not the CI pipeline.
+- GitHub Actions is not Tavall CI compute.
+- Build once, record immutable identity/digest, and promote that artifact unchanged.
