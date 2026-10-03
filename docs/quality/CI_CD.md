@@ -75,9 +75,9 @@ Java 25 is the Tavall default. Gradle repositories use the standard committed Wr
 
 The Executor provides the canonical equivalent of `/tavall/workspace`, `/tavall/dependencies`, and `/tavall/shared-tools/gradle`. Commands run from the exact-source repository root. Source dependencies are materialized at exact Git identities and record repository, commit, dependency role, and source tree digest. Shared Gradle download caches may be reused; job output and operation-specific Gradle state remain isolated per execution.
 
-Tavall CI's Git source materializer resolves a remote and fetchable ref through an injected source locator, then verifies the fetched HEAD against the requested exact SHA and records its tree digest. Planning checkouts use request-scoped paths and are released after the resolved plan has finished; they do not become canonical local repositories. Cloud-backed jobs carry source/tree identities, while CONTROL independently resolves the matching Environment snapshot into the Executor workspace and dependencies. Git credentials remain in the configured transport environment, outside remote URLs and source identities.
+Tavall CI's Git source materializer resolves a remote and fetchable ref through an injected source locator, then verifies the fetched HEAD against the requested exact SHA and records its tree digest. Planning checkouts use request-scoped paths and are released after the resolved plan has finished; they do not become canonical local repositories. Cloud-backed jobs carry exact source/tree identities and use the existing shared machine Executor. CONTROL authorizes the lane, repository, invocation, and Executor; it does not create or require a Cloud Environment record for CI. Exact sources and dependencies are materialized in operation-scoped workspaces. Git credentials remain in the configured transport environment, outside remote URLs and source identities.
 
-When a durable Environment reuses its repository path after a source snapshot advances, Cloud may rebind that checkout only when it is clean, its origin still names the resolved repository, its branch is unchanged, and its prior exact commit is an ancestor of the newly requested SHA. Dirty, foreign-origin, wrong-branch, or divergent worktrees remain blocked for owner-preserving recovery; they are never reset or cleaned to make provisioning succeed.
+The legacy Environment-owned repository checkout path is being retired for source and CI work. New jobs resolve exact source into an operation-scoped Executor Workspace and never rebind a service Environment checkout. Any remaining legacy checkout may be migrated only when it is clean, its origin still names the resolved repository, its branch is unchanged, and its prior exact commit is an ancestor of the newly requested SHA. Dirty, foreign-origin, wrong-branch, or divergent worktrees remain blocked for owner-preserving recovery; they are never reset or cleaned to make provisioning succeed.
 
 Tavall internal dependency composition uses exact source builds or immutable Tavall artifacts. Maven Local, floating sibling workspaces, mutable snapshots, and GitHub Packages are not internal dependency authorities. Gradle remains a typed Tavall CI executor; shell commands remain for work that needs a repository-owned script or non-Gradle tool.
 
@@ -97,11 +97,11 @@ Tavall Cloud owns infrastructure and execution capabilities.
 
 This includes:
 
-- DEVELOPMENT lanes and environments.
+- Service runtime Environments for registered logical services in DEVELOPMENT, STAGING, and PRODUCTION.
 - Exact-source materialization.
 - Executors.
 - Nodes.
-- Sandboxing.
+- Operation-scoped execution isolation.
 - Tavall Console execution.
 - Storage.
 - Deployment.
@@ -112,6 +112,8 @@ This includes:
 - Docker and Kubernetes providers.
 
 Reusable callers access Cloud capabilities through `tavall-cloud-api`.
+
+Cloud Environments are service deployment/runtime targets. An Environment record must not be created for a source repository, branch, CI job, Executor invocation, or build workspace. Tavall CI jobs use exact source identity and the existing shared machine Executor; their operation-scoped workspace is not an Environment. Development Staging remains a workflow role using DEVELOPMENT service runtimes, not an additional Environment classification.
 
 `tavall-cloud-api` is a generic Cloud capability boundary. It must not become another home for Tavall CI policy.
 
@@ -365,15 +367,15 @@ Executors may provide capabilities such as:
 - Private artifact access.
 - Repository-specific testing tools.
 
-Executors belong to their environment and execution lineage.
+Executors belong to Tavall Cloud's reusable execution lineage, not to a source-work Environment. A service Environment is linked only when a validated artifact is deployed.
 
-Completed executor work, metadata, logs, and evidence must remain attributable to the environment, lane, source, and job that produced them.
+Completed Executor work, metadata, logs, and evidence must remain attributable to the Lane, exact source, job, and invocation that produced them. A service Environment is recorded only when the validated artifact is deployed to a registered service runtime.
 
-For a dedicated Cloud Environment, physical repository materializations are
-scoped by the immutable source-snapshot digest beneath that Environment. A new
-source generation receives its own physical path and preserves prior work;
-CONTROL continues to expose the logical Environment/repository path. Neither
-path replaces the exact repository SHA as source identity.
+For each Executor operation, physical repository materializations are scoped by
+the exact source manifest and invocation under the operation Workspace. A new
+source identity receives its own isolated materialization and preserves prior
+work; it does not create a Cloud Environment. Neither a path nor a source
+snapshot digest replaces the exact repository SHA as source identity.
 
 An executor is not a random temporary folder with a CPU attached.
 
@@ -456,7 +458,7 @@ record refer to the same frozen plan.
 
 Typed CI evidence is persisted as an immutable record through the existing
 Tavall Cloud Storage capability. The Cloud operation binds it to the completed
-environment `LOCAL_CI` job and its exact plan, and rejects replacement with
+shared Executor `LOCAL_CI` job, exact source manifest, and frozen plan, and rejects replacement with
 different bytes. Raw executor logs and worker result properties remain useful
 diagnostics, but they do not replace the typed CI record used by delivery and
 promotion.
@@ -590,10 +592,10 @@ It may use:
 
 - Exact-source workspaces.
 - Cross-repository source composition.
-- Environment executors.
+- The shared machine Executor for CI and source validation.
 - Development services.
-- Integration infrastructure.
-- Production-shaped test environments.
+- Integration infrastructure attached to service runtimes.
+- Production-shaped validation against a DEVELOPMENT service runtime.
 
 Tests that can mutate user or player data must use appropriately isolated or protected data boundaries.
 
@@ -867,6 +869,7 @@ Use an exact source candidate or an approved immutable release.
 - Repositories own aggregate build/test topology; every source/build module owns `.tavallci/ci.yaml`.
 - Repository-root `.tavallci` may aggregate module definitions but cannot replace them.
 - Tavall Cloud owns execution, deployment, storage, placement, routing, and runtime infrastructure.
+- Cloud Environments represent deployed logical service runtimes; source, CI, and build work do not create Environment records.
 - `tavall-cloud-api` is the generic boundary between CI and Cloud capabilities.
 - Tavall GitHub Bot owns GitHub events, exact-head reconciliation, and Check publication.
 - GitHub Actions jobs are not part of Tavall CI/CD; CI/CD execution and evidence belong to Tavall CI and Tavall Cloud Executors.

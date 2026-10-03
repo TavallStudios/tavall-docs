@@ -66,6 +66,8 @@ A release identity is an explicitly approved immutable release identifier. It is
 
 A Git SHA is not a release. A snapshot version is not automatically a release. A successful CI run is not automatically a release. Promotion creates or selects release state only through the owning release/delivery workflow.
 
+DEVELOPMENT, STAGING, and PRODUCTION identify service runtime targets. They are deployment metadata, not source, build, artifact, or release identities. Promotion records the target while preserving the validated artifact identity and digest.
+
 ## Version Number Policy
 
 ### Internal Development Versions
