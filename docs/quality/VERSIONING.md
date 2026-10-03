@@ -229,13 +229,14 @@ The canonical reusable implementation lives in `TavallStudios/tavall-ci/tavall-c
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `1:1` | `TavallStudios/tavall-docs/docs/quality/VERSIONING.md` | 2026-09-27 2:46 PM PDT | Docs sync branch `docs/ci-versioning-notion-sync-20260927`. |
-| Notion | `1:1` | `Tavall / Platform & Infrastructure / Tavall Versioning Architecture` | 2026-09-27 2:46 PM PDT | Notion counterpart `3e838458-ddfd-8124-a2e9-ed5ba5b6ccce`. |
+| GitHub | `1:1` | `TavallStudios/tavall-docs/docs/quality/VERSIONING.md` | 2026-10-02 9:46 PM PDT | PR #53 merge commit `97c92e58f50768a7bbf934e1f18787123d9d637d`. |
+| Notion | `1:1` | `Tavall / Platform & Infrastructure / Tavall Versioning Architecture` | 2026-10-02 11:17 PM PDT | Notion counterpart `3e838458-ddfd-8124-a2e9-ed5ba5b6ccce`; service-runtime Environment metadata is recorded separately from source/build/release identity. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | 2026-09-27 2:46 PM PDT | GitHub + Notion | `CREATED` | Canonical VERSIONING 1:1 pair | Identity/versioning rules split across CI docs, implementation, and prior design | Current documentation reconciliation | Separated source/build/artifact/release identity and canonized internal snapshot numbering plus artifact channels. |
+| 2026-10-02 11:17 PM PDT | GitHub + Notion | `UPDATED` | Canonical VERSIONING 1:1 pair | 2026-09-27 synchronized content | GitHub PR #53 merge `97c92e58f50768a7bbf934e1f18787123d9d637d`; this Notion page | Clarified that DEVELOPMENT, STAGING, and PRODUCTION are service-runtime deployment metadata, not source, build, artifact, or release identities. |
 
 </details>
