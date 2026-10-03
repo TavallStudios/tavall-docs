@@ -106,6 +106,14 @@ The exact, immutable authoritative source identity (repository URL + exact commi
 
 The durable, inspectable state transfer artifact passed between workers, stages, or Agents (such as uncommitted patch context, acceptance evidence, or blocker descriptions).
 
+### .tavallai (Provenance Layer)
+
+The repository- and module-local raw AI work provenance layer formatted strictly in deterministic JSON. It records threads, active and historical runs, authority references, and structured handoffs across repository roots and independent source/build module boundaries without becoming a duplicate documentation, memory, Git, or Cloud database.
+
+### Provenance Agent (tavall-agent-provenance)
+
+The canonical top-level Agent operating exclusively as a `ROLE` inside the active AI context. It owns the provenance lifecycle (`START`, `UPDATE`, `FINALIZE`) and maintains `.tavallai` records without spawning subagent contexts or incurring extra model invocations.
+
 ## 2. Architectural Hierarchy
 
 The Tavall architectural hierarchy is strictly ordered:
@@ -130,9 +138,17 @@ tavall-agent-memory (Context recovery; historical evidence)
   ↓
 tavall-agent-ledger (AI coordination graph; registration and conflict check)
   ↓
+tavall-agent-provenance : START (Raw AI work provenance; repo/module local JSON)
+  ↓
 tavall-docs-agent (Skinny JIT document routing; governing doc identification)
   ↓
 tavall-orchestrator (Agent graph selection; smallest valid specialist set)
   ↓
 Selected Tavall Agents (Execution through owned skills, tools, and MCPs)
+  ↕
+tavall-agent-provenance : UPDATE (Meaningful state, scope, or blocker transitions)
+  ↓
+tavall-agent-provenance : FINALIZE (Completion status, handoff generation, active cleanup)
+  ↓
+HANDOFF / OUTPUT
 ```

@@ -343,6 +343,11 @@ routes:
       - agent stack
       - agent v2
       - agent routing
+      - provenance
+      - tavallai
+      - .tavallai
+      - work provenance
+      - provenance agent
     documents:
       - docs/quality/AGENT_ARCHITECTURE.md
 

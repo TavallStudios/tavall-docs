@@ -89,15 +89,27 @@ Tavall Agent Stack V2 transitions Tavall AI architecture from ad-hoc skill routi
     - Scenario D: Recovery without ambient authority
     - Scenario E: Self-evolution from repetitive prompt pattern
 
+### 2026-10-03 — Milestone 4: Provenance Agent & Canonical `.tavallai` Architecture Rollout
+- **Repositories:** `TavallStudios/tavall-ai`, `TavallStudios/tavall-docs`, and 44 maintained repositories across 137 submodules.
+- **Architectural Enhancements:**
+  - Implemented `tavall-agent-provenance` as top-level `ROLE` with skills `start`, `update`, `finalize`, `json`.
+  - Updated mandatory entry path: `INPUT → tavall-agent-memory → tavall-agent-ledger → tavall-agent-provenance : START → tavall-docs-agent → tavall-orchestrator → selected agents ↕ tavall-agent-provenance : UPDATE → tavall-agent-provenance : FINALIZE → HANDOFF / OUTPUT`.
+  - Standardized `.tavallai` repo-local and module-local raw AI work provenance layer in deterministic JSON.
+  - Deployed repository root `.tavallai` across 44 included repositories and module-root `.tavallai` across 137 submodules.
+- **Verification:**
+  - `python3 scripts/ci/verify_docs.py --mode build && python3 scripts/ci/verify_docs.py --mode integration` -> `PASS` (48 tracked docs valid).
+  - `python3 plugins/tavall-ai/.tavallci/validate.py all` -> `PASS`.
+  - `python3 test_tavall_agent_stack_v2.py` -> `ALL TESTS PASSED` (all 6 suites, 133 sections verified).
+
 ---
 
 ## 3. Evidence Matrix
 
 | Check / Gate | Target | Command / Script | Result |
 | --- | --- | --- | --- |
-| Documentation CI | `tavall-docs` | `python3 scripts/ci/verify_docs.py --mode build && python3 scripts/ci/verify_docs.py --mode integration` | `PASS` (43 tracked docs valid) |
-| Java Architecture Checks | `tavall-ai` | `./gradlew check verifyTavallAISystem` | `BUILD SUCCESSFUL` (57 tasks) |
+| Documentation CI | `tavall-docs` | `python3 scripts/ci/verify_docs.py --mode build && python3 scripts/ci/verify_docs.py --mode integration` | `PASS` (48 tracked docs valid) |
+| Java Architecture Checks | `tavall-ai` | `./gradlew check verifyTavallAISystem` | `BUILD SUCCESSFUL` (83 tasks) |
 | Plugin Packaging CI/CD | `/srv/dev-storage/.ai/plugins/Tavall` | `python3 .tavallci/validate.py all` | `check=all status=PASS` |
 | Plugin Packaging CI/CD | `plugins/tavall-ai` | `python3 .tavallci/validate.py all` | `check=all status=PASS` |
 | E2E Behavioral Suite | `tavall-ai` | `python3 test_tavall_agent_stack_v2.py` | `ALL TESTS PASSED` |
-| Section Mapping 1:1 | `tavall-ai` & `tavall-docs` | `python3 test_tavall_agent_stack_v2.py` (Test 5) | `PASS` (132 sections matching) |
+| Section Mapping 1:1 | `tavall-ai` & `tavall-docs` | `python3 test_tavall_agent_stack_v2.py` (Test 5) | `PASS` (133 sections matching) |

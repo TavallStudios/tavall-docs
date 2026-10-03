@@ -39,19 +39,28 @@ tavall-agent-memory
   ↓
 tavall-agent-ledger
   ↓
+tavall-agent-provenance : START
+  ↓
 tavall-docs-agent
   ↓
 tavall-orchestrator
   ↓
 selected Tavall Agents
+  ↕
+tavall-agent-provenance : UPDATE
+  ↓
+tavall-agent-provenance : FINALIZE
+  ↓
+HANDOFF / OUTPUT
 ```
 
-### Hierarchy of Context and Authority
+### Hierarchy of Context, Coordination, and Authority
 
 1. **Memory (`tavall-agent-memory`)**: Recovers past decisions, uncommitted context, and historical intent. Memory is **contextual evidence** and **must never override current canonical documentation, code, or runtime evidence**.
 2. **Ledger (`tavall-agent-ledger`)**: Resolves worker identity, claims scope, inspects concurrent workers, prevents collisions, and records dependencies before substantive work begins.
-3. **Docs (`tavall-docs-agent`)**: Executes a **skinny JIT pass** to identify likely governing documents and section pointers without preloading bodies.
-4. **Orchestrator (`tavall-orchestrator`)**: Coordinates the smallest valid Agent graph for the task.
+3. **Provenance (`tavall-agent-provenance`)**: Maintains the repo-local and module-local raw AI work provenance layer (`.tavallai`). Operates strictly as a `ROLE` to link active runs, threads, and handoffs into Git, Cloud, Memory, and Ledger authorities using deterministic JSON.
+4. **Docs (`tavall-docs-agent`)**: Executes a **skinny JIT pass** to identify likely governing documents and section pointers without preloading bodies.
+5. **Orchestrator (`tavall-orchestrator`)**: Coordinates the smallest valid Agent graph for the task.
 
 ## 3. Canonical Agent Groups
 
@@ -59,6 +68,7 @@ selected Tavall Agents
 COORDINATION
 ├── tavall-agent-memory
 ├── tavall-agent-ledger
+├── tavall-agent-provenance
 ├── tavall-docs-agent
 └── tavall-orchestrator
 
@@ -134,5 +144,21 @@ section skill (1:1 with canonical section title)
   ↓
 exact canonical document section
 ```
+
+## 6. Local AI Work Provenance Layer (`.tavallai`)
+
+`.tavallai` is the repository- and module-local **raw AI work provenance layer**. It is maintained exclusively by `tavall-agent-provenance` operating as a `ROLE`.
+
+### Architectural Principles
+
+1. **JSON Exclusively**: All structures use deterministic JSON (2-space indent, stable key order), never YAML or Markdown.
+2. **References, Not Duplication**: `.tavallai` references existing authorities (`authority`, `ref`, `observedAt`, `revision`). It does NOT duplicate architecture documentation, memory stores, Git history, or Cloud execution state.
+3. **Scope Hierarchy**:
+   - Every included repository exposes a repository root `.tavallai/` with `tavallai.json` as discovery entrypoint.
+   - Every independently testable/deployable source or build module boundary exposes a module-local `.tavallai/` referencing its parent repository root. Circular links are strictly forbidden.
+4. **Pass Lifecycle**:
+   - **START**: Associates active run, provider thread, Ledger worker claims, and Git/Cloud/Memory authorities into `runs/active.json`.
+   - **UPDATE**: Updates active run only on meaningful transitions (subagents, scope crossing, handoffs, blockers); never logs per-tool-call events.
+   - **FINALIZE**: Records completed run in `runs/history.json`, clears active state, and emits structured handoff in `runs/handoffs/<run-id>.json` allowing future AI resumption.
 
 Main document skills list every routable section in canonical order without duplicating policy. Section skills provide minimal trigger and pointer instructions, ensuring context budget is preserved.
