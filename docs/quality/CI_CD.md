@@ -6,7 +6,7 @@
 
 This document defines the required CI/CD architecture for Tavall projects.
 
-[Git workflow and staging ancestry](GIT_WORKFLOW.md) remain owned by `GIT_WORKFLOW.md`. Repository and system documentation may define stricter validation or deployment requirements, but they may not create a competing CI/CD authority or silently weaken exact-source, evidence, or promotion requirements.
+[Git workflow and staging ancestry](GIT_WORKFLOW.md) remain owned by `GIT_WORKFLOW.md`. [NLEW and service ownership](NLEW_AND_SERVICE_OWNERSHIP.md) owns Node/Lane/Environment/Workspace/Executor terminology, the general-purpose Environment model, and the service-to-Environment default. Repository and system documentation may define stricter validation or deployment requirements, but they may not create a competing CI/CD authority or silently weaken exact-source, evidence, promotion, or NLEW ownership requirements.
 
 ## Purpose
 
@@ -75,9 +75,9 @@ Java 25 is the Tavall default. Gradle repositories use the standard committed Wr
 
 The Executor provides the canonical equivalent of `/tavall/workspace`, `/tavall/dependencies`, and `/tavall/shared-tools/gradle`. Commands run from the exact-source repository root. Source dependencies are materialized at exact Git identities and record repository, commit, dependency role, and source tree digest. Shared Gradle download caches may be reused; job output and operation-specific Gradle state remain isolated per execution.
 
-Tavall CI's Git source materializer resolves a remote and fetchable ref through an injected source locator, then verifies the fetched HEAD against the requested exact SHA and records its tree digest. Planning checkouts use request-scoped paths and are released after the resolved plan has finished; they do not become canonical local repositories. Cloud-backed jobs carry exact source/tree identities and use the existing shared machine Executor. CONTROL authorizes the lane, repository, invocation, and Executor; it does not create or require a Cloud Environment record for CI. Exact sources and dependencies are materialized in operation-scoped workspaces. Git credentials remain in the configured transport environment, outside remote URLs and source identities.
+Tavall CI's Git source materializer resolves a remote and fetchable ref through an injected source locator, then verifies the fetched HEAD against the requested exact SHA and records its tree digest. Planning checkouts use request-scoped paths and are released after the resolved plan has finished; they do not become canonical local repositories. Cloud-backed jobs carry exact source/tree identities and use the existing shared machine Executor. CONTROL authorizes the Lane when coordination is needed, repository, invocation, and Executor; ordinary CI does not create or require a Cloud Environment merely because a job exists. Exact sources and dependencies are materialized in operation-scoped Workspaces. Git credentials remain in the configured transport environment, outside remote URLs and source identities.
 
-The legacy Environment-owned repository checkout path is being retired for source and CI work. New jobs resolve exact source into an operation-scoped Executor Workspace and never rebind a service Environment checkout. Any remaining legacy checkout may be migrated only when it is clean, its origin still names the resolved repository, its branch is unchanged, and its prior exact commit is an ancestor of the newly requested SHA. Dirty, foreign-origin, wrong-branch, or divergent worktrees remain blocked for owner-preserving recovery; they are never reset or cleaned to make provisioning succeed.
+The legacy Environment-owned repository checkout path is being retired as the default for source and CI work. New jobs resolve exact source into an operation-scoped Executor Workspace and do not rebind an Environment checkout unless Environment-owned state is explicitly part of the workflow. Any remaining legacy checkout may be migrated only when it is clean, its origin still names the resolved repository, its branch is unchanged, and its prior exact commit is an ancestor of the newly requested SHA. Dirty, foreign-origin, wrong-branch, or divergent worktrees remain blocked for owner-preserving recovery; they are never reset or cleaned to make provisioning succeed.
 
 Tavall internal dependency composition uses exact source builds or immutable Tavall artifacts. Maven Local, floating sibling workspaces, mutable snapshots, and GitHub Packages are not internal dependency authorities. Gradle remains a typed Tavall CI executor; shell commands remain for work that needs a repository-owned script or non-Gradle tool.
 
@@ -97,7 +97,8 @@ Tavall Cloud owns infrastructure and execution capabilities.
 
 This includes:
 
-- Service runtime Environments for registered logical services in DEVELOPMENT, STAGING, and PRODUCTION.
+- General-purpose Environments and their lifecycle, mutability, work, service, resource, and runtime policies.
+- Registered logical services, which default to Environment ownership in DEVELOPMENT, STAGING, and PRODUCTION.
 - Exact-source materialization.
 - Executors.
 - Nodes.
@@ -113,7 +114,9 @@ This includes:
 
 Reusable callers access Cloud capabilities through `tavall-cloud-api`.
 
-Cloud Environments are service deployment/runtime targets. An Environment record must not be created for a source repository, branch, CI job, Executor invocation, or build workspace. Tavall CI jobs use exact source identity and the existing shared machine Executor; their operation-scoped workspace is not an Environment. Development Staging remains a workflow role using DEVELOPMENT service runtimes, not an additional Environment classification.
+Cloud Environments are **general-purpose ownership/context boundaries**, not service-only deployment records. Registered logical services default to Environment ownership so long-lived service runtime state does not become owned by a Lane, Workspace, Executor, or host path. Ordinary source repositories, branches, CI jobs, Executor invocations, and build Workspaces do not create an Environment merely by existing. A CI workflow may intentionally use an Environment when Environment-owned integration or runtime state is part of what is being tested. Development Staging remains a workflow role and not an additional Environment classification.
+
+The detailed NLEW contract is binding in [NLEW_AND_SERVICE_OWNERSHIP.md](NLEW_AND_SERVICE_OWNERSHIP.md). In particular, `/srv` and other host paths are provider/materialization details and must not become logical service or Environment identity.
 
 `tavall-cloud-api` is a generic Cloud capability boundary. It must not become another home for Tavall CI policy.
 
@@ -335,7 +338,7 @@ Tavall CI decides what work is required.
 
 Tavall Cloud decides where authorized work executes.
 
-The normal boundary is:
+The normal source-validation boundary is:
 
 ```text
 repository / GitHub event
@@ -350,7 +353,13 @@ repository / GitHub event
  Tavall Cloud BUILD
         |
         v
-environment executor
+ Lane when coordination is needed
+        |
+        v
+     Executor
+        |
+        v
+operation Workspace
         |
         v
 repository CI graph
@@ -367,14 +376,14 @@ Executors may provide capabilities such as:
 - Private artifact access.
 - Repository-specific testing tools.
 
-Executors belong to Tavall Cloud's reusable execution lineage, not to a source-work Environment. A service Environment is linked only when a validated artifact is deployed.
+Executors belong to Tavall Cloud's reusable execution lineage and are selected independently from Environment identity. Ordinary source/CI work does not create an Environment by default. A workflow may attach to or create an Environment when the validation materially requires Environment-owned integration/runtime state.
 
-Completed Executor work, metadata, logs, and evidence must remain attributable to the Lane, exact source, job, and invocation that produced them. A service Environment is recorded only when the validated artifact is deployed to a registered service runtime.
+Completed Executor work, metadata, logs, and evidence must remain attributable to the Lane when used, exact source, job, invocation, Executor, and Workspace that produced them. Environment identity is recorded when an Environment actually participates in the execution or when the validated artifact is deployed into a service's default Environment.
 
 For each Executor operation, physical repository materializations are scoped by
 the exact source manifest and invocation under the operation Workspace. A new
 source identity receives its own isolated materialization and preserves prior
-work; it does not create a Cloud Environment. Neither a path nor a source
+work; it does not automatically create a Cloud Environment. Neither a path nor a source
 snapshot digest replaces the exact repository SHA as source identity.
 
 An executor is not a random temporary folder with a CPU attached.
@@ -444,8 +453,10 @@ Evidence should identify, where applicable:
 - Check results.
 - Artifact name, version, channel, and digest.
 - Executor identity.
-- Environment identity.
-- Runtime identity.
+- Lane identity, when applicable.
+- Workspace/invocation identity.
+- Environment identity, when applicable.
+- Runtime identity, when applicable.
 - Durable log or storage references.
 - Final result and failure classification.
 
@@ -590,10 +601,11 @@ DEVELOPMENT is the normal engineering execution surface.
 
 It may use:
 
-- Exact-source workspaces.
+- Exact-source Workspaces.
 - Cross-repository source composition.
 - The shared machine Executor for CI and source validation.
-- Development services.
+- Environments when durable/integration/runtime context is materially required.
+- Development services, which default to Environment ownership.
 - Integration infrastructure attached to service runtimes.
 - Production-shaped validation against a DEVELOPMENT service runtime.
 
@@ -664,7 +676,7 @@ A child PR passing CI does not prove that the composed Sub-Staging or repository
 
 Changed integration state requires its own exact-head evidence.
 
-CI evidence and staging ancestry cooperate, but neither replaces the other.
+CI evidence and staging ancestry cooperate, but neither replaces the other. Git staging names do not create or imply Cloud Lanes, Environments, Workspaces, or Executors; Cloud topology is selected from execution need and policy.
 
 ## Production Authorization
 
@@ -691,7 +703,7 @@ Tavall Cloud owns deployment mechanics and resulting runtime state.
 This includes:
 
 - Artifact materialization.
-- Service placement.
+- Environment ownership and service placement.
 - Service process lifecycle.
 - Blue/green or A/B runtime handling.
 - Health observation.
@@ -704,9 +716,11 @@ Tavall CI owns whether a candidate is valid and authorized for promotion.
 
 Cloud owns whether and how that candidate is actually running.
 
+Registered logical services default to Environment ownership. Environments remain general-purpose and may own other workloads/resources; a host path such as `/srv` is never logical service or Environment identity.
+
 Requested deployment state is not sufficient evidence of successful deployment. Observed runtime state must agree.
 
-Detailed deployment, router, storage, and service-layout behavior belongs in Tavall Cloud documentation rather than being duplicated here.
+Detailed deployment, router, storage, NLEW, and service-layout behavior belongs in Tavall Cloud documentation rather than being duplicated here.
 
 ## Rollback
 
@@ -864,12 +878,16 @@ Use an exact source candidate or an approved immutable release.
 ## Final Rules Summary
 
 - `tavall-docs` owns organization-wide CI/CD policy.
+- `NLEW_AND_SERVICE_OWNERSHIP.md` owns organization-wide Node/Lane/Environment/Workspace/Executor terminology and service ownership defaults.
 - `VERSIONING.md` owns source/build/dependency/artifact version and channel identity policy.
 - `tavall-ci` owns reusable CI/CD semantics.
 - Repositories own aggregate build/test topology; every source/build module owns `.tavallci/ci.yaml`.
 - Repository-root `.tavallci` may aggregate module definitions but cannot replace them.
-- Tavall Cloud owns execution, deployment, storage, placement, routing, and runtime infrastructure.
-- Cloud Environments represent deployed logical service runtimes; source, CI, and build work do not create Environment records.
+- Tavall Cloud owns execution, deployment, storage, placement, routing, NLEW implementation, and runtime infrastructure.
+- Environments are general-purpose Cloud ownership/context boundaries; registered logical services default to Environment ownership.
+- Source, CI, and build work do not create Environment records by default, but may intentionally use an Environment when Environment-owned state is part of the workflow.
+- Lanes, Workspaces, Executors, Environments, Git branches, and staging PRs are distinct concepts and must not be used as aliases for one another.
+- Host paths such as `/srv` are implementation/materialization details, not logical service or Environment identity.
 - `tavall-cloud-api` is the generic boundary between CI and Cloud capabilities.
 - Tavall GitHub Bot owns GitHub events, exact-head reconciliation, and Check publication.
 - GitHub Actions jobs are not part of Tavall CI/CD; CI/CD execution and evidence belong to Tavall CI and Tavall Cloud Executors.
@@ -895,13 +913,14 @@ Use an exact source candidate or an approved immutable release.
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `1:1` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | 2026-10-02 9:46 PM PDT | PR #53 merge commit `97c92e58f50768a7bbf934e1f18787123d9d637d`. |
-| Notion | `1:1` | `Tavall / Platform & Infrastructure / Tavall Studios CI/CD` | 2026-10-02 11:17 PM PDT | Notion counterpart updated to the service-only Environment and no-GitHub-Actions job policy. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | 2026-10-03 | Corrected the service-only Environment regression introduced by PR #53; aligned with `NLEW_AND_SERVICE_OWNERSHIP.md`. |
+| Notion | `DRIFT_REQUIRES_UPDATE` | `Tavall / Platform & Infrastructure / Tavall Studios CI/CD` | 2026-10-03 | The last recorded Notion synchronization copied PR #53's now-superseded service-only Environment wording. It must not be treated as current authority until reconciled. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| 2026-10-02 11:17 PM PDT | GitHub + Notion | `UPDATED` | Canonical CI/CD 1:1 pair | 2026-09-27 synchronized content | GitHub PR #53 merge `97c92e58f50768a7bbf934e1f18787123d9d637d`; this Notion page | Made service-only Cloud Environments and the prohibition on GitHub Actions CI/CD jobs explicit on both surfaces. |
+| 2026-10-02 11:17 PM PDT | GitHub + Notion | `UPDATED` | Canonical CI/CD pair | 2026-09-27 synchronized content | GitHub PR #53 merge `97c92e58f50768a7bbf934e1f18787123d9d637d` | Introduced service-only Cloud Environment wording; this portion is superseded by the 2026-10-03 correction. The no-GitHub-Actions CI/CD policy remains current. |
+| 2026-10-03 | GitHub | `CORRECTED` | `docs/quality/CI_CD.md` + `NLEW_AND_SERVICE_OWNERSHIP.md` | PR #53 service-only wording | Direct main correction | Restored general-purpose Environments, retained service-to-Environment default placement, separated Git staging from NLEW topology, and made `/srv` non-canonical for logical service ownership. Notion remains intentionally marked drift until updated. |
 
 </details>
