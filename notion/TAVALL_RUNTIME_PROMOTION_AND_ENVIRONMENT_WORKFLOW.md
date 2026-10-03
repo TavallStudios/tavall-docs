@@ -9,13 +9,13 @@
 <iconMetadata>{"type":"emoji","emoji":"🧭"}</iconMetadata>
 <content>
 <callout icon="🧭" color="blue_bg">
-	**Design status:** Draft canonical workflow definition. This document captures the agreed release/runtime model before implementation. No Tavall repositories or `GIT_WORKFLOW.md` changes are part of this step.
+	**Current workflow:** Canonical release/runtime progression. Cloud Environments are service-only runtime targets; source and CI work run through Lane + exact source + the shared Executor. Repository implementation and staging evidence remain in the linked progression records.
 </callout>
 ## Purpose
-Define a single Tavall workflow for durable DEVELOPMENT, STAGING, and PRODUCTION environments, runtime-specific PRs, combined application staging, multi-runtime projects, and production promotion.
-The first concrete consumer is Tavall-owned MCP infrastructure, but the model is intended to become the common release pattern for Tavall services that use the environment/lane system.
+Define a single Tavall workflow for DEVELOPMENT, STAGING, and PRODUCTION service runtimes, runtime-specific PRs, combined application staging, multi-runtime projects, and production promotion.
+The model applies to Tavall services with independently promoted runtimes. Lanes group source/PR workflows; Environments exist only for deployed logical-service runtimes.
 ## Core Environment Model
-Tavall environments and lanes are **durable by default** and explicitly classified as one of:
+Tavall service Environments are **durable by default** and explicitly classified as one of the runtime targets below. Lanes group source work and promotion workflows; they do not create Environments.
 - `DEVELOPMENT`
 - `STAGING`
 - `PRODUCTION`
@@ -39,8 +39,8 @@ For MCP services, the initial runtime topology is:
 </tr>
 <tr>
 <td>DEVELOPMENT</td>
-<td>Durable integration environments plus isolated development lanes as needed</td>
-<td>Feature work, runtime-specific work, experimentation, isolated testing, and Development Staging</td>
+<td>Registered DEVELOPMENT service runtimes; source/CI validation uses Lane + shared Executor</td>
+<td>Deploy and validate service artifacts. Feature work and CI use exact-source Executor Workspaces and do not create Environments.</td>
 </tr>
 </table>
 ### Production A/B
@@ -52,7 +52,7 @@ The workflow separates **change type** from **runtime/promotion role**. Existing
 A **Runtime PR** represents work for one runtime in a project.
 - It belongs to that runtime's implementation lifecycle.
 - It does **not** become the application's combined STAGING deployment merely because it is open or testable.
-- It may be deployed and tested in isolation in a DEVELOPMENT environment/lane.
+- It may be validated through an operation-scoped Executor Workspace and deployed to the existing DEVELOPMENT service runtime when runtime validation is required. A Runtime PR does not create an Environment.
 - In a multi-runtime project, several Runtime PRs may exist concurrently for different runtimes.
 Examples of runtimes can include application backend, proxy, game server, web runtime, bot/runtime adapter, worker, or another independently deployed execution surface defined by the project.
 ### Combined Runtime Staging PR
@@ -63,12 +63,12 @@ Its job is to answer a different question than a Runtime PR:
 Combined Runtime Staging is therefore the primary pre-production integration boundary.
 ### Development Staging
 The previous workflow term **Sub-Staging** should be renamed to **Development Staging**.
-Development Staging is staging performed on `DEVELOPMENT` environments/lanes. It may apply to any relevant PR/runtime combination and exists below formal STAGING.
+Development Staging is a workflow role performed against DEVELOPMENT service runtimes using promoted candidate artifacts. It may apply to relevant PR/runtime combinations and exists below formal STAGING; it does not create a new Environment.
 Development Staging can include:
 - isolated Runtime PR staging
 - combined runtime staging before formal STAGING
 - feature/integration candidates
-- temporary or durable development deployment arrangements
+- temporary or durable deployments to registered DEVELOPMENT service runtimes
 - validation of runtime flags and runtime combinations
 Development Staging is not a fourth environment classification. It is a **workflow role performed on DEVELOPMENT infrastructure**.
 This distinction keeps the environment model simple:
@@ -83,13 +83,13 @@ The intended structure is:
 Feature / Fix / other change type
         |
         +--> Runtime PR: Runtime A
-        |       +--> isolated DEVELOPMENT testing
+        |       +--> exact-source Executor validation; deploy to the existing DEVELOPMENT service runtime only when required
         |
         +--> Runtime PR: Runtime B
-        |       +--> isolated DEVELOPMENT testing
+        |       +--> exact-source Executor validation; deploy to the existing DEVELOPMENT service runtime only when required
         |
         +--> Runtime PR: Runtime C
-                +--> isolated DEVELOPMENT testing
+                +--> exact-source Executor validation; deploy to the existing DEVELOPMENT service runtime only when required
 
 required runtime iterations
         |
@@ -193,7 +193,7 @@ When implementation begins, update `tavall-docs/GIT_WORKFLOW.md` with the follow
 - [ ] Define Runtime PR semantics for single-runtime and multi-runtime projects.
 - [ ] Define Combined Runtime Staging PR semantics as the full deployed application candidate.
 - [ ] Update branch type definitions so runtime and promotion roles are explicit alongside existing change types.
-- [ ] Document durable-by-default DEVELOPMENT, STAGING, and PRODUCTION environment/lane classification.
+- [x] Define DEVELOPMENT, STAGING, and PRODUCTION as service runtime targets. Source/CI work uses Lane + exact source + shared Executor and creates no Environment.
 - [ ] Finish the previously designed qualification/merge-to-main definition.
 - [ ] Define `main` as the accepted production source state without pretending it is itself a PR.
 - [ ] Document exact-source/runtime promotion expectations and runtime-flag usage.
@@ -231,7 +231,7 @@ The workflow is conceptually defined, but these details should be resolved again
 ### System next steps
 - [ ] Implement and validate structured Runtime PR / Development Staging / Combined Runtime Staging semantics.
 - [ ] Define exact formal-STAGING and merge-to-main gates.
-- [ ] Wire immutable artifact deployment into the existing Cloud runtime-slot repository/router: deploy and health-check the inactive BLUE/GREEN candidate, switch stable-service traffic after promotion gates, and retain verified rollback identity.
+- [ ] Implement/validate production A/B slot identity, candidate validation, traffic switch and last-known-good rollback.
 ## Authority correction 2026-09-20
 The current Tavall Cloud runtime does not use PostgreSQL. Redis owns live lanes, environments, generations, leases, Jobs, runtime presence, desired/observed projections, and CAS; Tavall Storage/filesystem owns durable materialization and evidence. PostgreSQL migrations/classes are historical provenance only and are not current runtime authority or fallback.
 ## Authority correction 2026-09-20 — runtime promotion
@@ -241,15 +241,5 @@ Any older relational/PostgreSQL runtime wording is superseded historical provena
 The accepted integrated staging/runtime head is 2858ae2a576d77a4a2fee162a776d5d7425d4752. Agent deployment from this exact source is READY; live Console and exact-source Cloud Job execution succeeded through Redis-backed coordination and Tavall Storage evidence. PostgreSQL is absent from the Cloud runtime/build and is not a recovery or promotion dependency.
 ## Promotion update 2026-09-20
 Validated Redis-only Cloud staging/runtime 2858ae2a576d77a4a2fee162a776d5d7425d4752 is now promoted to main at 225f952e70f70c12fb2a18c3da17a24da283c683. Production deployment is intentionally separate from this source promotion.
-## Execution update 2026-09-26 — no promotable candidate yet
-- The existing DEVELOPMENT CI Environment `5848c5ff-a2a2-4da4-bd25-9cff8e558433` now binds exact source snapshot `29ce13c6e19db68a295f4106e728044f7febda8375a47aff85ae1f64121ef694`, preserving its DURABLE / DEDICATED / SHARED / inherited policies, but remains `BLOCKED` with workspace and development-tool components `UNKNOWN`.
-- No exact-source Tavall CI job, immutable artifact, frozen delivery bundle, deployment-generation readiness record, or STAGING candidate exists for this rollout. Therefore no DEVELOPMENT-to-STAGING or production A/B promotion was performed.
-- The currently running ChatGPT plugin service has AUTO CD but its existing deployment has empty CI run/evidence identifiers; it is not a candidate for this promotion chain. Production slots and traffic were not changed.
-- Environment `5848c5ff-a2a2-4da4-bd25-9cff8e558433` now binds exact source snapshot `b6a8b43b314ad2a5b017f271f4974d9562327d13ef66d132ccf14ccca2ea7484` after the TCI source-binding adapter update. It remains `BLOCKED`, so the DEVELOPMENT-to-STAGING path and readiness gates have not run for this candidate.
-## Execution checkpoint 2026-09-26 — Cloud runtime slots and deploy wiring
-- Current Cloud source contains `CloudServiceRuntime`, BLUE/GREEN slot types, Redis-backed runtime records, and a per-logical-service router with health-aware route selection. At PR #395 head `0df90c24`, `:tavall-cloud:test` passes with 2 sandbox tests skipped and `:tavall-cloud-node:test` passes 249 tests.
-- The managed deployment provider still activates a shared `current` release and restarts one service unit. The post-deploy authority handler records slot/traffic/environment from static service labels, so the plugin template's `A_B` policy does not select an inactive runtime slot yet.
-- The installed `tavall-cloud-deployment@.service` template exists, but the immutable provider does not use it to run distinct runtime instances. No live candidate, traffic switch, rollback, or production change occurred.
-- The existing DEVELOPMENT Environment now pins TCI `ad695b3`, Cloud `0df90c24`, and Architecture Tests `c0863bfe` at snapshot `be3dd4cd5c6920788aa68581c4e2329080f2fca6c9f859fa0fe930bada63fc48`; it remains `BLOCKED`. TCI refresh and Console execution still stop at `STALE_VERSION` because the clean mounted checkout is at `ef59a10` instead of the pinned TCI source.
 </content>
 </page>

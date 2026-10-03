@@ -10,6 +10,10 @@
 
 This document is a roll-up. The owning `*_PROGRESSION.md` document remains the source of truth for its system at the exact repository revision it records.
 
+## Current policy correction — 2026-10-03
+
+Cloud Environments are registered service-runtime targets only. Source repositories, branches, CI jobs, Executors, and operation Workspaces do not create or require Environments. Source/build work uses exact source, Tavall CI, and the shared Cloud Executor. Older Environment-bound source/CI entries elsewhere in this roll-up remain historical evidence and must not be read as current authorization.
+
 Use this authority order when collecting or acting on progression evidence:
 
 1. The owning repository's current `main` progression document is the production baseline.
@@ -151,7 +155,7 @@ For each logical tracker:
 The Tavall agent/executor path should enforce these rules mechanically:
 
 - Resolve `git rev-parse --show-toplevel` before reading repository policy or progression documents.
-- Record repository identity, origin URL, branch/ref, head SHA, base ref, environment, lane, workspace, and executor in durable executor metadata.
+- Record repository identity, origin URL, branch/ref, exact head, base ref, Lane, Executor, invocation Workspace, and evidence in source-work metadata. Record a service Environment only for a registered service runtime; it is not CI/source identity.
 - Reject or warn when the selected path is a nested worktree that was not explicitly bound to the task.
 - Ignore `.codex-worktrees`, `/tmp` worktrees, prunable worktrees, and legacy workspace roots during ordinary source discovery.
 - Never use a global `find /srv ... '*PROGRESSION*'` result as source selection.

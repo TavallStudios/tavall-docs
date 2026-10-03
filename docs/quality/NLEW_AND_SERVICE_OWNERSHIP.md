@@ -3,156 +3,92 @@
 > **Status:** Active
 > **Authority:** Binding Tavall-wide terminology and ownership policy for Nodes, Lanes, Environments, Workspaces, Executors, and service placement
 > **CI authority:** [CI_CD.md](CI_CD.md)
-> **Supersedes:** Any narrower wording that defines Cloud Environments as service-only, or that turns NLEW into a mandatory CI pipeline
+> **Supersedes:** General-purpose Cloud Environment wording and any Environment-first source/CI workflow
 
 ## Canonical rule
 
-Tavall NLEW is **Nodes, Lanes, Environments, and Workspaces**, with Executors as an execution capability used across those scopes.
+Tavall NLEW means **Nodes, Lanes, Environments, and Workspaces**. Executors are reusable execution capabilities selected by Tavall Cloud. These are distinct concepts, not a mandatory parent-child ladder and not the CI execution sequence.
 
-These are distinct Cloud concepts. They are **not** a mandatory containment ladder and they are **not** the Tavall CI execution sequence.
+Cloud Environments are reserved for registered logical-service runtime targets. Source repositories, branches, pull requests, CI jobs, Executors, and operation Workspaces do not create or require Environments.
 
-Do not translate NLEW into diagrams such as:
-
-```text
-Lane -> Environment -> Workspace -> Executor
-```
-
-or:
+The two paths are:
 
 ```text
-Lane -> Executor -> Workspace
+Source and CI:
+source provider -> exact repository and commit -> Tavall CI -> shared Cloud Executor
+                -> operation-scoped Workspace -> typed evidence and immutable artifact
+
+Service runtime:
+registered logical service -> DEVELOPMENT / STAGING / PRODUCTION Environment
+                           -> runtime generation, readiness, and routing
 ```
 
-and call that "the CI flow." Tavall CI owns its own much simpler execution/composition model in `CI_CD.md`.
+A service Environment remains attached to its registered logical service as source revisions, artifacts, runtime generations, and production slots advance. BLUE/GREEN are runtime slots beneath one stable service identity.
 
-## Environment
+## Environment: service runtime only
 
-An **Environment is general-purpose**. It may own or contain any Cloud workload, resource, repository/runtime context, integration context, service, or other durable/ephemeral state allowed by policy.
+A Cloud Environment represents one runtime target for one registered logical service. Create or resolve it through the service deployment/runtime lifecycle. Do not create an Environment for repository work, a branch, a PR, a build, a test, an Executor invocation, or a source Workspace.
 
-A service is **not** what makes an Environment an Environment.
+The canonical runtime targets are:
 
-Environment lifecycle, mutability, resource policy, work policy, and service policy remain independent dimensions.
+- **DEVELOPMENT** for deployed development services and Development Staging validation;
+- **STAGING** for production-equivalent validation of promoted immutable artifacts;
+- **PRODUCTION** for accepted releases and their runtime slots.
 
-An Environment can exist with zero services.
-
-## Service default
-
-Registered logical services **default to Environment ownership and placement**.
-
-This keeps long-lived service state, configuration, generations, readiness, scaling, traffic state, provider materialization, and service-local resources from becoming owned by whichever Lane, Workspace, Executor, Node path, or command happened to create them.
-
-A different supported owner requires an explicit typed policy. It must not be inferred from the current directory or execution path.
+Development Staging is a workflow role on DEVELOPMENT infrastructure, not a fourth Environment type. A service Environment carries that service's desired and observed runtime state, configuration, generation, health, and deployment evidence. It does not own source checkouts or CI jobs.
 
 ## NLEW responsibilities
 
 ### Node
 
-A Node is placement and infrastructure capability. It exposes compute, storage, networking, provider, and execution capabilities.
-
-A node name or host path is not workload identity.
+A Node provides infrastructure capacity and placement capabilities. A host name or filesystem path is not a logical workload identity.
 
 ### Lane
 
-A Lane coordinates related work, source composition, policy, provenance, or other scoped activity when a workflow actually needs that coordination.
-
-A Git branch or persistent staging PR is not automatically a Lane.
+A Lane coordinates related source work, PR ancestry, policy, and provenance when a workflow needs that coordination. A Git branch or staging PR is not automatically a Lane. A Lane does not own service Environments.
 
 ### Environment
 
-An Environment is a reusable general-purpose Cloud ownership/context boundary.
-
-Services default here, but service ownership is only one use of an Environment.
+An Environment is the runtime target for a registered logical service in one canonical runtime classification. It is not a general-purpose repository, CI, or developer-workspace container.
 
 ### Workspace
 
-A Workspace is a bounded Cloud work/materialization scope where a workflow chooses to use one.
-
-A Cloud Workspace is not the same thing as the simple per-repository workspace-folder layout used by Tavall CI. CI may materialize repository workspace folders as execution files without turning each folder into a separate Cloud Workspace domain object.
+A Workspace is bounded source materialization and mutable execution state. Tavall CI may materialize one repository workspace folder per exact source inside a job's operation Workspace. Such folders do not become repository identity or service Environment state. A Cloud Workspace domain object is used only when an explicitly typed Cloud operation requires one; ordinary CI does not require it.
 
 ### Executor
 
-An Executor executes authorized work. Executor identity and lifetime are independent of Environment identity.
-
-An Executor may serve many operations and scopes according to policy.
+An Executor is a reusable execution capability selected and managed by Tavall Cloud. Shared machine execution is the default. Executor lifetime and identity are independent of any service Environment or individual invocation; per-job mutable output remains isolated in that operation's Workspace.
 
 ## CI relationship
 
-NLEW is **available to CI**, not **the shape of CI**.
+Tavall CI owns repository/module definition parsing, exact-source composition, Gradle/build planning, dependency resolution, typed checks, evidence, and immutable artifact identity. The repository owns its Gradle project graph and build intent. The Cloud Executor provides execution placement, Java/Gradle provisioning, filesystem isolation, and cache access.
 
-The canonical CI model is:
-
-```text
-Tavall CI
-  -> one shared Gradle orchestration/composition system
-  -> separate exact-source workspace folder per repository
-  -> build/test/evidence
-```
-
-Cloud capabilities may be selected around that execution:
-
-```text
-CI execution
-├── may use a Node
-├── may run on an Executor
-├── may carry Lane context
-├── may use a Cloud Workspace
-├── may use an Environment when Environment-owned state is actually required
-└── may use an optional supported container boundary
-```
-
-None of those choices creates a required ordered NLEW chain.
-
-Ordinary CI also does **not** create an Environment merely because a repository, branch, PR, build, test, or CI invocation exists.
-
-That is a default usage rule, not an Environment type restriction.
+Ordinary CI uses the exact source and the shared Executor without creating or resolving a service Environment. A workflow may carry Lane or Node policy when required, but an ordered NLEW chain is not a prerequisite for a CI job. See [CI_CD.md](CI_CD.md) for the required execution and evidence contract.
 
 ## Git and staging
 
-Git integration topology and Cloud execution topology remain separate.
+Git integration and Cloud runtime topology remain separate:
 
 ```text
-Git:
-feature -> sub-staging -> repository staging -> main
-
-Cloud:
-select only the NLEW/execution capabilities actually required by the operation
+Git:   feature -> sub-staging -> repository staging -> main
+Cloud: exact source -> Tavall CI -> shared Executor
+       validated artifact -> registered service Environment
 ```
 
-A persistent staging PR does not imply a persistent Lane, Environment, Workspace, or Executor.
+A persistent staging PR does not imply a persistent service Environment, Workspace, or dedicated Executor. Service Environments exist because a registered service has a runtime target, not because GitHub contains a branch named `staging`.
 
 ## Service filesystem rule
 
-A host filesystem path is **never** canonical service identity or ownership.
-
-In particular, `/srv`, `/srv/<service>`, or any other absolute host path must not become Tavall's canonical service registry, service state namespace, service configuration authority, or durable service identity simply because a provider/runtime happens to materialize files there.
-
-Rules:
-
-- Logical service identity comes from Tavall Cloud CONTROL/service registries and typed service/runtime declarations.
-- Environment ownership comes from the Cloud model, not from a directory location.
-- Durable configuration, artifacts, evidence, and state use their canonical Tavall Storage/Cloud authorities.
-- Provider/runtime materialization paths are configured implementation details.
-- Changing a provider-local path must not change service identity.
-- Documentation and APIs describe logical ownership first and filesystem materialization second.
+A host filesystem path is never canonical service identity or ownership. Logical service and Environment identity come from Tavall Cloud CONTROL and typed service/runtime definitions. Tavall Storage owns durable configuration, artifacts, evidence, and lineage; provider paths are materialization details. Changing a provider path must not change service identity.
 
 ## Compatibility and migration
 
-Older documents may still contain wording such as:
+Older documents and records may describe general-purpose Environments or attach source repositories and CI jobs to Environments. Treat those as historical implementation evidence and migration compatibility only. They do not authorize new Environment-bound source or CI work.
 
-- `Cloud Environments are service deployment/runtime targets`.
-- `service-only Environment`.
-- `a service Environment is recorded only at deployment`.
-- `environment executor`.
-- `Lane -> Executor -> Workspace` as if it were the canonical CI pipeline.
-
-Those statements are historical or workflow-specific where they do not conflict with this document. They must not be interpreted as Tavall-wide ontology.
-
-Repository owners should remove or rewrite conflicting language when those documents are touched. Current implementations must follow this contract now.
+Migrate existing non-service Environment materializations through CONTROL after checking exact source, dirty/unmerged work, active operations, and durable evidence. Preserve active or unknown work; do not use a bulk deletion or reset to make the model appear clean. New source and CI work follows the Envless shared-Executor path defined by [CI_CD.md](CI_CD.md).
 
 ## Cross-repository authority
 
-`tavall-docs` owns the Tavall-wide terminology and workflow rules in this document.
-
-`tavall-ci` owns the simple CI orchestration/composition model.
-
-`tavall-cloud` owns concrete NLEW, service placement, runtime, provider, registry, execution, and filesystem-materialization implementation contracts.
+- `tavall-docs` owns this Tavall-wide terminology and service-only Environment rule.
+- `tavall-ci` owns provider-neutral CI orchestration, exact-source composition, evidence, and delivery semantics.
+- `tavall-cloud` owns concrete Nodes, Lanes, service Environments, Executors, storage, service placement, providers, and runtime behavior.
