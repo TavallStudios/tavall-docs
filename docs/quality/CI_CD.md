@@ -885,3 +885,23 @@ Use an exact source candidate or an approved immutable release.
 - Production requires accountable authorization.
 - Merge, CI success, artifact creation, staging, authorization, and deployment remain separate states.
 - Every changed staging composition receives its own exact-head validation.
+
+## Documentation Update State
+
+<details>
+<summary>Documentation Update State</summary>
+
+### Current Locations
+
+| Surface | Sync State | Location | Last Updated | Evidence |
+| --- | --- | --- | --- | --- |
+| GitHub | `1:1` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | 2026-10-02 9:46 PM PDT | PR #53 merge commit `97c92e58f50768a7bbf934e1f18787123d9d637d`. |
+| Notion | `1:1` | `Tavall / Platform & Infrastructure / Tavall Studios CI/CD` | 2026-10-02 11:17 PM PDT | Notion counterpart updated to the service-only Environment and no-GitHub-Actions job policy. |
+
+### Update History
+
+| Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2026-10-02 11:17 PM PDT | GitHub + Notion | `UPDATED` | Canonical CI/CD 1:1 pair | 2026-09-27 synchronized content | GitHub PR #53 merge `97c92e58f50768a7bbf934e1f18787123d9d637d`; this Notion page | Made service-only Cloud Environments and the prohibition on GitHub Actions CI/CD jobs explicit on both surfaces. |
+
+</details>
