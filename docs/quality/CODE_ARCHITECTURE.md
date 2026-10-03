@@ -232,8 +232,9 @@ Detailed state/recovery rules: [Registries, Caches, and Persistence](code-archit
 
 - **NLEW** is the official collective abbreviation for Tavall **Nodes, Lanes, Environments, and Workspaces**. Use **NLEWs** when referring to multiple NLEW resources or to the collective NLEW system.
 - NLEW is a collective architectural category, not a strict parent-child hierarchy and not a one-to-one mapping to an infrastructure-provider object.
-- Including **Workspaces** in NLEW does not make a workspace a peer authority beside Nodes, Lanes, and Environments. A workspace remains subordinate CONTROL-managed repository/work materialization beneath the logical lane/environment/repository execution context.
-- **Executors are not NLEWs.** Executors are reusable execution resources selected after CONTROL resolves the applicable NLEW context. They may execute work for an Environment or operate as eligible system-level `SHARED` capability according to policy.
+- Including **Workspaces** in NLEW does not make a workspace a peer authority beside Nodes, Lanes, and Environments. Source/CI workspaces are operation-scoped exact-source materializations under the shared Executor; they are not children of service Environments.
+- **Cloud Environments are service-runtime targets only.** A repository, branch, PR, CI job, Executor invocation, or source Workspace does not create or require an Environment.
+- **Executors are not NLEWs.** Executors are reusable execution resources. Tavall CI selects the shared machine Executor for source/build work; Tavall Cloud resolves a service Environment only for a registered service runtime.
 - Infrastructure and provider vocabulary must remain below Tavall NLEW and executor abstractions. Public Tavall APIs, documentation, and workflows should use Tavall domain identities rather than provider-specific identities or physical workspace paths.
 
 ## Platform Boundaries

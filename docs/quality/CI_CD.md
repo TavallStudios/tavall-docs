@@ -100,7 +100,7 @@ Cloud or another approved local execution provider supplies compute and capabili
 
 The execution provider answers **where/how the planned work runs**. It does not define the CI build graph.
 
-NLEW context may be attached when a task genuinely needs it. It is not required merely because CI exists.
+Lane, Node, and Executor policy may be attached when a CI task requires it. A registered service Environment is not a source/build context and must never be created to run CI.
 
 ## Workspace model
 
@@ -223,15 +223,15 @@ Tavall CI plan
     v
 approved execution capability
     |
-    +--> may use a Node
-    +--> may run on an Executor
-    +--> may attach Lane context
-    +--> may use/create a Cloud Workspace
-    +--> may use an Environment when the test genuinely needs Environment-owned state
+    +--> selects Node/placement when required
+    +--> runs on the existing shared Executor by default
+    +--> carries Lane policy when the source workflow requires it
+    +--> materializes exact sources in an operation-scoped Workspace
+    +--> may target an existing service Environment for runtime integration checks
     +--> may use an optional container boundary
 ```
 
-Those are execution/context choices around the CI plan, not a mandatory ordered chain.
+A CI job never creates or owns a service Environment. These are execution/context choices around the CI plan, not a mandatory ordered NLEW chain.
 
 ## Exact source and cross-repository candidates
 
@@ -263,6 +263,8 @@ GitHub event
 ```
 
 No GitHub Actions workflow/job is Tavall CI compute, scheduler, deployment runner, artifact authority, or promotion authority.
+
+`tavall-github-runner` is a GitHub caller identity only: it submits typed exact-source requests to Tavall CI and does not host CI compute. Tavall CI uses the existing shared Tavall Cloud Executor for builds and tests; the caller identity is not a separate runner host, Executor, or GitHub Actions runtime.
 
 Direct Tavall CLI/API/operator requests may invoke the same Tavall CI system without GitHub.
 

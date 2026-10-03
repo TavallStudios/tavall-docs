@@ -233,15 +233,16 @@ The canonical reusable implementation lives in `TavallStudios/tavall-ci/tavall-c
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/VERSIONING.md` | 2026-10-03 | Corrected PR #53's service-runtime-only target wording and aligned identity boundaries with `NLEW_AND_SERVICE_OWNERSHIP.md`. |
-| Notion | `DRIFT_REQUIRES_UPDATE` | `Tavall / Platform & Infrastructure / Tavall Versioning Architecture` | 2026-10-03 | The last recorded Notion synchronization reflects PR #53/#54 wording and must not be treated as current NLEW authority until reconciled. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/VERSIONING.md` | 2026-10-03 | Source/build/dependency/artifact/version/channel/digest/release identities remain provider-neutral and independent of service Environment identity; NLEW policy is maintained in `NLEW_AND_SERVICE_OWNERSHIP.md`. |
+| Notion | `SYNCED` | `Tavall / Platform & Infrastructure / Tavall Versioning Architecture` | 2026-10-03 | Re-read current page; it keeps service Environment names as deployment metadata and leaves source/build/artifact/release identity separate. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | 2026-09-27 2:46 PM PDT | GitHub + Notion | `CREATED` | Canonical VERSIONING 1:1 pair | Identity/versioning rules split across CI docs, implementation, and prior design | Current documentation reconciliation | Separated source/build/artifact/release identity and canonized internal snapshot numbering plus artifact channels. |
-| 2026-10-02 11:17 PM PDT | GitHub + Notion | `UPDATED` | Canonical VERSIONING 1:1 pair | 2026-09-27 synchronized content | GitHub PR #53 merge `97c92e58f50768a7bbf934e1f18787123d9d637d` | Correctly separated target metadata from source/build/artifact/release identity, but phrased DEVELOPMENT/STAGING/PRODUCTION as service-runtime-only targets; that ontology is superseded by the 2026-10-03 NLEW correction. |
-| 2026-10-03 | GitHub | `CORRECTED` | `docs/quality/VERSIONING.md` | PR #53/#54 service-runtime-only wording | Direct main correction | Preserved the identity separation while restoring general execution/deployment classifications and general-purpose Environment semantics. Notion is intentionally marked drift until updated. |
+| 2026-10-02 11:17 PM PDT | GitHub + Notion | `UPDATED` | Canonical VERSIONING 1:1 pair | 2026-09-27 synchronized content | GitHub PR #53 merge `97c92e58f50768a7bbf934e1f18787123d9d637d` | Correctly separated source/build/artifact/release identity; Cloud Environment ownership is defined by the current service-only NLEW policy. |
+| 2026-10-03 | GitHub | `SUPERSEDED` | `docs/quality/VERSIONING.md` | PR #53/#54 Environment wording correction | Main correction later superseded by user direction | The temporary general-purpose Environment wording conflicted with the accepted service-only rule. Versioning identities remain provider-neutral and independent of Environment identity. |
+| 2026-10-03 | GitHub + Notion | `CORRECTED` | `NLEW_AND_SERVICE_OWNERSHIP.md` and its Notion twin | Service-only Cloud Environment rule | Current policy correction PR | Cloud Environments belong only to registered logical-service runtime targets; source/build/CI use exact source and the shared Executor. No source/build/artifact/version/channel/digest/release identity changes. |
 
 </details>

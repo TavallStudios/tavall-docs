@@ -8,16 +8,21 @@
 </properties>
 <iconMetadata>{"type":"emoji","emoji":"💾"}</iconMetadata>
 <content>
+<callout icon="📎" color="gray_bg">
+	**Document Type:** Technical / Design Final Draft surface · **Canonical GitHub twin:** `TavallStudios/tavall-cloud/docs/architecture/DEVELOPER_CONTROL_AND_STORAGE_FINAL_DRAFT.md` · **Owning system design:** <mention-page url="https://app.notion.com/p/3e838458ddfd81c9950bf35de8a86c7e"/>. This page remains the human-readable CONTROL/STORAGE and materialization twin rather than an independent storage architecture fork.
+</callout>
 <callout icon="💾" color="blue_bg">
 	**Status:** active infrastructure design + recovery work. Reconciled from recent Cloud storage/MCP work and the shared infrastructure topology.
 </callout>
 ## Purpose
 Provide durable shared and development storage without making filesystem paths the product model.
 ## Design
-- Storage is a Tavall Cloud service consumed by environments, repository materializers, CI/CD, runtimes, and artifacts.
-- DEVELOPMENT source/work materialization is environment-first: resolve lane/environment, then create or attach the required repository generation on authorized storage/executor capacity.
+- Storage is a Tavall Cloud service consumed by service Environments, exact-source Executor workspaces, CI/CD, runtimes, and immutable artifacts.
+- Cloud Environments represent deployed logical-service runtime targets only. They carry service configuration, desired/observed state, deployment generations, and runtime evidence; they do not own repository source trees, build jobs, or CI workspaces.
+- DEVELOPMENT source/work materialization is Lane + exact-source first: resolve the repository and commit, then create the operation-scoped Workspace on an authorized shared Executor. A source checkout, branch, CI job, or Executor invocation does not create an Environment.
+- The current Cloud Environment source-materialization adapter is a migration blocker, not canonical storage or execution authority. Tavall CI must move source work to the Envless shared-Executor job path while durable operation/evidence records stay in their existing Storage authority. Service Environment storage does not create repository `workspaces/` subtrees or full-UUID aliases; operation Workspaces remain under Executor invocation authority.
 - Shared storage can hold templates, cached dependencies, artifacts, and cross-node development data where safe.
-- Exact-source working trees and mutable build state remain bounded to the environment/execution generation that owns them.
+- Exact-source working trees and mutable build state remain bounded to the Lane + Executor invocation Workspace that owns them. They are independent of service Environment generations.
 - Network storage must be observable and recoverable when NFS/provider mounts fail. A successful environment record with a missing mount is not a successful runtime.
 - Artifacts are immutable by identity/digest once they participate in CI/CD promotion.
 ## Physical Topology
@@ -38,11 +43,11 @@ PR #255/#254 recovered co-hosted DEVELOPMENT storage and MCP behavior, NFS mount
 - [TAVALL_CLOUD_PROGRESSION.md](https://github.com/TavallStudios/tavall-cloud/blob/main/docs/progression/TAVALL_CLOUD_PROGRESSION.md)
 - Exact-source storage/MCP recovery evidence in Cloud PRs #254/#255.
 ### Implementation
-- `TavallStudios/tavall-cloud` storage providers, environment workspace/materialization, repository cache/sync and artifact paths.
+- `TavallStudios/tavall-cloud` storage providers, service Environment materialization, operation-scoped Executor Workspaces, repository cache/sync, and artifact paths.
 ---
 ## DOC TODO:
 ### Document next steps
-- [ ] Reconcile environment-first ownership with any remaining leased-worktree/workspace-first implementation documents and mark superseded paths.
+- [x] Reconcile source materialization as Lane + exact source + Executor Workspace; service Environments do not own repository/CI work. Remaining runtime code migration is tracked separately.
 - [ ] Identify/link the final storage owner after the Cloud Final Draft is promoted.
 - [ ] Keep physical-capacity topology separate from Cloud materialization authority while linking both records.
 ### System next steps
@@ -50,8 +55,8 @@ PR #255/#254 recovered co-hosted DEVELOPMENT storage and MCP behavior, NFS mount
 - [ ] Eliminate durable authority based on host paths or standalone workspace IDs.
 - [ ] Preserve immutable artifact identity/digests through cross-node CI/CD delivery.
 ## Execution update 2026-09-20 — materialization versus live state
-- Tavall Storage and the configured filesystem remain authoritative for environment configuration, source/work materialization, manifests, artifacts, logs, and evidence bytes.
-- Redis is the live Cloud Job/environment coordination authority for current generations, leases, CAS fences, executor/runtime presence, and desired/observed operational state.
+- Tavall Storage and the configured filesystem remain authoritative for service Environment configuration, exact-source Workspace materialization, manifests, artifacts, logs, and evidence bytes.
+- Redis is the live Cloud Job and service Environment coordination authority for job/invocation fences, service runtime generations, Executor/runtime presence, and desired/observed operational state.
 - PostgreSQL Job/environment rows are audit/history observations for this boundary and cannot veto an ordinary valid Redis-backed execution.
 - Live evidence: exact Tavall CI source `00ac2dad0c5c3854357d9cf6252c7962885d1159` completed Job `37a06859-22fd-4d49-a9d5-b14a012213f3` with Storage evidence available; the evidence remained readable after agent restart.
 ## Authority correction 2026-09-20 — Storage is the durable Cloud materialization boundary
@@ -63,30 +68,27 @@ Tavall Storage/filesystem is the durable authority for configuration, source/wor
 PostgreSQL is absent from Tavall Cloud: it is not a storage-topology authority, writer-fence source, audit/history sink, migration dependency, or execution fallback. Older PostgreSQL storage wording remains historical provenance only and must not be used to design or deploy current Cloud storage.
 ## Execution update 2026-09-20 — final evidence materialization
 At integrated Cloud staging/runtime head 2858ae2a576d77a4a2fee162a776d5d7425d4752, the exact-source Cloud Job 37495124-5d00-4989-a6e1-c9e694460e06 completed successfully and exposed its logs/evidence through tavall-storage://dev-storage/jobs/37495124-5d00-4989-a6e1-c9e694460e06. Agent restart preserved the final Job state and evidence handle. PostgreSQL was not used by the runtime or evidence path.
-## Execution update 2026-09-26 — typed CI evidence Storage path
-- **VERIFIED IN CODE:** Cloud PR #395 head `6c314ce65dd7f15b9df312ea1384e62a03bd0689` adds typed `tavall storage job evidence put/get` commands through CONTROL. Records carry the exact Environment, repository, source revision, job, frozen execution-plan SHA, and content identity; local CONTROL caller identity is checked before Storage access.
-- **VERIFIED IN TESTS:** focused Storage command authority, parser, and durable evidence-store tests pass on Java 25. The Cloud architecture suite remains red for the repository's repository-type, production-var, and direct-thread-creation rules.
-- **LIVE STATE:** Environment `5848c5ff-a2a2-4da4-bd25-9cff8e558433` resolves to source snapshot `be3dd4cd5c6920788aa68581c4e2329080f2fca6c9f859fa0fe930bada63fc48`, but its observed state remains `BLOCKED`; workspace and development-tool components are `UNKNOWN`. The installed Agent/CLI predates the new plan-bound job and Storage evidence commands, so this change has not yet persisted live CI evidence.
-- The existing `tavall-cloud-chatgpt-plugin` deployment still references artifact `ba4549655ea561430dcb75e20900e62a20a9a356818e41f713bd0d980c4ab986` from source `tavall-cloud@d4fad9dbcee62d3210c14262d65cdea2e6f529ac`; its CI run/evidence identifiers are empty. It is not evidence for this rollout.
-- **GRADLE CACHE PATHS VERIFIED IN LIVE TOOLING:** `tavall-development-shared-ci` sets `GRADLE_USER_HOME=/srv/dev-storage/tavall-cache/shared-ci/gradle`. The host-local sandbox binds `/srv/dev-storage/tavall-cache/host-local-sandbox/gradle` to `/tavall/shared-tools/gradle` and sets `GRADLE_USER_HOME` there. In the plan-bound shared-CI executor, workspace, HOME, TMP, and evidence directories are job-specific while these download caches are shared.
-- `/var/cache/tavall-local-sandbox/gradle` remains in the installed Agent installer/systemd write paths, while the current sandbox helpers use the `/srv/dev-storage/tavall-cache/host-local-sandbox/gradle` mount. This older root is classified `ACTIVE_BUT_TRANSITIONAL` and preserved until the installed Agent/units are migrated and verified.
-## Exact-source binding follow-up — 2026-09-26
-Tavall CI PR #14 at `a6872ae4366434da2308529b7e60a1497469c466` now reads dependency SHAs and roles from the selected Cloud Environment through the typed CLI. Environment `5848c5ff-a2a2-4da4-bd25-9cff8e558433` was re-resolved to snapshot `b6a8b43b314ad2a5b017f271f4974d9562327d13ef66d132ccf14ccca2ea7484`. The environment remains blocked; the installed Agent does not expose the new plan-bound job and Storage evidence commands, so no live CI evidence bytes were written by this implementation.
-## Exact Environment workspace mapping — 2026-09-26
-- The Environment source snapshot advanced through earlier Cloud heads to `be3dd4cd5c6920788aa68581c4e2329080f2fca6c9f859fa0fe930bada63fc48`, pinning TCI PR #14 head `ad695b3` and Cloud PR #395 head `0df90c24` while preserving DURABLE / DEDICATED / SHARED / inherited resource policy.
-- The live TCI checkout is clean at `ef59a10f97668bf38f47616649353e8cca1199bb` instead of pinned `ad695b3270ac844fbc0db7405c01500bbeef54a7`; the live Cloud checkout is clean at `main@2f1c94b47d38d86a1724067c0ab8be39bd512178` instead of pinned `0df90c241a7fb601314c6cae09512c5af0fe6b1d`. The Architecture Tests shared dependency is present at `c0863bfe9e3ea38e4872eb295856e69bed30eb28`.
-- `environment repository refresh` refuses the TCI path with `STALE_VERSION`. A Console probe failed before executing with `PROVIDER_FAILURE` / exit 125 because the logical path `/srv/dev-storage/environments/env-5848c5ff/repositories/TavallStudios/Tavall-Architecture-Tests` is missing; physical dedicated checkouts are under the Environment's `workspaces` area.
-- Cloud PR #395 commit `04d2f2efa52857f1c6ea4a3bda7169a82ed396c8` creates the logical repository link only for a clean exact `PRIMARY` checkout under the matching source-snapshot generation. Dependency repositories remain build inputs and are excluded from the mutable Console/job workspace. Console defaults to the primary source when no repository is named.
-- Cloud PR #395 commit `bf70bd5b1dfa87c69652869a82729394759efa24` declares the existing self-contained `:tavall-cloud-node:allJar` output as immutable artifact `tavall-cloud-agent` in `.tavallci`. This makes the Agent package available to a future evidence-bound bootstrap; the package has not been built by Tavall CI or published to Storage.
-- Cloud PR #395 commit `a6a3471733f5628c44fefd58c09aa2c48813b748` aligns Cloud template identity to TCI's canonical `services/<service-id>` identity. The control template file uses identity `services/tavall-cloud-control` and digest `5033fa2b198c3f6c47065eb3e2db202d9203048a350fcda9a240c195b570c9fa`; the TCI loader parsed it. The installed Cloud Agent does not expose the template identity in CD status, so live Cloud hot-load remains unverified.
-- Cloud PR #395 head `0df90c24` removes GitHub repository URLs, Gradle module names, and mutable build-output paths from required deployment configuration. Its typed lineage records source identity, artifact selector/digest/reference, CI run/evidence, frozen bundle digest, and matching template identity/hash.
-- TCI PR #14 head `ad695b3` now retains the selected immutable artifact identity and storage reference in the frozen service delivery bundle. Focused TCI CD unit tests pass locally; no CONTROL Cloud job or deployment evidence exists.
-- Tests cover generation links, stale source preservation, primary selection, template identity alignment, and immutable deployment provenance. Current local Cloud core/node suites pass at `0df90c24`; the Environment cannot execute the source until its Agent/materialization path is updated. No CI evidence, artifact, bundle, or deployment has been produced.
-- The installed Tavall CI runtime accepted the updated Cloud `.tavallci` definition and produced plan digest `ea834befe4e6da9072f93043e61efffde7ac9d54f714f3d0c95a8af77d10b5ee`, including the `:tavall-cloud-node:allJar` runtime task. This proves the definition/plan only, not artifact creation or Cloud Executor execution.
-## Current canonical Gradle dependency audit — 2026-09-26
-- A `git grep` over the 47 canonical local repository roots found no `mavenLocal()` declarations or literal relative `includeBuild("../...")` sibling-source references in current checkout heads. The Tavall CI definitions for cross-repository Gradle composition select exact source identities/roles and substitutions; their resolved commits belong in the Environment source manifest.
-- `SNAPSHOT` tokens remain in some repository-owned version declarations and external compatibility dependencies. Current CI source substitutions fence Tavall cross-repository composition; the version strings were not treated as evidence of immutable source resolution.
-- Historical `/srv/dev-storage/workspaces/tavall-project-novus-*` worktrees still contain `mavenLocal()` references. They are outside the canonical repo roots and remain classified `UNKNOWN/PRESERVE` until active ownership and supersession are proven.
-- The wider recursive scan also encountered permission-protected `typed-executor-*` directories beneath CI/Cloud workspace roots. They were not deleted because this audit could not establish that they are stale or inactive. The active cache roots remain `/srv/dev-storage/tavall-cache/shared-ci/gradle` and `/srv/dev-storage/tavall-cache/host-local-sandbox/gradle`; `/var/cache/tavall-local-sandbox/gradle` remains transitional in installed Agent/systemd paths.
+<details>
+<summary>Documentation Update State</summary>
+	\<table header-row="true"\>\<tr\>\<td\>Surface\</td\>\<td\>Sync State\</td\>\<td\>Location\</td\>\<td\>Last Updated\</td\>\<td\>Evidence\</td\>\</tr\>\<tr\>\<td\>GitHub\</td\>\<td\>`1:1`\</td\>\<td\>`docs/architecture/DEVELOPER_CONTROL_AND_STORAGE_FINAL_DRAFT.md`\</td\>\<td\>2026-10-02 11:56 PM PDT\</td\>\<td\>Draft Cloud PR #424, branch `working/chatgpt-web-executor-catalog-20260930`.\</td\>\</tr\>\<tr\>\<td\>Notion\</td\>\<td\>`1:1`\</td\>\<td\>Current page\</td\>\<td\>2026-10-02 11:56 PM PDT\</td\>\<td\>Updated to match the current Cloud contract.\</td\>\</tr\>\</table\>
+	</table>
+	\</table\>
+	\</table\>
+	\</table\>
+	\</table\>
+	\</table\>
+	\</table\>
+	\</table\>
+	### Update History
+	\<table header-row="true"\>\<tr\>\<td\>Timestamp\</td\>\<td\>Surface\</td\>\<td\>Event\</td\>\<td\>Location\</td\>\<td\>Previous Location\</td\>\<td\>Evidence\</td\>\<td\>Notes\</td\>\</tr\>\<tr\>\<td\>2026-09-26 8:42 PM PDT\</td\>\<td\>Notion\</td\>\<td\>`SYNCED`\</td\>\<td\>Current page\</td\>\<td\>Standalone storage/materialization topic page\</td\>\<td\>Cloud module consolidation\</td\>\<td\>Bound to `DEVELOPER_CONTROL_AND_STORAGE_FINAL_DRAFT.md` as one logical document.\</td\>\</tr\>\<tr\>\<td\>2026-10-02 11:56 PM PDT\</td\>\<td\>GitHub + Notion\</td\>\<td\>`UPDATED`\</td\>\<td\>1:1 CONTROL/STORAGE pair\</td\>\<td\>2026-09-26 synchronized content\</td\>\<td\>Draft Cloud PR #424, branch `working/chatgpt-web-executor-catalog-20260930`; this Notion page\</td\>\<td\>Recorded service-only Environment storage; Environment-bound source materialization remains a migration blocker.\</td\>\</tr\>\</table\>
+	</table>
+	\</table\>
+	\</table\>
+	\</table\>
+	\</table\>
+	\</table\>
+	\</table\>
+	\</table\>
+</details>
 </content>
 </page>

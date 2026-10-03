@@ -4,7 +4,19 @@
 > **Snapshot date:** 2026-09-29
 > **Scope:** Continue the Tavall CI/CD, unified Gradle, and service/runtime delivery rollout without replacing existing Tavall Cloud execution or deployment authorities.
 
-This is a progression record, not a second architecture authority. The accepted boundary is in [`docs/quality/CI_CD.md`](../quality/CI_CD.md): repositories own build intent and project topology; Tavall CI owns build policy, planning, exact-source composition, evidence, and delivery identity; Cloud Executors own provisioning and execution; Tavall Cloud owns environments, service state, deployment materialization, routing, and runtime readiness.
+This is a progression record, not a second architecture authority. The accepted boundary is in [`docs/quality/CI_CD.md`](../quality/CI_CD.md): repositories own build intent and project topology; Tavall CI owns build policy, planning, exact-source composition, evidence, and delivery identity; Cloud Executors own provisioning and execution; Tavall Cloud owns service Environments, service state, deployment materialization, routing, and runtime readiness.
+
+## Current policy and live state — 2026-10-03
+
+- Cloud Environments are service-runtime targets only. The Environment-bound CI runs recorded later in this history remain evidence of what ran at those exact heads; they are not authority to create or use Environments for current source/CI work. No new source or CI Environment is permitted.
+- Notion was reconnected and checked against the current policy. The Lanes, Storage Topology, Runtime Promotion, Versioning, System Final Draft, and CLI Progression pages now agree on service-only Environments and local Executor CI; three GitHub Notion mirrors were synchronized byte-for-byte from their live Notion pages. The old 2026-10-02 note deferring Notion sync is historical.
+- The active Tavall CI-to-Cloud job path still requires `TavallCloudExecutionContext.environmentId` and `CloudEnvironmentJobBinding`. The Envless shared-Executor path is an implementation blocker; do not create a temporary Environment to clear it.
+- Cloud PR #424 (`working/chatgpt-web-executor-catalog-20260930`) is Draft at `a714722bea502d7ef9bf29493c673c5b2837fcc8`. Its current changes retire Environment-bound ChatGPT Web catalog/Console functions and default node installs to immutable Cloud Agent/Executor host-operations artifacts. The shell deployment contract passes; Java tests and exact-head Executor CI have not run for this head.
+- The exact-head Executor CI remains gated by the Environment-bound Tavall CI adapter. PR #424's GitGuardian check still fails on its historical finding; no check was bypassed.
+- GitHub Actions are disabled for `tavall-cloud`; current main source still contains six legacy workflow files while staging/runtime has retired them. Existing Draft promotion PR #397 carries the staging root toward main. There are no queued or running Actions jobs. Dependabot is unchanged.
+- The live Environment inventory still has one active E2E Environment, `719c5360-d0e7-48b2-827e-5c0e1488d479`; its service association and active work have not been reconciled. Preserve it until that owner/work state is known; it is not authority for new source/CI Environments, and no replacement Environment was created.
+- `tavallcloudtest` is the `ONLINE` ZFS pool backing `/srv/dev-storage`, not a Tavall service: 63.5 GiB total, 12.4 GiB allocated, 51.1 GiB free, and no reported data errors. Its backing image is a fully allocated 64 GiB file on `/`; the root filesystem has 26 GiB free, so in-place image growth would risk exhausting root. No resize was performed.
+- A live `tavall service inspect tavall-web` currently reports healthy DEVELOPMENT (ACTIVE) and STAGING (STANDBY) runtimes on the same immutable artifact/source. The router logged a transient DEVELOPMENT probe failure and automatic failover earlier today; no deployment or traffic mutation was made.
 
 ## Documentation consolidation update — 2026-09-27
 
