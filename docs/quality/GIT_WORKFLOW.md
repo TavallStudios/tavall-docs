@@ -192,11 +192,11 @@ PR Type is explicit metadata. Branch naming may help a human locate work but MUS
 
 `ACTIVE`, `PAUSED`, `BLOCKED`, and `NEEDS_RECONCILIATION` are protected lifecycle states for cleanup purposes. `ABANDONED` MUST NOT be inferred solely from age, inactivity, stopped executors, missing worktrees, closed/inactive GitHub state, or a temporary infrastructure failure. Ambiguous legacy work defaults to `NEEDS_RECONCILIATION`.
 
-CONTROL coordination values such as `CANONICAL` and `SUPERSEDED` describe environment/domain coordination. They are not PR lifecycle states. A feature environment may be superseded at a broad domain while the PR remains `ACTIVE` or `PAUSED`.
+CONTROL coordination values such as `CANONICAL` and `SUPERSEDED` describe service-Environment or Lane coordination. They are not PR lifecycle states. A service runtime may advance or be retired while its source PR remains `ACTIVE` or `PAUSED`; source work does not create an Environment.
 
 **Execution Attachment State** describes current physical/runtime attachment independently of PR lifecycle:
 
-- `LOGICAL_ONLY`: PR/source/lane/environment linkage exists but no current physical worktree exists;
+- `LOGICAL_ONLY`: PR/source/Lane linkage exists but no current physical Workspace exists;
 - `MATERIALIZED_SYNCED`: a physical worktree exists and matches authoritative source identity;
 - `MATERIALIZED_DIRTY`: a physical worktree contains local uncommitted work;
 - `MATERIALIZED_STALE`: a physical worktree exists but local source differs from authoritative remote/CONTROL source;
@@ -244,10 +244,9 @@ A canonical PR metadata document may evolve in storage shape, but it must preser
   "callbacks": {
     "canonicalLaneId": "...",
     "laneHistory": [],
-    "currentEnvironmentId": "...",
-    "environmentHistory": [],
+    "serviceRuntime": null,
+    "serviceRuntimeHistory": [],
     "executor": {
-      "environmentId": "...",
       "lastJobId": null,
       "lastOperationId": null
     },
@@ -273,17 +272,17 @@ The example is semantic, not a frozen serialization contract. Implementations ma
 
 ##### Bidirectional callbacks and reconciliation
 
-PR/source metadata, Tavall Cloud lanes, immutable environment generations, execution jobs/operations, and physical workspaces form one graph. Reconciliation must make ownership traversable in both directions rather than maintaining disconnected lists that happen to contain similar strings.
+PR/source metadata, Tavall Cloud lanes, exact-source Executor jobs/operations, and physical Workspaces form the source-work graph. A service Environment joins that graph only when a validated artifact is deployed to a registered service runtime. Reconciliation must make ownership traversable in both directions rather than maintaining disconnected lists that happen to contain similar strings.
 
-- PR metadata callbacks identify repository, branch, exact SHA, parent PR, staging/runtime/development-staging owners, canonical lane, lane history, current environment, environment history, executor/job/operation evidence, and physical workspace when materialized.
-- Lane metadata callbacks identify owning PR/source identities and environment generations.
-- Environment metadata callbacks identify lane, PR, repository, branch, exact SHA, parent PR, and physical worktree when materialized.
-- Workspace metadata callbacks identify owning PR, lane, environment, source identity, and executor evidence where appropriate.
-- Executor/job/operation metadata callbacks identify the environment and PR/source identity that authorized execution.
+- PR metadata callbacks identify repository, branch, exact SHA, parent PR, staging/runtime/development-staging owners, canonical Lane, Lane history, Executor/job/operation evidence, and physical Workspace when materialized. Service runtime identity is present only when the candidate is deployed.
+- Lane metadata callbacks identify owning PR/source identities and Executor/job evidence; they do not own service Environments.
+- Service Environment metadata identifies registered service, runtime, artifact/source provenance, deployment generation, and observations. It does not own branch work or a source Workspace.
+- Workspace metadata callbacks identify owning PR, Lane, exact source identity, and Executor evidence where appropriate.
+- Executor/job/operation metadata callbacks identify the Lane, request, exact source, job, and invocation that authorized execution. They do not require a service Environment.
 
 Existing Tavall Cloud callback/index structures should be extended when they own these relationships; implementations should not create a parallel registry merely because migration data is untidy.
 
-Reconciliation is metadata-first and non-destructive by default. It inventories authoritative GitHub PRs and branches, CONTROL lanes/environments, and physical shared worktrees; joins them by exact source identity; reads explicit PR lifecycle state; calculates attachment state; preserves lane/environment/executor history; updates safe callbacks; and emits conflicts as unresolved evidence. A dry-run/audit mode must exist before mutations that can affect physical state. Initial graph reconciliation MUST NOT perform mass deletion, condensation, reset, or relocation.
+Reconciliation is metadata-first and non-destructive by default. It inventories authoritative GitHub PRs and branches, CONTROL Lanes, service Environments, Executor operations, and physical Workspaces. It joins source-work records by exact source identity and joins deployment records by service/runtime/artifact identity; it reads explicit PR lifecycle state, calculates attachment state, preserves Lane/Executor/service-deployment history, updates safe callbacks, and emits conflicts as unresolved evidence. A dry-run/audit mode must exist before mutations that can affect physical state. Initial graph reconciliation MUST NOT perform mass deletion, condensation, reset, or relocation.
 
 Age is not abandonment. `STOPPED` is not abandonment. No running executor is not abandonment. No physical worktree is not abandonment. Cleanup becomes eligible only after lifecycle intent is explicitly safe, protected attachment conditions are absent, source/history is preserved, and repository-specific retention rules permit it.
 
@@ -374,7 +373,7 @@ Retarget, merge, close, rotate, supersede, and rebase operations must plan and p
 
 Feature, Development Staging, Runtime, and repository/release Staging validation must identify their exact current heads, composition, execution result, and evidence. A head or composition change invalidates prior acceptance for the changed integration state and affected higher tiers. Run relevant integrated build, architecture, regression, and runtime checks at every changed staging tier. Passing child tests do not replace testing the composed head, and intended membership must not be reported as integrated until the current integration tree actually contains the accepted work.
 
-GitHub is SCM, review, checks, and reporting. Tavall/local execution remains the authoritative build, test, and runtime execution surface according to repository policy; GitHub-hosted Actions are not the primary execution infrastructure. Publish truthful evidence for the exact source that ran. Distinguish source failures from provider, infrastructure, timeout, termination, stale-head, and missing-evidence failures.
+GitHub is SCM, PR/review, source-event ingress, and Check presentation. No GitHub Actions workflow or job may trigger, schedule, carry, execute, publish, or gate Tavall CI/CD work. The Bot submits typed requests directly to Tavall CI; local Tavall jobs and Cloud Executors perform all build, test, validation, artifact, and deployment compute. Dependabot remains separate. Publish truthful evidence for the exact source that ran. Distinguish source failures from provider, infrastructure, timeout, termination, stale-head, and missing-evidence failures.
 
 Topology validation must detect orphan normal PRs and stack roots, orphan Development Staging or Runtime PRs, active staging branches without active staging PRs, cycles, incompatible or ambiguous roots, closed/superseded parents with active descendants, deleted PR references, stale metadata or head mismatches, incorrectly flattened dependency stacks, false integration membership, and stale acceptance. Ordinary PR creation and maintenance are valid only when these checks pass; explicitly authorized narrow exceptions remain attributable and reviewable under Section 11.
 
