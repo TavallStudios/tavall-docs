@@ -3,7 +3,7 @@
 > **Status:** Active  
 > **Authority:** Canonical organization-wide TODO ledger  
 > **Repository projections:** Every maintained TavallStudios repository exposes a bot-managed root `TODO.md` that projects only that repository's section from this file.  
-> **Last updated:** 2026-10-02
+> **Last updated:** 2026-10-04
 
 This file is the single source of truth for organization-wide repository TODO work. Repository-local `TODO.md` files are generated static projections and must not become independent task ledgers.
 
@@ -458,23 +458,18 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall Web Platform
 
-- [ ] 2026-10-02 — Reconcile and promote the core frontend framework stack (PR #46, PR #47, PR #49) to `main`.
-  - Resolve merge conflicts with `main` in PR #46.
-  - Land Spring adapter (`tavall-web-frontend-spring`), Organization Admin Dashboard, Contractors Home routing, and Content Studio mount.
 - [ ] 2026-10-02 — Reconcile and fold `tavall-web-docs` into `tavall-web` (PR #48).
   - Consolidate web documentation authority and retire the separate `tavall-web-docs` repository surface.
 - [ ] 2026-10-02 — Migrate remaining legacy Thymeleaf surfaces onto the pure-Java `AbstractPage<SELF>` framework.
   - Migrate Content/Blog editor script, Progress tracker, and Docs admin pages off Thymeleaf.
 
-#### Module — tavall-web-api
-
-- [ ] 2026-10-02 — Formalize self-typed Page contract in `tavall-web-api`.
-  - Maintain strict transport and container neutrality: zero Spring, Servlet, or HTTP server dependencies in `tavall-web-api`.
-
 #### Module — tavall-web-frontend
 
 - [ ] 2026-10-02 — Complete pure-Java HTML component vocabulary and rendering engine.
   - Support video, figures, grouped form controls, and typed `data-tavall-*` attributes without external runtime dependencies.
+- [ ] 2026-10-04 — Complete the Page/rendering artifact ownership cutover and package-backed consumer validation (Tavall-Web PR #58).
+  - Keep route, surface, and exposure contracts in `tavall-web-api`; publish Page, rendering, and frontend AST contracts only from `tavall-web-frontend`.
+  - Verify package-backed consumers independently from the passing exact-source composite.
 
 #### Module — tavall-web-frontend-spring
 
@@ -529,19 +524,13 @@ _No open global TODO items currently tracked._
 - [ ] 2026-10-02 — Promote Contractors Home presentation module (PR #3) to `main`.
   - Validate surface routing and contractor profile views in `tavall-web-app`.
 
-### `TavallStudios/tavall-web-discord`
-
-#### System — Tavall Web Discord
-
-- [ ] 2026-10-02 — Migrate Discord guild sync and bot status admin views to Tavall Web frontend framework.
-
 ### `TavallStudios/tavall-web-mc`
 
 #### System — Tavall Web Minecraft Surface
 
-- [ ] 2026-10-02 — Promote self-typed Page contract adoption (PR #6) to `main`.
-  - Ensure zero Spring dependencies in `tavall-web-mc` page definitions.
 - [ ] 2026-10-02 — Migrate remaining player stat and leaderboard views onto pure-Java frontend components.
+- [ ] 2026-10-04 — Add the Minecraft-specific Builder Studio view after the MC Builder API and Web app facade contracts are accepted.
+  - Consume typed same-origin view data; keep local worker and Minecraft filesystem authority in Tavall-MC.
 
 ### `TavallStudios/tavall-web-mcp`
 
