@@ -545,6 +545,8 @@ _No open global TODO items currently tracked._
 #### System — Tavall Web Minecraft Surface
 
 - [ ] 2026-10-02 — Migrate remaining player stat and leaderboard views onto pure-Java frontend components.
+- [ ] 2026-10-04 — Add the Minecraft-specific Builder Studio view after the MC Builder API and Web app facade contracts are accepted.
+  - Consume typed same-origin view data; keep local worker and Minecraft filesystem authority in Tavall-MC.
 
 ### `TavallStudios/tavall-web-mcp`
 
