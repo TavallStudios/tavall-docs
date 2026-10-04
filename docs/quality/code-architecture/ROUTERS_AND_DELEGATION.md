@@ -48,9 +48,9 @@ public final class PlayerInteractRouter
 
     @Override
     public void route(PlayerInteractEvent event) {
-        IDependencyMap dependencies = getInstance();
-        dependencies.iFlagInteractHandler().onPlayerInteract(event);
-        dependencies.iStaffToolInteractHandler().onPlayerInteract(event);
+        PlayerInteractRouterDependencyAccess dependencies = getInstance();
+        dependencies.flagInteractHandler().onPlayerInteract(event);
+        dependencies.staffToolInteractHandler().onPlayerInteract(event);
     }
 }
 ```

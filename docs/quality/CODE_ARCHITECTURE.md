@@ -104,7 +104,31 @@ Detailed migration and persistence rules: [Entity Persistence](code-architecture
 
 ## Interfaces and Abstractions
 
-Use an interface for a real contract/substitution boundary such as a Tavall DI alias, module boundary, platform adapter, provider strategy, external system boundary, or testable policy family. Do not create an interface merely because a concrete class exists, and do not recreate `I*Repository` as a persistence seam.
+> **Governing Doctrine:** Tavall-owned behavior is interface-first and DI-managed by default.
+
+```text
+behavior
+    ↓
+interface / contract
+    ↓
+tavall-di
+    ↓
+implementation
+```
+
+For a Tavall-owned class, the default assumption is that it participates in `tavall-di`.
+
+Do NOT ask:
+> Should this class use DI?
+
+Ask:
+> What explicit reason does this class have not to be DI-managed?
+
+Interfaces define behavioral contracts inside Tavall architecture (`consumer → contract`). For meaningful Tavall behavior, consumers depend on contracts, not concrete implementations. Implementation details sit behind that contract.
+
+Empty interfaces created without behavioral methods solely to satisfy a syntactic rule MUST NOT be created. The purpose of interface contracts is architectural boundaries, substitution, testing, lifecycle control, and dependency ownership.
+
+Pure data structures (records, immutable values, DTOs, serialization models, configuration value objects, enums, exceptions) are explicit exceptions and do not have meaningless interfaces forced onto them.
 
 Detailed rules: [Interfaces and Abstractions](code-architecture/INTERFACES_AND_ABSTRACTIONS.md).
 
@@ -120,9 +144,101 @@ Detailed rules: [Interfaces and Abstractions](code-architecture/INTERFACES_AND_A
 
 ## Dependency Injection
 
-`tavall-di` is the default Tavall runtime composition system unless a narrower repository explicitly defines another composition boundary.
+`tavall-di` is the first-class architectural invariant and default runtime composition system for all Tavall-owned behavioral components.
 
-Ordinary managed behavior declares Tavall-managed collaborators through `DependencyAccess<...>` and the generated typed access surface. It does not constructor-inject those managed application dependencies, add static service locators, or own manual composition trees. More than four managed dependencies is a design-review signal, not a hard cap.
+### Classes That MUST Normally Participate in DI
+
+Any Tavall-owned class that does one or more of the following MUST normally be interface-first and DI-managed:
+
+- defines application or domain behavior;
+- coordinates other components;
+- owns lifecycle behavior;
+- owns meaningful runtime state;
+- performs I/O;
+- accesses infrastructure;
+- implements business/domain logic;
+- participates in a runtime subsystem;
+- is consumed across class/module boundaries;
+- represents a service;
+- represents a handler;
+- represents an orchestrator;
+- represents a repository / data access coordinator;
+- represents a provider;
+- represents a controller;
+- represents a gateway;
+- represents an adapter;
+- represents a cache with behavioral semantics;
+- represents an event component;
+- represents networking behavior;
+- represents command behavior;
+- represents integration behavior.
+
+This applies broadly across Tavall systems, including `TavallEvent`, `AbstractCache`, CLI commands, networking, web services, storage, authentication, AI systems, cloud systems, and Minecraft systems.
+
+### Consumer Rule
+
+Consumers depend on contracts/interfaces, not concrete Tavall implementations:
+
+```text
+consumer → contract (interface)
+                ↑
+             tavall-di
+                ↓
+          implementation
+```
+
+The object graph is owned by `tavall-di`. Arbitrary consumers MUST NOT construct implementations themselves (`new UserServiceImpl(...)` outside approved composition boundaries is prohibited).
+
+### DependencyAccess Rule
+
+`DependencyAccess<...>` is the normal Tavall-facing access mechanism where generated/static typed access is appropriate. Generated typed accessors (`getInstance().userService()...` or single-token `getInstance()`) MUST be preferred over manually interacting with the underlying dependency map.
+
+Production consumers MUST NOT directly use:
+
+```java
+IDependencyMap
+DependencyMap
+```
+
+unless they are themselves implementing:
+
+- DI infrastructure;
+- composition/bootstrap infrastructure;
+- framework integration;
+- generated dependency-access infrastructure;
+- an explicitly documented low-level boundary.
+
+The map is infrastructure. `DependencyAccess<...>` and typed contracts are the consumer-facing architecture.
+
+### Explicit DI Exceptions
+
+Reasonable exceptions where an interface/DI is not required include:
+
+- immutable values;
+- records;
+- DTOs;
+- serialization models;
+- configuration value objects;
+- enums;
+- exceptions;
+- builders whose sole responsibility is object construction;
+- factories / composition roots;
+- generated code;
+- foreign/framework objects Tavall does not own;
+- tiny ephemeral local implementation-detail objects with no architectural dependency role;
+- test fixtures, mocks, and fakes.
+
+These exceptions MUST NOT become a second hidden dependency graph. A class cannot escape DI merely because direct construction is convenient.
+
+### Composition Boundaries
+
+Direct construction of DI-managed implementations is valid ONLY in clearly identified, narrow boundaries:
+
+- Tavall DI bootstrap;
+- composition roots (e.g. marked with `@CompositionBoundary`);
+- factories whose explicit responsibility is construction;
+- generated DI code;
+- framework adapters where the external framework owns construction.
 
 Detailed registration, generated access, alias identity, default-consumer, orchestration, and cleanup rules: [Dependency Injection and Orchestration](code-architecture/DEPENDENCY_INJECTION_AND_ORCHESTRATION.md).
 
@@ -270,7 +386,10 @@ Before accepting a change, confirm:
 - [ ] Existing canonical Tavall tools were inspected before changing or documenting their API, inheritance, lifecycle, or naming assumptions.
 - [ ] Owner/module/package and class/method roles are correct.
 - [ ] No new Tavall-owned production type ends in `Repository`; migration debt does not grow.
-- [ ] Interfaces represent real contract/substitution boundaries.
+- [ ] Tavall-owned behavior is interface-first and DI-managed by default.
+- [ ] Consumers depend on contracts/interfaces rather than concrete implementations.
+- [ ] Direct construction of DI-managed implementations is prohibited outside approved composition boundaries.
+- [ ] Ordinary production code uses `DependencyAccess` and typed accessors; `IDependencyMap` / `DependencyMap` is not accessed directly.
 - [ ] Tavall-managed dependencies resolve through Tavall DI rather than constructor/static-locator ownership.
 - [ ] Builders construct typed output; Handler/Service/Orchestrator/Router responsibilities remain distinct.
 - [ ] Production Java locals use explicit declared types rather than `var`.
