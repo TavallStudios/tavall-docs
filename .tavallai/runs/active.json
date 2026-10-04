@@ -10,7 +10,8 @@
     "git": {
       "authority": "github.com/TavallStudios/tavall-docs",
       "branch": "working/mc-repository-separation-todo-20261003",
-      "headCommit": "21a74a536ab606e3569fe64a5a35601f9de67373"
+      "headCommit": "637c409e1cbe2678ec8ced3d8f57448943597e7c",
+      "pullRequest": 57
     },
     "ledger": {
       "agentId": "codex-tavall-orchestrator",
