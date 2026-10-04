@@ -346,6 +346,7 @@ _No open global TODO items currently tracked._
 
 - [ ] 2026-10-03 — Accept repository/module/runtime separation root PR #333 before resuming the large gameplay stack.
   - Keep `tavall-minecraft-framework` reusable: move Kingdom/Novus policy, product cosmetics, and Tavall runtime-host identity into MC-owned modules; retain generic Minecraft host, API, game, and NMS capabilities in Framework.
+  - Remove the stale cross-game Resource Game frontend/TCP bridge copy from MC; `TavallStudios/tavall-hytale-resource-game` owns those shared contracts and its Minecraft adapter. Add no Hytale dependency unless a current MC product consumer requires the typed contract.
   - Keep runtime schema creation out of Framework and MC launch. Preserve migration intent and leave durable writes blocked until the canonical Tavall Database migration owner is established.
   - Do not merge PR #301 or stale fan-in #299. Preserve useful composite/lock work and rebuild a focused current-main Framework consumer after producer purity and product persistence ownership are resolved.
   - Current #333 exact-head checks are pending. The previously observed 51 Kingdom/server failures out of 277 tests are historical evidence from an older candidate and must not be reported as current.
@@ -480,7 +481,7 @@ _No open global TODO items currently tracked._
 
 - [ ] 2026-10-03 — Complete Web frontend artifact ownership and retire the deleted `tavall-web-discord` page source (PR #58).
   - Keep route/surface/exposure contracts in `tavall-web-api`; Page, HTML/CSS, animation, asset, TypeScript, and rendering contracts belong to `tavall-web-frontend`.
-  - Re-run the corrected exact-source branch through Tavall CI's shared Executor, prove package-backed resolution independently from source substitution, and keep browser/deployment acceptance separate.
+  - Tavall-Architecture-Tests PR #21 corrects the reusable frontend/API rule and passed its exact-source Tavall CI quality gate. Rerun PR #58 through Tavall CI using that exact producer head, prove package-backed resolution independently from source substitution, and keep browser/deployment acceptance separate.
 
 #### Module — tavall-web-frontend
 
