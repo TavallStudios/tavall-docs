@@ -162,3 +162,47 @@ exact canonical document section
    - **FINALIZE**: Records completed run in `runs/history.json`, clears active state, and emits structured handoff in `runs/handoffs/<run-id>.json` allowing future AI resumption.
 
 Main document skills list every routable section in canonical order without duplicating policy. Section skills provide minimal trigger and pointer instructions, ensuring context budget is preserved.
+
+## 7. Plugin-Native Skill Surface Architecture
+
+Tavall standardizes a **single-source capability architecture** where core business logic, behavioral requirements, and execution instructions exist in exactly one canonical location and project outward into multiple client surfaces via thin, stateless surface adapters.
+
+```text
+               ┌────────────────────────────────────────────────────────┐
+               │  Canonical Single-Source Skill                         │
+               │  /srv/dev-storage/.ai/plugins/Tavall/.../SKILL.md      │
+               └───────────────────────────┬────────────────────────────┘
+                                           │
+             ┌─────────────────────────────┼────────────────────────────┐
+             ▼                             ▼                            ▼
+   ┌───────────────────┐         ┌───────────────────┐        ┌───────────────────┐
+   │    Web Adapter    │         │    CLI Adapter    │        │    MCP Adapter    │
+   │  (Web console,    │         │  (Headless stream,│        │  (Tool schema,    │
+   │   markdown/UI)    │         │   CLI arguments)  │        │   JSON RPC)       │
+   └───────────────────┘         └───────────────────┘        └───────────────────┘
+```
+
+### Architectural Principles
+
+1. **One Canonical Capability / Skill**:
+   Every skill is declared once inside its owning Agent directory within the canonical plugin (`/srv/dev-storage/.ai/plugins/Tavall/agents/<agent>/skills/<skill>/SKILL.md`). Business logic, validation rules, and domain policies must never be duplicated across surfaces.
+
+2. **Multiple Surface Adapters**:
+   Surface adapters project the canonical skill into specific caller environments without modifying its core contract:
+   - **Web Surface**: Formats inputs for web chat/console interaction, renders rich markdown/diagrams, and supports interactive prompts.
+   - **CLI Surface**: Invoked via command-line arguments and stdin/stdout streams, supports headless batch execution, and emits POSIX exit codes.
+   - **MCP Surface**: Exposes the skill as a standard Model Context Protocol tool with validated JSON schema parameters and structured tool results.
+   - **Harness Surface**: Enables automated CI testing, regression sweeps, and deterministic mock evaluation.
+
+3. **Surface Metadata Schema**:
+   Every projected adapter exposes standard capability metadata:
+   - `mode`: `HEADLESS` (non-interactive, automation-safe) vs `INTERACTIVE` (requires user dialogue or confirmation).
+   - `input_schema`: Strict JSON Schema defining accepted arguments, types, required fields, and validation constraints.
+   - `output_representation`: Expected format (`JSON`, `STREAMING_TEXT`, `STRUCTURED_MARKDOWN`, `EXIT_CODE`).
+   - `permission_profile`: Bounded access rights (`READ_ONLY`, `WORKSPACE_MUTATION`, `NETWORK_OUTBOUND`, `PRIVILEGED`).
+
+4. **Projection & Anti-Drift Rules**:
+   - **Never Hand-Edit Projections**: Surface manifests, tool declarations, and CLI wrappers are strictly derived from the canonical skill. Hand-editing projected copies is strictly prohibited.
+   - **Automated Regeneration**: Projections are regenerated deterministically via adapter toolchains.
+   - **Stale Projection Detection**: Projected adapter manifests record the canonical source SHA-256 content hash (`canonical_source_hash`). During build, CI, and agent execution, drift detection verifies that the projection matches the active canonical skill file; mismatches fail validation.
+

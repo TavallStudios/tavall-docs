@@ -92,3 +92,66 @@ Migrate existing non-service Environment materializations through CONTROL after 
 - `tavall-docs` owns this Tavall-wide terminology and service-only Environment rule.
 - `tavall-ci` owns provider-neutral CI orchestration, exact-source composition, evidence, and delivery semantics.
 - `tavall-cloud` owns concrete Nodes, Lanes, service Environments, Executors, storage, service placement, providers, and runtime behavior.
+
+## OCI Images vs. Tavall Environment Definitions
+
+Tavall architectures strictly distinguish between an **OCI image** (the immutable userspace artifact) and a **Tavall Environment Definition** (the runtime execution and placement policy).
+
+```text
+┌──────────────────────────────────────┐     ┌──────────────────────────────────────┐
+│           OCI Image                  │     │     Tavall Environment Definition     │
+│   (Immutable Userspace Artifact)     │     │     (Runtime Execution Policy)       │
+├──────────────────────────────────────┤     ├──────────────────────────────────────┤
+│ • Root filesystem layers             │     │ • Hardware & compute (CPU, RAM, GPU) │
+│ • System packages, libraries, tools  │  +  │ • Volume mounts & persistent storage │
+│ • Application binaries and runtimes  │     │ • Port bindings & ingress routing    │
+│ • Base default user & PATH           │     │ • Secret & credential injections     │
+│ • Default ENTRYPOINT / CMD           │     │ • Capability grants & security opts  │
+└──────────────────────────────────────┘     │ • Placement rules & restart policy   │
+                                             └──────────────────┬───────────────────┘
+                                                                │
+                                                                ▼
+                                             ┌──────────────────────────────────────┐
+                                             │     Running Service Container        │
+                                             │  (OCI Image instantiated under       │
+                                             │   Environment Policy)                │
+                                             └──────────────────────────────────────┘
+```
+
+### What an OCI Image Is
+
+An **OCI Image** is an immutable, portable userspace filesystem artifact stored in a container registry:
+- **Filesystem Layers**: The Linux distribution rootfs, packages, shared libraries, and application runtime binaries (e.g. JDK, Node.js).
+- **Default Baseline Environment**: Declares the default non-root user (`USER`), working directory (`WORKDIR`), default PATH, and default execution entrypoint (`ENTRYPOINT` / `CMD`).
+- **Build Output**: It is produced by a build process (Dockerfile / buildx / kaniko) and identified by a content digest (SHA-256).
+
+### What a Tavall Environment Definition Is
+
+A **Tavall Environment Definition** is the declared, versioned runtime policy that governs how and where an OCI image executes:
+- **Compute & Resource Limits**: CPU allocations, memory limits, swap constraints, and GPU reservations.
+- **Mounts & Storage Volumes**: Bind mounts, ephemeral scratch disks, and persistent stateful volume attachments.
+- **Networking & Ingress**: Virtual network attachments, port mappings, internal DNS identities, and TLS ingress routing.
+- **Secrets & Configuration Bindings**: Injection of runtime credentials, environment variable values, configuration files, and token resolvers.
+- **Capability Grants & Security Profiles**: AppArmor / SELinux profiles, seccomp filters, Linux capability drops (`CAP_DROP`), and user namespace mappings.
+- **Persistence & State Semantics**: Ephemeral vs stateful lifecycle guarantees, backup triggers, and snapshot boundaries.
+- **Lifecycle & Placement Rules**: Node affinity, anti-affinity, tolerations, health probes (liveness, readiness), restart policies, and rollout strategies (e.g. Blue/Green slots).
+
+---
+
+## Prohibited Anti-Patterns
+
+### 1. Prohibited: Treating OCI Images as Environments
+An OCI image is NOT an environment. Running an image with ambient host defaults is strictly prohibited in production. A container is only an instantiated Environment when combined with an explicit, versioned Tavall Environment Definition governing its resources, secrets, and network placement.
+
+### 2. Prohibited: Treating Environment Definitions as Image Builds
+Environment definitions must not compile source code or build OCI images. The OCI image must already exist as an immutable, verified artifact prior to environment instantiation.
+
+### 3. Prohibited: Host-Leaking Paths (`/srv/...`)
+Environment definitions must specify portable, logical volume names and mount paths (e.g. `volume: data-storage -> /var/data/tavall`). Host paths (such as `/srv/dev-storage/...` or `/home/...`) must NEVER be embedded into canonical environment definitions or image configurations. Physical host placement is managed dynamically by Tavall Cloud Nodes at instantiation time.
+
+### 4. Prohibited: Conflating Node, Lane, Environment, and Workspace
+- A **Node** is compute capacity, not an application environment.
+- A **Lane** is workflow/PR ancestry, not a runtime target.
+- An **Environment** is a logical service runtime target (DEVELOPMENT, STAGING, PRODUCTION), not a Git branch.
+- A **Workspace** is isolated source checkouts and temporary CI build folders, never service runtime state.
+

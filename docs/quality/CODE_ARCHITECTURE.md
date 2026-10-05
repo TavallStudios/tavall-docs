@@ -56,6 +56,7 @@ A change may require several delegated chapters. A Handler using Tavall DI, Cach
 | Tavall Database entity persistence and `*Repository` migration | [Entity Persistence](code-architecture/ENTITY_PERSISTENCE.md) |
 | Validation, fallbacks, prohibited patterns, direct Thread ownership | [Validation, Fallbacks, and Anti-Patterns](code-architecture/VALIDATION_FALLBACKS_AND_ANTI_PATTERNS.md) |
 | Utilities and pure/static boundaries | [Utilities](code-architecture/UTILITIES.md) |
+| Enums, extensible enum families, and CustomEnum | [Enums and Extensible Enums](code-architecture/ENUMS.md) |
 | Effect/animation sequences and timing ownership | [Effect Sequences](code-architecture/EFFECT_SEQUENCES.md) |
 | Test structure and Git-facing architecture expectations | [Testing and Git](code-architecture/TESTING_AND_GIT.md) and [Git Workflow](GIT_WORKFLOW.md) |
 
