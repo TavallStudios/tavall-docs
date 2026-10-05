@@ -351,6 +351,29 @@ routes:
     documents:
       - docs/quality/AGENT_ARCHITECTURE.md
 
+  - id: cli-architecture
+    signals:
+      - cli
+      - cli architecture
+      - cli command
+      - command line
+      - tavall cli
+      - command framework
+    documents:
+      - docs/quality/CLI_ARCHITECTURE.md
+      - docs/quality/code-architecture/CLI_FRAMEWORK.md
+
+  - id: cli-framework
+    signals:
+      - cli framework
+      - clicommand
+      - clicommandbuilder
+      - clicommandsettings
+      - iclicommand
+      - iclibootstrap
+    documents:
+      - docs/quality/code-architecture/CLI_FRAMEWORK.md
+
 rules:
   - Do not load docs/quality/README.md as policy unless the user explicitly asks for the documentation index.
   - Do not load CODE_ARCHITECTURE.md merely because source code is being changed.
