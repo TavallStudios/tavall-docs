@@ -106,9 +106,13 @@ The exact, immutable authoritative source identity (repository URL + exact commi
 
 The durable, inspectable state transfer artifact passed between workers, stages, or Agents (such as uncommitted patch context, acceptance evidence, or blocker descriptions).
 
-### .tavallai (Provenance Layer)
+### .tavallai (Typed Tavall AI Directory)
 
-The repository- and module-local raw AI work provenance layer formatted strictly in deterministic JSON. It records threads, active and historical runs, authority references, and structured handoffs across repository roots and independent source/build module boundaries without becoming a duplicate documentation, memory, Git, or Cloud database.
+A deterministic JSON directory format with an explicit `directoryType` in `tavallai.json`. `PROVENANCE` roots are repository/module-local raw AI work records owned by `tavall-agent-provenance`. `MEMORY_PLANE` is the shared installation-scoped knowledge system owned by `tavall-agent-memory`. Consumers must validate the type before mutation; path alone never establishes authority.
+
+### Memory Plane (`MEMORY_PLANE`)
+
+The shared Tavall AI knowledge capability under `/srv/dev-storage/.ai/plugins/Tavall/.tavallai`. Graphify holds rebuildable current structure; Graphiti holds temporal episodes and facts with source provenance; semantic/vector search returns candidate recall only. Canonical docs/source/runtime remain authority for current truth.
 
 ### Provenance Agent (tavall-agent-provenance)
 

@@ -56,11 +56,13 @@ HANDOFF / OUTPUT
 
 ### Hierarchy of Context, Coordination, and Authority
 
-1. **Memory (`tavall-agent-memory`)**: Recovers past decisions, uncommitted context, and historical intent. Memory is **contextual evidence** and **must never override current canonical documentation, code, or runtime evidence**.
+1. **Memory (`tavall-agent-memory`)**: Reads the shared typed `MEMORY_PLANE` for exact, structural, semantic-candidate, and temporal context. Memory is **contextual evidence** and **must never override current canonical documentation, code, or runtime evidence**. Durable writes use the explicit `recordMemory` boundary; ordinary prompts and provider results are retrieval-only.
 2. **Ledger (`tavall-agent-ledger`)**: Resolves worker identity, claims scope, inspects concurrent workers, prevents collisions, and records dependencies before substantive work begins.
 3. **Provenance (`tavall-agent-provenance`)**: Maintains the repo-local and module-local raw AI work provenance layer (`.tavallai`). Operates strictly as a `ROLE` to link active runs, threads, and handoffs into Git, Cloud, Memory, and Ledger authorities using deterministic JSON.
 4. **Docs (`tavall-docs-agent`)**: Executes a **skinny JIT pass** to identify likely governing documents and section pointers without preloading bodies.
 5. **Orchestrator (`tavall-orchestrator`)**: Coordinates the smallest valid Agent graph for the task.
+
+The provider roles, authority order, ingestion, rebuild, and retrieval contract are defined in [Tavall AI Memory Plane](../architecture/TAVALL_AI_MEMORY_PLANE.md).
 
 ## 3. Canonical Agent Groups
 
@@ -145,21 +147,27 @@ section skill (1:1 with canonical section title)
 exact canonical document section
 ```
 
-## 6. Local AI Work Provenance Layer (`.tavallai`)
+## 6. Typed Tavall AI Directory Format (`.tavallai`)
 
-`.tavallai` is the repository- and module-local **raw AI work provenance layer**. It is maintained exclusively by `tavall-agent-provenance` operating as a `ROLE`.
+`.tavallai/` is a typed directory format, not a path-based guess. Every root has a `tavallai.json` discovery entrypoint validated against `docs/schemas/tavallai-directory.schema.json`; `schemaVersion` and `directoryType` are required.
 
-### Architectural Principles
+### Directory types and owners
 
-1. **JSON Exclusively**: All structures use deterministic JSON (2-space indent, stable key order), never YAML or Markdown.
-2. **References, Not Duplication**: `.tavallai` references existing authorities (`authority`, `ref`, `observedAt`, `revision`). It does NOT duplicate architecture documentation, memory stores, Git history, or Cloud execution state.
-3. **Scope Hierarchy**:
-   - Every included repository exposes a repository root `.tavallai/` with `tavallai.json` as discovery entrypoint.
-   - Every independently testable/deployable source or build module boundary exposes a module-local `.tavallai/` referencing its parent repository root. Circular links are strictly forbidden.
-4. **Pass Lifecycle**:
-   - **START**: Associates active run, provider thread, Ledger worker claims, and Git/Cloud/Memory authorities into `runs/active.json`.
-   - **UPDATE**: Updates active run only on meaningful transitions (subagents, scope crossing, handoffs, blockers); never logs per-tool-call events.
-   - **FINALIZE**: Records completed run in `runs/history.json`, clears active state, and emits structured handoff in `runs/handoffs/<run-id>.json` allowing future AI resumption.
+| `directoryType` | Scope | Authority | Allowed mutation |
+| --- | --- | --- | --- |
+| `PROVENANCE` | `REPOSITORY_ROOT` or `MODULE_ROOT` | `tavall-agent-provenance` | Raw run/thread/work/handoff records and references only. It must not store or mutate durable Memory Plane state. |
+| `MEMORY_PLANE` | `TAVALL_INSTALLATION` | `tavall-agent-memory` and its authorized ingestion/provider tools | Shared provider manifests, source identity/checkpoints, derived exports, and rebuildable indexes. |
+
+The canonical installed Memory Plane root is `/srv/dev-storage/.ai/plugins/Tavall/.tavallai`. Repository and module roots remain `PROVENANCE`; they reference shared memory rather than copying it.
+
+### Architectural principles
+
+1. **Explicit type**: Never infer semantics from the directory path. A missing, unknown, or invalid `directoryType` is a fail-closed condition; do not mutate it automatically.
+2. **Owner gate**: `tavall-agent-provenance` may mutate only validated `PROVENANCE` roots. Only the Memory Plane owner may mutate validated `MEMORY_PLANE` state. Unknown types are read-only until an explicit migration classifies them.
+3. **JSON exclusively**: `.tavallai` metadata and state use deterministic JSON (2-space indentation, stable key ordering), never YAML or Markdown.
+4. **References, not duplication**: `PROVENANCE` roots reference authorities (`authority`, `ref`, `observedAt`, `revision`) and do not duplicate docs, provider stores, Git history, or Cloud execution state. The `MEMORY_PLANE` stores manifests and derived indexes, not duplicate authoritative databases or full source corpora.
+5. **Scope hierarchy**: Each repository has a `PROVENANCE` root; each independently testable/deployable source or build module may have a `PROVENANCE` root with a relative parent reference. Circular links are forbidden.
+6. **Pass lifecycle**: `START` binds active run, provider thread, Ledger scope, Git/Cloud/Memory authorities; `UPDATE` records meaningful transitions, not every tool call; `FINALIZE` records a handoff and clears active state.
 
 Main document skills list every routable section in canonical order without duplicating policy. Section skills provide minimal trigger and pointer instructions, ensuring context budget is preserved.
 
@@ -205,4 +213,3 @@ Tavall standardizes a **single-source capability architecture** where core busin
    - **Never Hand-Edit Projections**: Surface manifests, tool declarations, and CLI wrappers are strictly derived from the canonical skill. Hand-editing projected copies is strictly prohibited.
    - **Automated Regeneration**: Projections are regenerated deterministically via adapter toolchains.
    - **Stale Projection Detection**: Projected adapter manifests record the canonical source SHA-256 content hash (`canonical_source_hash`). During build, CI, and agent execution, drift detection verifies that the projection matches the active canonical skill file; mismatches fail validation.
-

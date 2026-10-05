@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/TavallStudios/tavall-docs/main/docs/schemas/tavallai-directory.schema.json",
+  "title": "Tavall AI Directory Metadata",
+  "description": "Typed metadata for repository provenance roots and the installed Tavall Memory Plane.",
+  "type": "object",
+  "required": ["schemaVersion", "directoryType", "scope"],
+  "properties": {
+    "$schema": {
+      "const": "https://raw.githubusercontent.com/TavallStudios/tavall-docs/main/docs/schemas/tavallai-directory.schema.json"
+    },
+    "schemaVersion": { "const": 1 },
+    "version": {
+      "const": 1,
+      "description": "Compatibility alias retained by existing provenance readers."
+    },
+    "directoryType": { "enum": ["PROVENANCE", "MEMORY_PLANE"] },
+    "scope": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "enum": ["REPOSITORY_ROOT", "MODULE_ROOT", "TAVALL_INSTALLATION"] },
+        "name": { "type": "string", "minLength": 1 },
+        "path": { "type": "string", "minLength": 1 },
+        "repository": { "type": "string", "minLength": 1 },
+        "parentRef": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": true
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "directoryType": { "const": "PROVENANCE" } }, "required": ["directoryType"] },
+      "then": {
+        "properties": {
+          "scope": {
+            "required": ["type", "name", "path", "repository"],
+            "properties": { "type": { "enum": ["REPOSITORY_ROOT", "MODULE_ROOT"] } }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "directoryType": { "const": "PROVENANCE" } }, "required": ["directoryType"] },
+      "then": {
+        "properties": {
+          "scope": {
+            "if": { "properties": { "type": { "const": "MODULE_ROOT" } }, "required": ["type"] },
+            "then": { "required": ["parentRef"] }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "directoryType": { "const": "MEMORY_PLANE" } }, "required": ["directoryType"] },
+      "then": {
+        "properties": {
+          "scope": {
+            "required": ["type", "name", "path"],
+            "properties": { "type": { "const": "TAVALL_INSTALLATION" } }
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": true
+}
