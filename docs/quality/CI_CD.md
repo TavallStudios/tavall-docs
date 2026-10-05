@@ -299,6 +299,8 @@ exact source workspaces
 
 `.tavallcd` is deployment/service-local configuration for deployable services/runtimes. It is not a required source-repository container around ordinary CI and pure libraries do not need deployment state merely to build.
 
+### Deployment and Runtime Ownership
+
 Service/Environment ownership and deployment topology are governed by Cloud/NLEW authority, not by the CI workspace layout.
 
 ## Final rules
