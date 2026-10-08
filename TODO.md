@@ -3,7 +3,7 @@
 > **Status:** Active  
 > **Authority:** Canonical organization-wide TODO ledger  
 > **Repository projections:** Every maintained TavallStudios repository exposes a bot-managed root `TODO.md` that projects only that repository's section from this file.  
-> **Last updated:** 2026-10-02
+> **Last updated:** 2026-10-08
 
 This file is the single source of truth for organization-wide repository TODO work. Repository-local `TODO.md` files are generated static projections and must not become independent task ledgers.
 
@@ -163,8 +163,10 @@ _No open global TODO items currently tracked._
 
 #### Module — tavall-ci-cloud
 
-- [ ] 2026-10-02 — Validate typed Cloud Executor CLI caller under live CONTROL placement.
-  - Verify frozen-plan submission to `DEVELOPMENT_SHARED` without leaking ambient credentials or falling back to legacy sandbox paths.
+- [ ] 2026-10-08 — Complete exact-source invocation validation through Tavall CI's canonical caller and Cloud's shared Executor.
+  - Tavall CI owns source aggregation, frozen checks, and the unified Gradle plan; Cloud owns execution, operation isolation, caches, and evidence storage. Do not add a second Cloud Gradle planner.
+  - Capture typed evidence for Web PR #63 request `e1f9379e-0f9d-4e7e-94eb-f67dfc025afd`, then submit Tavall-MC #333's current exact head when the shared Executor is free.
+  - Use the repository-owned `scripts/ci/run` / `tavall-ci-cloud` caller path; absence of `tavall ci` from the installed Cloud CLI is not a reason to run raw Gradle or create a GitHub App dependency.
 
 #### Module — tavall-ci-cd
 
@@ -175,6 +177,8 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall Cloud
 
+- [ ] 2026-10-08 — Keep Cloud PR #424's shared Executor path aligned with Tavall CI's unified source plan.
+  - Current PR head is `2cd261d`, based on Cloud `staging/runtime@b25aeb14`; latest implementation source is `2fba896f`. Cloud owns shared Executor lifecycle, isolation, Java/Gradle tools, caches, and artifact transfer. Tavall CI owns exact-source aggregation, the frozen unified Gradle plan, check semantics, and evidence. No second Cloud Gradle planner or new Environment-bound `LOCAL_CI` start is used. Focused Cloud checks and architecture passed on `2fba896f`; exact hosted Cloud PR validation, full root check, package publication/resolution, and runtime acceptance remain open.
 - [ ] 2026-10-02 — Synchronize and validate Draft staging root PR #397 (`staging/runtime`) against current `main`.
   - Integrate merged docs PRs #417, #418, #421, and child PR #424.
   - Execute full composed-root run on `DEVELOPMENT_SHARED` Executor and verify all 7 profiles pass.
@@ -265,14 +269,17 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall Discord
 
-- [ ] 2026-10-02 — Promote platform staging PR #4 to `main` for standalone Discord client platform.
-  - Validate PostgreSQL account link migrations and Discord event gateway resilience.
-- [ ] 2026-10-02 — Author module-local `.tavallci/ci.yaml` definitions for Discord platform modules.
+- [ ] 2026-10-08 — Finish reusable Discord producer PR #9 and publish its generic runtime/API artifacts.
+  - Current head is `ca83559`; generic client/JDA lifecycle, immutable gateway contracts, ordered dispatch, and process-host ownership remain here.
+  - Recorded local producer tests pass; wrapper-backed Tavall CI, internal package resolution, and external host boot remain open. Do not move Tavall-MC product policy or persistence into this repository.
 
 ### `TavallStudios/tavall-docs`
 
 #### System — Tavall Documentation
 
+- [ ] 2026-10-08 — Define a safe migration path for legacy untyped `.tavallai` roots before provenance updates resume.
+  - The current provenance writer requires a schema-valid `schemaVersion`, `directoryType: PROVENANCE`, and typed scope. Existing V1 roots with only `version` and `scope.type` are read-only under the current fail-closed contract.
+  - Document an explicit owner-approved migration procedure; do not infer or reclassify directory type from the path. Validate the result against `docs/schemas/tavallai-directory.schema.json` before starting lifecycle writes.
 - [ ] 2026-10-01 — Keep the global TODO repository inventory synchronized as TavallStudios repositories are created, renamed, archived, or retired.
 - [ ] 2026-10-02 — Maintain documentation routing index (`docs/quality/DOCUMENT_ROUTING.yml`) with exact whole-term matching for all new architecture documents.
   - Prevent routing degradation and eliminate fuzzy search fallbacks.
@@ -344,11 +351,27 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall MC / Project Novus
 
-- [ ] 2026-10-02 — Complete `tavall-minecraft-framework` consumption cutover (PR #301 / PR #299).
-  - Remove duplicate framework implementations in `tavall-mc` and switch dependency bindings to the extracted library.
-  - Remove retired `.github/workflows/cloud-runtime-deployment.yml` and validate `novus-runtime-deploy.jar` build through Tavall CI.
-- [ ] 2026-10-02 — Reconcile and promote runtime staging PR #294 (`promotion/runtime-staging-current-20260920`) to `main`.
-  - Validate exact-source composite build on Java 25 / Gradle 9.6.1 on Cloud Executor.
+- [ ] 2026-10-08 — Finish current-main separation PR #333 before resuming the large gameplay stack.
+  - Current root head is `a8d4a398` on `main@fd2abaa`; it is a documentation-only follow-up to implementation source `52210806`. The candidate removes embedded Framework, Web, Paper-fork, generic Discord, bot-testing, Architecture Tests, Cloud-agent, and Java-ingress ownership from Tavall-MC.
+  - Keep Kingdom/Novus policy, product persistence, cosmetics, and Paper/Velocity composition in MC-owned modules. Framework owns reusable Minecraft host, API, game, and NMS capabilities.
+  - Remove the stale cross-game Resource Game frontend/TCP bridge copy from MC; `TavallStudios/tavall-hytale-resource-game` owns those shared contracts and its Minecraft adapter. Add no Hytale dependency unless a current MC product consumer requires the typed contract.
+  - Keep runtime schema creation out of Framework and MC launch. Preserve migration intent and leave durable writes with the canonical Tavall Database owner.
+  - The root and module CI manifests pin Tavall DI PR #19 source `96b4afce` and Test Suite Tools PR #22 code source `4f15f10`; the current docs-only root head `a8d4a398` has not run through exact-head Tavall CI. Submit after the current Web request releases the shared Executor.
+  - Current architecture evidence is red: 246 unique findings on the root code source, 230 on #337 code source `cd5060df`, and 245 on #338 code source `6b6bef8`. Fix source-owned contracts and DI boundaries without suppressing rules or adding debt baselines. The historical 785-test root pass is not current architecture acceptance.
+  - Preserve #301/#299 composite and lock work, but do not merge their stale consumer lineage. Rebuild package-backed Framework consumption against the pure producer and current MC modules.
+- [ ] 2026-10-08 — Create the next Combined and host-product staging generation only after #333 has accepted current-main source and ownership.
+  - Keep #334–#338 as the current focused children under #333. Preserve old roots #153, #194–#199, #204–#211, #294, and `staging/runtime-paper`/`staging/runtime-velocity` descendants as history while reclassifying each open PR and porting useful deltas onto the new product parents.
+  - Paper/Velocity are the process hosts; FFA and Kingdoms are Paper product modules. Web, Cloud Agent, and public Ingress remain outside Tavall-MC.
+- [ ] 2026-10-08 — Complete the Builder ownership and Web presentation boundary.
+  - Keep the compiler, WorldOps, simulation, replay, WorldVision, schematic/world tools, and Minecraft worker execution in MC Builder.
+  - Port/reconcile Builder Studio browser and admin presentation into Tavall Web after the typed MC Builder API and Web facade are accepted. Keep Minecraft-specific view code in `tavall-web-mc` only where its DESIGN assigns that responsibility; PR #258 remains historical and unmerged.
+- [ ] 2026-10-08 — Complete the product Discord adapter cutover after producer publication and host acceptance.
+  - Tavall-MC owns Novus persistence, outbox, product features, and product policy; `tavall-discord` PR #9 owns generic JDA lifecycle, gateway contracts, and runtime.
+  - Keep the transitional JDA contributor only until the product feature contract has a package-backed host check. PR #284's old consumer extraction lineage is not the current owner graph.
+- [ ] 2026-10-08 — Keep Cloud and ingress integration out until typed Minecraft requests have a canonical external client.
+  - The current MC candidate removes the generic `/cloud` command, Cloud runtime dependency, socket, agent-secret configuration, standalone Java ingress, and result journal. Tavall Cloud owns agent/API/runtime; Networking owns ingress and dataplane.
+- [ ] 2026-10-08 — Reclassify the remaining Tavall-MC PR stack after the separation root is stable.
+  - Record exact parent/head, owner module, DESIGN/PROGRESSION, persistence owner, host runtime, and remaining checks for each PR. Preserve valuable stale-branch deltas and refresh their parent before implementation resumes.
 - [ ] 2026-10-02 — Reconcile divergent worktree progression trackers across the 24 identified high-risk systems.
   - Consolidate branch-only progression evidence into canonical `main` documents for Runtime Module System, FFA, Effect, Moderation, Commerce, and Chat.
   - Remove prunable stale worktrees following evidence preservation.
@@ -367,38 +390,43 @@ _No open global TODO items currently tracked._
 
 #### Module — Player Identity & Store
 
-- [ ] 2026-10-02 — Validate Paper runtime and client verification for Player Identity and Crown Store (PR #310).
-  - Verify PostgreSQL migration, entitlement caching, and in-game transaction fulfillment.
+- [ ] 2026-10-03 — Preserve the Player Identity and Crown Store design owners (PR #310) and schedule implementation under the accepted product runtime graph.
+  - Verify PostgreSQL migration, entitlement caching, and in-game transaction fulfillment when the product implementation branch is created.
 
 #### Module — Discord Integration
 
-- [ ] 2026-10-02 — Complete extraction of reusable Discord client into `tavall-discord` (PR #284).
-  - Remove legacy embedded Discord bot classes from `tavall-mc`.
+- [ ] 2026-10-03 — Finish the Tavall-MC Discord adapter migration under the external Tavall-Discord runtime.
+  - Keep product persistence/outbox and feature policy in Tavall-MC; generic JDA lifecycle and ordered dispatch belong to tavall-discord.
+  - Validate isolated-guild startup, shutdown, permissions, outbox retry, and role/support projections.
 
 ### `TavallStudios/tavall-mc-bot-testing`
 
 #### System — Tavall MC Bot Testing
 
-- [ ] 2026-10-02 — Promote Node-based CI validation (PR #6) and bot testing system documentation (PR #8) to `main`.
-- [ ] 2026-10-02 — Execute automated bot scenarios against live Paper server instance.
-  - Verify FFA combat loops, pathfinding, reconnect recovery, and proxy integrity under load.
+- [ ] 2026-10-08 — Finish reusable bot-testing producer PR #10 on a current parent.
+  - PR #10 currently targets the older `working/repair-ffa-bot-entity-resolution` branch; preserve the scenario fixes and refresh its parent after the MC separation generation is accepted.
+  - Keep the generic Mineflayer harness/platform and reusable scenarios here. Tavall-MC may own product-specific acceptance scenarios but must not copy the harness back into its reactor.
+- [ ] 2026-10-08 — Run Mineflayer acceptance against the accepted Paper/Velocity product artifact.
+  - Verify FFA combat loops, pathfinding, reconnect recovery, and proxy integrity; keep client/session evidence separate from source, build, and runtime evidence.
 
 ### `TavallStudios/tavall-mc-paper`
 
 #### System — Tavall MC Paper
 
-- [ ] 2026-10-02 — Promote canonical Gradle 9.6.1 wrapper and Paperweight validation (PR #6) to `main`.
-  - Ensure Paperweight artifact resolution remains isolated from incomplete tool registries.
-- [ ] 2026-10-02 — Validate low-level packet filter hooks against upstream Paper release without degrading server tick performance.
+- [ ] 2026-10-08 — Finish Paper producer baseline PR #6 and publish a reproducible fork identity.
+  - Current head is `797d8aa`; implementation code source `3fe0575` passes the recorded local full check and produces normalized Paperclip SHA-256 `a2527623…`.
+  - Run wrapper-backed Tavall CI, complete package/source identity publication, and prove MC consumer resolution. Keep Paper limited to engine/fork patches; product gameplay remains in Tavall-MC.
+- [ ] 2026-10-08 — Validate packet-filter hooks against the exact upstream Paper source without degrading server tick performance.
+  - Keep server startup, live Paper behavior, Minecraft-client acceptance, and deployment as separate gates.
 
 ### `TavallStudios/tavall-minecraft-framework`
 
 #### System — Minecraft Framework
 
-- [ ] 2026-10-02 — Promote exact-source Gradle CI adoption (PR #11) and account-link admin resolvers (PR #14) to `main`.
-  - Emit immutable framework library artifacts for downstream consumption by `tavall-mc`.
-- [ ] 2026-10-02 — Finalize retirement of Tavall Web runtime identity from framework modules (PR #9).
-  - Ensure framework is decoupled from Web runtime dependencies.
+- [ ] 2026-10-08 — Finish producer-purity and exact-source CI PR #11.
+  - Current head is `045b584`; retain reusable Minecraft UI/game/NMS and host/runtime-host APIs only. Keep Tavall-MC backend/product policy, Kingdom APIs, Novus essentials, and process topology out of Framework.
+  - Publish/resolve the canonical framework artifacts and validate the MC consumer through exact-source substitution and package-backed resolution as separate paths.
+  - Preserve useful work from consumer PR #301 and stale fan-in #299, but do not merge their old ancestry. PR #14 account-link admin/product resolvers are not Framework ownership.
 
 ### `TavallStudios/tavall-open-harness`
 
@@ -449,32 +477,30 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall Test Suite Tools
 
-- [ ] 2026-10-02 — Clear the 120 existing architecture violation findings across consumer repositories.
-  - Resolve 44 repository-role violations, 34 direct-thread creation violations, and 42 production-`var` violations identified during Cloud and consumer test suite audits.
-- [ ] 2026-10-02 — Author module-local `.tavallci/ci.yaml` definitions for all test-suite and architecture enforcement modules.
-  - Verify that Tavall CI discovers and verifies core, patterns, runtime, di, and web architecture rule modules.
+- [ ] 2026-10-08 — Finish architecture-rule producer PR #22 and publish a reproducible rule artifact.
+  - Current PR head is `0f4c2fe`; the validated rule implementation source is `4f15f10`. Verify wrapper-backed Tavall CI and package-backed rule resolution independently from source-composite use.
+  - Keep rule code and reusable policy here. Consumer repositories own their source violations and fix them without suppressing rules or expanding debt baselines; Tavall-MC keeps only its repository-specific architecture targets.
 
 ### `TavallStudios/tavall-web`
 
 #### System — Tavall Web Platform
 
-- [ ] 2026-10-02 — Reconcile and promote the core frontend framework stack (PR #46, PR #47, PR #49) to `main`.
-  - Resolve merge conflicts with `main` in PR #46.
-  - Land Spring adapter (`tavall-web-frontend-spring`), Organization Admin Dashboard, Contractors Home routing, and Content Studio mount.
 - [ ] 2026-10-02 — Reconcile and fold `tavall-web-docs` into `tavall-web` (PR #48).
   - Consolidate web documentation authority and retire the separate `tavall-web-docs` repository surface.
 - [ ] 2026-10-02 — Migrate remaining legacy Thymeleaf surfaces onto the pure-Java `AbstractPage<SELF>` framework.
   - Migrate Content/Blog editor script, Progress tracker, and Docs admin pages off Thymeleaf.
 
-#### Module — tavall-web-api
-
-- [ ] 2026-10-02 — Formalize self-typed Page contract in `tavall-web-api`.
-  - Maintain strict transport and container neutrality: zero Spring, Servlet, or HTTP server dependencies in `tavall-web-api`.
+- [ ] 2026-10-03 — Complete Web frontend artifact ownership and retire the deleted Discord page source (PR #58).
+  - Keep route/surface/exposure contracts in `tavall-web-api`; Page, HTML/CSS, animation, asset, TypeScript, and rendering contracts belong to `tavall-web-frontend`.
+  - Current PR #58 head is `e3e27ea`; its source graph removes the deleted `tavall-web-discord` dependency, artifact, and page controller. Earlier exact-source request `42a84c3a-01a2-435e-a6e6-e6c78ebfc5e2` passed on older code source `b87706b`, not this head.
+  - The public `discord.tavall.org` route still serves the old Link Discord page. Validate the current integrated Web source and browser behavior, then use only the documented DEVELOPMENT delivery path if runtime acceptance passes; no Production runtime exists.
 
 #### Module — tavall-web-frontend
 
 - [ ] 2026-10-02 — Complete pure-Java HTML component vocabulary and rendering engine.
   - Support video, figures, grouped form controls, and typed `data-tavall-*` attributes without external runtime dependencies.
+- [ ] 2026-10-04 — Verify package-backed Page/rendering artifact resolution for Web consumers.
+  - Keep route/surface/exposure in `tavall-web-api`; resolve Page, rendering, and frontend AST contracts from `tavall-web-frontend` independently from source substitution.
 
 #### Module — tavall-web-frontend-spring
 
@@ -483,9 +509,10 @@ _No open global TODO items currently tracked._
 
 #### Module — tavall-web-app
 
-- [ ] 2026-10-02 — Build and validate `tavall-web-app` artifact with all mounted consumer surfaces.
-  - Validate exact-source build and execute browser E2E test suites against the integrated application.
-  - Verify public routing through Cloudflare -> Apache -> `tavall-web` router on port 19091, checking DEVELOPMENT (19092) and STAGING (19093) health observations.
+- [ ] 2026-10-08 — Complete exact-source and host acceptance for Web PR #63 and the current endpoint/Content stack.
+  - PR #63 current head is `76caaee` on top of code fix `c12dc4c`, based on PR #62 `22e9541`. Exact all-profile TCI request `5c07d137-03cc-425b-8eaa-7a41c6be1d31` is running on the shared Executor. The prior request `5e4d5388` ran source `8cf4874`: compilation and canonical Architecture Tests passed, but Quality failed one of 273 tests because `AdminLoginController` constructor-injected and cached `TavallWebHostRoutingPolicy`; no artifact identity was recorded. Commit `c12dc4c` removes that constructor/field path via generated typed access, but current-head validation remains pending.
+  - After a passing exact-head artifact, run the private-preview browser suite. Provider SSO, Account schema/CONTROL wiring, package-backed dependency resolution, and delivery remain separate gates. The source manifests use isolated networking by default.
+  - Verify host routing through Cloudflare -> Apache -> the Tavall Web router; preserve the observed state that public hosts still serve the previous artifact until the authorized DEVELOPMENT delivery completes.
 
 ### `TavallStudios/tavall-web-account`
 
@@ -529,19 +556,13 @@ _No open global TODO items currently tracked._
 - [ ] 2026-10-02 — Promote Contractors Home presentation module (PR #3) to `main`.
   - Validate surface routing and contractor profile views in `tavall-web-app`.
 
-### `TavallStudios/tavall-web-discord`
-
-#### System — Tavall Web Discord
-
-- [ ] 2026-10-02 — Migrate Discord guild sync and bot status admin views to Tavall Web frontend framework.
-
 ### `TavallStudios/tavall-web-mc`
 
 #### System — Tavall Web Minecraft Surface
 
-- [ ] 2026-10-02 — Promote self-typed Page contract adoption (PR #6) to `main`.
-  - Ensure zero Spring dependencies in `tavall-web-mc` page definitions.
 - [ ] 2026-10-02 — Migrate remaining player stat and leaderboard views onto pure-Java frontend components.
+- [ ] 2026-10-08 — Add the Minecraft-specific Builder Studio browser view after the MC Builder API and Web app facade contracts are accepted.
+  - Keep the hosted route/session and browser presentation in Tavall Web; consume typed same-origin view data from MC Builder. Keep compiler, WorldOps, simulation/replay, worker execution, and Minecraft filesystem authority in Tavall-MC.
 
 ### `TavallStudios/tavall-web-mcp`
 

@@ -1,4 +1,33 @@
 {
   "$schema": "https://tavall.org/schemas/tavallai/run-active/v1.json",
-  "activeRun": null
+  "activeRun": {
+    "agent": "tavall-orchestrator",
+    "agentMode": "ROLE",
+    "docs": {
+      "authority": "github.com/TavallStudios/tavall-docs",
+      "revision": "9b6fe883d13bce11823d7e37902e8507ef68a58b"
+    },
+    "git": {
+      "authority": "github.com/TavallStudios/tavall-docs",
+      "branch": "working/mc-repository-separation-todo-20261003",
+      "headCommit": "9bbcf779f9e712849fe0b6981b1910fc95a1b17a",
+      "pullRequest": 57
+    },
+    "ledger": {
+      "agentId": "codex-tavall-orchestrator",
+      "authority": "tavall-agent-ledger",
+      "taskId": "tb_19cd599d-b45d-48ee-b0db-d1dd768d65c7",
+      "workerId": "wt_fc0460fe-42b9-41d9-afd5-b000628777b1"
+    },
+    "runId": "run-20261003-mc-separation-generation",
+    "scope": {
+      "path": ".",
+      "repository": "TavallStudios/tavall-docs",
+      "type": "REPOSITORY_ROOT"
+    },
+    "startedAt": "2026-10-03T10:34:34Z",
+    "status": "ACTIVE",
+    "threadId": "01a100f4-1a0a-7280-92e8-981cdb94c801",
+    "title": "Tavall-MC repository separation generation"
+  }
 }

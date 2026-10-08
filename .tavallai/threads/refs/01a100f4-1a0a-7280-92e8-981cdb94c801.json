@@ -1,0 +1,9 @@
+{
+  "$schema": "https://tavall.org/schemas/tavallai/thread-ref/v1.json",
+  "associatedAt": "2026-10-03T23:26:02Z",
+  "provider": "codex",
+  "runs": [
+    "run-20261003-mc-separation-generation"
+  ],
+  "threadId": "01a100f4-1a0a-7280-92e8-981cdb94c801"
+}
