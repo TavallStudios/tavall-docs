@@ -178,7 +178,7 @@ _No open global TODO items currently tracked._
 #### System — Tavall Cloud
 
 - [ ] 2026-10-08 — Keep Cloud PR #424's shared Executor path aligned with Tavall CI's unified source plan.
-  - Current PR head is `5dc079a`; Cloud owns executor lifecycle and isolation, while Tavall CI owns exact-source aggregation and Gradle planning. Refresh the branch to its current staging parent and complete the exact-source/architecture and package-backed checks before promotion.
+  - Current PR head is `2cd261d`, based on Cloud `staging/runtime@b25aeb14`; latest implementation source is `2fba896f`. Cloud owns shared Executor lifecycle, isolation, Java/Gradle tools, caches, and artifact transfer. Tavall CI owns exact-source aggregation, the frozen unified Gradle plan, check semantics, and evidence. No second Cloud Gradle planner or new Environment-bound `LOCAL_CI` start is used. Focused Cloud checks and architecture passed on `2fba896f`; exact hosted Cloud PR validation, full root check, package publication/resolution, and runtime acceptance remain open.
 - [ ] 2026-10-02 — Synchronize and validate Draft staging root PR #397 (`staging/runtime`) against current `main`.
   - Integrate merged docs PRs #417, #418, #421, and child PR #424.
   - Execute full composed-root run on `DEVELOPMENT_SHARED` Executor and verify all 7 profiles pass.
@@ -352,11 +352,11 @@ _No open global TODO items currently tracked._
 #### System — Tavall MC / Project Novus
 
 - [ ] 2026-10-08 — Finish current-main separation PR #333 before resuming the large gameplay stack.
-  - Current root head is `cd32ce5` on `main@fd2abaa`; implementation source is `52210806`. The candidate removes embedded Framework, Web, Paper-fork, generic Discord, bot-testing, Architecture Tests, Cloud-agent, and Java-ingress ownership from Tavall-MC.
+  - Current root head is `a8d4a398` on `main@fd2abaa`; it is a documentation-only follow-up to implementation source `52210806`. The candidate removes embedded Framework, Web, Paper-fork, generic Discord, bot-testing, Architecture Tests, Cloud-agent, and Java-ingress ownership from Tavall-MC.
   - Keep Kingdom/Novus policy, product persistence, cosmetics, and Paper/Velocity composition in MC-owned modules. Framework owns reusable Minecraft host, API, game, and NMS capabilities.
   - Remove the stale cross-game Resource Game frontend/TCP bridge copy from MC; `TavallStudios/tavall-hytale-resource-game` owns those shared contracts and its Minecraft adapter. Add no Hytale dependency unless a current MC product consumer requires the typed contract.
   - Keep runtime schema creation out of Framework and MC launch. Preserve migration intent and leave durable writes with the canonical Tavall Database owner.
-  - The root and module CI manifests now pin Tavall DI PR #19 source `96b4afce` and Test Suite Tools PR #22 code source `4f15f10`; submit the exact current root through Tavall CI's shared-Executor caller and unified Gradle plan.
+  - The root and module CI manifests pin Tavall DI PR #19 source `96b4afce` and Test Suite Tools PR #22 code source `4f15f10`; the current docs-only root head `a8d4a398` has not run through exact-head Tavall CI. Submit after the current Web request releases the shared Executor.
   - Current architecture evidence is red: 246 unique findings on the root code source, 230 on #337 code source `cd5060df`, and 245 on #338 code source `6b6bef8`. Fix source-owned contracts and DI boundaries without suppressing rules or adding debt baselines. The historical 785-test root pass is not current architecture acceptance.
   - Preserve #301/#299 composite and lock work, but do not merge their stale consumer lineage. Rebuild package-backed Framework consumption against the pure producer and current MC modules.
 - [ ] 2026-10-08 — Create the next Combined and host-product staging generation only after #333 has accepted current-main source and ownership.
@@ -510,8 +510,8 @@ _No open global TODO items currently tracked._
 #### Module — tavall-web-app
 
 - [ ] 2026-10-08 — Complete exact-source and host acceptance for Web PR #63 and the current endpoint/Content stack.
-  - PR #63 current head `8cf4874` is based on PR #62 head `22e9541`; exact Tavall CI all-profile request `5e4d5388-2f79-400f-a9cb-0083ca5a1d4e` is running on the shared Executor. The previous `c683969` run passed compilation and canonical Architecture Tests but failed the App quality check with 5 of 273 tests failing; it produced no artifact. The `f810f4e` run then failed in dependency-access lowering, and `8f271a8` failed App compilation on a generated accessor; the current head addresses that accessor, pending this run.
-  - Retrieve current typed evidence before claiming those fixes passed. Run the private-preview browser suite on an accepted artifact; provider SSO, Account schema/CONTROL wiring, package-backed dependency resolution, and deployment remain separate gates.
+  - PR #63 current head is `76caaee` on top of code fix `c12dc4c`, based on PR #62 `22e9541`. Exact all-profile TCI request `5c07d137-03cc-425b-8eaa-7a41c6be1d31` is running on the shared Executor. The prior request `5e4d5388` ran source `8cf4874`: compilation and canonical Architecture Tests passed, but Quality failed one of 273 tests because `AdminLoginController` constructor-injected and cached `TavallWebHostRoutingPolicy`; no artifact identity was recorded. Commit `c12dc4c` removes that constructor/field path via generated typed access, but current-head validation remains pending.
+  - After a passing exact-head artifact, run the private-preview browser suite. Provider SSO, Account schema/CONTROL wiring, package-backed dependency resolution, and delivery remain separate gates. The source manifests use isolated networking by default.
   - Verify host routing through Cloudflare -> Apache -> the Tavall Web router; preserve the observed state that public hosts still serve the previous artifact until the authorized DEVELOPMENT delivery completes.
 
 ### `TavallStudios/tavall-web-account`
