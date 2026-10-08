@@ -56,7 +56,9 @@ A change may require several delegated chapters. A Handler using Tavall DI, Cach
 | Tavall Database entity persistence and `*Repository` migration | [Entity Persistence](code-architecture/ENTITY_PERSISTENCE.md) |
 | Validation, fallbacks, prohibited patterns, direct Thread ownership | [Validation, Fallbacks, and Anti-Patterns](code-architecture/VALIDATION_FALLBACKS_AND_ANTI_PATTERNS.md) |
 | Utilities and pure/static boundaries | [Utilities](code-architecture/UTILITIES.md) |
+| Enums, extensible enum families, and CustomEnum | [Enums and Extensible Enums](code-architecture/ENUMS.md) |
 | Effect/animation sequences and timing ownership | [Effect Sequences](code-architecture/EFFECT_SEQUENCES.md) |
+| CLI commands, arguments, options, routers, execution results | [CLI Framework](code-architecture/CLI_FRAMEWORK.md) and [CLI Architecture](CLI_ARCHITECTURE.md) |
 | Test structure and Git-facing architecture expectations | [Testing and Git](code-architecture/TESTING_AND_GIT.md) and [Git Workflow](GIT_WORKFLOW.md) |
 
 ### Conflict Rule
@@ -251,7 +253,7 @@ Detailed registration, generated access, alias identity, default-consumer, orche
 - **Router:** selects and delegates without becoming the implementation.
 - **Listener/command/controller:** adapts external input/output and delegates reusable domain behavior.
 
-Detailed rules: [Builders](code-architecture/BUILDERS.md), [Handlers](code-architecture/HANDLERS.md), [Dependency Injection and Orchestration](code-architecture/DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#orchestration-pattern), and [Routers and Delegation](code-architecture/ROUTERS_AND_DELEGATION.md).
+Detailed rules: [Builders](code-architecture/BUILDERS.md), [Handlers](code-architecture/HANDLERS.md), [Dependency Injection and Orchestration](code-architecture/DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#orchestration-pattern), [Routers and Delegation](code-architecture/ROUTERS_AND_DELEGATION.md), and [CLI Framework](code-architecture/CLI_FRAMEWORK.md).
 
 ## Typed Data, Requests, Results, Keys, and Local Types
 
