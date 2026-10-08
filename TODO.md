@@ -510,8 +510,8 @@ _No open global TODO items currently tracked._
 #### Module — tavall-web-app
 
 - [ ] 2026-10-08 — Complete exact-source and host acceptance for Web PR #63 and the current endpoint/Content stack.
-  - PR #63 current head `f810f4e` is based on PR #62 head `22e9541`; exact Tavall CI all-profile request `d6afb88d-c6fd-4d99-8fc7-e06f0fa8b709` is running on the shared Executor. The previous `c683969` run passed compilation and canonical Architecture Tests but failed the App quality check with 5 of 273 tests failing; it produced no artifact.
-  - The `f810f4e` follow-up routes the Account login resolver through Tavall DI access and registers the public Discord feed through its interface. Retrieve current typed evidence before claiming those fixes passed. Run the private-preview browser suite on an accepted artifact; provider SSO, Account schema/CONTROL wiring, package-backed dependency resolution, and deployment remain separate gates.
+  - PR #63 current head `8cf4874` is based on PR #62 head `22e9541`; exact Tavall CI all-profile request `5e4d5388-2f79-400f-a9cb-0083ca5a1d4e` is running on the shared Executor. The previous `c683969` run passed compilation and canonical Architecture Tests but failed the App quality check with 5 of 273 tests failing; it produced no artifact. The `f810f4e` run then failed in dependency-access lowering, and `8f271a8` failed App compilation on a generated accessor; the current head addresses that accessor, pending this run.
+  - Retrieve current typed evidence before claiming those fixes passed. Run the private-preview browser suite on an accepted artifact; provider SSO, Account schema/CONTROL wiring, package-backed dependency resolution, and deployment remain separate gates.
   - Verify host routing through Cloudflare -> Apache -> the Tavall Web router; preserve the observed state that public hosts still serve the previous artifact until the authorized DEVELOPMENT delivery completes.
 
 ### `TavallStudios/tavall-web-account`
