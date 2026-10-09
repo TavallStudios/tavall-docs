@@ -95,7 +95,7 @@ This is the source/CI default, not an Environment type restriction. A workflow m
 Git integration and Cloud runtime topology remain separate:
 
 ```text
-Git:   feature -> Development Staging / Runtime -> repository staging -> main
+Git:   feature -> Development Staging / Runtime PR -> repository/release Staging -> main
 Cloud: Node / Lane / Environment / Workspace / Executor relationships chosen by execution need
 ```
 
@@ -116,7 +116,7 @@ Older documents and records may describe service-only Environments, Environment-
 
 - Service-only wording (`Cloud Environments are service-runtime targets only`) is read as the service-default workflow, not as Environment ontology.
 - Environment-bound CI remains unauthorized for new source work; the Envless shared-Executor path is the default.
-- Stored Environment records that carry a mandatory lane identity are migrated by `tavall-nlew` schema migration into an explicit optional Lane relationship; the lane reference is preserved, not dropped.
+- Stored Environment records that carry a mandatory lane identity are read through `tavall-nlew`'s `INlewMetadataMigrationHandler`, which turns the stored lane into an explicit optional `LANE_COORDINATES_ENVIRONMENT` relationship; the lane reference is preserved, not dropped. Consumers persist the migrated v4 document themselves.
 
 Migrate existing materializations through CONTROL after checking exact source, dirty/unmerged work, active operations, and durable evidence. Preserve active or unknown work; do not bulk delete or reset to make the model appear clean.
 
@@ -124,7 +124,7 @@ Migrate existing materializations through CONTROL after checking exact source, d
 
 - `tavall-docs` owns this Tavall-wide terminology and ownership rule.
 - `tavall-nlew` owns the reusable NLEW API: typed identities, records, policies, relationship types, state transitions, metadata schema versions and migrations, and provider-neutral domain behavior. It does not depend on Tavall Cloud, Tavall Filesystem, or Redis.
-- `tavall-cloud` consumes `tavall-nlew` and owns CONTROL, node-agent execution, NLEW placement/orchestration and Cloud-specific policy, command dispatch and CLI/MCP adapters, service orchestration and default Environment ownership, Executors and provider adapters, networking, desired/observed host topology, mount/export reconciliation, deployment, and runtime activation.
+- `tavall-cloud` consumes `tavall-nlew` (consumer migration: TavallStudios/tavall-cloud#434, stacked on #424) and owns CONTROL, node-agent execution, NLEW placement/orchestration and Cloud-specific policy, command dispatch and CLI/MCP adapters, service orchestration and default Environment ownership, Executors and provider adapters, networking, desired/observed host topology, mount/export reconciliation, deployment, and runtime activation.
 - `tavall-filesystem` owns physical release bytes, manifest/digest verification, ZFS materialization, NFS publication, atomic filesystem operations, and physical locking. It does not own version selection or a durable `CURRENT` pointer.
 - `tavall-database` owns Redis (`tavall-database-redis-api` contracts, `tavall-database-redis` provider). Domain keys, schemas, projections, and reconciliation policy stay with the domain owner.
 - `tavall-ci` owns provider-neutral CI orchestration, exact-source composition, evidence, and delivery semantics.
@@ -177,7 +177,7 @@ A **Tavall Environment Definition** is the declared, versioned runtime policy th
 ## Prohibited Anti-Patterns
 
 ### 1. Prohibited: Treating OCI Images as Environments
-An OCI image is NOT an environment. Running an image with ambient host defaults is strictly prohibited in production. A container is only an instantiated Environment when combined with an explicit, versioned Tavall Environment Definition governing its resources, secrets, and network placement.
+An OCI image is NOT an environment. Running an image with ambient host defaults is strictly prohibited in production. A container becomes a running service instance only when combined with an explicit, versioned Tavall Environment Definition governing its resources, secrets, and network placement. (An Environment Definition is runtime execution policy; the general-purpose Environment that owns the service is a separate NLEW concept.)
 
 ### 2. Prohibited: Treating Environment Definitions as Image Builds
 Environment definitions must not compile source code or build OCI images. The OCI image must already exist as an immutable, verified artifact prior to environment instantiation.
@@ -201,17 +201,17 @@ Environment definitions must specify portable, logical volume names and mount pa
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/NLEW_AND_SERVICE_OWNERSHIP.md` | 2026-10-09 | PR restoring the general-purpose Environment model and recording tavall-nlew, tavall-filesystem, and tavall-database-redis-api ownership. |
-| Notion | `PARTIAL` | Tavall Cloud — Lanes, Environments & Executors; Tavall NLEW — GENERAL | 2026-10-09 | Notion pages received supersession notes; they are not a verified 1:1 copy of this document. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/NLEW_AND_SERVICE_OWNERSHIP.md` | 2026-10-09 2:49 PM PDT | PR restoring the general-purpose Environment model and recording tavall-nlew, tavall-filesystem, and tavall-database-redis-api ownership. |
+| Notion | `PARTIAL` (explicit temporary drift) | Tavall Cloud — Lanes, Environments & Executors; Tavall NLEW — GENERAL | 2026-10-09 3:10 PM PDT | Notion pages received supersession notes; they are not a verified 1:1 copy of this document. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| 2026-10-03 02:15 PDT | GitHub | `CREATED` | this document | — | `d36588f` | General-purpose Environment model. |
-| 2026-10-03 10:35 UTC | GitHub | `UPDATED` | this document | Same path | `ffd501f` (PR #56) | Service-only Environment policy; Envless CI default. |
-| 2026-10-05 | GitHub | `UPDATED` | this document | Same path | `1bd25de` | OCI image vs Environment Definition. |
-| 2026-10-09 | GitHub | `UPDATED` | this document | Same path | NLEW extraction PR | General-purpose Environment restored by user direction; Envless CI default, OCI section, and host-path rule retained; repository ownership for tavall-nlew, tavall-filesystem, and tavall-database Redis recorded. |
+| 2026-10-03 2:15 AM PDT | GitHub | `CREATED` | this document | — | `d36588f` | General-purpose Environment model. |
+| 2026-10-03 3:35 AM PDT | GitHub | `UPDATED` | this document | Same path | `ffd501f` (PR #56) | Service-only Environment policy; Envless CI default. |
+| 2026-10-04 8:58 PM PDT | GitHub | `UPDATED` | this document | Same path | `1bd25de` | OCI image vs Environment Definition. |
+| 2026-10-09 2:49 PM PDT | GitHub | `UPDATED` | this document | Same path | PR #61 (`e107275`) | General-purpose Environment restored by user direction; Envless CI default, OCI section, and host-path rule retained; repository ownership for tavall-nlew, tavall-filesystem, and tavall-database Redis recorded. |
 
 </details>
 
