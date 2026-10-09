@@ -222,6 +222,13 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall Content Studio
 
+- [ ] 2026-10-09 — Add a human-reviewed publishing metadata and campaign compliance gate to Tavall Content.
+  - For each approved render and selected channel, produce editable/versioned post metadata: title, description or caption, hashtags, creator credits, required `@mentions` and account tags, platform-specific links/affiliate link, and intended CTA. Record AI suggestions separately from human edits with source and approval provenance.
+  - Parse/refer to the campaign's actual approved guidelines as requirements, attach source references and check results (e.g. whole-home opening, exact on-screen/caption spelling, allowed source, creator identity, mandatory tagging, prohibited topics). Differentiate campaign requirements from separate legal or platform disclosure judgments; show unsupported/ambiguous obligations for human decision, never infer legal clearance from a campaign brief.
+  - Persist a per-clip/per-platform review record and immutable metadata snapshot with explicit `APPROVE`, `REVISE` or `REJECT` decisions, reviewer, timestamp, rule evidence and optional rationale. A post must not be queued or dispatched without current explicit approval; changed metadata, edited render, changed guidelines or revoked source authorization invalidate the affected approval and require re-review.
+  - Reuse Tavall Content's existing artifact, approval, authorization and optional publishing contracts. The Studio does not create a second publishing subsystem; no auto-posting is authorized by this TODO.
+  - Acceptance: typed API/client contracts, persistence, positive/negative contract tests and real browser E2E for TikTok, Instagram Reels and YouTube Shorts; test X affiliate-link rules only when X is selected. Use the BOXABL campaign as a representative test fixture without hardcoding its rules into the generic platform.
+
 - [ ] 2026-10-02 — Implement asynchronous render queue with job tracking and progress notifications for Content Studio.
   - Move timeline renders and cutaway processing out of the synchronous HTTP request thread.
   - Provide durable job status endpoints (`QUEUED`, `RENDERING`, `COMPLETED`, `FAILED`) and cancellation support.
@@ -517,6 +524,12 @@ _No open global TODO items currently tracked._
 ### `TavallStudios/tavall-web-content`
 
 #### System — Tavall Web Content Studio
+
+- [ ] 2026-10-09 — Add per-platform posting metadata and campaign-rule human review to the existing Content Dashboard.
+  - Extend the review-ready clip/detail state within the current three-page Studio: playback preview, editable title/description/caption/hashtags/tags/links, campaign rule checklist with pass/fail/unknown evidence and source, disclosure/uncertainty flags, and explicit approve/revise/reject actions.
+  - Show pending review and approval history, keep the final reviewer-approved metadata copyable/exportable, and prevent a publish/queue action until Tavall Content confirms the exact approved version and authorization.
+  - Consume typed `tavall-content-client` contracts; Tavall Content owns metadata, rule evaluation, decisions and publishing state. No browser-owned shadow validation or extra standalone dashboard.
+  - Acceptance: authenticated browser E2E for per-platform edits, missing required `@boxabl`/tag rules, uncertain disclosure checks, stale approvals and rejected/unauthorized publication.
 
 - [ ] 2026-10-02 — Promote Content Studio presentation module (PR #3) to `main` once `tavall-web` framework stack merges.
   - Validate Dashboard, Clip Library, and Clip Editor under real `tavall-web-app` session-backed host.
