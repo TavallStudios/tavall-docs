@@ -131,6 +131,10 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall Analytics
 
+- [ ] 2026-10-09 — Consolidate Content-facing metrics, findings, and attribution contracts in `tavall-analytics-api`; retire the separate `tavall-analytics-content` module after dependent consumers are migrated.
+  - Keep observation/metric implementations and evidence authority inside Tavall Analytics. Content consumes typed API views only.
+  - Stage Analytics module migration independently; do not expand the current Content implementation scope into Analytics internals.
+
 - [ ] 2026-10-02 — Promote platform staging PR #14 and CI wrapper adoption PR #7 to `main`.
   - Verify exact-source build and integration tests on `DEVELOPMENT_SHARED` Executor.
 - [ ] 2026-10-02 — Complete Tavall AI browser DI integration (PR #15).
@@ -221,6 +225,14 @@ _No open global TODO items currently tracked._
 ### `TavallStudios/tavall-content`
 
 #### System — Tavall Content Studio
+
+- [ ] 2026-10-09 — Compose the autonomous Content operations team through `tavall-content-ai` using canonical Tavall AI agent packages and Function Catalog capabilities.
+  - Reuse/discover approved agent definitions from the canonical Tavall AI agent installation; the Content AI module assembles workflows and scoped capability requests, not cloned agent implementations, model runtimes, tool registries or MCP schemas.
+  - Route research, campaign strategy, scripts/hooks, clip planning, brand checks, approval preparation and publishing planning through existing Content domain APIs and `tavall-content-tools`, preserving source provenance and authorization.
+  - Use `tavall-analytics-api` for evidence-backed trends and performance input; do not depend on the separate `tavall-analytics-content` module.
+  - Acceptance: end-to-end authorized source to researched candidate, drafted artifact, rendered clip, human review, queued/published outcome and analytics evidence; failures and agent/tool budgets are audited and fail closed.
+- [ ] 2026-10-09 — TODO / DEFERRED: integrate future Tavall Commerce offers, product references, campaign CTAs and transaction attribution after the Tavall Content end-to-end loop passes acceptance.
+  - No Tavall Commerce runtime, data model, checkout or payment work is in the present scope. Reuse future Commerce-owned typed APIs; preserve Analytics ownership of measurement and attribution.
 
 - [ ] 2026-10-09 — Add a human-reviewed publishing metadata and campaign compliance gate to Tavall Content.
   - For each approved render and selected channel, produce editable/versioned post metadata: title, description or caption, hashtags, creator credits, required `@mentions` and account tags, platform-specific links/affiliate link, and intended CTA. Record AI suggestions separately from human edits with source and approval provenance.
