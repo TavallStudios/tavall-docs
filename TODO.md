@@ -153,6 +153,14 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall CI
 
+- [ ] 2026-10-10 — Integrate source-owned language modules as selectable immutable CI toolchains, starting with `TavallStudios/tavall-jdk/tavall-jdk-25`.
+  - Extend the existing typed CI/Cloud boundary for toolchain artifact name/version/platform/exact source SHA and SHA-256; do not invent another registry or source materialization mechanism.
+  - Cloud installs/selects the immutable JDK archive for an Executor, and Gradle/application checks use that explicit toolchain rather than silently choosing the host Java runtime.
+  - Test consumer builds with exact pinned source and artifact identities, reject mismatched digests/platforms, confirm no OpenJDK native rebuild during ordinary app checks.
+- [ ] 2026-10-10 — Extend `tavall-ci-cd` artifact promotion with non-service toolchain delivery semantics.
+  - Reuse the existing artifact/evidence/promotion contracts and Cloud-owned tool provisioning; do not create a fake service deployment for Java.
+  - Prove a built toolchain is promoted byte-for-byte, safely installed, selected and rolled back without mutating all application builds.
+
 - [ ] 2026-10-02 — Enforce canonical internal snapshot versioning and channel rules under `VERSIONING.md`.
   - Fix artifact metadata production in `tavall-ci-versioning` to emit valid `<version>-SNAPSHOT` with channel metadata (`SNAPSHOT`, `RELEASE`, `DEV`).
   - Evidence: rerun exact staging head on `DEVELOPMENT_SHARED` and verify artifact version/channel validation passes.
@@ -309,7 +317,7 @@ _No open global TODO items currently tracked._
 
 - [ ] 2026-10-10 — Create dedicated source-editable repositories for other programming languages, patterned after `tavall-jdk`.
   - Evaluate versioned compiler/runtime modules for Kotlin, C#, Python and C/C++ first; confirm ownership and repo names before creating each repository.
-  - Each repo should pin authoritative upstream source, allow Tavall patch series and native builds, preserve upstream licenses, and expose exact-source Tavall CI verification.
+  - Each repo should own full Git-tracked upstream source in versioned language modules, preserve official update ancestry and licenses, and expose exact-source native build verification and immutable toolchain artifacts through Tavall CI/CD.
   - Keep languages independently owned; do not collapse them into one source monorepo or misrepresent lightweight wrappers as patched compilers.
 
 - [ ] 2026-10-01 — Keep the global TODO repository inventory synchronized as TavallStudios repositories are created, renamed, archived, or retired.
@@ -376,12 +384,13 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall JDK
 
-- [ ] 2026-10-10 — Validate `tavall-jdk-25` against exact pinned OpenJDK source on the Tavall CI shared Executor.
-  - Provision approved native toolchain, JDK 24 boot JDK and repo-owned Gradle wrapper.
-  - Build images, verify runtime version, run `test-tier1`, and capture exact-source/digest evidence.
-- [ ] 2026-10-10 — Establish a maintained OpenJDK 25u security baseline and review the Tavall patch/rebase process before publishing any runtime.
-  - Preserve versioned module boundaries and upstream license notices.
-  - Add upstream compatibility, patch-application/rejection and native regression tests.
+- [ ] 2026-10-10 — Import the complete OpenJDK 25 baseline into the tracked `tavall-jdk-25/openjdk/` module through the pinned Git subtree import; currently blocked by unavailable upstream Git transfer in the connected execution session.
+  - Confirm the exact official tag and commit, legal notices, large-object and total Git repository sizes. Import in a working branch, review source, and preserve normal Git history and upstream identity.
+  - No builds or CD releases may claim success until the full source is committed and verified on an exact source SHA.
+- [ ] 2026-10-10 — Run `tavall-jdk-25` exact-source CI end-to-end with a native toolchain, JDK 24 bootstrap and canonical Gradle 9.6.1 wrapper.
+  - Validate Java 25 images, upstream tier-1 tests, Tavall compatibility, platform packaging and immutable artifact/source digest evidence.
+- [ ] 2026-10-10 — Update to an appropriately maintained OpenJDK 25u security source baseline before shipping a custom runtime.
+  - Use official upstream Git subtree updates in the same versioned module; run compiler/HotSpot/runtime compatibility and security regression checks.
 
 ### `TavallStudios/tavall-logging`
 
