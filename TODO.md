@@ -307,6 +307,11 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall Documentation
 
+- [ ] 2026-10-10 — Create dedicated source-editable repositories for other programming languages, patterned after `tavall-jdk`.
+  - Evaluate versioned compiler/runtime modules for Kotlin, C#, Python and C/C++ first; confirm ownership and repo names before creating each repository.
+  - Each repo should pin authoritative upstream source, allow Tavall patch series and native builds, preserve upstream licenses, and expose exact-source Tavall CI verification.
+  - Keep languages independently owned; do not collapse them into one source monorepo or misrepresent lightweight wrappers as patched compilers.
+
 - [ ] 2026-10-01 — Keep the global TODO repository inventory synchronized as TavallStudios repositories are created, renamed, archived, or retired.
 - [ ] 2026-10-02 — Maintain documentation routing index (`docs/quality/DOCUMENT_ROUTING.yml`) with exact whole-term matching for all new architecture documents.
   - Prevent routing degradation and eliminate fuzzy search fallbacks.
@@ -366,6 +371,17 @@ _No open global TODO items currently tracked._
 #### System — Tavall Java Utils
 
 - [ ] 2026-10-02 — Promote central workflow and documentation updates to `main`.
+
+### `TavallStudios/tavall-jdk`
+
+#### System — Tavall JDK
+
+- [ ] 2026-10-10 — Validate `tavall-jdk-25` against exact pinned OpenJDK source on the Tavall CI shared Executor.
+  - Provision approved native toolchain, JDK 24 boot JDK and repo-owned Gradle wrapper.
+  - Build images, verify runtime version, run `test-tier1`, and capture exact-source/digest evidence.
+- [ ] 2026-10-10 — Establish a maintained OpenJDK 25u security baseline and review the Tavall patch/rebase process before publishing any runtime.
+  - Preserve versioned module boundaries and upstream license notices.
+  - Add upstream compatibility, patch-application/rejection and native regression tests.
 
 ### `TavallStudios/tavall-logging`
 
