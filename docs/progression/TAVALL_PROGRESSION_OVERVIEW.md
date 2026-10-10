@@ -12,6 +12,8 @@ This document is a roll-up. The owning `*_PROGRESSION.md` document remains the s
 
 ## Current policy correction — 2026-10-03
 
+> **2026-10-09 supersession:** The general-purpose Environment model is restored by [NLEW_AND_SERVICE_OWNERSHIP.md](../quality/NLEW_AND_SERVICE_OWNERSHIP.md): an Environment is a general-purpose ownership/context boundary, registered services default to Environment ownership, and an Environment with zero services is valid. The Envless source/CI default below remains current. Reusable NLEW contracts now live in [`TavallStudios/tavall-nlew`](https://github.com/TavallStudios/tavall-nlew). The service-only statements below are preserved as the 2026-10-03 historical record.
+
 Cloud Environments are registered service-runtime targets only. Source repositories, branches, CI jobs, Executors, and operation Workspaces do not create or require Environments. Source/build work uses exact source, Tavall CI, and the shared Cloud Executor. Older Environment-bound source/CI entries elsewhere in this roll-up remain historical evidence and must not be read as current authorization.
 
 Use this authority order when collecting or acting on progression evidence:

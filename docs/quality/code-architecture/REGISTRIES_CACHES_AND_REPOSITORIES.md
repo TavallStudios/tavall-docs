@@ -162,6 +162,8 @@ Grandfathering is for migration, not design. The debt set has one legal directio
 
 ## Redis and Distributed State
 
+Redis belongs to [`TavallStudios/tavall-database`](https://github.com/TavallStudios/tavall-database). Consumers compile against `tavall-database-redis-api` (typed operations, expiring leases, fenced versioned records, provider SPI) and receive `IRedisDatabase` through Tavall DI; the concrete client lives only in `tavall-database-redis`. Key families, payload schemas, projections, and reconciliation policy remain with the domain owner. Tavall Filesystem never depends on Redis.
+
 Redis is not durable authority by convenience.
 
 Every key family defines owner, schema, prefix, TTL/staleness, missing-key behavior, idempotency where relevant, and reconciliation source. Required durable writes do not become successful merely because Redis accepted a projection.
