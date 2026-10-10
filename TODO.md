@@ -224,13 +224,28 @@ _No open global TODO items currently tracked._
 
 ### `TavallStudios/tavall-content`
 
+#### System — Tavall Content Auto Post
+
+- [ ] 2026-10-10 — Implement `tavall-content-auto-post-system` as the SYSTEM module for the Content operations team, aggregating independently loadable, disableable and reloadable FEATURE modules.
+  - Initial feature boundaries: `tavall-content-auto-post-discovery-feature` (research and candidate discovery), `tavall-content-auto-post-video-watch-feature` (external video observation), `tavall-content-auto-post-creative-feature` (scripts, hooks and content proposals), `tavall-content-auto-post-engagement-feature` (outbound comment and inbound reply drafts), `tavall-content-auto-post-publishing-feature` (approval-gated scheduling through the existing publishing pipeline), and `tavall-content-auto-post-reporting-feature` (analytics findings and operator briefs). Confirm names and module graph against canonical Tavall module architecture before creation.
+  - SYSTEM owns composition, lifecycle and fan-in. FEATURE modules own their feature-specific contracts and behavior; reuse existing Content core, Content Studio, `tavall-content-tools`, `tavall-content-app`, Tavall DI, event routing and durable state instead of duplicating platforms, publishers or schedulers.
+  - Use the **existing Tavall AI MCP integration** to discover/request centrally installed agents and tools from Tavall AI and the Function Catalog. Do not implement a parallel agent aggregator, agent installation, registry or model runtime inside `tavall-content-ai`; that module remains the existing domain-specific AI capability/adaptation boundary.
+  - An MCP call is a capability boundary, not authorization: preserve campaign/account/source access checks, tool-scoped execution grants, action audit trails and failure semantics; removing a FEATURE does not erase durable work.
+- [ ] 2026-10-10 — Add evidence-backed external video discovery and actual multimodal video review to the Auto Post Video Watch feature and Content dashboard.
+  - Discover relevant public or explicitly authorized videos for configured topics/communities, respect platform-access policies and rate limits, and record platform/video identities, creators, links, timestamps, source rights and collection provenance.
+  - When authorized video playback/media access is available, analyze sampled frames/scenes, audio, speech/transcripts and surrounding context instead of pretending a title, caption or thumbnail represents watching the video; explicitly mark partial/unsupported observations and do not invent observed scenes.
+  - Surface observed videos as dashboard cards with playable links/previews where permitted, reason for relevance, cited evidence, proposed engagement opportunity, target account and audit status. Never manufacture views, likes, watch time or platform engagement.
+- [ ] 2026-10-10 — Add a unified human approval queue for *outbound comments on other creators' videos* and *inbound replies*.
+  - For each authorized account and target post/comment, generate distinct context-specific draft comments/replies informed by actual observed evidence; include account identity, target link, intended purpose, provenance and compliance checks.
+  - Human can APPROVE, EDIT, REJECT or SKIP; edits create a new version and invalidate prior approval. Only the exact approved snapshot may dispatch through a permitted platform integration, with idempotency, expiry/revalidation, throttling and observable delivery status.
+  - Keep unsolicited engagement genuine and relevant: no automated bulk commenting, repetitive generic messages, deceptive impersonation, artificial view-generation, unsolicited DM spam, or circumvention of platform limits. Dashboard review alone must never post.
+  - Acceptance: authorized external video -> real observed evidence -> suggested outbound comment -> human approval -> optional permitted send -> audited result, plus inbound reply equivalent; rejected/stale/unauthorized/unsupported cases must fail closed.
+- [ ] 2026-10-10 — Validate a complete Auto Post System workflow across enabled FEATURE modules and existing Content Studio.
+  - Research -> evidence-backed candidate -> script/clip draft -> existing native render and metadata compliance checks -> human approval -> supported account publishing/scheduling -> `tavall-analytics-api` evidence/findings -> operator morning briefing and exception alerts.
+  - Verify independent FEATURE enable/disable/reload, MCP failure and revocation handling, cross-account authorization, durable retries, persistence, exact-head architecture/unit/integration tests and real browser E2E without claiming unsupported provider-backed behavior.
+
 #### System — Tavall Content Studio
 
-- [ ] 2026-10-09 — Compose the autonomous Content operations team through `tavall-content-ai` using canonical Tavall AI agent packages and Function Catalog capabilities.
-  - Reuse/discover approved agent definitions from the canonical Tavall AI agent installation; the Content AI module assembles workflows and scoped capability requests, not cloned agent implementations, model runtimes, tool registries or MCP schemas.
-  - Route research, campaign strategy, scripts/hooks, clip planning, brand checks, approval preparation and publishing planning through existing Content domain APIs and `tavall-content-tools`, preserving source provenance and authorization.
-  - Use `tavall-analytics-api` for evidence-backed trends and performance input; do not depend on the separate `tavall-analytics-content` module.
-  - Acceptance: end-to-end authorized source to researched candidate, drafted artifact, rendered clip, human review, queued/published outcome and analytics evidence; failures and agent/tool budgets are audited and fail closed.
 - [ ] 2026-10-09 — TODO / DEFERRED: integrate future Tavall Commerce offers, product references, campaign CTAs and transaction attribution after the Tavall Content end-to-end loop passes acceptance.
   - No Tavall Commerce runtime, data model, checkout or payment work is in the present scope. Reuse future Commerce-owned typed APIs; preserve Analytics ownership of measurement and attribution.
 
