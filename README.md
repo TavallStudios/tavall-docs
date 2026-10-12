@@ -40,6 +40,7 @@ This repository is documentation-only; it has no executable product module.
 | [Global TODO](TODO.md) | Canonical organization-wide repository TODO ledger. |
 | [Repository TODO Static Projections](docs/quality/TODO_STATIC_PROJECTIONS.md) | Contract for bot-managed root `TODO.md` projections across TavallStudios repositories. |
 | [Documentation Standards](docs/quality/DOCUMENTATION_STANDARDS.md) | Applicable repository guidance. |
+| [Product Design Standards](docs/quality/PRODUCT_DESIGN_STANDARDS.md) | Tavall-wide product, value, monetization, capacity-access, and UX standards; specialist product visuals remain separately owned. |
 | [README Standards](docs/quality/README_STANDARDS.md) | Applicable repository guidance. |
 | [NLEW and Service Ownership](docs/quality/NLEW_AND_SERVICE_OWNERSHIP.md) | Binding Node/Lane/Environment/Workspace/Executor terminology, general-purpose Environment model, service-to-Environment default, and non-canonical host-path rule. |
 | [Git Workflow](docs/quality/GIT_WORKFLOW.md) | Applicable repository guidance. Git staging is separate from NLEW topology. |
