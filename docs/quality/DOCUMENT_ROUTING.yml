@@ -55,6 +55,21 @@ routes:
     documents:
       - docs/quality/GIT_WORKFLOW.md
 
+  - id: product-design-standards
+    signals:
+      - product design standards
+      - product design
+      - free-first product
+      - free product
+      - product monetization
+      - product pricing
+      - product access limits
+      - user capacity limits
+      - product ui standards
+      - product ux standards
+    documents:
+      - docs/quality/PRODUCT_DESIGN_STANDARDS.md
+
   - id: documentation-lifecycle
     signals:
       - documentation

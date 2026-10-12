@@ -37,6 +37,8 @@ Describe discovery → consideration → conversion → fulfillment → repeat u
 
 ## Pricing & Monetization
 
+Apply [Tavall Product Design Standards](PRODUCT_DESIGN_STANDARDS.md): define a genuinely useful free core, optional compelling adjacent paid value, and the economic evidence. When free access is capacity constrained, evaluate limiting admitted users before reducing how much of the core product each user receives. Record any exception and rationale.
+
 State current pricing direction, paid/free boundaries, fairness constraints, discounts/bundles, commissions/fees, and unresolved economic questions.
 
 ## Fulfillment & Entitlements

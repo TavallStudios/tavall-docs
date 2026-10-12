@@ -8,6 +8,7 @@ Use this directory for shared Tavall engineering and documentation policy.
 
 - [DOCUMENT_ROUTING.yml](DOCUMENT_ROUTING.yml) — small machine-readable exact-signal routing index for selecting only the documentation relevant to the current task.
 - [DOCUMENTATION_STANDARDS.md](DOCUMENTATION_STANDARDS.md) — authority, lifecycle, delegation, evidence, archive, and `DOC TODO:` rules.
+- [PRODUCT_DESIGN_STANDARDS.md](PRODUCT_DESIGN_STANDARDS.md) — free-first core product, adjacent paid value, capacity-first admissions, trust, shared UX, and specialist design-system routing.
 - [DOCUMENT_TYPES.md](DOCUMENT_TYPES.md) — GENERAL, ARTICLE, PRODUCT, USER EXPERIENCE, Design, Technical, PROGRESSION, and Deployment responsibilities.
 - [TODO_STATIC_PROJECTIONS.md](TODO_STATIC_PROJECTIONS.md) — canonical contract for the global TODO ledger and bot-managed root `TODO.md` projections in every maintained TavallStudios repository.
 - [README_STANDARDS.md](README_STANDARDS.md) — canonical private/public repository README and module README routing/ownership rules.
