@@ -414,6 +414,27 @@ The author must:
 
 Use `Closes` or `Fixes` only when the pull request fully resolves the issue. Use `Refs` when the work contributes without completing it.
 
+#### 4.3.1 Review evidence and media proof
+
+Every Tavall Git/PR operation evaluates review-evidence applicability through the Tavall PR Workflow Agent. Read-only Git inspection without a reviewable change can record NOT_APPLICABLE with a reason; it does not post unrelated comments. Before claiming PR work ready, complete the evidence step or record the concrete publication blocker.
+
+For changed UI, browser journeys, video/media behavior or other visually observable functions, the PR must carry relevant recordings and screenshots when the authorized execution can produce them. Prefer a recording showing the real interaction/lifecycle; a static screenshot or a test count alone does not establish the behavior. Backend, tooling and documentation work use appropriate logs, reports, structured receipts or other artifacts; do not manufacture irrelevant videos just to check a box.
+
+Review evidence must:
+
+- appear in a clearly labeled PR body section or maintained PR comment, linked to durable artifacts;
+- identify the exact tested source commit(s), current PR head, artifact commit/run/storage identity and result;
+- describe the scenario, expected/observed behavior and desktop/mobile/provider/runtime scope where applicable;
+- distinguish fixture/mock/provider-double checks from real provider and deployed acceptance;
+- identify missing, stale, failed or unrun paths rather than presenting them as successful proof;
+- retain immutable asset links and hashes where available; a source/head change marks affected evidence stale until revalidated;
+- exclude credentials, provider tokens and private production session/CSRF state. Do not blindly publish browser traces or credential-filled sign-in recordings;
+- reuse owning evidence storage, Tavall CI/Cloud artifacts and existing GitHub/SCM transport, without introducing a second evidence service or persistent GitHub Actions workflow.
+
+Use supported native GitHub media attachments when the available authenticated tool can create them. Otherwise commit appropriate sanitized media to the owning evidence directory or publish it through an approved durable artifact store, then link the exact version from the PR. Clearly record LINKED versus NATIVE_ATTACHMENT; a repository link must not be described as a native upload. Local-only paths are not sufficient PR evidence. Verify each remote artifact/link and re-fetch the posted PR section/comment before claiming publication.
+
+The Agent-owned review-evidence tool validates manifests, prepares the review section and publishes/updates a bounded PR comment through existing GitHub tools/CLI. Retries update the same evidence block instead of adding duplicate comments. Cross-repository PRs may refer to shared evidence in its owning repository, naming the consumer scope and tested source graph. Captured media does not replace required architecture, persistence, regression, CI, product authorization or promotion checks.
+
 ### 4.4 Pull requests are working branches
 
 Treat pull requests as durable branches with review metadata attached, not as paperwork created only after implementation is complete.
