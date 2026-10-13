@@ -82,7 +82,8 @@ Deployment record: [`<RUNTIME>_DEPLOYMENT.md`](...)
 
 ## Development
 
-- **Module Type:** `API` / `RUNTIME` / `SYSTEM` / `FEATURE` / `APPLICATION` / `LIBRARY` / `PROVIDER` / `ADAPTER` / `INTEGRATION` / `TOOLING` / `TEST_SUITE`
+- **Module Type:** `API` / `RUNTIME` / `SYSTEM` / `FEATURE` / `APPLICATION` / `TOOLING` / `TEST_SUITE`
+- **Secondary Roles:** `LIBRARY` / `PROVIDER` / `ADAPTER` / `INTEGRATION`, only where actual responsibility applies.
 - **Runtime:** `Self` / `<runtime-module>` / `None`
 - **CI Definition:** [`.tavallci/ci.yaml`](.tavallci/ci.yaml) — required for every Tavall source/build module; repository-root `.tavallci` may aggregate but does not replace this module-local definition.
 - **Current PR Stack:** ...

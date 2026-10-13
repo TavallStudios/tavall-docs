@@ -15,17 +15,26 @@ Module type describes the module's **primary responsibility**. Runtime ownership
 | `FEATURE` | Bounded behavior with its own declared enable/disable/load/reload lifecycle under a parent SYSTEM, where independence is justified by meaningful operational or dependency boundaries. A FEATURE does not imply a separate runtime. |
 | `APPLICATION` | Application composition/entry module that assembles capabilities into an executable application or bounded application surface; it may or may not be independently deployed. |
 | `API` | Caller-facing contracts, request/result/data types, and stable capability boundaries without owning the main runtime implementation. |
-| `LIBRARY` | Reusable implementation capability consumed in-process by other modules and not independently deployed. |
-| `PROVIDER` | Pluggable concrete implementation of a provider/capability contract, commonly selected by a runtime or application owner. |
-| `ADAPTER` | Translation boundary between existing APIs, protocols, platforms, or representations; it does not become a second domain authority. |
-| `INTEGRATION` | Boundary that connects Tavall behavior to an external product, service, protocol, or platform and owns the integration-specific contract. |
 | `TOOLING` | Build, development, administration, migration, generation, or operator tooling that is not the product/runtime itself. |
 | `TEST_SUITE` | Test-only or validation-focused module that verifies one or more production modules and does not ship as a production runtime. |
+
+## Secondary responsibility roles
+
+MOD-01 and MOD-02 classify APPLICATION, RUNTIME, SYSTEM, FEATURE, API, TOOLING and TEST_SUITE as primary types. LIBRARY, PROVIDER, ADAPTER and INTEGRATION describe secondary responsibilities, recorded independently from primary type, runtime owner, repository and artifact identity.
+
+| Role | Responsibility |
+| --- | --- |
+| `LIBRARY` | Reusable implementation capability consumed in-process; it does not identify an independently deployed runtime. |
+| `PROVIDER` | Pluggable concrete capability implementation selected by the owning SYSTEM/runtime. |
+| `ADAPTER` | Translation between APIs, protocols, platforms or representations without a second domain authority. |
+| `INTEGRATION` | External product/service/protocol boundary with integration-specific contracts. |
+
+Existing older primary LIBRARY/PROVIDER/ADAPTER/INTEGRATION labels are migration debt. Reclassify a module when its actual ownership is inspected and changed; preserve unrelated modules until that review rather than globally inferring type from a suffix. A reusable stateless domain SYSTEM may have a secondary LIBRARY role without manufacturing FEATURE modules.
 
 ## Classification Rules
 
 - Every real source/build module records one **primary** module type in its module README. `SYSTEM` and `FEATURE` are first-class primary types, not descriptive aliases for `LIBRARY` or `PROVIDER`.
-- Use a combined type such as `RUNTIME / PROVIDER` only when the module genuinely owns both responsibilities. Combined types should be uncommon. For a FEATURE with a concrete provider role, record `FEATURE` as primary and `PROVIDER` as an explicitly labeled secondary role, as in `tavall-filesystem-zfs`; do not silently convert a FEATURE to an independent runtime.
+- Record one primary type and optional explicitly labeled secondary roles. For example, `FEATURE` primary with `PROVIDER` secondary for `tavall-filesystem-zfs`, or `RUNTIME` primary with `PROVIDER` secondary for an independently executing provider. A role does not imply a separate runtime.
 - Module type does not replace ownership documentation. The README still states what the module owns and does not own.
 - A directory, fixture, generated source tree, or trivial build helper does not become a module merely because it has a folder.
 - Do not invent a new module type for a one-off naming preference. Extend this taxonomy only when a recurring responsibility does not fit an existing type.
@@ -84,7 +93,7 @@ Third-party tools are never exposed as an unowned implementation detail of an ar
 
 - Every third-party binary, CLI, SDK, MCP server, external runtime, or tool-specific protocol used as a reusable Tavall capability **must be owned behind a Tavall module whose canonical module/artifact name begins with `tavall-`**.
 - Prefer `tavall-<upstream-tool>` when one upstream tool is the boundary, for example `tavall-open-cv`, `tavall-ffmpeg`, `tavall-playwright`, `tavall-chromium`, `tavall-hyperframes`, or `tavall-remotion`.
-- The wrapper normally classifies as `INTEGRATION`, `ADAPTER`, `PROVIDER`, or a justified combination. It owns upstream discovery/version checks, invocation, configuration/environment mapping, protocol/command construction, error translation, lifecycle, and tool-specific observability.
+- The wrapper records an actual primary type and `INTEGRATION`, `ADAPTER` or `PROVIDER` secondary roles. It owns upstream discovery/version checks, invocation, configuration/environment mapping, protocol/command construction, error translation, lifecycle, and tool-specific observability.
 - Product/domain modules depend on Tavall semantic APIs or Tavall wrapper modules. They do **not** scatter direct vendor imports, raw process commands, MCP tool names, vendor HTTP calls, executable paths, or tool-specific environment variables through business code.
 - A wrapper may live inside an umbrella repository when that is the coherent ownership boundary; the module/artifact name still follows the `tavall-*` rule.
 - Generic modules such as `*-tools`, `common`, or `util` must not become vendor dumping grounds. If a third-party integration is reusable or has meaningful lifecycle/configuration of its own, give it an explicit Tavall wrapper boundary.
@@ -106,7 +115,7 @@ A non-runtime module that supports a runtime must point to:
 2. the current runtime PR or PR stack when active development depends on it;
 3. the owning Deployment document when deployment state is relevant.
 
-`RUNTIME` modules are normally independently deployable. `APPLICATION` modules may be independently deployable when they own an executable deployment boundary. Other module types may participate in deployment through their owning runtime but do not receive independent deployment records unless they actually have an independent deployable identity.
+`RUNTIME` modules are normally independently deployable. `APPLICATION` modules may be independently deployable when they own an executable deployment boundary. Other primary module types may participate in deployment through their owning runtime but do not receive independent deployment records unless they actually have an independent deployable identity.
 
 ## Progression Ownership
 
@@ -121,14 +130,10 @@ The Progression document uses the module's primary type to determine what implem
 | `FEATURE` | Feature-specific behavior, independent load/disable/reload, dependency isolation, failure and recovery, and parent SYSTEM/runtime acceptance. |
 | `APPLICATION` | End-to-end application capabilities, dependency composition, user/system flows, and runtime acceptance. |
 | `API` | Contract implementation, exposed operations, consumer adoption, compatibility, and contract validation. |
-| `LIBRARY` | Shared capability implementation, API stability, consumer integration, compatibility, and tests. |
-| `PROVIDER` | Provided capability, registration/discovery, lifecycle, consuming modules, and failure behavior. |
-| `ADAPTER` | Boundary translation, supported contracts, mapping correctness, compatibility, and failure handling. |
-| `INTEGRATION` | Cross-system connectivity, authentication/data exchange, failure/recovery behavior, and end-to-end validation. |
 | `TOOLING` | Supported workflows, command/tool capabilities, automation correctness, operator/developer usability, and validation. |
 | `TEST_SUITE` | Coverage boundaries, enforced scenarios, regression protection, execution state, and evidence quality. |
 
-Combined module types may combine the applicable progression lenses, but one Progression document still owns the module boundary.
+Secondary roles add their behavioral acceptance to the primary progression lens; one Progression document owns the module boundary.
 
 System-scoped Progression documents aggregate their module/subsystem Progression documents. They do not replace them and must not duplicate every module timeline event.
 
