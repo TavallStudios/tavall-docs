@@ -414,7 +414,7 @@ The author must:
 
 Use `Closes` or `Fixes` only when the pull request fully resolves the issue. Use `Refs` when the work contributes without completing it.
 
-### 4.3.1 Review evidence and media proof
+#### 4.3.1 Review evidence and media proof
 
 Every Tavall Git/PR operation evaluates review-evidence applicability through the Tavall PR Workflow Agent. Read-only Git inspection without a reviewable change can record NOT_APPLICABLE with a reason; it does not post unrelated comments. Before claiming PR work ready, complete the evidence step or record the concrete publication blocker.
 
