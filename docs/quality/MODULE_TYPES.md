@@ -159,7 +159,7 @@ See [README_STANDARDS.md](README_STANDARDS.md) and [MODULE_README_TEMPLATE.md](M
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/MODULE_TYPES.md` | 2026-10-11 | Working policy PR adding first-class SYSTEM/FEATURE lifecycle and runtime API ownership; not merged. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/MODULE_TYPES.md` | 2026-10-12 | PR #67 reconciles first-class SYSTEM/FEATURE lifecycle and runtime API ownership; runtime acceptance remains consumer-owned. |
 | Notion | `NOT_APPLICABLE` | — | 2026-09-29 5:08 PM PDT | Quality/reference document; no 1:1 requirement assigned. |
 
 ### Update History
