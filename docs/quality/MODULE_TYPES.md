@@ -34,7 +34,7 @@ Module type describes the module's **primary responsibility**. Runtime ownership
 
 These classifications implement the accepted MOD-01 and MOD-02 directions while retaining the pre-existing module taxonomy and runtime separation. They are **not** new package namespaces or an excuse to split stateless components into modules.
 
-- A `SYSTEM` groups multiple cohesive `FEATURE` capabilities with one consumer-facing lifecycle/composition surface. It delegates concrete behavior to its FEATURES and existing Tavall interfaces, and acts through Tavall DI and the canonical module registry; it does not own another container, scheduler, backend, or API by implication.
+- A `SYSTEM` composes cohesive capabilities; independently controllable `FEATURE` modules are optional when the system owns stateless domain contracts with one consumer-facing lifecycle/composition surface. It delegates concrete behavior to its FEATURES and existing Tavall interfaces, and acts through Tavall DI and the canonical module registry; it does not own another container, scheduler, backend, or API by implication.
 - A `FEATURE` warrants a module only when independent activation/reload, separate provider configuration, failure containment, or consumer/test ownership is real. Stateless policies, NLEW Node/Lane/Environment/Workspace record handlers and simple cohesive classes remain packages unless a real lifecycle pressure is demonstrated.
 - Enable, disable, load, unload and reload operate at the **individual FEATURE** boundary where the host supports them. Disabling the parent SYSTEM disables its dependent FEATURES; reloading a FEATURE does not implicitly restart unrelated FEATURES or the owning RUNTIME. Dependency removal or a denied capability fails closed. Live module-state transitions must be owned by canonical `tavall-di` and module lifecycle infrastructure, not per-SYSTEM handmade maps.
 - A `RUNTIME` owns executable lifecycle, process boundary and composition, including the API module(s) that the runtime itself exposes. Consumer-facing API modules remain separate typed `API` artifacts but are **owned by that RUNTIME**, not accidentally reassigned to a FEATURE. A reusable library/system-level API with no dedicated runtime remains owned by its actual producer/consumer system. Do not interpret this rule as requiring every SYSTEM or FEATURE to manufacture an API module.
@@ -49,7 +49,9 @@ Tavall Cloud RUNTIME
     -> tavall-filesystem                 SYSTEM (fan-in, no separate process)
         -> tavall-filesystem-zfs         FEATURE; secondary PROVIDER role
         -> tavall-filesystem-nfs         FEATURE; secondary PROVIDER role
-    -> tavall-filesystem-test-suite      TEST_SUITE (source/behavior contract)
+
+Validation only (outside runtime composition):
+    tavall-filesystem-test-suite         TEST_SUITE (source/behavior contract)
 ```
 
 Filesystem FEATURES must not depend on Redis: `tavall-database` owns Redis and any consumer pointer/reconciliation authority, while Cloud owns placement, durable version selection, and fencing policy.
@@ -64,7 +66,8 @@ tavall-mc RUNTIME (Velocity/Paper composed into established application artifact
         -> packet/evidence observation FEATURE
         -> resource-pack identity FEATURE
     -> Minecraft platform ADAPTERs
-    -> relevant TEST_SUITE modules
+
+Validation only: relevant TEST_SUITE modules
 ```
 
 Each FEATURE can be independently controlled at the canonical registry boundary; the anti-cheat SYSTEM can disable its children as a unit. Existing package and architecture canon still decides internal class/package structure. The real anti-cheat source currently has a separate `tavall-mc-anticheat` extraction PR with unverified runtime linkage, so this diagram is an intended **composition shape only**, not a deployed plugin or present class list.
