@@ -232,6 +232,15 @@ _No open global TODO items currently tracked._
 
 ### `TavallStudios/tavall-content`
 
+#### System — Tavall Content Opportunities
+
+- [ ] 2026-10-10 — TODO / DEFERRED: research and integrate additional clipping-campaign aggregators into the existing Tavall Content opportunities/radar capability **after** its current provider-backed E2E and Account authorization gates pass.
+  - Evaluate **ClipRadar** (existing draft adapter/reference), **Clipper Hub**, **Clipping Atlas**, **StreamClipping AI**, **ClippingDeals**, and the **Apify Clipping Campaigns Aggregator**. Treat **Clipping.work** as a platform directory for source discovery, not a confirmed live campaign feed. Record actual coverage, upstream marketplaces, freshness, costs, API/MCP/access requirements, rate limits, licensing/terms, and source reliability; do not assume reported campaign counts are unique or currently available.
+  - Prefer explicitly authorized provider APIs and contract-compliant programmatic feeds (investigate Apify and Clipping Atlas first); use user-authorized browser observation only when permitted. Do not bypass credentials, payment gates, anti-bot controls, or redistribution limits. No new paid accounts, credentials, polling, scraping, or enabled adapters are authorized by this TODO.
+  - Reuse the existing `tavall-content-opportunities` domain and Content source/provider abstractions instead of inventing an aggregator platform or duplicating Tavall Analytics. Normalize source-of-truth marketplace, aggregator referral, campaign identity/URL, provenance, observation time, rights/eligibility, statuses, budgets, CPM, caps, platform/payout fees, and withdrawal rails. Deduplicate listings across overlapping aggregators and native marketplaces; preserve uncertainty and stale/out-of-budget indicators.
+  - Support comparable **net expected earning** and **small-account eligibility** views: follower minimum, per-clip views, cumulative campaign views, Tier 1/Tier 2 audience restrictions, withdrawal minimum, payout hold, region, verified fee schedule, and funded balance. Unknown requirements remain `UNKNOWN`, never silently treated as zero or eligible.
+  - Acceptance when scheduled: typed contracts, source-specific opt-in configuration and capability checks, automated normalization/deduplication/failure tests, and authorized read-only operator E2E proving eligible/ineligible/unknown explanations, source links, and no publication or payout side effects. Keep this research/integration **deferred** until the current Content runtime/Account and provider gates are complete.
+
 #### System — Tavall Content Auto Post
 
 - [ ] 2026-10-10 — Implement `tavall-content-auto-post-system` as the SYSTEM module for the Content operations team, aggregating independently loadable, disableable and reloadable FEATURE modules.
