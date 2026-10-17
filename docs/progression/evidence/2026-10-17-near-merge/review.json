@@ -1,0 +1,10 @@
+{
+  "authoring": "tjXJNOOBIE and Codex; advisory review is not owner approval.",
+  "baseSource": "5c9ce75a79d9855410cc9c157aaa665799ad2e4d",
+  "result": "Complete one-file TODO diff inspected; existing Content owner and acceptance gates retained. Documentation-only; Java/runtime tests not applicable.",
+  "review": "Complete PR diff inspected; no unresolved correctness finding in reviewed scope. Independent human approval or Owner Self-Review remains required.",
+  "reviewType": "ADVISORY_AUTOMATED",
+  "rollback": "Revert the eventual merge through the existing GitHub PR workflow. No data migration or deployment in this change.",
+  "scope": "Deferred campaign-source research remains deferred; no adapters, credentials, paid accounts or polling enabled.",
+  "testedSource": "58feb3b2e8a38b84f6de3602f84372b9f4e488fc"
+}
