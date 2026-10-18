@@ -564,6 +564,8 @@ Keep a pull request in **Draft** while implementation, validation, dependency re
 
 Mark it ready only when its current scope is complete, the author reviewed the diff, validation is recorded, risks and gaps are disclosed, documentation is current, dependency state is accurate, and the change is reasonably reviewable as one coherent boundary.
 
+During a user-authorized fix-and-merge campaign, an incomplete readiness item is an intermediate work state. Continue repairing the in-scope source, dependencies, local checks, Tavall CI/Bot path, and documentation. Do not return a status-only list of merge gates while authorized repairs remain actionable. Keep the PR Draft until the exact readiness conditions are met. Before marking a Tavall PR ready, disable Codex automatic Code Review in both personal preferences and that repository's Codex settings.
+
 Large coherent systems are allowed. Do not split one system into artificial fragments merely to satisfy an arbitrary line-count preference.
 
 #### Pull request attribution and review assignment
@@ -575,7 +577,7 @@ Pull requests created by Tavall automation, ChatGPT, Codex, or another bot must 
 - GitHub exposes only one pull-request opener. Additional authors or contributors must therefore be named in the pull-request body, and real commit-level co-authorship should use `Co-authored-by:` trailers when an attributable commit identity is available.
 - Do not list passive integrations, linkback bots, or status-only automation as authors when they did not materially produce the change.
 - Request `tjXJNOOBIE` as a reviewer when they are not the pull-request author. GitHub does not permit an author to review or approve their own pull request, so an owner-authored pull request uses the Owner Self-Review path instead of a fake self-review request.
-- Codex automatic review is the required advisory bot review for reviewable Tavall pull requests. Keep repository automatic review enabled; when automatic review does not appear, explicitly trigger it with `@codex review` and treat a missing or configuration-error response as an integration problem to fix rather than silently skipping the review.
+- Do not request or trigger Codex GitHub Code Review for Tavall PRs. Keep Automatic review disabled in personal preferences and in each connected Tavall repository's Codex settings. Use the Tavall PR Review Agent ROLE for the review pass and the exact-head Tavall CI/GitHub Bot checks for automated acceptance. Keep the GitHub connection available for repository and Check operations.
 
 ### 4.7 Accountable review
 
@@ -632,17 +634,9 @@ Approval applies to the current reviewable state, not an older and more emotiona
 
 ### 4.9 Automated review and `AGENTS.md`
 
-Codex automatic GitHub review is the advisory automated reviewer. It should run when a pull request is opened, updated with reviewable changes, or moved from draft to ready.
+Automatic Codex GitHub Code Review is disabled for Tavall PRs by user preference. Do not enable it and do not add an `@codex review` request. The Tavall PR Review Agent ROLE handles the in-context review pass. Repository-owned local checks and Tavall CI/GitHub Bot Checks provide exact-source validation; GitHub Actions are not used for this workflow.
 
-Codex repository access is controlled by the installed integration. This workflow does not require reducing its repository permissions.
-
-When reviewing, Codex:
-
-- follows repository guidance in `AGENTS.md`;
-- reviews against this workflow, `CODE_ARCHITECTURE.md`, and linked quality and system documents;
-- inspects existing implementations, open PR dependencies, and linked issues before proposing replacements;
-- prioritizes correctness, production safety, and architectural consistency over style preferences;
-- does not satisfy independent human approval or Owner Self-Review.
+Keep the GitHub connection available for source and Check operations. A review preference does not require removing repository access.
 
 When Codex authors or pushes a correction, that correction becomes a new reviewable change and invalidates stale human or owner review.
 
@@ -664,6 +658,8 @@ Each meaningful automated finding should include severity, affected code, a real
 - Do not rewrite shared branch history without coordination.
 - Repository-specific synchronization workflows take precedence for mirrored public modules.
 - Authorized owners retain final merge-method discretion.
+
+For an authorized fix-and-merge campaign, conflicts, absent checks, unavailable Bot execution, and Draft status are progress states to resolve. Use the owning source and Tavall/CONTROL repair paths, run local exact-source checks, and continue other independent authorized PR work. If a genuinely account-side credential or permission is unavailable after its documented recovery path was attempted, identify that precise external action and keep all independent work moving.
 
 ## 5. Git hygiene
 
@@ -819,8 +815,8 @@ Record rejected approaches, link implementation work, and close issues only when
 - [ ] The pull request explains what changed and why.
 - [ ] `tjXJNOOBIE` and every materially authoring bot or automation are attributed in the pull-request body; real commit-level co-authorship is recorded when available.
 - [ ] `tjXJNOOBIE` is requested as reviewer when they are not the author; owner-authored pull requests use Owner Self-Review instead.
-- [ ] Codex automatic review completed, or `@codex review` was explicitly triggered and any integration failure was recorded.
-- [ ] Codex review completed when available and meaningful findings were addressed or explained.
+- [ ] Tavall PR Review Agent ROLE pass is recorded and meaningful findings are addressed or explained.
+- [ ] Local exact-source checks and current-head Tavall CI/GitHub Bot checks are recorded. List any unrun gate explicitly and continue its repair while authorized work remains.
 
 ## 9. Reviewer checklist
 
@@ -836,7 +832,7 @@ Record rejected approaches, link implementation work, and close issues only when
 - [ ] Tests are meaningful and passing.
 - [ ] Documentation and migration notes are sufficient.
 - [ ] Issue decisions were followed or intentionally amended.
-- [ ] Codex findings and blocking conversations were inspected.
+- [ ] Tavall PR Review findings and blocking conversations were inspected.
 - [ ] Review applies to the current diff.
 - [ ] Deployment remains separate from merge approval.
 
@@ -858,7 +854,7 @@ Record rejected approaches, link implementation work, and close issues only when
 - Maintain a corresponding active persistent Draft integration PR for every active staging branch. Reuse the correct root and connect every Development Staging and Runtime tier upward.
 - Enforce the mandatory PR Flow invariant on creation and every topology transition; reject ambiguous roots and stale head/metadata matches.
 - Allow trusted owner integration where repository-specific rules permit it.
-- Run configured checks and automatic Codex review on reviewable promotion diffs.
+- Run local exact-source checks and current-head Tavall CI/GitHub Bot checks on promotion diffs. Keep Codex automatic Code Review disabled.
 - Block deletion of active shared staging branches and discourage uncoordinated history rewrites.
 
 ### `main`
@@ -875,8 +871,8 @@ Record rejected approaches, link implementation work, and close issues only when
 
 ### Codex and `AGENTS.md`
 
-- Enable automatic Codex pull-request review.
-- Treat `@codex review` as the explicit fallback when automatic review does not appear on a reviewable pull request.
+- Keep Codex Automatic review disabled in personal preferences and each connected Tavall repository. Do not request `@codex review`. Keep repository access available for source and Check operations.
+- Use the Tavall PR Review Agent ROLE for review findings and exact-head Tavall CI/GitHub Bot Checks for automated acceptance. GitHub Actions are not used for this workflow.
 - Link this workflow, `CODE_ARCHITECTURE.md`, and relevant quality and system documents from `AGENTS.md`.
 - Keep repository-specific review priorities in `AGENTS.md`.
 - Teach implementation agents to inspect active PRs, staging state, and stack relationships before choosing a base, preserve dependency stacks, and establish or repair active staging ancestry as part of creating or updating the PR.
