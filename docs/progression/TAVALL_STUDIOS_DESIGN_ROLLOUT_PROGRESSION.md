@@ -1,32 +1,34 @@
 # TavallStudios DESIGN Rollout Progression
 
-> **Status:** Active progression record  
-> **Document Type:** `PROGRESSION`  
-> **Progression Scope:** `SYSTEM`  
-> **Owns:** Aggregate audit state and evidence ledger for DESIGN coverage across currently maintained TavallStudios repositories and source/build module candidates  
-> **Aggregates:** Repository and module DESIGN / PROGRESSION records; this ledger does not replace those owners  
-> **Does Not Own:** Product or module design decisions, source implementation, deployment history, or Git workflow policy  
+> **Status:** Historical 2026-09-27 baseline; overall audit remains `IN_PROGRESS`<br>
+> **Document Type:** `PROGRESSION`<br>
+> **Progression Scope:** `SYSTEM`<br>
+> **Owns:** The dated repository inventory snapshot and evidence ledger for DESIGN coverage candidates across TavallStudios repositories and source/build module paths<br>
+> **Aggregates:** Repository and module DESIGN / PROGRESSION records; this ledger does not replace those owners<br>
+> **Does Not Own:** Product or module design decisions, source implementation, deployment history, or Git workflow policy<br>
 > **Last Reconciled:** `2026-09-27 7:41 PM PDT`
 
 ## About
 
-This Progression records the current repository inventory and makes unresolved module boundaries and documentation coverage visible. It does not claim that a repository or module is audited merely because a build file, source directory, README, or open documentation pull request exists. Module candidate paths below still require responsibility review against exact source, tests, consumers, accepted documentation, and history.
+This Progression preserves the repository-inventory snapshot captured on 2026-09-27 and makes unresolved module boundaries and documentation coverage visible. It is a historical baseline, not a current organization inventory or live-work status; refresh default-branch heads and recursive trees before using it to plan current work. It does not claim that a repository or module is audited merely because a build file, source directory, README, or open documentation pull request exists. Module candidate paths below still require responsibility review against exact source, tests, consumers, accepted documentation, and history.
 
-The snapshot is limited to 43 current, in-scope TavallStudios repositories after applying the user's eight-repository exclusion filter locally. It does not list those excluded names. The 43 default-branch heads were rechecked on 2026-09-27 7:15 PM PDT; 42 have commits, while `tavall-roblox` is confirmed empty by GitHub repository metadata and content/branch responses.
+The snapshot covers 43 in-scope TavallStudios repositories after applying the user's eight-repository exclusion filter locally. It does not list those excluded names. The 43 default-branch heads were rechecked on 2026-09-27 7:15 PM PDT; 42 had commits, while `tavall-roblox` was confirmed empty by GitHub repository metadata and content/branch responses.
 
-## Current Status
+## Baseline Snapshot Status (2026-09-27)
+
+The table below describes the dated audit snapshot only. It does not represent current PR, runtime, executor, or repository state.
 
 | Field | State |
 | --- | --- |
 | Overall State | IN_PROGRESS |
 | Current Phase | Repository/module inventory and DESIGN coverage reconciliation |
-| Repository Inventory | 43 current in-scope repositories; default-branch heads refreshed |
-| Module Boundary Audit | 185 source/build candidate paths across 27 repositories (184 from the initial root scan plus one nonstandard module path found by direct tree inspection); candidates are not yet confirmed as independent responsibility boundaries. |
+| Repository Inventory | 43 in-scope repositories at the 2026-09-27 snapshot; heads need refreshing before current use |
+| Module Boundary Audit | 185 source/build candidate paths across 27 repositories (184 from the initial root scan plus one nonstandard module path found by direct tree inspection); candidates were not yet confirmed as independent responsibility boundaries. |
 | Existing Design Coverage | No organization-wide coverage count is claimed. Existing architecture/Final/Technical paths and open documentation PRs require source, Notion, and responsibility reconciliation. |
-| Tavall Web Frontend | System + six current module DESIGN/PROGRESSION documents and README routing are on open [PR #44](https://github.com/TavallStudios/tavall-web/pull/44), synchronized with Notion. Source migration and validation remain incomplete. |
-| Rollout Ledger Review | Draft [PR #38](https://github.com/TavallStudios/tavall-docs/pull/38) is open and mergeable; this baseline audit is not complete. |
-| Validation | No exact-source implementation or E2E evidence is claimed. Tavall Cloud CONTROL is ready, but DEVELOPMENT has no attached environment or durable executor. |
-| Primary Blocker | Durable Tavall Cloud DEVELOPMENT workspace/executor unavailable for the authorized implementation and validation workflow. |
+| Tavall Web Frontend | At the snapshot, system + six module DESIGN/PROGRESSION documents and README routing were on [PR #44](https://github.com/TavallStudios/tavall-web/pull/44), synchronized with Notion; source migration and validation were incomplete. |
+| Rollout Ledger Review | PR #38 was open at this snapshot; it has since merged to docs `main`, while PR #39 remains open as the Glicko-2 addendum. The organization-wide audit remains incomplete. |
+| Validation | At the snapshot, no exact-source implementation or E2E evidence was claimed, and Cloud DEVELOPMENT had no attached environment or durable executor. This live status was not rechecked by the ledger merge. |
+| Primary Blocker | The snapshot reported no durable Tavall Cloud DEVELOPMENT workspace/executor. Current runner availability is not established by this historical record. |
 | Next System Slice | Complete exact module-boundary reviews; reuse only accepted DESIGN/Technical docs that pass ownership checks; create and reconcile true module/system twins, README routes, and Documentation Update State. |
 
 ## Inventory Method and Status Meaning
@@ -41,9 +43,9 @@ Method: enumerate current default branches from the previously filtered organiza
 
 ## Repository and Module Candidate Ledger
 
-Each module-path cell is an explicit per-path checklist. All candidate paths remain pending until reviewed individually. Root build manifests are listed as evidence; nested module build files and docs are linked from that exact source tree. Open PR links show current review work but do not make branch content accepted main.
+Each module-path cell is an explicit per-path checklist. All candidate paths remain pending until reviewed individually. Root build manifests are listed as evidence; nested module build files and docs are linked from the exact source tree captured on 2026-09-27. PR links reflect the open-PR snapshot from that date; they do not show current review work or make branch content accepted main.
 
-| Repository / Audited Tree | Default-Branch Head | Root Build Manifests Found | Source / Build Module Candidate Paths | Existing Architecture / Design / Final / Technical Candidates | README Files | Open Documentation / Boundary PRs | Audit State / Evidence |
+| Repository / Audited Tree | Default-Branch Head (2026-09-27 snapshot) | Root Build Manifests Found | Source / Build Module Candidate Paths | Existing Architecture / Design / Final / Technical Candidates | README Files | Open Documentation / Boundary PRs at Snapshot | Audit State / Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [function-catalog@a54f7e0dc0b7](https://github.com/TavallStudios/function-catalog/tree/a54f7e0dc0b76f79dca1b0cb693ac61105cd8909) | `a54f7e0dc0b76f79dca1b0cb693ac61105cd8909` | build.gradle.kts, settings.gradle.kts | `agent-runtime`, `ai-core`, `claude-sdk`, `codex-agent-provider`, `gemini-sdk`, `mcp-server`, `openai-sdk`, `strands-agent-provider` | 2 architecture/design/final/technical candidate file(s); inspect at [docs tree](https://github.com/TavallStudios/function-catalog/tree/a54f7e0dc0b76f79dca1b0cb693ac61105cd8909/docs) | 9 README file(s) | No documentation/README/design PR identified in open-PR snapshot. | BOUNDARY_AND_DESIGN_REVIEW_PENDING: Candidate paths come from the exact main tree and build/source-root scan. Confirm each path's independent responsibility from build config, source, tests, consumers, and accepted docs before assigning DESIGN ownership. |
 | [tavall-ai@2d03de13c85f](https://github.com/TavallStudios/tavall-ai/tree/2d03de13c85f45f00e246101e584a94e75bc7618) | `2d03de13c85f45f00e246101e584a94e75bc7618` | build.gradle.kts, settings.gradle.kts | `clients/desktop`, `clients/desktop/AgentTaskManager.AutomationHost`, `clients/desktop/AgentTaskManager.Desktop`, `clients/desktop/AgentTaskManager.Desktop.IntegrationTests`, `mcp-manager`, `tavall-agent-architecture`, `tavall-agent-builder`, `tavall-agent-documentation`, `tavall-agent-e2e`, `tavall-agent-implementation`, `tavall-agent-orchestration`, `tavall-agent-reconciliation`, `tavall-agent-recovery`, `tavall-agent-review`, `tavall-agent-scheduler`, `tavall-agent-web`, `tavall-ai-app`, `tavall-ai-artifact-tools`, `tavall-ai-bootstrap`, `tavall-ai-cache-tools`, `tavall-ai-clean-java-harness`, `tavall-ai-clean-java-mcp`, `tavall-ai-computer-use-tools`, `tavall-ai-context-tools`, `tavall-ai-core`, `tavall-ai-orchestration-tools`, `tavall-ai-repo-tools`, `tavall-ai-runtime`, `tavall-ai-runtime-codex`, `tavall-ai-runtime-distributed-execution`, `tavall-ai-runtime-memory`, `tavall-ai-runtime-model-execution`, `tavall-ai-runtime-project-context`, `tavall-ai-spring-webview`, `tavall-ai-validation-tools`, `tavall-ai-vector-memory-tools` | 15 architecture/design/final/technical candidate file(s); inspect at [docs tree](https://github.com/TavallStudios/tavall-ai/tree/2d03de13c85f45f00e246101e584a94e75bc7618/docs) | 4 README file(s) | [#18 Design: Tavall Minecraft agent family and WorldOps contracts](https://github.com/TavallStudios/tavall-ai/pull/18) (staging/runtime)<br>[#34 Changed: route engineering policy through selective documentation context](https://github.com/TavallStudios/tavall-ai/pull/34) (staging/runtime)<br>[#46 docs: canonicalize Tavall AI modules and runtime records](https://github.com/TavallStudios/tavall-ai/pull/46) (main) | BOUNDARY_AND_DESIGN_REVIEW_PENDING: Candidate paths come from the exact main tree and build/source-root scan. Confirm each path's independent responsibility from build config, source, tests, consumers, and accepted docs before assigning DESIGN ownership. |
@@ -118,14 +120,16 @@ Each module-path cell is an explicit per-path checklist. All candidate paths rem
 | Exact-source Tavall Web validation | NOT_RUN | No durable Tavall Cloud DEVELOPMENT executor attached | Run the required exact-source compile, unit, architecture, codegen, plugin, consumer, and standalone artifact checks. |
 | Agent WebMCP Playwright | NOT_RUN | Source confirms Gradle `check` skips `panel.spec.js`; canonical `scripts/ci/run` invokes the panel with its fixture server | Run Gradle `check` plus the canonical full validation script or equivalent exact-source runtime and fixture-backed panel E2E. |
 
-## System Blockers
+## Snapshot-Reported System Blockers
+
+These blockers were recorded on 2026-09-27. Their current operational state is not established by this historical ledger.
 
 | Blocker | Affected Scope | Impact | Resolution |
 | --- | --- | --- | --- |
 | No durable Tavall Cloud DEVELOPMENT environment or executor is attached | Exact-source Tavall Web implementation/validation and Cloud-backed organization-wide source checks | Required build and runtime evidence cannot be produced from the canonical runner in this session | Attach/select a durable Tavall Cloud DEVELOPMENT workspace and resume exact-source work there. |
 | Module candidates have not all been confirmed as independent responsibility boundaries | 43 repositories / 185 candidate paths | DESIGN ownership counts and exclusions cannot yet be called complete | Complete one evidence-based repo/module pass at a time and update both this ledger and the document twins. |
 
-## Next System Slice
+## Next System Slice Recorded at Snapshot
 
 Continue with the highest-impact source graph first: review open documentation PRs without overwriting them, confirm the mainline module boundaries and accepted documentation for `tavall-ai`, `function-catalog`, `tavall-cache`, `tavall-mc`, `tavall-cloud`, `tavall-content`, `tavall-analytics`, `tavall-ci`, and `tavall-web`; then take smaller library and boundary repositories in source-sized groups. For every confirmed module or aggregate system, add a meaningful DESIGN owner, Notion twin, README route, and current DUS, or record the evidence-backed reason it has no module DESIGN. Use a fresh exact-source snapshot and durable Tavall Cloud before reporting completion.
 
@@ -148,13 +152,14 @@ Continue with the highest-impact source graph first: review open documentation P
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `SYNCHRONIZED` | [GitHub document](https://github.com/TavallStudios/tavall-docs/blob/working/tavall-design-rollout-ledger-2026-09-28/docs/progression/TAVALL_STUDIOS_DESIGN_ROLLOUT_PROGRESSION.md) | `2026-09-27 7:41 PM PDT` | 1:1 twin; Draft PR #38; rollout audit remains IN_PROGRESS. |
-| Notion | `SYNCHRONIZED` | [Notion twin](https://app.notion.com/p/3e938458ddfd81168a66e8c6c9eff13f?pvs=204) | `2026-09-27 7:41 PM PDT` | 1:1 twin; Draft PR #38; rollout audit remains IN_PROGRESS. |
+| GitHub | `SYNCHRONIZED` | [GitHub ledger](https://github.com/TavallStudios/tavall-docs/blob/main/docs/progression/TAVALL_STUDIOS_DESIGN_ROLLOUT_PROGRESSION.md) | 2026-10-18 UTC | PR #38 merged to `main`; PR #39 remains open as the Glicko-2 addendum. The inventory is a historical baseline and the audit remains IN_PROGRESS. |
+| Notion | `SYNCHRONIZED` | [Notion twin](https://app.notion.com/p/3e938458ddfd81168a66e8c6c9eff13f?pvs=204) | 2026-10-18 UTC | Updated to mark the 2026-09-27 inventory as historical and Glicko-2 PR #8 as merged; PR #39 remains a docs addendum. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| 2026-10-18 UTC | GitHub + Notion | `UPDATED` | TavallStudios DESIGN Rollout Progression | 2026-09-27 8:15 PM PDT | PR #38 promotion; PR #39 remains the Glicko-2 addendum; Notion page re-fetched | Marked the 2026-09-27 inventory as historical and recorded that Glicko-2 PR #8 merged, without claiming audit completion. |
 | 2026-09-27 7:33 PM PDT | GitHub | `CREATED` | TavallStudios DESIGN Rollout Progression | — | Current filtered org inventory, exact main heads, recursive trees, build/source candidates, and active documentation PRs | Baseline ledger; Notion twin creation and synchronization were in progress; no repo/module DESIGN coverage completion is claimed. |
 | 2026-09-27 7:35 PM PDT | GitHub + Notion | `SYNCHRONIZED` | TavallStudios DESIGN Rollout Progression | 2026-09-27 7:33 PM PDT | GitHub branch document and Notion page creation verified | Linked the 1:1 twins; candidate-boundary review remains incomplete and no DESIGN coverage completion is claimed. |
 | 2026-09-27 7:39 PM PDT | GitHub + Notion | `UPDATED` | TavallStudios DESIGN Rollout Progression | 2026-09-27 7:35 PM PDT | Draft [PR #38](https://github.com/TavallStudios/tavall-docs/pull/38), head `8dd7d3926ef7be1d7012d2b27117d55b6fb61bee` | Added the reviewable ledger PR to both DUS copies; no audit completion is claimed. |

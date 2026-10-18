@@ -55,6 +55,21 @@ routes:
     documents:
       - docs/quality/GIT_WORKFLOW.md
 
+  - id: product-design-standards
+    signals:
+      - product design standards
+      - product design
+      - free-first product
+      - free product
+      - product monetization
+      - product pricing
+      - product access limits
+      - user capacity limits
+      - product ui standards
+      - product ux standards
+    documents:
+      - docs/quality/PRODUCT_DESIGN_STANDARDS.md
+
   - id: documentation-lifecycle
     signals:
       - documentation
@@ -69,6 +84,18 @@ routes:
     documents:
       - docs/quality/DOCUMENTATION_STANDARDS.md
       - docs/quality/DOCUMENT_TYPES.md
+
+  - id: repository-todo-projection
+    signals:
+      - global todo
+      - repository todo
+      - repo todo
+      - todo projection
+      - todo synchronization
+      - todo sync
+      - static todo
+    documents:
+      - docs/quality/TODO_STATIC_PROJECTIONS.md
 
   - id: progression-document-template
     signals:
@@ -305,6 +332,62 @@ routes:
       - architecture verification
     documents:
       - docs/quality/code-architecture/TESTING_AND_GIT.md
+
+  - id: tavall-terminology
+    signals:
+      - terminology
+      - vocabulary
+      - agent definition
+      - worker
+      - agent mode
+      - agent ledger
+    documents:
+      - docs/quality/TAVALL_TERMINOLOGY.md
+
+  - id: skill-template
+    signals:
+      - skill template
+      - document-backed skill
+      - section adapter
+    documents:
+      - docs/quality/SKILL_TEMPLATE.md
+
+  - id: agent-architecture
+    signals:
+      - agent architecture
+      - agent stack
+      - agent v2
+      - agent routing
+      - provenance
+      - tavallai
+      - .tavallai
+      - work provenance
+      - provenance agent
+    documents:
+      - docs/quality/AGENT_ARCHITECTURE.md
+
+  - id: cli-architecture
+    signals:
+      - cli
+      - cli architecture
+      - cli command
+      - command line
+      - tavall cli
+      - command framework
+    documents:
+      - docs/quality/CLI_ARCHITECTURE.md
+      - docs/quality/code-architecture/CLI_FRAMEWORK.md
+
+  - id: cli-framework
+    signals:
+      - cli framework
+      - clicommand
+      - clicommandbuilder
+      - clicommandsettings
+      - iclicommand
+      - iclibootstrap
+    documents:
+      - docs/quality/code-architecture/CLI_FRAMEWORK.md
 
 rules:
   - Do not load docs/quality/README.md as policy unless the user explicitly asks for the documentation index.
