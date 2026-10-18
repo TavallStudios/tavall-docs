@@ -37,9 +37,9 @@ public final class MatchPresentationHandler
         > {
 
     public void show(MatchPresentationRequest request) {
-        IDependencyMap dependencies = getInstance();
-        dependencies.iBukkitEffectUtil();
-        dependencies.iBukkitEffectSequenceHandler();
+        MatchPresentationHandlerDependencyAccess dependencies = getInstance();
+        dependencies.bukkitEffectUtil();
+        dependencies.bukkitEffectSequenceHandler();
     }
 }
 ```

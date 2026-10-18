@@ -1,7 +1,9 @@
 # Tavall Documentation Reconciliation Ledger
 
 > **Document Type:** Governance / Reconciliation Ledger  
-> **Source of Truth For:** Cross-repository documentation ownership, canonical authority mapping, historical evidence preservation, and durable environment resolution  
+> **Status:** Historical reconciliation snapshot; superseded for current Environment, source-work, and CI authority as of 2026-10-03.
+> **Historical Scope:** Preserve the documentation ownership map and evidence recorded by this ledger; do not use its repository-to-Environment assignments as current architecture.
+> **Current Authority:** [`NLEW_AND_SERVICE_OWNERSHIP.md`](../quality/NLEW_AND_SERVICE_OWNERSHIP.md), [`CI_CD.md`](../quality/CI_CD.md), and [`GIT_WORKFLOW.md`](../quality/GIT_WORKFLOW.md).
 > **Canonical Owner:** `TavallStudios/tavall-docs`  
 > **Branch:** `working/progression-consolidation-20260921`  
 > **Tracking PR:** `TavallStudios/tavall-docs#24`  
@@ -47,12 +49,13 @@ All maintained Progression/Evidence documents across the entire organization man
 Chronological ordering with exact SHA, PR, and branch lineage prevents older discovered caches from overwriting newer production evidence.
 
 ### Source-Selection Guardrails
-Agentic and automated workers must follow a strict resolution ladder:
-1. Identify the repository and remote (`git rev-parse --show-toplevel`, `git remote -v`).
-2. Identify the active GitHub ref/SHA.
-3. Resolve the canonical DURABLE environment for that repository.
-4. Read canonical documentation from that environment.
-5. Explicitly ignore and exclude the following paths from default documentation authority:
+Agentic and automated workers must follow the current source and service ownership rules:
+1. Identify the canonical repository root and remote (`git rev-parse --show-toplevel`, `git remote -v`).
+2. Identify the selected branch/ref and exact source SHA.
+3. Use `/srv/dev-storage/workspaces/<repo>/repo_root` as the canonical local repository when that repository has a local materialization.
+4. Read documentation from the selected repository/ref, then apply Tavall-wide policy from `tavall-docs`.
+5. For source/CI work, use exact source, Lane policy when needed, Tavall CI, and the shared Executor; do not resolve a service Environment. Resolve a Cloud Environment only for a registered service runtime.
+6. Explicitly ignore and exclude the following paths from default documentation authority:
    - `.codex-worktrees`
    - `tavall-pr-campaign*`
    - Stale `developer-workspaces/work/*` caches
@@ -63,9 +66,11 @@ Agentic and automated workers must follow a strict resolution ladder:
 
 ---
 
-## 2. Canonical DURABLE Environment Inventory & Classification
+## 2. Historical repository Environment assignments (2026-09-23 snapshot; not current identity authority)
 
-| Repository | Canonical GitHub Source | Canonical Branch | Canonical DURABLE Env ID | Canonical Local Checkout | Environment Status | Operational Verification State |
+The rows below preserve the implementation state observed by this ledger. They do not define current canonical repositories or authorize source-work Environments. Current source roots and service-only Environment policy are defined by the linked policies above.
+
+| Repository | Historical GitHub Source | Historical Branch | Historical Environment ID | Historical Local Checkout | Historical Environment Status | Historical Verification State |
 | --- | --- | --- | --- | --- | --- | --- |
 | `TavallStudios/tavall-docs` | `tavall-docs.git` | `main` | `env-43f14931` (`43f14931-0ebe-4d90-b516-a34b20080052`) | `/srv/workspace/tavall-docs-current` | `REGISTERED_CANONICAL` | `OPERATIONALLY_VERIFIED` (Local git/CI verified) |
 | `TavallStudios/tavall-cloud` | `tavall-cloud.git` | `main` | `env-fe721951` (`fe721951-c5a6-4b48-b128-8fbcfe750bc8`) | `/srv/workspace/tavall-cloud` | `REGISTERED_CANONICAL` | `UNVERIFIED_DUE_TO_CONTROL_STALE_VERSION` |
@@ -87,9 +92,11 @@ Agentic and automated workers must follow a strict resolution ladder:
 
 ---
 
-## 3. Master Documentation Reconciliation Ledger
+## 3. Historical Documentation Reconciliation Ledger
 
-| Repository | Logical Responsibility | Document Type | Lifecycle | Canonical Owner | Canonical Production Path | Production Branch | Production SHA | Staging/PR Evidence | Evidence State | Historical Variants | Canonical DURABLE Env | Environment Verification State | Disposition | Remaining Action |
+This table preserves the ownership inventory observed by the earlier audit. Its Environment column and production paths are historical records, not current source-work or service identity authority.
+
+| Repository | Logical Responsibility | Document Type | Lifecycle | Canonical Owner | Canonical Production Path | Production Branch | Production SHA | Staging/PR Evidence | Evidence State | Historical Variants | Historical Environment Reference | Historical Verification State | Disposition | Remaining Action |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---: | --- | --- | --- | --- |
 | `tavall-docs` | Organization CI/CD Policy | Policy | Final | `tavall-docs` | `docs/quality/CI_CD.md` | `main` | `978f1ec` | PR #2, PR #23 | `MERGED_PRODUCTION` | 2 | `env-43f14931` | `OPERATIONALLY_VERIFIED` | `CANONICAL_CURRENT` | Complete on `main` |
 | `tavall-docs` | Documentation Routing Index | Index / Policy | Final | `tavall-docs` | `docs/quality/DOCUMENT_ROUTING.yml` | `main` | `978f1ec` | PR #14, PR #2 | `MERGED_PRODUCTION` | 1 | `env-43f14931` | `OPERATIONALLY_VERIFIED` | `CANONICAL_CURRENT` | Complete on `main` |

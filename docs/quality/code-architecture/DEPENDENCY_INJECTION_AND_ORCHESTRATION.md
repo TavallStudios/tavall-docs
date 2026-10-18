@@ -4,7 +4,12 @@
 > **Authority:** Binding specialization of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
 > **Applies to:** Tavall DI-managed modules, runtime composition, lifecycle cleanup, consumers, and orchestration
 
-This chapter owns detailed Tavall DI access, managed registration, default-consumer, orchestration, and cleanup rules. Read the root architecture first.
+This chapter owns detailed Tavall DI access, managed registration, default-consumer, orchestration, and cleanup rules. Read the root architecture first: [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md).
+
+> **Governing Doctrine:** Tavall-owned behavior is interface-first and DI-managed by default.
+>
+> Ordinary consumers depend on contracts and access dependencies via typed `DependencyAccess<...>`.
+> `IDependencyMap` and `DependencyMap` are **DI infrastructure**; ordinary consumers MUST NOT interact with them directly.
 
 When a DI-managed consumer also touches durable persistence, Registry/Cache state, mutable keyed state, Handler behavior, or another delegated topic, the corresponding specialized chapter is also required. This chapter does not redefine those boundaries.
 
@@ -50,7 +55,9 @@ Generation isolation lets unload/reload/replacement affect only the owner. Globa
 
 ## Generated Access Pattern
 
-Managed consumers declare Tavall-managed collaborators through `DependencyAccess<...>` and use the generated typed access surface from the owning dependency map.
+Managed consumers declare Tavall-managed collaborators through `DependencyAccess<...>` and use the generated typed access surface.
+
+### Multi-Dependency Expanded Access
 
 ```java
 @DelegatesTo(IAchievementProgressMutationHandler.class)
@@ -59,22 +66,22 @@ public final class AchievementProgressMutationHandler
         DependencyAccess<
                 IPlayerAchievementDataHandler,
                 IPlayerAchievementCache,
-                AchievementCompletionHandler
+                IAchievementCompletionHandler
         > {
 
     @Override
     public AchievementProgressMutationResult applyProgress(
             AchievementProgressRequest request
     ) {
-        IDependencyMap dependencies = getInstance();
+        AchievementProgressMutationHandlerDependencyAccess dependencies = getInstance();
 
         PlayerAchievementData data = dependencies
-                .iPlayerAchievementDataHandler()
+                .playerAchievementDataHandler()
                 .load(request.playerId());
 
         if (data != null) {
             dependencies
-                    .iPlayerAchievementCache()
+                    .playerAchievementCache()
                     .saveOnline(data);
         }
 
@@ -83,17 +90,36 @@ public final class AchievementProgressMutationHandler
 }
 ```
 
+### Single-Dependency Direct Access
+
+For a single managed dependency, `getInstance()` returns the typed contract directly:
+
+```java
+@DelegatesTo(IPlayerRewardHandler.class)
+public final class PlayerRewardHandler
+        implements IPlayerRewardHandler,
+        DependencyAccess<IEconomyService> {
+
+    @Override
+    public void rewardPlayer(PlayerId playerId, int amount) {
+        IEconomyService economyService = getInstance();
+        economyService.deposit(playerId, amount);
+    }
+}
+```
+
 Rules:
 
 - capture `getInstance()` once when a method reads several dependencies;
 - use generated typed getters instead of repeated class-token lookup;
+- ordinary production code MUST NOT cast or assign `getInstance()` to `IDependencyMap`;
 - optional dependencies use the repository-approved optional lookup path;
 - missing required dependencies fail fast;
 - do not store resolved managed dependencies in ordinary long-lived fields merely to avoid future lookups.
 
 ##### Why
 
-Generated access keeps object identity and replacement owned by the dependency map. Consumers describe what they need without becoming composition roots.
+Generated access keeps object identity and replacement owned by the dependency map. Consumers describe what they need without becoming composition roots or directly coupling to internal map infrastructure.
 
 ## Dependency Constructor Injection Is Rejected
 
@@ -287,7 +313,10 @@ Verify where applicable:
 ## Review Checklist
 
 - [ ] Root architecture and every additional relevant delegated chapter were read.
-- [ ] Tavall-managed collaborators use `DependencyAccess`.
+- [ ] Tavall-owned behavior is interface-first and DI-managed by default.
+- [ ] Consumers depend on contracts/interfaces rather than concrete implementations.
+- [ ] Tavall-managed collaborators use `DependencyAccess` and typed accessors; `IDependencyMap` / `DependencyMap` is not accessed directly.
+- [ ] Direct construction of DI-managed implementations is prohibited outside approved composition boundaries.
 - [ ] No ordinary managed behavior constructor-captures Tavall dependencies.
 - [ ] Static methods do not locate managed runtime behavior.
 - [ ] Aliases share one metadata/instance owner.

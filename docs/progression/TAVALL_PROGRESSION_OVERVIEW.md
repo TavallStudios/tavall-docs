@@ -10,6 +10,12 @@
 
 This document is a roll-up. The owning `*_PROGRESSION.md` document remains the source of truth for its system at the exact repository revision it records.
 
+## Current policy correction — 2026-10-03
+
+> **2026-10-09 supersession:** The general-purpose Environment model is restored by [NLEW_AND_SERVICE_OWNERSHIP.md](../quality/NLEW_AND_SERVICE_OWNERSHIP.md): an Environment is a general-purpose ownership/context boundary, registered services default to Environment ownership, and an Environment with zero services is valid. The Envless source/CI default below remains current. Reusable NLEW contracts now live in [`TavallStudios/tavall-nlew`](https://github.com/TavallStudios/tavall-nlew). The service-only statements below are preserved as the 2026-10-03 historical record.
+
+Cloud Environments are registered service-runtime targets only. Source repositories, branches, CI jobs, Executors, and operation Workspaces do not create or require Environments. Source/build work uses exact source, Tavall CI, and the shared Cloud Executor. Older Environment-bound source/CI entries elsewhere in this roll-up remain historical evidence and must not be read as current authorization.
+
 Use this authority order when collecting or acting on progression evidence:
 
 1. The owning repository's current `main` progression document is the production baseline.
@@ -151,7 +157,7 @@ For each logical tracker:
 The Tavall agent/executor path should enforce these rules mechanically:
 
 - Resolve `git rev-parse --show-toplevel` before reading repository policy or progression documents.
-- Record repository identity, origin URL, branch/ref, head SHA, base ref, environment, lane, workspace, and executor in durable executor metadata.
+- Record repository identity, origin URL, branch/ref, exact head, base ref, Lane, Executor, invocation Workspace, and evidence in source-work metadata. Record a service Environment only for a registered service runtime; it is not CI/source identity.
 - Reject or warn when the selected path is a nested worktree that was not explicitly bound to the task.
 - Ignore `.codex-worktrees`, `/tmp` worktrees, prunable worktrees, and legacy workspace roots during ordinary source discovery.
 - Never use a global `find /srv ... '*PROGRESSION*'` result as source selection.
@@ -178,7 +184,7 @@ The authoritative cross-repository inventory and authority model is maintained i
 - **Tavall MC Progression Dating (46 trackers)**: [`TavallStudios/tavall-mc#304`](https://github.com/TavallStudios/tavall-mc/pull/304) (`MERGED_PRODUCTION`)
 - **Tavall MC Bot-Testing Link Repair**: [`TavallStudios/tavall-mc#303`](https://github.com/TavallStudios/tavall-mc/pull/303) (`MERGED_PRODUCTION`)
 - **Paper Fork Progression**: [`TavallStudios/tavall-mc-paper#4`](https://github.com/TavallStudios/tavall-mc-paper/pull/4) (`MERGED_PRODUCTION`)
-- **Architecture Tests Progression**: [`TavallStudios/Tavall-Architecture-Tests#11`](https://github.com/TavallStudios/Tavall-Architecture-Tests/pull/11) (`MERGED_PRODUCTION`)
+- **Tavall Test Suite Tools Progression**: [`TavallStudios/tavall-test-suite-tools#11`](https://github.com/TavallStudios/tavall-test-suite-tools/pull/11) (`MERGED_PRODUCTION`; repository renamed from `Tavall-Architecture-Tests`)
 - **Minecraft Bot Testing Progression**: [`TavallStudios/tavall-mc-bot-testing#3`](https://github.com/TavallStudios/tavall-mc-bot-testing/pull/3) (`MERGED_PRODUCTION`)
 - **Tavall Web Runtime Progression**: [`TavallStudios/tavall-web#38`](https://github.com/TavallStudios/tavall-web/pull/38) (`MERGED_PRODUCTION`)
 - **Tavall Web Website Progression**: [`TavallStudios/tavall-web#39`](https://github.com/TavallStudios/tavall-web/pull/39) (`MERGED_PRODUCTION`)
@@ -194,4 +200,4 @@ The authoritative cross-repository inventory and authority model is maintained i
 - **Tavall MC Web Retirement & Store Boundary**: [`TavallStudios/tavall-mc#290`](https://github.com/TavallStudios/tavall-mc/pull/290) (`VALID_UNMERGED_PR`)
 - **Tavall MC Selective Documentation Preflight**: [`TavallStudios/tavall-mc#285`](https://github.com/TavallStudios/tavall-mc/pull/285) (`VALID_UNMERGED_PR`, unblocked & rebased)
 - **Tavall Docs Master Consolidation & Ledger**: [`TavallStudios/tavall-docs#24`](https://github.com/TavallStudios/tavall-docs/pull/24) (`VALID_UNMERGED_PR`)
-
+- **Tavall Agent Stack V2 Migration**: [`TAVALL_AGENT_STACK_V2_PROGRESSION.md`](TAVALL_AGENT_STACK_V2_PROGRESSION.md) (`VALID_UNMERGED_WORK`, branch `working/tavall-agent-stack-v2`)

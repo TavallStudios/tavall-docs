@@ -5,8 +5,9 @@
 > **Authority:** Binding for Tavall source, build, artifact, channel, dependency, and release identity
 > **Notion Counterpart:** [Tavall Versioning Architecture](https://app.notion.com/p/3e838458ddfd8124a2e9ed5ba5b6ccce)
 > **CI/CD Authority:** [CI_CD.md](CI_CD.md)
+> **NLEW Authority:** [NLEW_AND_SERVICE_OWNERSHIP.md](NLEW_AND_SERVICE_OWNERSHIP.md)
 
-This document defines Tavall's versioning architecture. Different identities represent different facts; source, build, dependency resolution, artifact, and release state must not be collapsed into one generic version string.
+This document defines Tavall's versioning architecture. Different identities represent different facts; source, build, dependency resolution, artifact, release, NLEW ownership, and execution/deployment classification must not be collapsed into one generic version string.
 
 ## Identity Layers
 
@@ -65,6 +66,8 @@ Changing the bytes changes artifact identity even when a human-facing version st
 A release identity is an explicitly approved immutable release identifier. It is absent for ordinary unreleased development candidates.
 
 A Git SHA is not a release. A snapshot version is not automatically a release. A successful CI run is not automatically a release. Promotion creates or selects release state only through the owning release/delivery workflow.
+
+`DEVELOPMENT`, `STAGING`, and `PRODUCTION` are execution/deployment classifications and target metadata. When applied to a logical service, they describe the service's selected deployment/runtime target Environment. They are not source, build, artifact, release, Lane, Workspace, Executor, or Environment identities by themselves. Promotion records the selected target while preserving the validated artifact identity and digest.
 
 ## Version Number Policy
 
@@ -166,7 +169,7 @@ explicit release / production authorization
 promotion of the same artifact
 ```
 
-STAGING and PRODUCTION should consume the already validated artifact. Rebuilding from the same source in every environment creates a new build/artifact identity and defeats the point of promotion evidence.
+STAGING and PRODUCTION should consume the already validated artifact. Rebuilding from the same source in every Environment creates a new build/artifact identity and defeats the point of promotion evidence.
 
 ## Version Changes and Evidence
 
@@ -200,7 +203,7 @@ The canonical reusable implementation lives in `TavallStudios/tavall-ci/tavall-c
 
 ## Final Rules
 
-- Never overload one generic version string with source, build, resolution, artifact, and release meaning.
+- Never overload one generic version string with source, build, resolution, artifact, release, NLEW, or deployment meaning.
 - Exact source is repository + exact Git SHA.
 - Development build identity does not require a fake release identity.
 - Internal development artifacts use incremental `0.<iteration>.<sub>-SNAPSHOT` numbering.
@@ -210,10 +213,13 @@ The canonical reusable implementation lives in `TavallStudios/tavall-ci/tavall-c
 - Cross-repository development resolves exact source.
 - Released consumption resolves explicit immutable releases/artifacts.
 - STAGING/PRODUCTION promote validated artifact identity instead of rebuilding.
+- `DEVELOPMENT`, `STAGING`, and `PRODUCTION` are classifications/target metadata, not NLEW object identities or version identities.
+- NLEW ownership and service placement are governed by `NLEW_AND_SERVICE_OWNERSHIP.md`; Environments remain general-purpose and services default to Environment ownership.
 
 ## Delegated Documents
 
 - [CI_CD.md](CI_CD.md) — CI/CD execution, evidence, artifact and promotion policy.
+- [NLEW_AND_SERVICE_OWNERSHIP.md](NLEW_AND_SERVICE_OWNERSHIP.md) — Node/Lane/Environment/Workspace/Executor semantics and service ownership defaults.
 - [GIT_WORKFLOW.md](GIT_WORKFLOW.md) — branch/PR/release integration workflow.
 - `TavallStudios/tavall-ci/docs/architecture/IDENTITIES.md` — CI implementation identity model.
 - `TavallStudios/tavall-ci/docs/architecture/SOURCE_AGGREGATION.md` — exact-source development composition.
@@ -227,13 +233,17 @@ The canonical reusable implementation lives in `TavallStudios/tavall-ci/tavall-c
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `1:1` | `TavallStudios/tavall-docs/docs/quality/VERSIONING.md` | 2026-09-27 2:46 PM PDT | Docs sync branch `docs/ci-versioning-notion-sync-20260927`. |
-| Notion | `1:1` | `Tavall / Platform & Infrastructure / Tavall Versioning Architecture` | 2026-09-27 2:46 PM PDT | Notion counterpart `3e838458-ddfd-8124-a2e9-ed5ba5b6ccce`. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/VERSIONING.md` | 2026-10-03 | Source/build/dependency/artifact/version/channel/digest/release identities remain provider-neutral and independent of service Environment identity; NLEW policy is maintained in `NLEW_AND_SERVICE_OWNERSHIP.md`. |
+| Notion | `SYNCED` | `Tavall / Platform & Infrastructure / Tavall Versioning Architecture` | 2026-10-03 | Re-read current page; it keeps service Environment names as deployment metadata and leaves source/build/artifact/release identity separate. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | 2026-09-27 2:46 PM PDT | GitHub + Notion | `CREATED` | Canonical VERSIONING 1:1 pair | Identity/versioning rules split across CI docs, implementation, and prior design | Current documentation reconciliation | Separated source/build/artifact/release identity and canonized internal snapshot numbering plus artifact channels. |
+| 2026-10-02 11:17 PM PDT | GitHub + Notion | `UPDATED` | Canonical VERSIONING 1:1 pair | 2026-09-27 synchronized content | GitHub PR #53 merge `97c92e58f50768a7bbf934e1f18787123d9d637d` | Correctly separated source/build/artifact/release identity; Cloud Environment ownership is defined by the current service-only NLEW policy. |
+| 2026-10-03 | GitHub | `SUPERSEDED` | `docs/quality/VERSIONING.md` | PR #53/#54 Environment wording correction | Main correction later superseded by user direction | The temporary general-purpose Environment wording conflicted with the accepted service-only rule. Versioning identities remain provider-neutral and independent of Environment identity. |
+| 2026-10-03 | GitHub + Notion | `CORRECTED` | `NLEW_AND_SERVICE_OWNERSHIP.md` and its Notion twin | Service-only Cloud Environment rule | Current policy correction PR | Cloud Environments belong only to registered logical-service runtime targets; source/build/CI use exact source and the shared Executor. No source/build/artifact/version/channel/digest/release identity changes. |
+| 2026-10-09 2:49 PM PDT | GitHub | `UPDATED` | `docs/quality/VERSIONING.md` | Same path | PR #61 | The general-purpose Environment model is restored by user direction in NLEW_AND_SERVICE_OWNERSHIP.md; the service-only statements in the rows above are historical. Versioning identities remain independent of Environment identity. |
 
 </details>

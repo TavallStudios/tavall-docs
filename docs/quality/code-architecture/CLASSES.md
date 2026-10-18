@@ -27,10 +27,15 @@ Classes should have one coherent reason to change. Role suffixes are architectur
 | `*Reader` / `*Writer` | Read/write a real source or capability when that is the actual role. |
 | `*Bootstrap` | Startup/composition ownership. |
 | `*Runtime` | Active-generation/system lifecycle ownership. |
+| `*Type` / `CustomEnum` | Extensible enum-like family values. See [ENUMS.md](ENUMS.md). |
 
 ##### Why
 
 Naming a real role makes ownership visible before reading implementation. The suffix should answer what kind of behavior or lifecycle the class owns, not merely provide a respectable-sounding noun.
+
+## Enums and CustomEnum Values
+
+Closed sets of domain states, priorities, and fixed values use native Java `enum`. Dynamically extensible sets intended for cross-module or plugin contribution must extend `CustomEnum<T>` (`tavall-custom-enum-java`). See the canonical chapter: [Tavall Enums & Extensible Enum Values](ENUMS.md).
 
 ## Handler, Service, and Orchestrator
 

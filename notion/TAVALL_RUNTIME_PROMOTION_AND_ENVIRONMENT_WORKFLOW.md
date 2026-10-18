@@ -9,13 +9,13 @@
 <iconMetadata>{"type":"emoji","emoji":"🧭"}</iconMetadata>
 <content>
 <callout icon="🧭" color="blue_bg">
-	**Design status:** Draft canonical workflow definition. This document captures the agreed release/runtime model before implementation. No Tavall repositories or `GIT_WORKFLOW.md` changes are part of this step.
+	**Current workflow:** Canonical release/runtime progression. Cloud Environments are service-only runtime targets; source and CI work run through Lane + exact source + the shared Executor. Repository implementation and staging evidence remain in the linked progression records.
 </callout>
 ## Purpose
-Define a single Tavall workflow for durable DEVELOPMENT, STAGING, and PRODUCTION environments, runtime-specific PRs, combined application staging, multi-runtime projects, and production promotion.
-The first concrete consumer is Tavall-owned MCP infrastructure, but the model is intended to become the common release pattern for Tavall services that use the environment/lane system.
+Define a single Tavall workflow for DEVELOPMENT, STAGING, and PRODUCTION service runtimes, runtime-specific PRs, combined application staging, multi-runtime projects, and production promotion.
+The model applies to Tavall services with independently promoted runtimes. Lanes group source/PR workflows; Environments exist only for deployed logical-service runtimes.
 ## Core Environment Model
-Tavall environments and lanes are **durable by default** and explicitly classified as one of:
+Tavall service Environments are **durable by default** and explicitly classified as one of the runtime targets below. Lanes group source work and promotion workflows; they do not create Environments.
 - `DEVELOPMENT`
 - `STAGING`
 - `PRODUCTION`
@@ -39,8 +39,8 @@ For MCP services, the initial runtime topology is:
 </tr>
 <tr>
 <td>DEVELOPMENT</td>
-<td>Durable integration environments plus isolated development lanes as needed</td>
-<td>Feature work, runtime-specific work, experimentation, isolated testing, and Development Staging</td>
+<td>Registered DEVELOPMENT service runtimes; source/CI validation uses Lane + shared Executor</td>
+<td>Deploy and validate service artifacts. Feature work and CI use exact-source Executor Workspaces and do not create Environments.</td>
 </tr>
 </table>
 ### Production A/B
@@ -52,7 +52,7 @@ The workflow separates **change type** from **runtime/promotion role**. Existing
 A **Runtime PR** represents work for one runtime in a project.
 - It belongs to that runtime's implementation lifecycle.
 - It does **not** become the application's combined STAGING deployment merely because it is open or testable.
-- It may be deployed and tested in isolation in a DEVELOPMENT environment/lane.
+- It may be validated through an operation-scoped Executor Workspace and deployed to the existing DEVELOPMENT service runtime when runtime validation is required. A Runtime PR does not create an Environment.
 - In a multi-runtime project, several Runtime PRs may exist concurrently for different runtimes.
 Examples of runtimes can include application backend, proxy, game server, web runtime, bot/runtime adapter, worker, or another independently deployed execution surface defined by the project.
 ### Combined Runtime Staging PR
@@ -63,12 +63,12 @@ Its job is to answer a different question than a Runtime PR:
 Combined Runtime Staging is therefore the primary pre-production integration boundary.
 ### Development Staging
 The previous workflow term **Sub-Staging** should be renamed to **Development Staging**.
-Development Staging is staging performed on `DEVELOPMENT` environments/lanes. It may apply to any relevant PR/runtime combination and exists below formal STAGING.
+Development Staging is a workflow role performed against DEVELOPMENT service runtimes using promoted candidate artifacts. It may apply to relevant PR/runtime combinations and exists below formal STAGING; it does not create a new Environment.
 Development Staging can include:
 - isolated Runtime PR staging
 - combined runtime staging before formal STAGING
 - feature/integration candidates
-- temporary or durable development deployment arrangements
+- temporary or durable deployments to registered DEVELOPMENT service runtimes
 - validation of runtime flags and runtime combinations
 Development Staging is not a fourth environment classification. It is a **workflow role performed on DEVELOPMENT infrastructure**.
 This distinction keeps the environment model simple:
@@ -83,13 +83,13 @@ The intended structure is:
 Feature / Fix / other change type
         |
         +--> Runtime PR: Runtime A
-        |       +--> isolated DEVELOPMENT testing
+        |       +--> exact-source Executor validation; deploy to the existing DEVELOPMENT service runtime only when required
         |
         +--> Runtime PR: Runtime B
-        |       +--> isolated DEVELOPMENT testing
+        |       +--> exact-source Executor validation; deploy to the existing DEVELOPMENT service runtime only when required
         |
         +--> Runtime PR: Runtime C
-                +--> isolated DEVELOPMENT testing
+                +--> exact-source Executor validation; deploy to the existing DEVELOPMENT service runtime only when required
 
 required runtime iterations
         |
@@ -193,7 +193,7 @@ When implementation begins, update `tavall-docs/GIT_WORKFLOW.md` with the follow
 - [ ] Define Runtime PR semantics for single-runtime and multi-runtime projects.
 - [ ] Define Combined Runtime Staging PR semantics as the full deployed application candidate.
 - [ ] Update branch type definitions so runtime and promotion roles are explicit alongside existing change types.
-- [ ] Document durable-by-default DEVELOPMENT, STAGING, and PRODUCTION environment/lane classification.
+- [x] Define DEVELOPMENT, STAGING, and PRODUCTION as service runtime targets. Source/CI work uses Lane + exact source + shared Executor and creates no Environment.
 - [ ] Finish the previously designed qualification/merge-to-main definition.
 - [ ] Define `main` as the accepted production source state without pretending it is itself a PR.
 - [ ] Document exact-source/runtime promotion expectations and runtime-flag usage.

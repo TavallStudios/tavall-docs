@@ -46,22 +46,22 @@ public final class RankUpdateHandler
     public RankUpdateResult updatePlayerRank(
             RankUpdateRequest request
     ) {
-        IDependencyMap dependencies = getInstance();
+        RankUpdateHandlerDependencyAccess dependencies = getInstance();
 
         PlayerAccountData staff = dependencies
-                .iPlayerAccountDataHandler()
+                .playerAccountDataHandler()
                 .load(request.staffUUID());
 
         PlayerAccountData target = dependencies
-                .iPlayerAccountDataHandler()
+                .playerAccountDataHandler()
                 .load(request.targetUUID());
 
-        if (!dependencies.iPowerLevelHandler().canRankEdit(staff, target)) {
+        if (!dependencies.powerLevelHandler().canRankEdit(staff, target)) {
             return RankUpdateResult.targetTooPowerful();
         }
 
         dependencies
-                .iPlayerRankDataHandler()
+                .playerRankDataHandler()
                 .updatePlayerRankData(request);
 
         return RankUpdateResult.success();
@@ -128,13 +128,13 @@ public final class PlayerRankMetaDataHandler
         > {
 
     public PlayerRankMetaData load(UUID playerUUID) {
-        IDependencyMap dependencies = getInstance();
+        PlayerRankMetaDataHandlerDependencyAccess dependencies = getInstance();
         PlayerAccountData account = dependencies
-                .iPlayerAccountDataHandler()
+                .playerAccountDataHandler()
                 .load(playerUUID);
 
         RankDefinition definition = dependencies
-                .iRankRegistry()
+                .rankRegistry()
                 .find(account.rankKey())
                 .orElseThrow();
 

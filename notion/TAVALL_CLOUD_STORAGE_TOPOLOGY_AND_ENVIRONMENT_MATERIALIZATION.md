@@ -8,16 +8,21 @@
 </properties>
 <iconMetadata>{"type":"emoji","emoji":"💾"}</iconMetadata>
 <content>
+<callout icon="📎" color="gray_bg">
+	**Document Type:** Technical / Design Final Draft surface · **Canonical GitHub twin:** `TavallStudios/tavall-cloud/docs/architecture/DEVELOPER_CONTROL_AND_STORAGE_FINAL_DRAFT.md` · **Owning system design:** <mention-page url="https://app.notion.com/p/3e838458ddfd81c9950bf35de8a86c7e"/>. This page remains the human-readable CONTROL/STORAGE and materialization twin rather than an independent storage architecture fork.
+</callout>
 <callout icon="💾" color="blue_bg">
 	**Status:** active infrastructure design + recovery work. Reconciled from recent Cloud storage/MCP work and the shared infrastructure topology.
 </callout>
 ## Purpose
 Provide durable shared and development storage without making filesystem paths the product model.
 ## Design
-- Storage is a Tavall Cloud service consumed by environments, repository materializers, CI/CD, runtimes, and artifacts.
-- DEVELOPMENT source/work materialization is environment-first: resolve lane/environment, then create or attach the required repository generation on authorized storage/executor capacity.
+- Storage is a Tavall Cloud service consumed by service Environments, exact-source Executor workspaces, CI/CD, runtimes, and immutable artifacts.
+- Cloud Environments represent deployed logical-service runtime targets only. They carry service configuration, desired/observed state, deployment generations, and runtime evidence; they do not own repository source trees, build jobs, or CI workspaces.
+- DEVELOPMENT source/work materialization is Lane + exact-source first: resolve the repository and commit, then create the operation-scoped Workspace on an authorized shared Executor. A source checkout, branch, CI job, or Executor invocation does not create an Environment.
+- The current Cloud Environment source-materialization adapter is a migration blocker, not canonical storage or execution authority. Tavall CI must move source work to the Envless shared-Executor job path while durable operation/evidence records stay in their existing Storage authority. Service Environment storage does not create repository `workspaces/` subtrees or full-UUID aliases; operation Workspaces remain under Executor invocation authority.
 - Shared storage can hold templates, cached dependencies, artifacts, and cross-node development data where safe.
-- Exact-source working trees and mutable build state remain bounded to the environment/execution generation that owns them.
+- Exact-source working trees and mutable build state remain bounded to the Lane + Executor invocation Workspace that owns them. They are independent of service Environment generations.
 - Network storage must be observable and recoverable when NFS/provider mounts fail. A successful environment record with a missing mount is not a successful runtime.
 - Artifacts are immutable by identity/digest once they participate in CI/CD promotion.
 ## Physical Topology
@@ -38,11 +43,11 @@ PR #255/#254 recovered co-hosted DEVELOPMENT storage and MCP behavior, NFS mount
 - [TAVALL_CLOUD_PROGRESSION.md](https://github.com/TavallStudios/tavall-cloud/blob/main/docs/progression/TAVALL_CLOUD_PROGRESSION.md)
 - Exact-source storage/MCP recovery evidence in Cloud PRs #254/#255.
 ### Implementation
-- `TavallStudios/tavall-cloud` storage providers, environment workspace/materialization, repository cache/sync and artifact paths.
+- `TavallStudios/tavall-cloud` storage providers, service Environment materialization, operation-scoped Executor Workspaces, repository cache/sync, and artifact paths.
 ---
 ## DOC TODO:
 ### Document next steps
-- [ ] Reconcile environment-first ownership with any remaining leased-worktree/workspace-first implementation documents and mark superseded paths.
+- [x] Reconcile source materialization as Lane + exact source + Executor Workspace; service Environments do not own repository/CI work. Remaining runtime code migration is tracked separately.
 - [ ] Identify/link the final storage owner after the Cloud Final Draft is promoted.
 - [ ] Keep physical-capacity topology separate from Cloud materialization authority while linking both records.
 ### System next steps
@@ -50,8 +55,8 @@ PR #255/#254 recovered co-hosted DEVELOPMENT storage and MCP behavior, NFS mount
 - [ ] Eliminate durable authority based on host paths or standalone workspace IDs.
 - [ ] Preserve immutable artifact identity/digests through cross-node CI/CD delivery.
 ## Execution update 2026-09-20 — materialization versus live state
-- Tavall Storage and the configured filesystem remain authoritative for environment configuration, source/work materialization, manifests, artifacts, logs, and evidence bytes.
-- Redis is the live Cloud Job/environment coordination authority for current generations, leases, CAS fences, executor/runtime presence, and desired/observed operational state.
+- Tavall Storage and the configured filesystem remain authoritative for service Environment configuration, exact-source Workspace materialization, manifests, artifacts, logs, and evidence bytes.
+- Redis is the live Cloud Job and service Environment coordination authority for job/invocation fences, service runtime generations, Executor/runtime presence, and desired/observed operational state.
 - PostgreSQL Job/environment rows are audit/history observations for this boundary and cannot veto an ordinary valid Redis-backed execution.
 - Live evidence: exact Tavall CI source `00ac2dad0c5c3854357d9cf6252c7962885d1159` completed Job `37a06859-22fd-4d49-a9d5-b14a012213f3` with Storage evidence available; the evidence remained readable after agent restart.
 ## Authority correction 2026-09-20 — Storage is the durable Cloud materialization boundary
@@ -63,5 +68,27 @@ Tavall Storage/filesystem is the durable authority for configuration, source/wor
 PostgreSQL is absent from Tavall Cloud: it is not a storage-topology authority, writer-fence source, audit/history sink, migration dependency, or execution fallback. Older PostgreSQL storage wording remains historical provenance only and must not be used to design or deploy current Cloud storage.
 ## Execution update 2026-09-20 — final evidence materialization
 At integrated Cloud staging/runtime head 2858ae2a576d77a4a2fee162a776d5d7425d4752, the exact-source Cloud Job 37495124-5d00-4989-a6e1-c9e694460e06 completed successfully and exposed its logs/evidence through tavall-storage://dev-storage/jobs/37495124-5d00-4989-a6e1-c9e694460e06. Agent restart preserved the final Job state and evidence handle. PostgreSQL was not used by the runtime or evidence path.
+<details>
+<summary>Documentation Update State</summary>
+	\<table header-row="true"\>\<tr\>\<td\>Surface\</td\>\<td\>Sync State\</td\>\<td\>Location\</td\>\<td\>Last Updated\</td\>\<td\>Evidence\</td\>\</tr\>\<tr\>\<td\>GitHub\</td\>\<td\>`1:1`\</td\>\<td\>`docs/architecture/DEVELOPER_CONTROL_AND_STORAGE_FINAL_DRAFT.md`\</td\>\<td\>2026-10-02 11:56 PM PDT\</td\>\<td\>Draft Cloud PR #424, branch `working/chatgpt-web-executor-catalog-20260930`.\</td\>\</tr\>\<tr\>\<td\>Notion\</td\>\<td\>`1:1`\</td\>\<td\>Current page\</td\>\<td\>2026-10-02 11:56 PM PDT\</td\>\<td\>Updated to match the current Cloud contract.\</td\>\</tr\>\</table\>
+	</table>
+	\</table\>
+	\</table\>
+	\</table\>
+	\</table\>
+	\</table\>
+	\</table\>
+	\</table\>
+	### Update History
+	\<table header-row="true"\>\<tr\>\<td\>Timestamp\</td\>\<td\>Surface\</td\>\<td\>Event\</td\>\<td\>Location\</td\>\<td\>Previous Location\</td\>\<td\>Evidence\</td\>\<td\>Notes\</td\>\</tr\>\<tr\>\<td\>2026-09-26 8:42 PM PDT\</td\>\<td\>Notion\</td\>\<td\>`SYNCED`\</td\>\<td\>Current page\</td\>\<td\>Standalone storage/materialization topic page\</td\>\<td\>Cloud module consolidation\</td\>\<td\>Bound to `DEVELOPER_CONTROL_AND_STORAGE_FINAL_DRAFT.md` as one logical document.\</td\>\</tr\>\<tr\>\<td\>2026-10-02 11:56 PM PDT\</td\>\<td\>GitHub + Notion\</td\>\<td\>`UPDATED`\</td\>\<td\>1:1 CONTROL/STORAGE pair\</td\>\<td\>2026-09-26 synchronized content\</td\>\<td\>Draft Cloud PR #424, branch `working/chatgpt-web-executor-catalog-20260930`; this Notion page\</td\>\<td\>Recorded service-only Environment storage; Environment-bound source materialization remains a migration blocker.\</td\>\</tr\>\</table\>
+	</table>
+	\</table\>
+	\</table\>
+	\</table\>
+	\</table\>
+	\</table\>
+	\</table\>
+	\</table\>
+</details>
 </content>
 </page>

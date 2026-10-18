@@ -4,31 +4,53 @@
 > **Authority:** Binding chapter of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
 > **Applies to:** Tavall production modules, contributors, automation, generated code, reviews, and AI-assisted development
 
-Interfaces describe stable capabilities and substitution boundaries. They are not a tax every class pays for existing.
+Interfaces describe stable behavioral capabilities and substitution boundaries.
 
-## Interface Rule
+> **Governing Doctrine:** Tavall-owned behavior is interface-first and DI-managed by default. See canonical authority in [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md).
 
-Use an interface when a real contract boundary exists, including:
+```text
+behavior
+    ↓
+interface / contract
+    ↓
+tavall-di
+    ↓
+implementation
+```
 
-- a Tavall DI-managed capability exposed through `@DelegatesTo`;
-- a module boundary;
-- a platform adapter;
-- local/distributed or provider strategy;
-- an external provider boundary;
-- a test fake where substitution is part of the contract;
-- a policy/strategy family.
+## Interface-First Behavioral Doctrine
 
-A single implementation may still justify an interface when that interface is the stable DI/module contract. Passive values and implementation-private helpers usually do not.
+For a Tavall-owned class, the default assumption is that it participates in `tavall-di` behind an interface contract:
 
-##### Why
+- **Contracts First:** Any class defining application/domain behavior, coordinating components, owning lifecycle, accessing infrastructure, or implementing business logic MUST expose its contract through an interface.
+- **Consumer Dependency:** Consumers depend on contracts (`consumer → contract`), never on concrete Tavall implementations. The object graph is owned by `tavall-di`.
+- **Default Posture:** Do NOT ask "Should this class use an interface or DI?" Ask "What explicit reason does this class have not to be interface-first and DI-managed?"
 
-Interfaces are valuable when they protect a capability boundary. Creating one merely because a class exists adds files without creating ownership or substitutability.
+## Explicit Exceptions Where Interfaces Are Not Forced
+
+Do not force meaningless interfaces onto pure data structures. Reasonable exceptions include:
+
+- immutable values;
+- records;
+- DTOs;
+- serialization models;
+- configuration value objects;
+- enums;
+- exceptions;
+- builders whose sole responsibility is object construction;
+- factories / composition roots;
+- generated code;
+- foreign/framework objects Tavall does not own;
+- tiny ephemeral local implementation-detail objects with no architectural dependency role;
+- test fixtures, mocks, and fakes.
+
+Empty interfaces without behavioral methods created solely to satisfy a syntactic rule MUST NOT be created. The purpose of interface contracts is architectural boundaries, substitution, testing, lifecycle control, and dependency ownership.
 
 ## Dependency Access
 
-Managed consumers depend on the narrowest stable capability interface and resolve it through Tavall DI. They do not constructor-inject Tavall-managed dependencies or use static service locators.
+Managed consumers depend on the narrowest stable capability interface and resolve it through Tavall DI (`DependencyAccess<...>`). They do not constructor-inject Tavall-managed dependencies, construct concrete implementations directly, or use static service locators.
 
-Concrete implementations may also be registered under their concrete type when diagnostics or explicit advanced access requires it.
+Concrete implementations register their interface contracts via `@DelegatesTo` and may also be registered under their concrete type when diagnostics or explicit advanced access requires it.
 
 ## Prohibited Repository Interfaces
 
@@ -112,9 +134,9 @@ merely to restate an existing library API. A new interface requires a real owner
 
 ## Review
 
-Before adding an interface, identify the actual substitution/contract boundary. Reject the interface when:
+Before adding or reviewing an interface, verify it defines a real behavioral contract. Reject the interface when:
 
-- it exists only because the concrete exists;
+- it is an empty marker interface with no behavioral methods created merely to satisfy a syntactic rule;
 - it hides a Tavall-managed dependency behind static lookup;
 - it exposes raw mutable storage;
 - it is a new `*Repository`/`I*Repository` type;
