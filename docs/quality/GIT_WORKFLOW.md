@@ -659,7 +659,9 @@ Each meaningful automated finding should include severity, affected code, a real
 - Repository-specific synchronization workflows take precedence for mirrored public modules.
 - Authorized owners retain final merge-method discretion.
 
-For an authorized fix-and-merge campaign, conflicts, absent checks, unavailable Bot execution, and Draft status are progress states to resolve. Use the owning source and Tavall/CONTROL repair paths, run local exact-source checks, and continue other independent authorized PR work. If a genuinely account-side credential or permission is unavailable after its documented recovery path was attempted, identify that precise external action and keep all independent work moving.
+For a user-authorized fix-and-merge campaign, conflicts, Draft status, absent hosted TCI, stale blocker records, and missing checks are active work states, not reasons to stop. Refresh current remote PR heads, parent refs, and check state before deciding what remains. After each merge, reconcile `.tavallai` and ledger state to GitHub; superseded blocker text is historical evidence and does not override current user authorization.
+
+Use repository-local exact-source checks and the Tavall GitHub Bot's check/review tools as the merge evidence surface. When those checks pass and the target branch rules permit the authorized owner merge, continue even if hosted Tavall CI or CONTROL execution is unavailable. Do not switch to GitHub Actions or request Codex PR review. Keep a Draft PR Draft while repairing; do not mark it Ready just to trigger a merge or review. Preserve branch protections and use the ordinary PR merge or a direct merge commit only where repository policy permits it.
 
 ## 5. Git hygiene
 
