@@ -99,6 +99,8 @@ Cross-project engineering policy belongs under `docs/quality`, including:
 - this document
 - the detailed chapters under `docs/quality/code-architecture/`
 
+[PRODUCT_DESIGN_STANDARDS.md](PRODUCT_DESIGN_STANDARDS.md) is the cross-product authority for free-first product access, capacity-based admission, adjacent monetization, common UX principles, and routing to specialized visual design systems. Product-specific PRODUCT/USER EXPERIENCE/DESIGN documents specialize the policy without duplicating it. It is explicitly dual-surface (GitHub ↔ Notion).
+
 Shared quality documents define Tavall defaults. Repository- or module-specific documents may **strengthen or specialize** those defaults when a narrower runtime/product boundary requires it, but they must not silently weaken or contradict shared policy.
 
 Project Novus and other production systems may appear as examples inside shared quality documents. An example does not narrow the policy scope.

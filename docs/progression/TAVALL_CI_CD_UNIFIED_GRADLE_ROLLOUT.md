@@ -8,6 +8,8 @@ This is a progression record, not a second architecture authority. The accepted 
 
 ## Current policy and live state — 2026-10-03
 
+> **2026-10-09 supersession:** The general-purpose Environment model is restored by [NLEW_AND_SERVICE_OWNERSHIP.md](../quality/NLEW_AND_SERVICE_OWNERSHIP.md): an Environment is a general-purpose ownership/context boundary, registered services default to Environment ownership, and an Environment with zero services is valid. The Envless source/CI default below remains current. Reusable NLEW contracts now live in [`TavallStudios/tavall-nlew`](https://github.com/TavallStudios/tavall-nlew). The service-only statements below are preserved as the 2026-10-03 historical record.
+
 - Cloud Environments are service-runtime targets only. The Environment-bound CI runs recorded later in this history remain evidence of what ran at those exact heads; they are not authority to create or use Environments for current source/CI work. No new source or CI Environment is permitted.
 - Notion was reconnected and checked against the current policy. The Lanes, Storage Topology, Runtime Promotion, Versioning, System Final Draft, and CLI Progression pages now agree on service-only Environments and local Executor CI; three GitHub Notion mirrors were synchronized byte-for-byte from their live Notion pages. The old 2026-10-02 note deferring Notion sync is historical.
 - The active Tavall CI-to-Cloud job path still requires `TavallCloudExecutionContext.environmentId` and `CloudEnvironmentJobBinding`. The Envless shared-Executor path is an implementation blocker; do not create a temporary Environment to clear it.
