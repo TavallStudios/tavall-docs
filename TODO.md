@@ -3,7 +3,7 @@
 > **Status:** Active  
 > **Authority:** Canonical organization-wide TODO ledger  
 > **Repository projections:** Every maintained TavallStudios repository exposes a bot-managed root `TODO.md` that projects only that repository's section from this file.  
-> **Last updated:** 2026-10-02
+> **Last updated:** 2026-10-18
 
 This file is the single source of truth for organization-wide repository TODO work. Repository-local `TODO.md` files are generated static projections and must not become independent task ledgers.
 
@@ -205,6 +205,11 @@ _No open global TODO items currently tracked._
   - Reject delivery requests where `storageRef` points to a different digest than declared.
 - [ ] 2026-10-02 — Correct service removal cascade in CONTROL registry projections.
   - Advance tombstones from the higher of local projection and CONTROL versions so `tavall service remove` moves service and runtime projections cleanly to `REMOVED/STOPPED`.
+- [ ] 2026-10-10 — Wire new-node enrollment and approval into the durable CONTROL inventory.
+  - Rechecked against Tavall Cloud main `f89207e` on 2026-10-18: `CloudDevelopmentInfrastructureInventorySeeder` still seeds only the owner plus `novus-ffa-east` and `novus-ffa-west`. The `node approve`/`node reject` parser entries still have no command handler; `CloudNodeAdmissionService` and unit tests exist but are not connected to the CLI path, and `CloudNodeInventoryCommandHandler` handles only list/inspect.
+  - Implement the enrollment and approval path through durable node authority, then redeploy CONTROL and admit the installed `work-0` host after verifying its registered identity and capabilities.
+- [ ] 2026-10-10 — Register the `work-0-storage` NFS export in CONTROL topology.
+  - Rechecked current main: the checked-in topology examples contain no `work-0` node or `work-0-storage` export. Reconcile the previously verified read-only NFSv4.2 export into `developerTopology.networkStorage`, validate the authorized client mount, and reconcile its mount intent.
 
 #### Module — Executor
 
@@ -217,11 +222,17 @@ _No open global TODO items currently tracked._
 - [ ] 2026-10-02 — Enforce compile-time independence between Node Agent and CONTROL.
   - Maintain clean unidirectional dependency: CONTROL requires Node Agent at runtime only.
   - Validate Agent bootstrap installer using immutable artifact `789c2432...`.
+- [ ] 2026-10-10 — Make the Node Agent installer work on a fresh Ubuntu 26.04 host.
+  - Rechecked current main: `CloudAgentInstaller` still emits wildcard `systemctl start/stop/restart tavall-cloud-*.service` sudo rules and includes `/run/netns` and `/run/tavall-executor` in `ReadWritePaths` without creating those directories. Make sudo-rs-compatible rules, create the runtime paths before service start, and validate on a fresh Ubuntu 26.04 image.
+  - A pre-placed `/etc/tavall-cloud/control.secret` must be `0640 root:tavall-cloud`; document or enforce that mode when joining an existing CONTROL.
 
 #### Module — Networking (tavall-networking)
 
 - [ ] 2026-10-02 — Validate cross-region three-node Minecraft network routing.
   - Verify nftables/IPIP tunnels, packet filters, and fail-closed rollback across `dev-storage`, `novus-ffa-east`, and `novus-ffa-west`.
+- [ ] 2026-10-10 — Restore and verify the DEVELOPMENT Nebula lighthouse/relay.
+  - The 2026-10-10 observation was `novus-ffa-west` lighthouse/relay (`10.91.0.2`) and peer `novus-ffa-east` (`10.91.0.3`) offline since about 2026-10-05. Current live reachability has not been rechecked in this docs update.
+  - Verify the current CONTROL and endpoint state; retain a live lighthouse/relay or document and validate the approved static topology from `dev-storage` and `work-0`.
 
 ### `TavallStudios/tavall-concurrency`
 
