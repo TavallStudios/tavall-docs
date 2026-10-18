@@ -39,6 +39,8 @@ Use only sections that apply. Delete instructional placeholders when instantiati
 | --- | --- |
 | `module-a` | ... |
 | `module-runtime` | Runtime owner / consumer / provider relationship |
+| `<parent-system>` | Required for a FEATURE: composition owner, independent lifecycle, disable/reload behavior and current SYSTEM PR |
+| `<feature-module>` | Required for a SYSTEM: one independently controllable child FEATURE and its role; repeat for actual children |
 | External system | ... |
 
 ## Documentation
@@ -80,7 +82,8 @@ Deployment record: [`<RUNTIME>_DEPLOYMENT.md`](...)
 
 ## Development
 
-- **Module Type:** `API` / `RUNTIME` / `APPLICATION` / `LIBRARY` / `PROVIDER` / `ADAPTER` / `INTEGRATION` / `TOOLING` / `TEST_SUITE`
+- **Module Type:** `API` / `RUNTIME` / `SYSTEM` / `FEATURE` / `APPLICATION` / `TOOLING` / `TEST_SUITE`
+- **Secondary Roles:** `LIBRARY` / `PROVIDER` / `ADAPTER` / `INTEGRATION`, only where actual responsibility applies.
 - **Runtime:** `Self` / `<runtime-module>` / `None`
 - **CI Definition:** [`.tavallci/ci.yaml`](.tavallci/ci.yaml) — required for every Tavall source/build module; repository-root `.tavallci` may aggregate but does not replace this module-local definition.
 - **Current PR Stack:** ...
@@ -103,6 +106,8 @@ Shared Git policy remains delegated to Tavall Docs. Shared CI/CD and versioning 
 - Every Tavall source/build module must carry `.tavallci/ci.yaml`; root repository CI aggregation cannot substitute for the module-local definition.
 - Every real source/build module with an independent responsibility boundary has one module-scoped Progression document and the README links it.
 - Non-runtime modules point to the runtime module and current runtime PR/PR stack when applicable.
+- SYSTEM READMEs list their separately controllable FEATURE modules and the consumer runtime; FEATURE READMEs point to their parent SYSTEM, runtime owner and whether a provider role is secondary.
+- API modules exposed by a RUNTIME name that RUNTIME as authority; do not treat the immediate consumer FEATURE as owner of that API.
 - Deployment history belongs in the Deployment document, not here.
 - Do not duplicate shared build/test/Git/architecture/progression/versioning rules.
 

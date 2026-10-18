@@ -72,6 +72,8 @@ The TavallMC Product Essays & Explainers library is the canonical precedent. Str
 
 ## PRODUCT
 
+Every product's value, monetization, and access design follows [Tavall Product Design Standards](PRODUCT_DESIGN_STANDARDS.md). This shared quality policy is not a new document type; product-specific offers, costs, scope, and exceptions belong in the owning PRODUCT document.
+
 PRODUCT exists for a system that can or should sell something: software, access, services, currency, subscriptions, marketplace inventory, paid capabilities, commerce-enabled content, or another explicit value exchange.
 
 PRODUCT answers questions such as:

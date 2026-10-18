@@ -213,3 +213,25 @@ Tavall standardizes a **single-source capability architecture** where core busin
    - **Never Hand-Edit Projections**: Surface manifests, tool declarations, and CLI wrappers are strictly derived from the canonical skill. Hand-editing projected copies is strictly prohibited.
    - **Automated Regeneration**: Projections are regenerated deterministically via adapter toolchains.
    - **Stale Projection Detection**: Projected adapter manifests record the canonical source SHA-256 content hash (`canonical_source_hash`). During build, CI, and agent execution, drift detection verifies that the projection matches the active canonical skill file; mismatches fail validation.
+
+## 8. Chat skill-candidate review
+
+The existing `tavall-agent-authoring` executes a lightweight ROLE review in every chat at entry and before handoff. Revisit it when a continuation reveals a recurring workflow, repeated correction, durable user preference, missing governing section or accepted new capability. This is an authoring judgment, not a second task router or an automatic requirement to create a skill after every prompt.
+
+For Tavall work, the orchestrator always selects this review after the established Memory → Ledger → Provenance → Docs entry and records its outcome in the existing work ledger/provenance. For unrelated chats, perform only the inexpensive in-context review; do not initialize Tavall Cloud, create repositories or invoke memory ingestion merely to run it. Verified unchanged instructions can be reused.
+
+The reviewer must inspect existing canonical Agents/skills and applicable source evidence before proposing a change, then choose one outcome:
+
+- `REUSE`: an existing owner/skill already covers the reusable responsibility.
+- `UPDATE_EXISTING`: the existing skill needs a clarified trigger, exact documentation pointer, missing operational step or stale contract repair.
+- `CREATE_SECTION_SKILL`: a current governed section needs a tiny exact section projection.
+- `CREATE_WORKFLOW_SKILL`: a repeatable multi-step capability has a clear consumer, inputs, outputs, authority and acceptance criteria.
+- `CREATE_AGENT`: a distinct top-level responsibility has an independent ownership/handoff boundary that cannot fit an existing Agent.
+- `DEFER`: useful candidate, but source authority, external configuration or validation is missing.
+- `NONE`: no reusable change is justified by the chat.
+
+Record a concise reason and source references; for changes also name matching existing owners, target paths, trigger, scope, implementation/validation and resulting PR/proof. Repetition strengthens the case, but an explicit user request or a substantial clearly reusable workflow may justify a skill without waiting for another occurrence. Do not convert one-off incidental instructions, unstable assumptions, credentials or unverified results into reusable authority.
+
+Apply authorized bounded updates in the existing owner and workflow. Discovery does not authorize unrelated product changes, production deployment, new databases or silent Memory Plane writes. Durable memory remains behind its explicit write authority. Skills must be useful and precise; use current section bodies rather than copy policy into competing summaries. Provider adapters expose the same review behavior and must not own separate skill-generation policies.
+
+Before Tavall handoff, the execution evidence gate rejects an absent/unreasoned authoring review. A valid NONE or DEFER decision is complete review work; it is not a reason to fabricate a new skill. This gate validates recorded decisions and references, not cryptographic proof of a model's judgment.
