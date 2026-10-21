@@ -154,10 +154,36 @@ routes:
     documents:
       - docs/quality/MODULE_README_TEMPLATE.md
 
+  - id: module-separation
+    signals:
+      - module separation
+      - module split
+      - module extraction
+      - module ownership
+      - module dependency
+      - module dependencies
+      - module composition
+      - module lifecycle
+      - package versus module
+      - system module
+      - feature module
+      - system feature
+      - runtime api ownership
+      - runtime-owned api
+      - cross-module dependency
+      - module fan-in
+    documents:
+      - docs/quality/code-architecture/MODULE_SEPARATION.md
+      - docs/quality/MODULE_TYPES.md
+
   - id: module-types
     signals:
       - module type
       - module types
+      - primary module type
+      - secondary responsibility role
+      - secondary module role
+      - system feature
       - runtime module
       - api module
       - library module
