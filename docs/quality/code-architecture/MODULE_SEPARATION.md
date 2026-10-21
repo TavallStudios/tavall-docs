@@ -4,6 +4,8 @@
 > **Authority:** Binding specialization of [Tavall Module Types](../MODULE_TYPES.md), [Code Architecture](../CODE_ARCHITECTURE.md), [DI and Orchestration](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md), and [Testing and Git](TESTING_AND_GIT.md).
 > **Applies to:** New modules, repository extractions, SYSTEM/FEATURE composition, API ownership, packages, Gradle dependencies, runtime lifecycle, CI, and Tavall AI engineering-policy routing.
 > **Rule:** Module classification, responsibility role, runtime owner, repository location, artifact identity, and package identity are **separate decisions**. Current checked-in producer contracts and accepted system design take precedence over illustrative trees.
+> **Owns:** The decision process and integration acceptance for separating Tavall modules, assigning their runtime/API owner, and connecting module-aware CD and host lifecycle.
+> **Does not own:** The module type vocabulary, producer-specific API implementation, generic DI/registry internals, Cloud placement, canonical Gradle/CI policy, or assertion that future operators/deployments already work.
 
 ## 1. Boundary Selection: Package Before Module
 
@@ -208,3 +210,23 @@ The Content FEATURE names above correspond to checked-in modules; the two deploy
 The approved operational acceptance suite exercises: exact candidate source, artifact and profile digests; target authorization; unavailable/disabled/cyclic dependencies; idempotent enable/disable; one-FEATURE reload and sibling isolation; parent cascade; concurrent requests during draining; stale generation access; restart reconstruction; failed activation rollback/fail-closed; health/traffic promotion; and runtime compatibility. Real host E2E is required for claims about hot loading or zero-downtime transitions. The generic `tavall module` operator CLI and universal any-target module-aware CD remain planned until their implementation and tests are verified.
 
 See [CI/CD](../CI_CD.md) for source, evidence, frozen delivery and promotion authority; [NLEW and Service Ownership](../NLEW_AND_SERVICE_OWNERSHIP.md) for service Environments; [Module Types](../MODULE_TYPES.md) for classifications; and [Tavall DI module profiles](https://github.com/TavallStudios/tavall-di/blob/main/docs/module-profiles/README.md) for the current checked-in *desired-composition-only* contract.
+
+## Documentation Update State
+
+<details>
+<summary>Documentation Update State</summary>
+
+### Current Locations
+
+| Surface | Sync State | Location | Last Updated | Evidence |
+| --- | --- | --- | --- | --- |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/code-architecture/MODULE_SEPARATION.md` | 2026-10-21 | [tavall-docs PR #74](https://github.com/TavallStudios/tavall-docs/pull/74) |
+| Notion | `NOT_APPLICABLE` | — | 2026-10-21 | Shared quality chapter; consult owning system GENERAL/TECHNICAL DESIGN separately |
+
+### Update History
+
+| Date | Surface | Event | Location | Evidence | Notes |
+| --- | --- | --- | --- | --- | --- |
+| 2026-10-21 | GitHub | `CREATED` | Same canonical path | [PR #74](https://github.com/TavallStudios/tavall-docs/pull/74) | Added canonical SYSTEM/FEATURE separation, runtime/contract ownership, source-backed examples, module-aware CD/profile/host lifecycle and integration acceptance. |
+
+</details>
