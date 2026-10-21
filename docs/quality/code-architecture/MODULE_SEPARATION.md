@@ -56,9 +56,9 @@ Record for every FEATURE: parent SYSTEM, owning runtime, required capabilities/A
 
 - Disabling a parent SYSTEM denies its dependent FEATURES and its aggregate capability. It must **not** disable unrelated SYSTEMs or restart the owning RUNTIME.
 - Disabling/reloading one FEATURE isolates that FEATURE and its declared dependents; unrelated siblings remain available. A removed dependency, stale generation, denied capability, or failed rebinding fails closed.
-- Use generation-safe registration/unregistration. Replacement must retire prior listeners, scheduler work, cache/registry handles, dependency aliases and references. A failed activation rolls back both the loaded artifact **and** desired module configuration, leaving an observable terminal result.
+- Use generation-safe registration/unregistration. Replacement must retire prior listeners, scheduler work, cache/registry handles, dependency aliases and references. A failed activation must leave the last healthy generation serving or fail closed, report the observed failure, and follow the authorized rollback/reconciliation policy. Artifact rollback and desired-profile rollback are **separate explicit CD decisions**, not side effects of pure DI profile resolution.
 - API compatibility, startup/shutdown ordering, host permissions, failover, and rollback belong to the actual owning RUNTIME and deployment system. Do not claim dynamic loading/reload support until the host passes an E2E test.
-- The universal `tavall module` command is a **planned** central operator surface under Tavall CLI/`tavall-cd-cli`. Document intended permissions and contracts but do not state that an unsupported command already operates.
+- The universal `tavall module` command is a **planned** central operator surface in Tavall CLI, with intended `tavall-cd-cli` ownership in Tavall CI. The currently checked-in `tavall-ci-cli` supports `tavall ci` commands, **not** verified universal `tavall module` commands. Document planned permissions and contracts without representing that future interface as shipped.
 
 ## 5. Concrete Separation Examples and Package Layout
 
@@ -79,8 +79,15 @@ NLEW: tavall-nlew owns reusable Node/Lane/Environment/Workspace contracts and
   NLEW per-record handlers can remain packages, not automatic FEATURES.
 Web: tavall-web owns generic web runtime/framework concerns; tavall-web-mc
   owns the Minecraft Web surface; tavall-mc keeps Minecraft gameplay authority.
-MC anti-cheat: SYSTEM with independently justified FEATURES is a target
-  composition design, not proof of present runtime linkage or a separate JAR.
+MC anti-cheat: tavall-mc-anticheat-system is presently a SYSTEM with
+  bounded heuristic/observation behavior; its README explicitly says **no
+  independently controllable FEATURE modules are introduced in this source slice**.
+  The separate replay SYSTEM handles offline evaluation, not punishment.
+  MC runtime linkage and later FEATURE extraction remain separately evidenced.
+Content auto-post: tavall-content-auto-post-system composing independently
+  controllable approval/publishing FEATURES is an accepted design direction,
+  not a claim that every individual provider integration or live module reload
+  has passed host E2E acceptance. Human approval precedes actual publishing.
 ```
 
 Example **illustrative** internal layout; preserve existing approved `org.tavall.<domain>` roots and package conventions instead of renaming packages by taxonomy:
@@ -99,7 +106,7 @@ Example **illustrative** internal layout; preserve existing approved `org.tavall
     adapter/              (only where an adapter role really exists)
 ```
 
-A SYSTEM may contain stateless domain policy without a FEATURE. A repository may contain several modules without containing multiple runtimes. A single final application/JAR may package independently reloadable modules without converting those modules into independent processes.
+A SYSTEM may contain stateless domain policy without a FEATURE. A repository may contain several modules without containing multiple runtimes. Minecraft keeps **one final plugin JAR** by design, even if its Gradle source contains numerous SYSTEM/FEATURE modules. One JAR does not grant Java hot-code replacement: enabling/disabling compiled-in functionality is different from installing new bytecode, which needs an explicitly supported classloader/isolation or full host update. Paper/Velocity reload and Kingdoms live-state constraints require host-specific E2E proof.
 
 ## 6. Migration and E2E Acceptance Checklist
 
@@ -117,3 +124,72 @@ Acceptance uses real classes and integration-first tests where practical:
 6. **Documentation/progression**: update each owning module README, module-scoped Progression and consumer migrations, report which tests ran and which did not; do not mistake design completion for deployed acceptance.
 
 Route adjacent concerns to [Module Types](../MODULE_TYPES.md), [Namespaces and Package Rules](NAMESPACES_VARIABLES_AND_OOP.md), [DI](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md), [Interfaces and Abstractions](INTERFACES_AND_ABSTRACTIONS.md), [Testing](TESTING_AND_GIT.md), [CI/CD](../CI_CD.md), and [Git Workflow](../GIT_WORKFLOW.md). This chapter specializes separation decisions and **does not duplicate** those authorities.
+
+## 7. Module-Aware CI/CD, Profiles, and Host Loading
+
+**Purpose:** make one validated set of source modules deployable to different authorized runtime targets with selectively active capabilities, without multiplying executable processes or rebuilding untracked variants. Compilation granularity, release granularity, desired composition and observed runtime state are independent; **neither a Gradle subproject nor a separate Git repository is intrinsically a hot-loadable Java module**.
+
+### Exact source → artifact → target → runtime
+
+```text
+Tavall CI (canonical single Gradle orchestration)
+  source repos @ exact SHAs -> composite Gradle / module checks / test suites
+  -> immutable artifacts + source/dependency/artifact digests + CI evidence
+  -> frozen delivery bundle and deployment policy (.tavallcd for deployable runtimes)
+  -> Tavall CD authorization / release profile selection
+  -> Tavall Cloud service Environment + concrete runtime placement
+  -> RUNTIME composition using available artifact catalog + module profile
+     Tavall DI: validate requested/disabled IDs, dependencies and load order
+     Tavall Registry + host: actually activate, observe, unload, drain, rebind
+  -> health/readiness evidence -> staged traffic promotion / explicit rollback
+```
+
+Source CI uses approved shared Executors and bounded operation workspaces; it does **not** require a service Environment, and Cloud does not replace the repository's Gradle structure or Tavall CI's policy. CD deploys the **same verified bytes** from the frozen bundle, never rebuilds a supposed equivalent per-target result. For targets using different module sets, the selected desired profile is a separate versioned configuration identity tied to the available artifact catalog, target and release; the profile is **not** the artifact digest.
+
+The current `tavall-di` source already defines typed `DeploymentModuleProfile`, `EffectiveDeploymentModuleProfile` and `IModuleProfileResolver` / `ModuleProfileResolver` for immutable desired composition. They carry schema version, profile identity, runtime target, configuration generation, explicitly enabled/disabled IDs and dependency-first order. Unknown module IDs, disabled required dependencies and cycles fail closed. The producer's module-profile documentation explicitly states this is **pure resolution**; it does not persist desired state, mutate running registrations or implement dynamic reload. These profile APIs also require exact-source/dependency acceptance before implying a published runtime-compatible version.
+
+`tavall-registry` and the consuming runtime own observed per-module/per-generation activation state and live transition orchestration. Cloud owns service Environment, placement and runtime recovery. Durable desired profile storage and operator mutation authority must be resolved at their designated CD/control owner; Redis/cache state is not independent durable authority. A SYSTEM cascades disable only to its dependent FEATURES; unrelated SYSTEMs remain available. Runtime health must expose requested generation, observed generation, failure reason, activation/readiness and cleanup progress before CD promotes traffic.
+
+### What load, reload, and deploy mean
+
+| Requested action | Intended owner | Required distinction / proof |
+| --- | --- | --- |
+| Enable/disable compiled-in FEATURE | Runtime/registry through canonical module lifecycle, with resolved profile | Register/unregister contract surfaces and stop/reject work; no bytecode swap implied |
+| Reload FEATURE configuration or generation | Runtime host and Tavall DI/registry generation binding | Drain in-flight work, unregister listeners/tasks/aliases, atomically publish new generation and close old; unaffected siblings remain |
+| Load/unload new binary/module bytecode | Only a host with an actual supported loader/isolation mechanism | Verify classloader ownership, linkage, transitive versions, platform hooks, cleanup and rollback; otherwise requires new runtime artifact/restart |
+| Deploy module code through CD | Tavall CI/CD + Cloud runtime deployment authority | Exact-source build, immutable bundle, profile compatibility, service readiness and authorized promotion |
+| Disable a SYSTEM | Its owning RUNTIME/module registry | Cascade to dependent FEATURES, reject stale calls; do not stop the entire application |
+| Restore a failed promotion | CD orchestration + Cloud/host, by policy | Roll back artifact and/or desired profile to an explicitly accepted version and verify observed state; do not infer rollback from DI resolution alone |
+
+### Verified and illustrative target scenarios
+
+```text
+Same immutable Tavall Content runtime artifact (illustrative composition target)
+  target: content-development
+    auto-post SYSTEM: enabled
+    approval FEATURE: enabled
+    delivery FEATURE: disabled
+  target: content-production
+    auto-post SYSTEM: enabled
+    approval FEATURE: enabled
+    delivery FEATURE: enabled only after approved prerequisites
+
+Tavall MC application (single plugin JAR; accepted packaging constraint)
+  RUNTIME: Paper/Velocity host composition
+  SYSTEM: gameplay anti-cheat
+    current audited slice: heuristic/observation behaviors inside SYSTEM
+    later separately validated FEATURE loading: optional, not assumed
+
+Tavall Web (checked-in Spring app composition, not a dynamic plugin claim)
+  RUNTIME: tavall-web-app
+  API: tavall-web-api owned by Web runtime
+  frontend: frontend and Spring adapter modules as distinct capabilities
+  product surfaces: independently owned repos selected as build inputs
+    (web-mc remains presentation; tavall-mc retains game authority)
+```
+
+The Content profile above is **an acceptance example**, not a production manifest or claim that the named child modules currently exist under those exact names. Disabled publishing must not be bypassed by alternate adapters, and account/post authorization remains mandatory. The Web example illustrates typed Gradle/source boundaries; current Spring app module mounting must not be portrayed as supporting zero-downtime live class replacement.
+
+The approved operational acceptance suite exercises: exact candidate source, artifact and profile digests; target authorization; unavailable/disabled/cyclic dependencies; idempotent enable/disable; one-FEATURE reload and sibling isolation; parent cascade; concurrent requests during draining; stale generation access; restart reconstruction; failed activation rollback/fail-closed; health/traffic promotion; and runtime compatibility. Real host E2E is required for claims about hot loading or zero-downtime transitions. The generic `tavall module` operator CLI and universal any-target module-aware CD remain planned until their implementation and tests are verified.
+
+See [CI/CD](../CI_CD.md) for source, evidence, frozen delivery and promotion authority; [NLEW and Service Ownership](../NLEW_AND_SERVICE_OWNERSHIP.md) for service Environments; [Module Types](../MODULE_TYPES.md) for classifications; and [Tavall DI module profiles](https://github.com/TavallStudios/tavall-di/blob/main/docs/module-profiles/README.md) for the current checked-in *desired-composition-only* contract.
