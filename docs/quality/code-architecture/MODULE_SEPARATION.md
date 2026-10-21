@@ -84,10 +84,14 @@ MC anti-cheat: tavall-mc-anticheat-system is presently a SYSTEM with
   independently controllable FEATURE modules are introduced in this source slice**.
   The separate replay SYSTEM handles offline evaluation, not punishment.
   MC runtime linkage and later FEATURE extraction remain separately evidenced.
-Content auto-post: tavall-content-auto-post-system composing independently
-  controllable approval/publishing FEATURES is an accepted design direction,
-  not a claim that every individual provider integration or live module reload
-  has passed host E2E acceptance. Human approval precedes actual publishing.
+Content auto-post: tavall-content-auto-post-system has seven separately
+  declared Gradle FEATURE modules (discovery, video-watch, creative, engagement,
+  inbound, publishing, reporting). The Content runtime has a real lifecycle
+  registry, generation-fenced operator API and PostgreSQL desired-state CAS.
+  This is implemented in source with bounded PostgreSQL runtime tests, not
+  evidence of external-platform posting or production deployment.
+  Engagement owns approval/dispatch semantics; Inbound requires Engagement.
+  Human approval remains mandatory before publication.
 ```
 
 Example **illustrative** internal layout; preserve existing approved `org.tavall.<domain>` roots and package conventions instead of renaming packages by taxonomy:
@@ -164,21 +168,32 @@ The current `tavall-di` source already defines typed `DeploymentModuleProfile`, 
 ### Verified and illustrative target scenarios
 
 ```text
-Same immutable Tavall Content runtime artifact (illustrative composition target)
-  target: content-development
-    auto-post SYSTEM: enabled
-    approval FEATURE: enabled
-    delivery FEATURE: disabled
-  target: content-production
-    auto-post SYSTEM: enabled
-    approval FEATURE: enabled
-    delivery FEATURE: enabled only after approved prerequisites
+Tavall Content source-backed composition (not a claim of live external posting):
+  RUNTIME: tavall-content-runtime hosted/composed by tavall-content-app
+  SYSTEM: tavall-content-auto-post-system
+    discovery-feature          discovery capability
+    video-watch-feature        verified video observations
+    creative-feature           creative proposals
+    engagement-feature         approvals/dispatch; required by inbound
+    inbound-feature            incoming commentary / reply proposals
+    publishing-feature         approved artifact → existing queue
+    reporting-feature          analytics projection
+  host: ModuleLifecycleRegistry with PostgreSQL desired-state CAS
+  studio: generation-fenced API for enable/disable/reload of installed modules
+  acceptance: opt-in PostgreSQL runtime tests; external provider E2E still open
+
+Illustrative target-specific profile selection using that available artifact:
+  content-development -> publishing FEATURE disabled
+  content-production  -> publishing FEATURE enabled only with required
+                         approvals, integrations and verified host acceptance
 
 Tavall MC application (single plugin JAR; accepted packaging constraint)
-  RUNTIME: Paper/Velocity host composition
+  RUNTIME: stable Paper/Velocity hosts, product module descriptors in app jar
   SYSTEM: gameplay anti-cheat
     current audited slice: heuristic/observation behaviors inside SYSTEM
     later separately validated FEATURE loading: optional, not assumed
+  Minecraft-specific /module exists on Paper; it does not install new code
+  across releases and is not the planned global tavall module CLI
 
 Tavall Web (checked-in Spring app composition, not a dynamic plugin claim)
   RUNTIME: tavall-web-app
@@ -188,7 +203,7 @@ Tavall Web (checked-in Spring app composition, not a dynamic plugin claim)
     (web-mc remains presentation; tavall-mc retains game authority)
 ```
 
-The Content profile above is **an acceptance example**, not a production manifest or claim that the named child modules currently exist under those exact names. Disabled publishing must not be bypassed by alternate adapters, and account/post authorization remains mandatory. The Web example illustrates typed Gradle/source boundaries; current Spring app module mounting must not be portrayed as supporting zero-downtime live class replacement.
+The Content FEATURE names above correspond to checked-in modules; the two deployment-target profile examples are **illustrative**, not verified production configuration. The runtime README documents `AutoPostRuntimeLifecyclePostgresTest` (7 cases) as environment-gated on `TAVALL_CONTENT_TEST_DATABASE_URL` and explicitly notes missing external account, AI, analytics and queue bridges. Disabled publishing must not be bypassed by alternate adapters, and account/post authorization remains mandatory. The Web example illustrates typed Gradle/source boundaries; current Spring app module mounting must not be portrayed as supporting zero-downtime live class replacement.
 
 The approved operational acceptance suite exercises: exact candidate source, artifact and profile digests; target authorization; unavailable/disabled/cyclic dependencies; idempotent enable/disable; one-FEATURE reload and sibling isolation; parent cascade; concurrent requests during draining; stale generation access; restart reconstruction; failed activation rollback/fail-closed; health/traffic promotion; and runtime compatibility. Real host E2E is required for claims about hot loading or zero-downtime transitions. The generic `tavall module` operator CLI and universal any-target module-aware CD remain planned until their implementation and tests are verified.
 
