@@ -172,6 +172,15 @@ routes:
       - runtime-owned api
       - cross-module dependency
       - module fan-in
+      - module-aware cd
+      - module profile
+      - deployment module profile
+      - feature activation
+      - feature reload
+      - hot reload
+      - module loading
+      - module unloading
+      - runtime module activation
     documents:
       - docs/quality/code-architecture/MODULE_SEPARATION.md
       - docs/quality/MODULE_TYPES.md
