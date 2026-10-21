@@ -85,6 +85,8 @@ Deployment record: [`<RUNTIME>_DEPLOYMENT.md`](...)
 - **Module Type:** `API` / `RUNTIME` / `SYSTEM` / `FEATURE` / `APPLICATION` / `TOOLING` / `TEST_SUITE`
 - **Secondary Roles:** `LIBRARY` / `PROVIDER` / `ADAPTER` / `INTEGRATION`, only where actual responsibility applies.
 - **Runtime:** `Self` / `<runtime-module>` / `None`
+- **Composition owner:** `<parent-system>` / `<actual consumer>` / `None` (record real SYSTEM/FEATURE fan-in; do not invent children)
+- **Contract owner and import direction:** `<producer API / runtime owner; approved caller -> API -> implementation>` (only where the module exposes or consumes a cross-module contract)
 - **CI Definition:** [`.tavallci/ci.yaml`](.tavallci/ci.yaml) — required for every Tavall source/build module; repository-root `.tavallci` may aggregate but does not replace this module-local definition.
 - **Current PR Stack:** ...
 - **Runtime PR:** ... <only when a non-runtime module's current work is carried by or depends on an owning runtime PR>

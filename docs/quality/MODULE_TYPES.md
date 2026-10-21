@@ -6,6 +6,8 @@
 
 Module type describes the module's **primary responsibility**. Runtime ownership is recorded separately because not every module executes independently.
 
+For module-versus-package decisions, dependency graphs, runtime/API authority, migration order, SYSTEM/FEATURE lifecycle acceptance, and module-aware CD/profile/host-loading behavior with concrete repository separation examples, read [Module Separation and Ownership Boundaries](code-architecture/MODULE_SEPARATION.md) alongside this taxonomy. The detailed chapter specializes implementation boundaries; this document remains the authoritative type vocabulary.
+
 ## Canonical Module Types
 
 | Type | Responsibility |

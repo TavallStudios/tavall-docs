@@ -291,6 +291,8 @@ Execution details such as a temporary host path or optional container instance a
 
 ## CD boundary
 
+Module-aware deployment distinguishes immutable artifact selection, the target's versioned desired module profile, and observed runtime module state. A build module is not automatically hot-loadable; the runtime/registry must prove support for load/unload/reload and generation-safe cleanup. For the accepted SYSTEM/FEATURE split, target-specific profile composition, Paper/Velocity single-JAR constraints and host acceptance, read [Module Separation and Ownership Boundaries](code-architecture/MODULE_SEPARATION.md#7-module-aware-cicd-profiles-and-host-loading) alongside this CD policy. Pure Tavall DI module-profile resolution does not itself perform runtime mutation.
+
 CI builds and validates immutable artifacts. CD promotes the already validated artifact rather than rebuilding a supposedly equivalent one for each target.
 
 ```text

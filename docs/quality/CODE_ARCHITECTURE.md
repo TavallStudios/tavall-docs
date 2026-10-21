@@ -43,6 +43,7 @@ A change may require several delegated chapters. A Handler using Tavall DI, Cach
 | Topic being changed | Required delegated chapter |
 | --- | --- |
 | Packages, class names, fields, locals, OOP, DRY, type safety | [Namespaces, Variables, OOP, DRY, and Type Safety](code-architecture/NAMESPACES_VARIABLES_AND_OOP.md) |
+| Module vs package/repository split, SYSTEM/FEATURE fan-in, primary types and secondary roles, runtime-owned APIs, module-aware CD/profile composition, load/unload and E2E migration | [Module Separation and Ownership Boundaries](code-architecture/MODULE_SEPARATION.md), [Module Types](MODULE_TYPES.md), and [CI/CD](CI_CD.md) |
 | Class roles and suffix responsibilities | [Classes](code-architecture/CLASSES.md) |
 | Method naming, shape, parameters, locals, data/cache/database method ownership | [Methods](code-architecture/METHODS.md) |
 | Interfaces, abstraction, substitution boundaries | [Interfaces and Abstractions](code-architecture/INTERFACES_AND_ABSTRACTIONS.md) |
