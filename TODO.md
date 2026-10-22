@@ -3,7 +3,7 @@
 > **Status:** Active  
 > **Authority:** Canonical organization-wide TODO ledger  
 > **Repository projections:** Every maintained TavallStudios repository exposes a bot-managed root `TODO.md` that projects only that repository's section from this file.  
-> **Last updated:** 2026-10-18
+> **Last updated:** 2026-10-22
 
 This file is the single source of truth for organization-wide repository TODO work. Repository-local `TODO.md` files are generated static projections and must not become independent task ledgers.
 
@@ -254,6 +254,16 @@ _No open global TODO items currently tracked._
   - Reuse the existing `tavall-content-opportunities` domain and Content source/provider abstractions instead of inventing an aggregator platform or duplicating Tavall Analytics. Normalize source-of-truth marketplace, aggregator referral, campaign identity/URL, provenance, observation time, rights/eligibility, statuses, budgets, CPM, caps, platform/payout fees, and withdrawal rails. Deduplicate listings across overlapping aggregators and native marketplaces; preserve uncertainty and stale/out-of-budget indicators.
   - Support comparable **net expected earning** and **small-account eligibility** views: follower minimum, per-clip views, cumulative campaign views, Tier 1/Tier 2 audience restrictions, withdrawal minimum, payout hold, region, verified fee schedule, and funded balance. Unknown requirements remain `UNKNOWN`, never silently treated as zero or eligible.
   - Acceptance when scheduled: typed contracts, source-specific opt-in configuration and capability checks, automated normalization/deduplication/failure tests, and authorized read-only operator E2E proving eligible/ineligible/unknown explanations, source links, and no publication or payout side effects. Keep this research/integration **deferred** until the current Content runtime/Account and provider gates are complete.
+
+#### System — Tavall Content Opportunities / Campaign Execution
+
+- [ ] 2026-10-22 — Design and add a native campaign-to-published-clip workflow to Tavall Content, informed by the Vues clipper beta's shorter in-product flow.
+  - Keep Tavall Content the canonical workspace: connect the existing campaign opportunities/radar, Content Studio and native renderer, human approval queue, and existing publishing pipeline. Do not create a parallel clipper platform or a new module until source-confirmed ownership requires one.
+  - Make campaign selection evidence-based: retain the marketplace/source link and observation time, and verify current campaign status, funded budget, view/payout rules, territory, account/platform eligibility, rights, and deadline. Unknown or stale terms stay visible and block eligibility claims.
+  - Carry one approved campaign brief into clip planning, rendering, platform-specific variants, captions/audio requirements, and compliance checks. Preserve TikTok's official-sound manual/provider-supported handoff; the timeline or a sound title alone does not verify attached music.
+  - Keep publication and campaign submission separate, explicit human-approved actions. Reuse the existing account authorization, queue, and provider boundaries; bind each approval to an immutable content/metadata snapshot; record idempotent action state, destination URLs/IDs, submission receipts, and failures. If a campaign has no authorized submission connector, provide a clearly labeled manual handoff rather than scraping or simulating completion.
+  - Do not assume Vues offers an API or make Vues a runtime dependency. Any marketplace connector requires an approved access method and authorization; no new credentials, paid accounts, polling, scraping, publishing, or submissions are authorized by this TODO.
+  - Sequence implementation after the current Content provider-backed E2E and Account authorization gates pass. Acceptance: an authorized campaign can be discovered/verified, rendered and quality-checked in the existing Studio, explicitly approved and published through the existing pipeline, then submitted with a verified receipt or handed off manually; rejection, stale campaign terms, retries, duplicate submission, and unsupported-provider states are exercised without side effects.
 
 #### System — Tavall Content Auto Post
 
