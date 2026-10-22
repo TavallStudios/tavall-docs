@@ -378,6 +378,13 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall GitHub Bot
 
+- [ ] 2026-10-21 — Automatically finalize one-shot GitHub operation issues after a verified terminal execution outcome.
+  - Implement in the existing `tavall-github-bot` GitHub adapter, not a new GitHub Actions workflow or Cloud CI scheduler; preserve Tavall Cloud and Function Catalog operation authority.
+  - Require an explicit one-shot marker/allowlisted issue type, immutable operation identity, trusted bot evidence and a final SUCCESS/FAILED/REJECTED/CANCELLED result before making a closure decision. Do not close on inactivity or mere dispatch acknowledgment.
+  - Publish a sanitized terminal summary and preserve links to immutable execution evidence; close successful requests as completed and terminal unsuccessful attempts as not planned, with retry work tracked separately as needed.
+  - Keep durable command channels, ongoing work trackers, security approvals, active retries and ambiguous statuses open. Respect human/repository ownership and least-privilege GitHub App permissions.
+  - Make retries/idempotency safe: no duplicate comments, no double-close, no closure of newer operation generations. Add provider/API and integration tests, verify exact-source CI, then merge and deploy through the existing Tavall workflow.
+  - Reconcile historical one-shot operation tickets only with their individually verified outcome; do not mass-close engineering issues by age.
 - [ ] 2026-10-01 — Implement canonical repository TODO projection management.
   - Watch `TavallStudios/tavall-docs/TODO.md` and repository inventory changes.
   - Parse each repository's section and render it as the first substantive section of that repository's root `TODO.md`.
