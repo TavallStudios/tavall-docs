@@ -226,7 +226,7 @@ See [CI/CD](../CI_CD.md) for source, evidence, frozen delivery and promotion aut
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/code-architecture/MODULE_SEPARATION.md` | 2026-10-21 | [tavall-docs PR #74](https://github.com/TavallStudios/tavall-docs/pull/74) |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/code-architecture/MODULE_SEPARATION.md` | 2026-10-22 | [tavall-docs PR #77](https://github.com/TavallStudios/tavall-docs/pull/77) |
 | Notion | `NOT_APPLICABLE` | — | 2026-10-21 | Shared quality chapter; consult owning system GENERAL/TECHNICAL DESIGN separately |
 
 ### Update History
@@ -234,5 +234,6 @@ See [CI/CD](../CI_CD.md) for source, evidence, frozen delivery and promotion aut
 | Date | Surface | Event | Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- |
 | 2026-10-21 | GitHub | `CREATED` | Same canonical path | [PR #74](https://github.com/TavallStudios/tavall-docs/pull/74) | Added canonical SYSTEM/FEATURE separation, runtime/contract ownership, source-backed examples, module-aware CD/profile/host lifecycle and integration acceptance. |
+| 2026-10-22 | GitHub | `UPDATED` | Same canonical path | [PR #77](https://github.com/TavallStudios/tavall-docs/pull/77) | Added Gradle module identity suffix migration rules and explicit repository-root exemptions. |
 
 </details>
