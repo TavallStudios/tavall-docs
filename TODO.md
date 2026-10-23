@@ -660,7 +660,9 @@ _No open global TODO items currently tracked._
 
 - [ ] 2026-10-23 — Complete typed progress integrations through their existing owners after API and delivery contracts are verified.
   - The QA progress aggregator remains the PostgreSQL-backed authority. Check the current Cache/Event, CMS, Roadmap, Discord publisher, and public-proof owners for typed consumer contracts before connecting subscribers.
+  - Exact-owner recheck on 2026-10-23: `tavall-qa@516a77c` provides `ITaskBoardProgressAggregator` inside the QA authority; `tavall-cache@e6e78fd` and `tavall-eventbus@00866ad` expose generic cache/event infrastructure but no Task Board progress consumer; `tavall-web-content@edde476` and `tavall-content@95e8284` expose no Task Board progress/roadmap contract; `tavall-web-dashboard@61246e9` provides discovery only; `tavall-discord@41d1904` has no Task Board progress/milestone consumer. Web's `ProgressDataStore` / `IProgressEventService` are its separate legacy progress path and remain outside Task Board authority.
   - Preserve idempotent replay and audience filtering before counts and derived events. Private task changes must not leak through cache, event, CMS, Discord, or public-proof payloads.
+  - No cross-system subscriber or event was introduced during this check. Keep the item open until each owning repository exposes a typed producer/consumer contract and exact-source acceptance can be recorded.
   - Do not create placeholder publishers, subscribers, duplicate progress stores, or treat Redis/cache projections as durable authority. Record each integration's owner and acceptance when its typed boundary is available.
 
 ### `TavallStudios/tavall-web`
