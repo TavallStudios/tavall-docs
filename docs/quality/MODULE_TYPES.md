@@ -174,7 +174,7 @@ See [README_STANDARDS.md](README_STANDARDS.md) and [MODULE_README_TEMPLATE.md](M
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/MODULE_TYPES.md` | 2026-10-12 | PR #67 reconciles first-class SYSTEM/FEATURE lifecycle and runtime API ownership; runtime acceptance remains consumer-owned. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/MODULE_TYPES.md` | 2026-10-22 | [PR #77](https://github.com/TavallStudios/tavall-docs/pull/77): module-name suffix rule; runtime acceptance remains consumer-owned. |
 | Notion | `NOT_APPLICABLE` | — | 2026-09-29 5:08 PM PDT | Quality/reference document; no 1:1 requirement assigned. |
 
 ### Update History
@@ -184,5 +184,6 @@ See [README_STANDARDS.md](README_STANDARDS.md) and [MODULE_README_TEMPLATE.md](M
 | 2026-09-27 11:45 AM PDT | GitHub | `CREATED` | `TavallStudios/tavall-docs/docs/quality/MODULE_TYPES.md` | — | Direct docs-only update to `main`. | Added the canonical Tavall module-type and runtime-ownership vocabulary. |
 | 2026-09-27 2:58 PM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/MODULE_TYPES.md` | Same path | Direct docs-only update to `main`. | Added required module Progression ownership and type-specific progression lenses. |
 | 2026-09-29 5:08 PM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/MODULE_TYPES.md` | Same path | PR to `main`. | Canonized Tavall-owned `tavall-*` wrapper modules for reusable third-party tools. |
+| 2026-10-22 | GitHub | `UPDATED` | Same canonical path | Same path | [PR #77](https://github.com/TavallStudios/tavall-docs/pull/77) | Applied suffix naming for actual SYSTEM/RUNTIME modules, not repo roots or other primary types; migration stays consumer-verified. |
 
 </details>
