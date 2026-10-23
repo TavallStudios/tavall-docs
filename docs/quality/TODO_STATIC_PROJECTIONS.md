@@ -2,14 +2,18 @@
 
 > **Status:** Active  
 > **Applies to:** Every maintained `TavallStudios` repository  
-> **Authority:** `TavallStudios/tavall-docs/TODO.md` is the only canonical organization-wide TODO ledger  
+> **Authority:** Legacy v1 projection policy, **transitioning** under [Work Graph](WORK_TRACKING.md); linked GitHub Issues already own migrated tasks  
 > **Purpose:** Give every repository an immediately visible root TODO without creating fifty-five independent task authorities, because apparently distributed consensus was not already causing enough problems.
+
+## Transition contract (2026-10-22)
+
+The user-approved target is **canonical owner-repository GitHub Issues**, with an org-wide GitHub Projects board and Bot-generated repository TODOs. See [Work Graph](WORK_TRACKING.md) and [Wave 1 Audit](../progression/TAVALL_WORK_GRAPH_LEGACY_TODO_MIGRATION_20261022.md). During migration, this v1 contract remains the currently documented projection format for **unmapped** legacy rows. Existing rows with a `canonical issue` link belong to the linked issue; the legacy checkbox is no longer an independent task-state authority. **Do not activate a v2 generator or retire this v1 contract until a tested pilot, issue mapping and rollback acceptance.**
 
 ## Contract
 
 Every maintained TavallStudios repository exposes a root `TODO.md`.
 
-For `TavallStudios/tavall-docs`, that file is the canonical global ledger.
+For `TavallStudios/tavall-docs`, that file retains legacy authority over unmatched tasks during the approved migration. Mapped tasks belong to their linked GitHub Issues.
 
 For every other repository, root `TODO.md` is a **static generated projection** owned by `TavallStudios/tavall-github-bot`. It is not an independently maintained documentation source and it is not a new Tavall documentation type.
 
@@ -65,7 +69,7 @@ The bot must:
 
 ## Human editing rules
 
-- Add, remove, reorder, or rewrite repository tasks in `TavallStudios/tavall-docs/TODO.md`.
+- For *unmapped legacy* entries, edit `TavallStudios/tavall-docs/TODO.md` until formally migrated. For mapped entries, update the **canonical GitHub Issue**, not its legacy checkbox; avoid adding new tasks to the legacy ledger.
 - Do not treat a generated repository `TODO.md` as authority.
 - A local emergency edit may be used only to repair broken generated metadata or rendering, and must be reconciled back through the global source immediately.
 - Repository-specific implementation documents may still contain `DOC TODO:` maintenance handoffs; those are document-maintenance state and do not replace this repository work ledger.
@@ -101,7 +105,7 @@ The long-term bot implementation is tracked in the `TavallStudios/tavall-github-
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/TODO_STATIC_PROJECTIONS.md` | 2026-10-01 | Direct docs-only update to `main`. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/TODO_STATIC_PROJECTIONS.md` | 2026-10-22 | Work Graph pilot policy update (not deployed). |
 | Notion | `NOT_APPLICABLE` | — | 2026-10-01 | Generated repository-control policy; no 1:1 Notion twin assigned. |
 
 ### Update History

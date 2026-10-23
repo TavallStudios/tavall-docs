@@ -85,6 +85,23 @@ routes:
       - docs/quality/DOCUMENTATION_STANDARDS.md
       - docs/quality/DOCUMENT_TYPES.md
 
+  - id: work-tracking
+    signals:
+      - work graph
+      - work tracking
+      - issue intake
+      - task triage
+      - task board
+      - github projects
+      - issue deduplication
+      - task verification
+      - canonical task
+      - issue task authority
+      - todo migration
+    documents:
+      - docs/quality/WORK_TRACKING.md
+      - docs/quality/TODO_STATIC_PROJECTIONS.md
+
   - id: repository-todo-projection
     signals:
       - global todo
@@ -95,6 +112,7 @@ routes:
       - todo sync
       - static todo
     documents:
+      - docs/quality/WORK_TRACKING.md
       - docs/quality/TODO_STATIC_PROJECTIONS.md
 
   - id: progression-document-template
