@@ -33,6 +33,14 @@ MOD-01 and MOD-02 classify APPLICATION, RUNTIME, SYSTEM, FEATURE, API, TOOLING a
 
 Existing older primary LIBRARY/PROVIDER/ADAPTER/INTEGRATION labels are migration debt. Reclassify a module when its actual ownership is inspected and changed; preserve unrelated modules until that review rather than globally inferring type from a suffix. A reusable stateless domain SYSTEM may have a secondary LIBRARY role without manufacturing FEATURE modules.
 
+## Module-name suffix contract (2026-10-22)
+
+Every *actual* independently defined source/build module whose verified primary type is `SYSTEM` must have a canonical Gradle module/artifact name ending in `-system`. Every actual source/build module whose verified primary type is `RUNTIME` must end in `-runtime`. Examples: `tavall-content-auto-post-system`, `tavall-cloud-runtime`, and an independently executable MCP module named `tavall-function-catalog-mcp-runtime`.
+
+**Scope and exceptions:** This requirement applies to the actual module identity, including its Gradle project/artifact coordinate, **not** its parent repository directory, aggregate root, Java package segments, or runtime process selector. Do not rename `tavall-cloud/`, `tavall-web/`, or other repository roots merely because they are system-level organizational groupings. `APPLICATION`, `API`, `FEATURE`, `TOOLING`, `TEST_SUITE`, and secondary `LIBRARY`/`PROVIDER`/`ADAPTER`/`INTEGRATION` roles do not gain suffixes from their parent or owning runtime. In particular, having a runtime owner is **not** proof the module is itself a `RUNTIME`.
+
+Before enforcing a rename, reconcile the **real primary type and current source**. Legacy names and references are migration debt, not authorization for an untested mass rename or invented SYSTEM/FEATURE boundaries. Preserve caller compatibility until the exact-source Gradle project, artifact coordinates, module descriptors and IDs, DI bindings, CI/CD manifests, consumers, operator commands, README/PROGRESSION, and deployment/rollback paths pass migration acceptance. When a legacy module's suffix implies `RUNTIME` or `SYSTEM` but its real type differs, reconcile the misleading name separately rather than falsifying the type. This is a normative naming rule for new modules immediately; existing installations move through reviewed per-repository cutovers.
+
 ## Classification Rules
 
 - Every real source/build module records one **primary** module type in its module README. `SYSTEM` and `FEATURE` are first-class primary types, not descriptive aliases for `LIBRARY` or `PROVIDER`.
@@ -166,7 +174,7 @@ See [README_STANDARDS.md](README_STANDARDS.md) and [MODULE_README_TEMPLATE.md](M
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/MODULE_TYPES.md` | 2026-10-12 | PR #67 reconciles first-class SYSTEM/FEATURE lifecycle and runtime API ownership; runtime acceptance remains consumer-owned. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/MODULE_TYPES.md` | 2026-10-22 | [PR #77](https://github.com/TavallStudios/tavall-docs/pull/77): module-name suffix rule; runtime acceptance remains consumer-owned. |
 | Notion | `NOT_APPLICABLE` | — | 2026-09-29 5:08 PM PDT | Quality/reference document; no 1:1 requirement assigned. |
 
 ### Update History
@@ -176,5 +184,6 @@ See [README_STANDARDS.md](README_STANDARDS.md) and [MODULE_README_TEMPLATE.md](M
 | 2026-09-27 11:45 AM PDT | GitHub | `CREATED` | `TavallStudios/tavall-docs/docs/quality/MODULE_TYPES.md` | — | Direct docs-only update to `main`. | Added the canonical Tavall module-type and runtime-ownership vocabulary. |
 | 2026-09-27 2:58 PM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/MODULE_TYPES.md` | Same path | Direct docs-only update to `main`. | Added required module Progression ownership and type-specific progression lenses. |
 | 2026-09-29 5:08 PM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/MODULE_TYPES.md` | Same path | PR to `main`. | Canonized Tavall-owned `tavall-*` wrapper modules for reusable third-party tools. |
+| 2026-10-22 | GitHub | `UPDATED` | Same canonical path | Same path | [PR #77](https://github.com/TavallStudios/tavall-docs/pull/77) | Applied suffix naming for actual SYSTEM/RUNTIME modules, not repo roots or other primary types; migration stays consumer-verified. |
 
 </details>

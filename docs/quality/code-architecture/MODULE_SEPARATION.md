@@ -39,6 +39,12 @@ A `SYSTEM` owns aggregation, fan-in, lifecycle coordination and an explicit cons
 
 Each source/build module has its own `.tavallci/ci.yaml` and one module-scoped `PROGRESSION` document; SYSTEM-level Progression aggregates, but never replaces, child module evidence. Do not infer deployed state from a design diagram or the presence of a module folder.
 
+### Module identity naming during separation
+
+For independently defined source/build modules, a primary `SYSTEM` must use a module/artifact name ending in `-system`; a primary `RUNTIME` must end in `-runtime`. This does **not** apply to a parent repository directory, aggregate root, Java package, process selector, or an `APPLICATION` that happens to own an executable lifecycle. Use the real primary type, not an assumed type inferred from `*core`, `*app`, `*node`, `*worker`, or historical `*runtime` words. A secondary provider/adapter role does not change the naming rule.
+
+A rename is an explicit *identity migration*: capture old/new Gradle paths, Maven coordinates, module IDs/descriptors, DI/registry bindings, dependency edges, module-local `.tavallci`, CD service profiles/templates, references in documentation and all callers. Prove consumer compilation, exact-source runtime composition, original module retirement, persisted desired-state/generation migration or compatible aliasing, artifact rollback and observed host behavior. Keep the previous identity until validation; no unverified bulk rename, no duplicate runtime authority, and no renaming repository roots just to satisfy a module rule. See [Module Types](../MODULE_TYPES.md#module-name-suffix-contract-2026-10-22) for canonical vocabulary.
+
 ## 3. Contracts and Dependency Direction
 
 Write and inspect a dependency graph **before** moving code. The default direction is consumer/feature/adapter → stable typed API → selected implementation through Tavall DI and the canonical module registry. No consumer should need the implementation module's internals.
@@ -220,7 +226,7 @@ See [CI/CD](../CI_CD.md) for source, evidence, frozen delivery and promotion aut
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/code-architecture/MODULE_SEPARATION.md` | 2026-10-21 | [tavall-docs PR #74](https://github.com/TavallStudios/tavall-docs/pull/74) |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/code-architecture/MODULE_SEPARATION.md` | 2026-10-22 | [tavall-docs PR #77](https://github.com/TavallStudios/tavall-docs/pull/77) |
 | Notion | `NOT_APPLICABLE` | — | 2026-10-21 | Shared quality chapter; consult owning system GENERAL/TECHNICAL DESIGN separately |
 
 ### Update History
@@ -228,5 +234,6 @@ See [CI/CD](../CI_CD.md) for source, evidence, frozen delivery and promotion aut
 | Date | Surface | Event | Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- |
 | 2026-10-21 | GitHub | `CREATED` | Same canonical path | [PR #74](https://github.com/TavallStudios/tavall-docs/pull/74) | Added canonical SYSTEM/FEATURE separation, runtime/contract ownership, source-backed examples, module-aware CD/profile/host lifecycle and integration acceptance. |
+| 2026-10-22 | GitHub | `UPDATED` | Same canonical path | [PR #77](https://github.com/TavallStudios/tavall-docs/pull/77) | Added Gradle module identity suffix migration rules and explicit repository-root exemptions. |
 
 </details>

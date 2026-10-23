@@ -3,7 +3,7 @@
 > **Status:** Active  
 > **Authority:** Canonical organization-wide TODO ledger  
 > **Repository projections:** Every maintained TavallStudios repository exposes a bot-managed root `TODO.md` that projects only that repository's section from this file.  
-> **Last updated:** 2026-10-18
+> **Last updated:** 2026-10-22
 
 This file is the single source of truth for organization-wide repository TODO work. Repository-local `TODO.md` files are generated static projections and must not become independent task ledgers.
 
@@ -49,6 +49,11 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall Contractors
 
+- [ ] 2026-10-22 — Decide legacy Contractors executable ownership before changing the `spring-webview` RUNTIME module's noncompliant name.
+  - If maintained independently, migrate the actual Gradle runtime/artifact toward `tavall-contractors-web-runtime` and the `internal-contractor-api` consumer references; if folded into the unified Tavall Web platform, prefer an API/presentation migration and retirement instead of a pointless legacy rename.
+  - Do not change the `TavallContractors` repository root solely for suffix compliance; require exact-source Spring boot, request routing, provider/data integration and deployment rollback validation.
+
+
 - [ ] 2026-10-02 — Promote local CI workflow removal and unified Gradle platform adoption to `main`.
   - Reconcile PR #3 onto `main`.
   - Validate contractor registry queries with current Tavall Database entity store.
@@ -78,6 +83,11 @@ _No open global TODO items currently tracked._
 
 #### System — Function Catalog
 
+- [ ] 2026-10-22 — Bring the independently executable `mcp-server` Gradle module into Tavall naming as `tavall-function-catalog-mcp-runtime`, preserving the `function-catalog` repository name.
+  - Confirm module type against actual HTTP/stdio launchers, migrate Gradle project/artifact/entrypoints, provider consumers, packaging and Tavall CI/CD/service references in a compatibility-reviewed slice. `agent-runtime` is documented as a non-process LIBRARY and must **not** be misclassified as a separate RUNTIME just because of the old suffix.
+  - Verify catalog scoped discovery, authenticated MCP transport, HTTP/stdio launch, provider-neutral function views, deployment artifact identity and rollback. Do not introduce a duplicate model runtime or Cloud authority.
+
+
 - [ ] 2026-10-02 — Promote PR #14 (staging/platform) to `main` for Cloud developer CI capability contracts and legacy CI removal.
   - Verify immutable MCP server ZIP artifact generation on Tavall CI.
 - [ ] 2026-10-02 — Resolve Linux Cloud Executor integration test prerequisites for Codex CLI.
@@ -104,6 +114,12 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall AI Platform
 
+- [ ] 2026-10-22 — Normalize Tavall AI module types and suffixes without treating agents or non-process capabilities as independent runtimes.
+  - Inventory active `settings.gradle.kts` modules versus the unlisted legacy `tavall-ai-core` source and move only validated active consumers. Reclassify `AGENT_PACKAGE`/`RUNTIME_CAPABILITY` as canonical primary types plus secondary roles; agents remain behavior packages loaded by the runtime, not RUNTIME/SYSTEM by assumption.
+  - If the model-execution, browser, distributed-execution or project-context capability is confirmed as a SYSTEM, name its actual Gradle module `*-system`; the `tavall-ai-runtime` executable keeps its existing suffix. Do not rename a pure provider adapter to RUNTIME based on an old `runtime-` prefix.
+  - Coordinate the planned dedicated Tavall AI Memory cutover and Docs Agent index regeneration; retain exact source, typed DI, Function Catalog policy, Cloud leases, provider permissions and agent registry compatibility. E2E: runtime bootstrap, opt-in capability disable/reload and no stale-generation capability access.
+
+
 - [ ] 2026-10-02 — Promote Tavall Agent Stack V2 implementation from `working/tavall-agent-stack-v2` into plugin staging and `main`.
   - Integrate renamed agent providers (`LedgerAgentProvider`, `PrWorkflowAgentProvider`, `CodeArchitectureAgentProvider`, `PrReviewAgentProvider`, `PrReconciliationAgentProvider`, `E2EValidationAgentProvider`).
   - Verify all 57 Java architecture tests and 43 agent definitions pass validation.
@@ -118,6 +134,10 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall AI Memory
 
+- [ ] 2026-10-22 — Select the canonical primary type and module/artifact name for the dedicated memory owner before migrating `tavall-ai-runtime-memory`.
+  - Keep the new repository name `tavall-ai-memory` unchanged. If the extracted memory composition is a SYSTEM, use an internal module such as `tavall-ai-memory-system`; if it remains an API/library capability, do not manufacture an independent RUNTIME. Migrate old imports and storage contracts only after consumers and exact-source validation pass.
+
+
 - [ ] 2026-10-02 — Establish canonical graph-backed memory plane contracts and persistence models.
   - Define provider-neutral storage interfaces for entity relationships, decision histories, and context retrieval.
   - Implement memory retrieval constraints ensuring memory remains contextual evidence and cannot override canonical docs or live runtime truth.
@@ -131,6 +151,12 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall Analytics
 
+- [ ] 2026-10-22 — Introduce explicit SYSTEM names and host-owned collector lifecycle in Analytics, replacing legacy blanket LIBRARY labels through reviewed slices.
+  - Candidate fan-in: `tavall-analytics-collection-system` for genuinely independent passive collectors and `tavall-analytics-analysis-system` for the `tavall-analytics-core` owner **if** source consumers justify SYSTEM classification. Review attribution, experiments, reporting and first-party modules for actual SYSTEM versus package/adapter ownership; require `-system` on each accepted SYSTEM, not on generic producer libraries.
+  - Preserve `tavall-analytics-api`, `tavall-analytics-app` (APPLICATION), storage/provider adapters, the existing Minecraft passive-source modules and immutable-evidence semantics. Complete planned retirement of `tavall-analytics-content` after API consumer migration instead of inventing a second Content SYSTEM.
+  - Validate exact-source ingestion, independent collector disable/reload only where the owning host supports it, PostgreSQL/NFS consistency, evidence provenance, module-local CI, and module-scoped Progression; do not represent collector host E2E as already implemented.
+
+
 - [ ] 2026-10-09 — Consolidate Content-facing metrics, findings, and attribution contracts in `tavall-analytics-api`; retire the separate `tavall-analytics-content` module after dependent consumers are migrated.
   - Keep observation/metric implementations and evidence authority inside Tavall Analytics. Content consumes typed API views only.
   - Stage Analytics module migration independently; do not expand the current Content implementation scope into Analytics internals.
@@ -143,6 +169,11 @@ _No open global TODO items currently tracked._
 ### `TavallStudios/tavall-cache`
 
 #### System — Tavall Cache
+
+- [ ] 2026-10-22 — Classify the current `abstract-cache-system` contract module and `abstract-cache-semantic` owner before applying suffixes.
+  - Existing `abstract-cache-system` is documented as a non-runtime LIBRARY/API-style foundational contract, not automatically a primary SYSTEM because of its name. Confirm API classification and plan a compatibility-safe `tavall-cache-api` coordinate only if that reduces misleading naming. If semantic routing truly has SYSTEM fan-in, migrate it to a compliant name such as `tavall-cache-semantic-system` with a real consumer and profile tests; otherwise leave it a library.
+  - Storage backends remain secondary PROVIDER/ADAPTER roles until independent FEATURE lifecycle is proven. Integrate existing per-module CI TODOs; do not create a standalone cache runtime.
+
 
 - [ ] 2026-10-02 — Promote PR #11 (retaining immutable cache artifacts) to `main`.
   - Validate exact-source composite execution across all eight cache modules.
@@ -188,6 +219,12 @@ _No open global TODO items currently tracked._
 ### `TavallStudios/tavall-cloud`
 
 #### System — Tavall Cloud
+
+- [ ] 2026-10-22 — Finish source-to-module classification and naming cutover for Cloud CONTROL and Node Agent without splitting the unified Cloud distribution.
+  - `tavall-cloud-node` currently declares primary `RUNTIME` but lacks `-runtime`: either migrate the real process owner to `tavall-cloud-node-runtime`, or explicitly split the actual Node SYSTEM from the runtime shell after dependency and host evidence. Keep `tavall-cloud-runtime` unchanged as the unified runtime/distribution owner; do not create duplicate process authority.
+  - Extract the source-bearing `tavall-cloud/` **Gradle aggregate** into its true existing domain owners; create `tavall-cloud-control-system` only for validated CONTROL fan-in, never a new CONTROL process by implication. Do not rename the repository root or the aggregate folder simply to add a suffix.
+  - Classify `tavall-cloud-jobs`, `tavall-networking`, Edge Director and provider modules by their verified responsibilities before any optional SYSTEM/FEATURE renames; preserve existing typed Cloud/NLEW/Database/Filesystem authority. E2E: real CONTROL/Node boot, service reconciliation, Executor placement, node reconnect, existing profiles and rollback.
+
 
 - [x] 2026-10-12 — Merge Cloud PR #424's shared-Executor exact-source CI path through root PR #397.
   - PR #424 merged into `staging/runtime` at `adeb136`; root PR #397 merged to `main` at `a0788c5`. PR #397 records all seven required profiles passing on its exact root and a DEVELOPMENT Agent artifact deployed through the existing Agent-only bootstrap. No Production cutover is claimed.
@@ -283,6 +320,11 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall Content Studio
 
+- [ ] 2026-10-22 — Rename the verified headless `tavall-content-render-worker` RUNTIME module to a suffix-compliant identity such as `tavall-content-render-worker-runtime`, without moving the Tavall Content repository.
+  - Preserve `tavall-content-runtime` (already compliant), `tavall-content-app` and the existing `tavall-content-auto-post-system`/`tavall-content-auto-account-system` FEATURE graphs. Rename Gradle artifact, immutable worker distribution, Tavall CD template/service selector, CLI/CI references, persisted job/lease identity and documentation only through an audited compatibility plan.
+  - Acceptance: exact-source producer and Studio consumer tests, real DB job claim/recovery/cancel/resume, worker replacement and rollback, no duplicate lease ownership or published state loss.
+
+
 - [ ] 2026-10-09 — TODO / DEFERRED: integrate future Tavall Commerce offers, product references, campaign CTAs and transaction attribution after the Tavall Content end-to-end loop passes acceptance.
   - No Tavall Commerce runtime, data model, checkout or payment work is in the present scope. Reuse future Commerce-owned typed APIs; preserve Analytics ownership of measurement and attribution.
 
@@ -328,6 +370,10 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall Database
 
+- [ ] 2026-10-22 — Reconcile Database's legacy primary provider/library classifications against canonical module types before any `-system` migration.
+  - Keep `tavall-database-core-contracts`, `tavall-database-redis-api`, existing provider implementations and their tested contract boundaries. Add `-system` only to a verified domain fan-in SYSTEM; no suffix requirement for plain API, selected provider, consumer aggregate or repository root. Validate live PostgreSQL/Redis consumers, ServiceLoader, pool/lease cleanup, and exact-source compatibility.
+
+
 - [ ] 2026-10-02 — Author module-local `.tavallci/ci.yaml` definitions for all database modules.
   - Validate Flyway migration sequencing, connection pool sizing, and transaction boundaries under PostgreSQL 14/16.
 - [ ] 2026-10-02 — Promote consumer access guide (PR #27) and multi-node read replica contracts to `main`.
@@ -343,6 +389,11 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall Discord
 
+- [ ] 2026-10-22 — Resolve Discord's in-process lifecycle module primary type and apply suffix naming only after classification.
+  - The existing `tavall-discord-runtime` suffix is syntactically compliant but its README says it is **not independently executable**; if classified as SYSTEM, migrate to a semantically accurate `tavall-discord-lifecycle-system` rather than falsely declaring RUNTIME. If `tavall-discord-data` becomes a SYSTEM, likewise use `tavall-discord-data-system`; otherwise retain its appropriate API/library identity.
+  - Keep `tavall-discord-api`, JDA and Minecraft integration interfaces separate; consumer products own Discord behavior. E2E: actual host startup, feature registration/disable/teardown and client shutdown without a second Discord daemon.
+
+
 - [ ] 2026-10-08 — Finish reusable Discord producer PR #9 and publish its generic runtime/API artifacts.
   - Current head is `ca83559`; generic client/JDA lifecycle, immutable gateway contracts, ordered dispatch, and process-host ownership remain here.
   - Recorded local producer tests pass; wrapper-backed Tavall CI, internal package resolution, and external host boot remain open. Do not move Tavall-MC product policy or persistence into this repository.
@@ -350,6 +401,12 @@ _No open global TODO items currently tracked._
 ### `TavallStudios/tavall-docs`
 
 #### System — Tavall Documentation
+
+- [ ] 2026-10-22 — Enforce the canonical `-system` / `-runtime` suffix rule for **actual** modules, excluding parent repositories, organizational aggregates, APPLICATIONs and secondary-role labels.
+  - Apply [Module Types](docs/quality/MODULE_TYPES.md#module-name-suffix-contract-2026-10-22) and [Module Separation](docs/quality/code-architecture/MODULE_SEPARATION.md#module-identity-naming-during-separation); classify from source before proposing each migration. A `System —` TODO heading or the word `runtime` in a folder is not proof of primary type.
+  - Coordinate per-repository rollout through this ledger; require exact-source consumer imports/Gradle coordinates, module IDs/descriptors, DI and registry wiring, `.tavallci`/CD references, per-module Progression, rollback and owning host acceptance. Repository-local TODOs are bot projections, not separately edited work queues.
+  - After the canonical docs revision merges, regenerate the Tavall Docs Agent exact-section index/skill metadata against the new `tavall-docs/main` SHA; validate its native drift checker before declaring remote skills synchronized.
+
 
 - [ ] 2026-10-08 — Define a safe migration path for legacy untyped `.tavallai` roots before provenance updates resume.
   - The current provenance writer requires a schema-valid `schemaVersion`, `directoryType: PROVENANCE`, and typed scope. Existing V1 roots with only `version` and `scope.type` are read-only under the current fail-closed contract.
@@ -447,6 +504,12 @@ _No open global TODO items currently tracked._
 ### `TavallStudios/tavall-mc`
 
 #### System — Tavall MC / Project Novus
+
+- [ ] 2026-10-22 — Audit actual primary types before applying suffix naming to Novus product modules and future gameplay SYSTEM extractions.
+  - `novus-runtime` already complies. `novus-ffa`, `novus-lobby`, `novus-essentials`, and `minecraft-kingdom-server` currently declare `APPLICATION`: do **not** rename them based solely on being runtime-loaded gameplay. Reclassify to SYSTEM and suffix only when validated fan-in responsibilities warrant it; API, LIBRARY, and product adapter modules remain type-correct.
+  - **Confirmed additional mismatch:** `tavall-mc-world` is explicitly classified as primary `SYSTEM` in both its module README and `docs/progression/modules/TAVALL_MC_WORLD_PROGRESSION.md`, but the actual module lacks `-system`. Plan the target `tavall-mc-world-system` with a compatibility mapping for module IDs, Gradle coordinates, embedded descriptors, Paper host references, world data, `/world` behavior, and existing validation; avoid duplicating World SYSTEM state.
+  - Future independently composed PvP, Kingdom, and security SYSTEMs must end in `-system`, retaining their Paper/Velocity host and the single first-party `application.jar`. Fix Kingdom module-scoped DI and reconstructibility before asserting live reload; update descriptors/profile IDs, Gradle, artifact references, CI and client tests in an exact-root branch without altering stale PR ancestry blindly.
+
 
 - [ ] 2026-10-18 — Reconcile current-main separation PR #333 before promoting the Minecraft PR stack.
   - PR #333 remains open Draft at head `d0edf7f`, based on `main@fd2abaa`; current Tavall-MC main is `218e46f`. Merge current main into the existing root branch, resolve overlaps using the accepted ownership split, and rerun exact-head validation before promotion.
@@ -576,6 +639,11 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall Test Suite Tools
 
+- [ ] 2026-10-22 — Add canonical module-name/type validation to the shared architecture test rules after existing source/module inventory is reconciled.
+  - Inspect actual Gradle projects and declared **primary** type. For new SYSTEM and RUNTIME definitions require `-system` and `-runtime` respectively; explicitly exempt repository/aggregate roots, APPLICATIONs, API/FEATURE/TOOLING/TEST_SUITE modules and provider/adapter roles. Report legacy names with mapped migration tasks rather than breaking all existing consumers before coordinated cutover.
+  - Verify positive/negative fixtures, exact-source source/build metadata and per-module `.tavallci` lint integration. Do not key off a folder's mere text or a README heading like `System —`.
+
+
 - [ ] 2026-10-08 — Finish architecture-rule producer PR #22 and publish a reproducible rule artifact.
   - Current PR head is `0f4c2fe`; the validated rule implementation source is `4f15f10`. Verify wrapper-backed Tavall CI and package-backed rule resolution independently from source-composite use.
   - Keep rule code and reusable policy here. Consumer repositories own their source violations and fix them without suppressing rules or expanding debt baselines; Tavall-MC keeps only its repository-specific architecture targets.
@@ -583,6 +651,11 @@ _No open global TODO items currently tracked._
 ### `TavallStudios/tavall-web`
 
 #### System — Tavall Web Platform
+
+- [ ] 2026-10-22 — Define only evidence-backed Account/Commerce fan-in SYSTEMs with compliant module names, while retaining `tavall-web-app` as APPLICATION.
+  - Candidate modules: `tavall-web-account-system` (shared identity/organization business authority) and `tavall-web-commerce-system` only if contracts and consumers justify extraction from `tavall-web-app`. Leave the `tavall-web` repository root and existing `tavall-web-account`/`tavall-web-content` presentation repos unchanged.
+  - Keep Spring process, OAuth host security, session and routing inside the existing app; preserve Account's canonical identity authority and product backend boundaries. Acceptance: exact-source Spring startup, OAuth denial flows, organization/checkout persistence and browser tests, no new service processes.
+
 
 - [ ] 2026-10-02 — Reconcile and fold `tavall-web-docs` into `tavall-web` (PR #48).
   - Consolidate web documentation authority and retire the separate `tavall-web-docs` repository surface.
