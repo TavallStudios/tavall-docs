@@ -648,6 +648,21 @@ _No open global TODO items currently tracked._
   - Current PR head is `0f4c2fe`; the validated rule implementation source is `4f15f10`. Verify wrapper-backed Tavall CI and package-backed rule resolution independently from source-composite use.
   - Keep rule code and reusable policy here. Consumer repositories own their source violations and fix them without suppressing rules or expanding debt baselines; Tavall-MC keeps only its repository-specific architecture targets.
 
+### `TavallStudios/tavall-qa`
+
+#### System — Tavall QA Task Board
+
+- [ ] 2026-10-23 — Complete authorized data onboarding and DEVELOPMENT/STAGING acceptance for the QA Board in the shared Tavall Web runtime.
+  - `tavall-qa-system` is the `SYSTEM` / `PROVIDER` owner of mapped-JPA task, evidence, assignment, audit, VQC, and weighted-public-progress state. `tavall-web-app` owns the runtime and Account request boundary; `tavall-web-qa` owns the accepted Forge presentation; `tavall-web-dashboard` owns discovery only.
+  - Keep migrations `027` and `028` with `tavall-qa`. Do not restore `progress_task`, `publicProgressTaskId`, a duplicate Web schema, runtime DDL, or an independent QA runtime.
+  - Current live DEVELOPMENT serves the accepted public project index and legacy `/task-board/**` redirects. The public projection contains the two seeded projects and zero publicly visible tasks; the private task count is unknown. Add or publish real tasks only through the QA authority with an authorized Account subject. Verify migration `028` and the staff Account/QA permission matrix independently.
+  - The current Web candidate has local exact-source `check`, standalone-artifact, 1440px/390px browser, NHV/privacy, Focus Workspace, editor-routing, and save-return evidence. These results do not replace exact-head Tavall CI, an immutable release, STAGING delivery, or authenticated Account-backed acceptance.
+
+- [ ] 2026-10-23 — Complete typed progress integrations through their existing owners after API and delivery contracts are verified.
+  - The QA progress aggregator remains the PostgreSQL-backed authority. Check the current Cache/Event, CMS, Roadmap, Discord publisher, and public-proof owners for typed consumer contracts before connecting subscribers.
+  - Preserve idempotent replay and audience filtering before counts and derived events. Private task changes must not leak through cache, event, CMS, Discord, or public-proof payloads.
+  - Do not create placeholder publishers, subscribers, duplicate progress stores, or treat Redis/cache projections as durable authority. Record each integration's owner and acceptance when its typed boundary is available.
+
 ### `TavallStudios/tavall-web`
 
 #### System — Tavall Web Platform
