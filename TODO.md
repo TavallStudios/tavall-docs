@@ -507,6 +507,7 @@ _No open global TODO items currently tracked._
 
 - [ ] 2026-10-22 — Audit actual primary types before applying suffix naming to Novus product modules and future gameplay SYSTEM extractions.
   - `novus-runtime` already complies. `novus-ffa`, `novus-lobby`, `novus-essentials`, and `minecraft-kingdom-server` currently declare `APPLICATION`: do **not** rename them based solely on being runtime-loaded gameplay. Reclassify to SYSTEM and suffix only when validated fan-in responsibilities warrant it; API, LIBRARY, and product adapter modules remain type-correct.
+  - **Confirmed additional mismatch:** `tavall-mc-world` is explicitly classified as primary `SYSTEM` in both its module README and `docs/progression/modules/TAVALL_MC_WORLD_PROGRESSION.md`, but the actual module lacks `-system`. Plan the target `tavall-mc-world-system` with a compatibility mapping for module IDs, Gradle coordinates, embedded descriptors, Paper host references, world data, `/world` behavior, and existing validation; avoid duplicating World SYSTEM state.
   - Future independently composed PvP, Kingdom, and security SYSTEMs must end in `-system`, retaining their Paper/Velocity host and the single first-party `application.jar`. Fix Kingdom module-scoped DI and reconstructibility before asserting live reload; update descriptors/profile IDs, Gradle, artifact references, CI and client tests in an exact-root branch without altering stale PR ancestry blindly.
 
 
