@@ -5,7 +5,7 @@
 > **Repository projections:** Every maintained TavallStudios repository exposes a bot-managed root `TODO.md` that projects only that repository's section from this file.  
 > **Last updated:** 2026-10-22
 
-This file is the single source of truth for organization-wide repository TODO work. Repository-local `TODO.md` files are generated static projections and must not become independent task ledgers.
+**Transition notice (2026-10-22):** We are moving to [GitHub Issue-owned work tracking](docs/quality/WORK_TRACKING.md). For rows that contain a **canonical issue** link, that issue owns future task state and acceptance; the checkbox and prose here are **historical migration snapshots**. Unlinked rows retain their previous ledger authority until individually reconciled. Root TODO projections stay on their established v1 protocol until the GitHub Bot v2 generator is tested. See the [migration inventory](docs/progression/TAVALL_WORK_GRAPH_LEGACY_TODO_MIGRATION_20261022.md).
 
 ## Projection contract
 
@@ -49,7 +49,7 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall Contractors
 
-- [ ] 2026-10-22 — Decide legacy Contractors executable ownership before changing the `spring-webview` RUNTIME module's noncompliant name.
+- [ ] 2026-10-22 — Decide legacy Contractors executable ownership before changing the `spring-webview` RUNTIME module's noncompliant name.  ([canonical issue](https://github.com/TavallStudios/TavallContractors/issues/9))
   - If maintained independently, migrate the actual Gradle runtime/artifact toward `tavall-contractors-web-runtime` and the `internal-contractor-api` consumer references; if folded into the unified Tavall Web platform, prefer an API/presentation migration and retirement instead of a pointless legacy rename.
   - Do not change the `TavallContractors` repository root solely for suffix compliance; require exact-source Spring boot, request routing, provider/data integration and deployment rollback validation.
 
@@ -83,7 +83,7 @@ _No open global TODO items currently tracked._
 
 #### System — Function Catalog
 
-- [ ] 2026-10-22 — Bring the independently executable `mcp-server` Gradle module into Tavall naming as `tavall-function-catalog-mcp-runtime`, preserving the `function-catalog` repository name.
+- [ ] 2026-10-22 — Bring the independently executable `mcp-server` Gradle module into Tavall naming as `tavall-function-catalog-mcp-runtime`, preserving the `function-catalog` repository name.  ([canonical issue](https://github.com/TavallStudios/function-catalog/issues/39))
   - Confirm module type against actual HTTP/stdio launchers, migrate Gradle project/artifact/entrypoints, provider consumers, packaging and Tavall CI/CD/service references in a compatibility-reviewed slice. `agent-runtime` is documented as a non-process LIBRARY and must **not** be misclassified as a separate RUNTIME just because of the old suffix.
   - Verify catalog scoped discovery, authenticated MCP transport, HTTP/stdio launch, provider-neutral function views, deployment artifact identity and rollback. Do not introduce a duplicate model runtime or Cloud authority.
 
@@ -114,7 +114,7 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall AI Platform
 
-- [ ] 2026-10-22 — Normalize Tavall AI module types and suffixes without treating agents or non-process capabilities as independent runtimes.
+- [ ] 2026-10-22 — Normalize Tavall AI module types and suffixes without treating agents or non-process capabilities as independent runtimes.  ([canonical issue](https://github.com/TavallStudios/tavall-ai/issues/74))
   - Inventory active `settings.gradle.kts` modules versus the unlisted legacy `tavall-ai-core` source and move only validated active consumers. Reclassify `AGENT_PACKAGE`/`RUNTIME_CAPABILITY` as canonical primary types plus secondary roles; agents remain behavior packages loaded by the runtime, not RUNTIME/SYSTEM by assumption.
   - If the model-execution, browser, distributed-execution or project-context capability is confirmed as a SYSTEM, name its actual Gradle module `*-system`; the `tavall-ai-runtime` executable keeps its existing suffix. Do not rename a pure provider adapter to RUNTIME based on an old `runtime-` prefix.
   - Coordinate the planned dedicated Tavall AI Memory cutover and Docs Agent index regeneration; retain exact source, typed DI, Function Catalog policy, Cloud leases, provider permissions and agent registry compatibility. E2E: runtime bootstrap, opt-in capability disable/reload and no stale-generation capability access.
@@ -134,7 +134,7 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall AI Memory
 
-- [ ] 2026-10-22 — Select the canonical primary type and module/artifact name for the dedicated memory owner before migrating `tavall-ai-runtime-memory`.
+- [ ] 2026-10-22 — Select the canonical primary type and module/artifact name for the dedicated memory owner before migrating `tavall-ai-runtime-memory`.  ([canonical issue](https://github.com/TavallStudios/tavall-ai-memory/issues/4))
   - Keep the new repository name `tavall-ai-memory` unchanged. If the extracted memory composition is a SYSTEM, use an internal module such as `tavall-ai-memory-system`; if it remains an API/library capability, do not manufacture an independent RUNTIME. Migrate old imports and storage contracts only after consumers and exact-source validation pass.
 
 
@@ -151,7 +151,7 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall Analytics
 
-- [ ] 2026-10-22 — Introduce explicit SYSTEM names and host-owned collector lifecycle in Analytics, replacing legacy blanket LIBRARY labels through reviewed slices.
+- [ ] 2026-10-22 — Introduce explicit SYSTEM names and host-owned collector lifecycle in Analytics, replacing legacy blanket LIBRARY labels through reviewed slices.  ([canonical issue](https://github.com/TavallStudios/tavall-analytics/issues/18))
   - Candidate fan-in: `tavall-analytics-collection-system` for genuinely independent passive collectors and `tavall-analytics-analysis-system` for the `tavall-analytics-core` owner **if** source consumers justify SYSTEM classification. Review attribution, experiments, reporting and first-party modules for actual SYSTEM versus package/adapter ownership; require `-system` on each accepted SYSTEM, not on generic producer libraries.
   - Preserve `tavall-analytics-api`, `tavall-analytics-app` (APPLICATION), storage/provider adapters, the existing Minecraft passive-source modules and immutable-evidence semantics. Complete planned retirement of `tavall-analytics-content` after API consumer migration instead of inventing a second Content SYSTEM.
   - Validate exact-source ingestion, independent collector disable/reload only where the owning host supports it, PostgreSQL/NFS consistency, evidence provenance, module-local CI, and module-scoped Progression; do not represent collector host E2E as already implemented.
@@ -170,7 +170,7 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall Cache
 
-- [ ] 2026-10-22 — Classify the current `abstract-cache-system` contract module and `abstract-cache-semantic` owner before applying suffixes.
+- [ ] 2026-10-22 — Classify the current `abstract-cache-system` contract module and `abstract-cache-semantic` owner before applying suffixes.  ([canonical issue](https://github.com/TavallStudios/tavall-cache/issues/16))
   - Existing `abstract-cache-system` is documented as a non-runtime LIBRARY/API-style foundational contract, not automatically a primary SYSTEM because of its name. Confirm API classification and plan a compatibility-safe `tavall-cache-api` coordinate only if that reduces misleading naming. If semantic routing truly has SYSTEM fan-in, migrate it to a compliant name such as `tavall-cache-semantic-system` with a real consumer and profile tests; otherwise leave it a library.
   - Storage backends remain secondary PROVIDER/ADAPTER roles until independent FEATURE lifecycle is proven. Integrate existing per-module CI TODOs; do not create a standalone cache runtime.
 
@@ -220,7 +220,7 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall Cloud
 
-- [ ] 2026-10-22 — Finish source-to-module classification and naming cutover for Cloud CONTROL and Node Agent without splitting the unified Cloud distribution.
+- [ ] 2026-10-22 — Finish source-to-module classification and naming cutover for Cloud CONTROL and Node Agent without splitting the unified Cloud distribution.  ([canonical issue](https://github.com/TavallStudios/tavall-cloud/issues/460))
   - `tavall-cloud-node` currently declares primary `RUNTIME` but lacks `-runtime`: either migrate the real process owner to `tavall-cloud-node-runtime`, or explicitly split the actual Node SYSTEM from the runtime shell after dependency and host evidence. Keep `tavall-cloud-runtime` unchanged as the unified runtime/distribution owner; do not create duplicate process authority.
   - Extract the source-bearing `tavall-cloud/` **Gradle aggregate** into its true existing domain owners; create `tavall-cloud-control-system` only for validated CONTROL fan-in, never a new CONTROL process by implication. Do not rename the repository root or the aggregate folder simply to add a suffix.
   - Classify `tavall-cloud-jobs`, `tavall-networking`, Edge Director and provider modules by their verified responsibilities before any optional SYSTEM/FEATURE renames; preserve existing typed Cloud/NLEW/Database/Filesystem authority. E2E: real CONTROL/Node boot, service reconciliation, Executor placement, node reconnect, existing profiles and rollback.
@@ -320,7 +320,7 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall Content Studio
 
-- [ ] 2026-10-22 — Rename the verified headless `tavall-content-render-worker` RUNTIME module to a suffix-compliant identity such as `tavall-content-render-worker-runtime`, without moving the Tavall Content repository.
+- [ ] 2026-10-22 — Rename the verified headless `tavall-content-render-worker` RUNTIME module to a suffix-compliant identity such as `tavall-content-render-worker-runtime`, without moving the Tavall Content repository.  ([canonical issue](https://github.com/TavallStudios/tavall-content/issues/72))
   - Preserve `tavall-content-runtime` (already compliant), `tavall-content-app` and the existing `tavall-content-auto-post-system`/`tavall-content-auto-account-system` FEATURE graphs. Rename Gradle artifact, immutable worker distribution, Tavall CD template/service selector, CLI/CI references, persisted job/lease identity and documentation only through an audited compatibility plan.
   - Acceptance: exact-source producer and Studio consumer tests, real DB job claim/recovery/cancel/resume, worker replacement and rollback, no duplicate lease ownership or published state loss.
 
@@ -370,7 +370,7 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall Database
 
-- [ ] 2026-10-22 — Reconcile Database's legacy primary provider/library classifications against canonical module types before any `-system` migration.
+- [ ] 2026-10-22 — Reconcile Database's legacy primary provider/library classifications against canonical module types before any `-system` migration.  ([canonical issue](https://github.com/TavallStudios/tavall-database/issues/31))
   - Keep `tavall-database-core-contracts`, `tavall-database-redis-api`, existing provider implementations and their tested contract boundaries. Add `-system` only to a verified domain fan-in SYSTEM; no suffix requirement for plain API, selected provider, consumer aggregate or repository root. Validate live PostgreSQL/Redis consumers, ServiceLoader, pool/lease cleanup, and exact-source compatibility.
 
 
@@ -389,7 +389,7 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall Discord
 
-- [ ] 2026-10-22 — Resolve Discord's in-process lifecycle module primary type and apply suffix naming only after classification.
+- [ ] 2026-10-22 — Resolve Discord's in-process lifecycle module primary type and apply suffix naming only after classification.  ([canonical issue](https://github.com/TavallStudios/tavall-discord/issues/10))
   - The existing `tavall-discord-runtime` suffix is syntactically compliant but its README says it is **not independently executable**; if classified as SYSTEM, migrate to a semantically accurate `tavall-discord-lifecycle-system` rather than falsely declaring RUNTIME. If `tavall-discord-data` becomes a SYSTEM, likewise use `tavall-discord-data-system`; otherwise retain its appropriate API/library identity.
   - Keep `tavall-discord-api`, JDA and Minecraft integration interfaces separate; consumer products own Discord behavior. E2E: actual host startup, feature registration/disable/teardown and client shutdown without a second Discord daemon.
 
@@ -402,7 +402,7 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall Documentation
 
-- [ ] 2026-10-22 — Enforce the canonical `-system` / `-runtime` suffix rule for **actual** modules, excluding parent repositories, organizational aggregates, APPLICATIONs and secondary-role labels.
+- [ ] 2026-10-22 — Enforce the canonical `-system` / `-runtime` suffix rule for **actual** modules, excluding parent repositories, organizational aggregates, APPLICATIONs and secondary-role labels.  ([canonical issue](https://github.com/TavallStudios/tavall-docs/issues/78))
   - Apply [Module Types](docs/quality/MODULE_TYPES.md#module-name-suffix-contract-2026-10-22) and [Module Separation](docs/quality/code-architecture/MODULE_SEPARATION.md#module-identity-naming-during-separation); classify from source before proposing each migration. A `System —` TODO heading or the word `runtime` in a folder is not proof of primary type.
   - Coordinate per-repository rollout through this ledger; require exact-source consumer imports/Gradle coordinates, module IDs/descriptors, DI and registry wiring, `.tavallci`/CD references, per-module Progression, rollback and owning host acceptance. Repository-local TODOs are bot projections, not separately edited work queues.
   - After the canonical docs revision merges, regenerate the Tavall Docs Agent exact-section index/skill metadata against the new `tavall-docs/main` SHA; validate its native drift checker before declaring remote skills synchronized.
@@ -505,7 +505,7 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall MC / Project Novus
 
-- [ ] 2026-10-22 — Audit actual primary types before applying suffix naming to Novus product modules and future gameplay SYSTEM extractions.
+- [ ] 2026-10-22 — Audit actual primary types before applying suffix naming to Novus product modules and future gameplay SYSTEM extractions.  ([canonical issue](https://github.com/TavallStudios/tavall-mc/issues/360))
   - `novus-runtime` already complies. `novus-ffa`, `novus-lobby`, `novus-essentials`, and `minecraft-kingdom-server` currently declare `APPLICATION`: do **not** rename them based solely on being runtime-loaded gameplay. Reclassify to SYSTEM and suffix only when validated fan-in responsibilities warrant it; API, LIBRARY, and product adapter modules remain type-correct.
   - **Confirmed additional mismatch:** `tavall-mc-world` is explicitly classified as primary `SYSTEM` in both its module README and `docs/progression/modules/TAVALL_MC_WORLD_PROGRESSION.md`, but the actual module lacks `-system`. Plan the target `tavall-mc-world-system` with a compatibility mapping for module IDs, Gradle coordinates, embedded descriptors, Paper host references, world data, `/world` behavior, and existing validation; avoid duplicating World SYSTEM state.
   - Future independently composed PvP, Kingdom, and security SYSTEMs must end in `-system`, retaining their Paper/Velocity host and the single first-party `application.jar`. Fix Kingdom module-scoped DI and reconstructibility before asserting live reload; update descriptors/profile IDs, Gradle, artifact references, CI and client tests in an exact-root branch without altering stale PR ancestry blindly.
@@ -639,7 +639,7 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall Test Suite Tools
 
-- [ ] 2026-10-22 — Add canonical module-name/type validation to the shared architecture test rules after existing source/module inventory is reconciled.
+- [ ] 2026-10-22 — Add canonical module-name/type validation to the shared architecture test rules after existing source/module inventory is reconciled.  ([canonical issue](https://github.com/TavallStudios/tavall-test-suite-tools/issues/25))
   - Inspect actual Gradle projects and declared **primary** type. For new SYSTEM and RUNTIME definitions require `-system` and `-runtime` respectively; explicitly exempt repository/aggregate roots, APPLICATIONs, API/FEATURE/TOOLING/TEST_SUITE modules and provider/adapter roles. Report legacy names with mapped migration tasks rather than breaking all existing consumers before coordinated cutover.
   - Verify positive/negative fixtures, exact-source source/build metadata and per-module `.tavallci` lint integration. Do not key off a folder's mere text or a README heading like `System —`.
 
@@ -652,7 +652,7 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall Web Platform
 
-- [ ] 2026-10-22 — Define only evidence-backed Account/Commerce fan-in SYSTEMs with compliant module names, while retaining `tavall-web-app` as APPLICATION.
+- [ ] 2026-10-22 — Define only evidence-backed Account/Commerce fan-in SYSTEMs with compliant module names, while retaining `tavall-web-app` as APPLICATION.  ([canonical issue](https://github.com/TavallStudios/tavall-web/issues/77))
   - Candidate modules: `tavall-web-account-system` (shared identity/organization business authority) and `tavall-web-commerce-system` only if contracts and consumers justify extraction from `tavall-web-app`. Leave the `tavall-web` repository root and existing `tavall-web-account`/`tavall-web-content` presentation repos unchanged.
   - Keep Spring process, OAuth host security, session and routing inside the existing app; preserve Account's canonical identity authority and product backend boundaries. Acceptance: exact-source Spring startup, OAuth denial flows, organization/checkout persistence and browser tests, no new service processes.
 
