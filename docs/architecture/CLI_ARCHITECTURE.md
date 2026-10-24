@@ -26,6 +26,8 @@ The CLI framework never accumulates domain behavior (Cloud, CI, AI, Minecraft, d
 - **Typed Java capabilities** own actual business and domain behavior.
 - **Tavall DI** owns object graphs, lifecycle, and composition.
 
+Provider discovery is scoped to the modules present on a `TavallCliApplication` runtime classpath. The source-level Cloud, CI, and Harness providers do not by themselves prove that one approved installed distribution loads all three.
+
 ---
 
 ## 2. Canonical Ownership and Dependency Model
@@ -102,27 +104,23 @@ public final class CloudServiceDeployCLICommand
                    DependencyAccess<ICloudServiceOperations, ILogger> {
 
     public CloudServiceDeployCLICommand() {
-        super(CLICommandSettings.builder()
-                .name("deploy")
+        super(CLICommandBuilder.create("cloud", "service", "deploy")
                 .description("Deploy a service")
-                .path(CLICommandPath.of("cloud", "service", "deploy"))
-                .addArgument(CLICommandArgument.required("service", "Target service name"))
-                .addOption(CLICommandOption.optional("image", "Image reference", "latest"))
+                .argument(CLICommandArgument.required("service", "Target service name"))
+                .option(CLICommandOption.optional("image", "Image reference", "latest"))
                 .build());
     }
 
     @Override
-    public CLIExecutionResult<CloudServiceDeployResult> execute(CLICommandContext context) {
-        String service = context.input().argument("service");
-        String image = context.input().option("image").orElse("latest");
-
-        CloudServiceDeployResult result = getInstance().cloudServiceOperations()
-                .deploy(new CloudDeployRequest(service, image));
-
-        return CLIExecutionResult.success(result);
+    protected CloudServiceDeployResult handle(CLICommandInput input) {
+        String service = input.argument("service");
+        String image = input.findOption("image").orElse("latest");
+        return getInstance().cloudServiceOperations().deploy(new CloudDeployRequest(service, image));
     }
 }
 ```
+
+`ICLICommand.execute(CLICommandInput)` returns `CLICommandResult`. `CLICommand<R>` validates input, maps execution errors, and converts the typed `R` returned by `handle` into that non-generic result.
 
 ---
 
@@ -139,15 +137,14 @@ Each owning module supplies an `ICLIBootstrap` implementation (e.g. `CloudCLIBoo
 ```java
 public final class CiCLIBootstrap implements ICLIBootstrap {
     @Override
-    public void bootstrap(ICLIBootstrapContext context) {
-        ICLICommandRegistry registry = context.registry();
-        registry.register(new CiRootCLICommand());
-        registry.register(new CiValidateCLICommand());
-        registry.register(new CiPlanCLICommand());
-        registry.register(new CiExecuteCLICommand());
+    public void registerCommands(ICLICommandRegistry registry) {
+        registry.registerCommand(new CiRootCLICommand());
+        registry.registerCommand(new CiValidateCLICommand());
+        registry.registerCommand(new CiPlanCLICommand());
+        registry.registerCommand(new CiExecuteCLICommand());
         ...
     }
 }
 ```
 
-`TavallCliApplication` discovers all registered bootstraps dynamically, initializes DI composition roots, constructs the command tree, and executes incoming requests.
+`TavallCliApplication` discovers bootstrap providers present on its runtime classpath, initializes the shared CLI composition, constructs the command tree, and executes incoming requests. The owning distribution determines which provider modules are packaged.
