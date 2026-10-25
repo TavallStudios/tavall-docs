@@ -177,6 +177,10 @@ Module CI definitions own module checks. A root definition may aggregate them bu
 
 `.tavallci` may request typed Gradle work, source-controlled scripts, test harnesses, exact-source repository dependencies, immutable artifacts, tools, and additional approved execution capabilities.
 
+A typed Gradle check may declare up to 32 `gradleProperties` string entries for its primary build. Each entry is passed as a separate `-Pname=value` argument, preserving spaces and punctuation as part of one value. Property names are bounded identifiers; values are non-empty single-line text up to 4096 characters. Shell checks cannot set Gradle properties. `includeInAll: false` keeps a named check out of the default profile while allowing an explicit request for that check.
+
+Gradle properties do not select or replace exact source inputs. Tavall CI rejects CI-owned `org.gradle.*`, `tavallCi*`, `tavallSource*`, `tavallDependency*`, `tavallArtifact*`, and `tavallBuildPolicy*` properties. A property name supplied by exact-source version or plugin metadata is also reserved and cannot be set by a check.
+
 ## Typed execution
 
 Gradle is a first-class typed Tavall CI execution path. Shell remains available for source-owned scripts and work that is not naturally Gradle work. Additional adapters may exist without creating separate CI systems.
