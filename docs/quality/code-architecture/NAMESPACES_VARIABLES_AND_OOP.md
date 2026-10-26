@@ -104,20 +104,7 @@ Naming rules:
 - keep dependency getters named on the class; do not alias a generated `DependencyAccess` object in a local as a substitute for domain values;
 - do not introduce redundant one-use locals with no meaning beyond repeating the next expression.
 
-Example from the [complete achievement consumer](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access):
-
-```java
-AchievementProgressEventData progressEventData =
-        AchievementProgressEventData.fromProgressRequest(achievementProgressRequest);
-AchievementProgressMutationResult progressMutationResult =
-        getAchievementEventMutationAccess().applyEventProgressOnce(
-                progressEventData, achievementDefinition
-        );
-PlayerAchievementProgressData updatedProgress =
-        progressMutationResult.updatedProgress();
-```
-
-The real operation checks for null/error states before the final extraction; see the full example. This excerpt shows type visibility and meaningful operation boundaries, not a valid standalone flow.
+For a multi-step operation, the canonical [achievement consumer example](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access) separates `AchievementProgressEventData progressEventData`, `AchievementProgressMutationResult progressMutationResult`, and `PlayerAchievementProgressData updatedProgress` **after checking whether the result exists**. Keep the complete validation flow in its owning chapter rather than duplicating a truncated, unsafe method here.
 
 ##### Why
 
