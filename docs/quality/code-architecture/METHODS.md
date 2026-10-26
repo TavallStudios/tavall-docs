@@ -132,31 +132,11 @@ Method size matters because it often reveals several reasons to change. Extracti
 
 ## Domain Handler Methods
 
-A domain handler method may own the focused rule it exists to implement.
+A domain handler method may own the focused rule it exists to implement. The canonical complete method example now lives in [Handler Patterns](HANDLERS.md#domain-handler-pattern): `RankUpdateHandler.updatePlayerRank(RankUpdateRequest)`.
 
-Example shape:
+That example shows explicit, meaningful locals (`staffAccountData`, `targetAccountData`, `canRankEdit`), named live DI getters, a typed outcome, and no manually captured dependency-access variable. Keep the method naming and code-shape rules here; keep full Handler examples in their owning chapter so the two documents do not drift apart.
 
-```java
-public RankUpdateResult updatePlayerRank(
-        RankUpdateRequest request
-) {
-    PlayerAccountData staff = getDataHandler().load(request.staffUUID());
-    PlayerAccountData target = getDataHandler().load(request.targetUUID());
-
-    if (!getPowerLevelHandler().canRankEdit(staff, target)) {
-        return RankUpdateResult.targetTooPowerful();
-    }
-
-    getRankDataHandler().updatePlayerRankData(request);
-    return RankUpdateResult.success();
-}
-```
-
-The handler may coordinate focused dependencies through Tavall DI. It does not own their backing maps, transaction callbacks, or unrelated rules.
-
-##### Why
-
-A handler is an operation owner, not a storage/runtime-container owner. Domain rules can live there while persistence/cache/registry mechanics stay behind the dependencies designed to own them.
+A handler is an operation owner, not a storage/runtime-container owner. Domain rules may live there while persistence/cache/registry mechanics stay behind the capabilities designed to own them.
 
 ## Input Adapter Methods
 
