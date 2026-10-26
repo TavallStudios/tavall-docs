@@ -285,6 +285,7 @@ routes:
       - dependency bundle
       - default consumer
       - consumer pattern
+      - managed constructor
     documents:
       - docs/quality/code-architecture/DEPENDENCY_INJECTION_AND_ORCHESTRATION.md
 
@@ -310,6 +311,11 @@ routes:
       - metadata builder
       - request builder
       - record construction
+      - record conversion
+      - record factory
+      - record method
+      - inline construction
+      - inline new
       - direct record
       - simple record
       - builder options
@@ -371,6 +377,9 @@ routes:
       - method signature
       - method naming
       - method name
+      - method visibility
+      - public method
+      - private method
       - method size
       - method local
     documents:
