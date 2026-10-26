@@ -36,6 +36,8 @@ Before changing architecture:
 
 When a rule concerns an existing Tavall tool, inspect that canonical tool's interfaces, implementation, tests, and owning documentation before changing shared guidance. Canonical Tavall tools own their API shape, inheritance model, lifecycle semantics, supported low-level/framework surfaces, and naming vocabulary. Shared architecture may classify when a tool is used and constrain ordinary application consumers, but it must not silently redesign the canonical tool itself. A desired redesign belongs in the owning tool first and in shared docs only after that change becomes the accepted tool contract.
 
+**Route by concern, then by owner:** this root classifies and routes; a delegated chapter owns its specific application role; a canonical Tavall Java Tool repository owns the precise tool API/access pattern. Read the relevant tool access guide where one exists (for example [Tavall DI](https://github.com/TavallStudios/tavall-di/blob/main/docs/DI_ACCESS_STYLES.md), [Registry](https://github.com/TavallStudios/tavall-registry/blob/main/docs/REGISTRY_ACCESS_STYLES.md), or [Database](https://github.com/TavallStudios/tavall-database/blob/main/docs/ENTITY_ACCESS_STYLES.md)). Do not duplicate tool implementation recipes into the shared chapters or treat a simplified old example as newer than its tool contract.
+
 A change may require several delegated chapters. A Handler using Tavall DI, Cache, and persistence must not read only `HANDLERS.md`; it also requires the DI and state/persistence chapters that own those boundaries.
 
 ### Required Topic Routing
