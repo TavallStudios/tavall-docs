@@ -158,7 +158,7 @@ Use a builder when the construction itself is meaningful:
 ```java
 public final class RankUpdateRequestBuilder {
 
-    public RankUpdateRequest build(
+    public RankUpdateRequest buildRankUpdateRequest(
             UUID staffUUID,
             UUID targetUUID,
             RankKey rankKey,
