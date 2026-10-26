@@ -164,7 +164,51 @@ public record AchievementProgressRequest(
 }
 ```
 
-The **proposed** `IPlayerAchievementDataHandler.synchronizeCommittedProgress(UUID, PlayerAchievementProgressData)` operation would contain the existing synchronization and cache-save sequence. A data-owned method on `PlayerAchievementData`, such as `acceptCommittedProgress(PlayerAchievementProgressData)`, would encapsulate the existing timestamp comparison and `upsertProgress` decision. These are **separate source/interface changes**, not methods claimed to exist today.
+The timestamp comparison already exists inline in today's production Handler. The **proposed** shape gives each operation a proper owner rather than deleting it:
+
+```java
+// Proposed method added to PlayerAchievementProgressData (an existing record).
+public boolean canReplace(PlayerAchievementProgressData cachedProgress) {
+    return cachedProgress == null
+            || updatedAt == null
+            || cachedProgress.updatedAt() == null
+            || !cachedProgress.updatedAt().isAfter(updatedAt);
+}
+
+// Proposed method added to PlayerAchievementData (an existing data owner).
+public boolean acceptCommittedProgress(PlayerAchievementProgressData updatedProgress) {
+    if (updatedProgress == null) {
+        return false;
+    }
+    PlayerAchievementProgressData cachedProgress =
+            findProgress(updatedProgress.achievementKey()).orElse(null);
+
+    if (!updatedProgress.canReplace(cachedProgress)) {
+        return false;
+    }
+    upsertProgress(updatedProgress);
+    return true;
+}
+
+// Proposed public method added to IPlayerAchievementDataHandler
+// and implemented by the DI-managed PlayerAchievementDataHandler.
+@Override
+public void synchronizeCommittedProgress(
+        UUID playerUUID,
+        PlayerAchievementProgressData updatedProgress
+) {
+    PlayerAchievementData playerAchievementData = load(playerUUID);
+    if (playerAchievementData == null) {
+        return;
+    }
+    synchronized (playerAchievementData) {
+        playerAchievementData.acceptCommittedProgress(updatedProgress);
+        getPlayerAchievementCache().saveOnline(playerAchievementData);
+    }
+}
+```
+
+These are **separate proposed methods in three different owning types**, not one compilable class block. The DataHandler's `getPlayerAchievementCache()` is a **private named DI getter** to add during its existing constructor/field migration. The cache remains a cache-specific managed owner. This preserves the old timestamp/locking/save semantics while distributing them to the classes that own the data and synchronization policy. Production conversion also needs the owning interfaces, DI generation binding, and tests updated together.
 
 Ownership is not a one-size-fits-all mechanical split:
 
