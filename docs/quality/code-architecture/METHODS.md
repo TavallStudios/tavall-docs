@@ -10,7 +10,7 @@ Methods should be readable top to bottom and perform one coherent operation.
 
 Rules:
 
-- Method names explain the action.
+- Method names explain the specific action, including the affected domain and outcome where needed.
 - Important values are extracted into named locals when that improves ownership/debugging.
 - Production local variables use explicit Java types rather than `var`.
 - Avoid hiding meaningful logic inside deep chained calls.
@@ -72,9 +72,13 @@ A public method on a DI-managed Handler/Service/DataHandler expresses an operati
 
 Private named DI getters (for example `getPlayerAchievementDataHandler()`) resolve live through `DependencyAccess<...>` and keep dependency mechanics out of the operation body. Private non-DI helpers should implement genuine class-local behavior; avoid unnecessary wrappers created only to hide an unclear design.
 
-Records/value objects may expose **public value-specific methods** (for example `toProgressEventData()`) while keeping construction, validation, normalization, and auxiliary helpers private/internal. Domain authorization or persistence does **not** become record behavior merely because the record can define methods. Record factories/converters may call their own constructors internally. This is different from an ordinary DI consumer calling `new` for a data object or another managed component.
+Records/value objects may expose **public value-specific methods** (for example `AchievementProgressEventData.fromProgressRequest(...)`) while keeping construction, validation, normalization, and auxiliary helpers private/internal. Domain authorization or persistence does **not** become record behavior merely because the record can define methods. Record factories/converters may call their own constructors internally. This is different from an ordinary DI consumer calling `new` for a data object or another managed component.
 
 The complete [consumer pattern](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access) demonstrates the proposed record-owned conversion and DataHandler-owned cache reconciliation. The concrete source/interfaces must be updated before those methods exist in production.
+
+**Pure forwarding is an anti-pattern:** a new public method that only calls another method with the same parameters and returns its result adds no behavior, policy, translation, or ownership. Keep the underlying capability public when it truly is the supported operation; otherwise give the adapter a real input/output translation job. Private named DI getters remain an intentional exception because they own live typed lookup, not domain forwarding.
+
+**One-use method extraction is not always separation:** avoid promoting a one-line predicate such as `canReplace(...)` to a new public API merely because it can be moved from the actual data owner's merge operation. Method visibility is based on a real external contract or reuse need; keep localized implementation details private or inline with their owner.
 
 ## Parameters and Requests
 
@@ -125,6 +129,41 @@ rankMetaDataHandler.refresh(playerAccountData);
 ##### Why
 
 Named locals expose domain values and failure points. The goal is not ceremonial variables; it is making meaningful steps visible.
+
+## Intermediate Values and Delegation Anti-Patterns
+
+Keep meaningful operations readable as explicit stages. Separate a value when its result is checked, reused, changes domain ownership, carries an error state, or would otherwise be buried in a call chain. Use the **full Java type** and a **domain-specific variable name**. Do not create an alias for the generated DI access object or local getters solely to remove a method call.
+
+Bad:
+
+```java
+getPlayerAchievementDataHandler().applyCommittedPlayerAchievementProgress(
+        achievementProgressRequest.playerUUID(),
+        getAchievementEventMutationAccess().applyEventProgressOnce(
+                AchievementProgressEventData.fromProgressRequest(achievementProgressRequest),
+                achievementProgressRequest.achievementDefinition()
+        ).updatedProgress()
+);
+```
+
+This collapses conversion, durable mutation, possible-null result validation, and cache reconciliation into one call. Instead keep `AchievementProgressEventData progressEventData`, `AchievementProgressMutationResult progressMutationResult`, `PlayerAchievementProgressData updatedProgress`, and `UUID playerUUID` separate as shown in the [full consumer example](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access).
+
+Bad forwarding wrapper:
+
+```java
+public void applyCommittedPlayerAchievementProgress(
+        UUID playerUUID,
+        PlayerAchievementProgressData updatedProgress
+) {
+    getPlayerAchievementDataHandler().applyCommittedPlayerAchievementProgress(
+            playerUUID, updatedProgress
+    );
+}
+```
+
+This method owns no translation, data policy, cache mutation, or domain rule; it only copies the signature. A DataHandler implementation that **loads player data, locks its state, merges newer progress, and updates the Cache** is different: those are real responsibilities.
+
+Also avoid ceremonial locals that only rename a one-time literal/return expression. Extractions are for meaningful stages and diagnostics, not adding lines for their own sake.
 
 ## Method Size
 
@@ -178,7 +217,7 @@ Data policy deserves one reusable owner when policy actually exists. A forwardin
 
 ## Builder Methods
 
-Builder methods construct typed values. Simple records and immutable data are constructed directly; a DataBuilder/MetaDataBuilder is for meaningful options, defaults, validation, or nontrivial assembly, not copying record components. The owning [Builder Patterns](BUILDERS.md#direct-record-construction-and-data-builder-pattern) chapter has the examples. Builders do not persist, cache, register managed behavior, schedule, or authorize.
+Builder methods construct typed values. Simple records and immutable data are constructed directly; a DataBuilder/MetaDataBuilder is for meaningful options, defaults, validation, or nontrivial assembly, not copying record components. The owning [Builder Patterns](BUILDERS.md#record-owned-construction-and-data-builder-pattern) chapter has the examples. Builders do not persist, cache, register managed behavior, schedule, or authorize.
 
 ##### Why
 
