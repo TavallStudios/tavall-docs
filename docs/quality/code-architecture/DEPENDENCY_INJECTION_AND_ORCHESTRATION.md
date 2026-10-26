@@ -59,67 +59,139 @@ Managed consumers declare Tavall-managed collaborators through `DependencyAccess
 
 ### Multi-Dependency Expanded Access
 
+The following is a **consumer-pattern illustration adapted from** [Project Novus `AchievementProgressMutationHandler`](https://github.com/TavallStudios/tavall-mc/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/handler/AchievementProgressMutationHandler.java). It shows the *complete operation*, not just a declaration. The real production class still contains constructor-captured generated access and uses a builder for the event record; those are migration targets, not requirements to copy.
+
 ```java
 @DelegatesTo(IAchievementProgressMutationHandler.class)
 public final class AchievementProgressMutationHandler
         implements IAchievementProgressMutationHandler,
-        DependencyAccess<
-                IPlayerAchievementDataHandler,
-                IPlayerAchievementCache,
-                IAchievementCompletionHandler
-        > {
+                   DependencyAccess<
+                           IPlayerAchievementDataHandler,
+                           IPlayerAchievementCache,
+                           AchievementEventMutationAccess,
+                           IAchievementCompletionHandler
+                   > {
+
+    private IPlayerAchievementDataHandler getPlayerAchievementDataHandler() {
+        return getInstance().playerAchievementDataHandler();
+    }
+
+    private IPlayerAchievementCache getPlayerAchievementCache() {
+        return getInstance().playerAchievementCache();
+    }
+
+    private AchievementEventMutationAccess getAchievementEventMutationAccess() {
+        return getInstance().achievementEventMutationAccess();
+    }
+
+    private IAchievementCompletionHandler getAchievementCompletionHandler() {
+        return getInstance().achievementCompletionHandler();
+    }
 
     @Override
     public AchievementProgressMutationResult applyProgress(
-            AchievementProgressRequest request
+            String eventId,
+            UUID playerId,
+            AchievementListData definition,
+            long amount,
+            String actionType,
+            String sourceServerId,
+            String sourceContext,
+            Instant occurredAt
     ) {
-        AchievementProgressMutationHandlerDependencyAccess dependencies = getInstance();
-
-        PlayerAchievementData data = dependencies
-                .playerAchievementDataHandler()
-                .load(request.playerId());
-
-        if (data != null) {
-            dependencies
-                    .playerAchievementCache()
-                    .saveOnline(data);
+        // Preserve the current production guard/return contract while migrating access.
+        if (playerId == null || definition == null || amount <= 0L || !definition.enabled()) {
+            return null;
         }
 
-        return AchievementProgressMutationResult.applied();
+        // A simple record with its own validation/defaults needs no DataBuilder.
+        AchievementProgressEventData progressEventData = new AchievementProgressEventData(
+                eventId,
+                playerId,
+                definition.triggerType(),
+                amount,
+                actionType,
+                sourceServerId,
+                sourceContext,
+                occurredAt
+        );
+
+        AchievementProgressMutationResult mutationResult =
+                getAchievementEventMutationAccess().applyEventProgressOnce(
+                        progressEventData,
+                        definition
+                );
+        if (mutationResult == null || mutationResult.updatedProgress() == null) {
+            return mutationResult;
+        }
+
+        PlayerAchievementData playerAchievementData =
+                getPlayerAchievementDataHandler().load(playerId);
+        if (playerAchievementData != null) {
+            synchronized (playerAchievementData) {
+                PlayerAchievementProgressData cachedProgress =
+                        playerAchievementData.findProgress(definition.achievementKey()).orElse(null);
+                PlayerAchievementProgressData updatedProgress = mutationResult.updatedProgress();
+
+                if (cachedProgress == null
+                        || updatedProgress.updatedAt() == null
+                        || cachedProgress.updatedAt() == null
+                        || !cachedProgress.updatedAt().isAfter(updatedProgress.updatedAt())) {
+                    playerAchievementData.upsertProgress(updatedProgress);
+                }
+                getPlayerAchievementCache().saveOnline(playerAchievementData);
+            }
+        }
+
+        if (mutationResult.completedNow()) {
+            getAchievementCompletionHandler().handleCompletion(
+                    mutationResult.updatedProgress(),
+                    definition
+            );
+        }
+        return mutationResult;
     }
 }
 ```
 
+This example preserves the current production operation's behavior while demonstrating authored named getters, direct typed DI access, and direct construction of an existing validated record. The longer operation is **not** a model for adding business logic to DataBuilders, nor proof that the current cache/update policy cannot later be consolidated behind a DataHandler. The source and interface must be changed together before considering this a compiled implementation.
+
+For the smaller rank-operation illustration and the specialized Handler/MetaDataHandler role, see [Handler Patterns](HANDLERS.md#domain-handler-pattern). The owning [Tavall DI Access Styles](https://github.com/TavallStudios/tavall-di/blob/main/docs/DI_ACCESS_STYLES.md) guide owns access generation and bundle rules.
+
 ### Single-Dependency Direct Access
 
-For a single managed dependency, `getInstance()` returns the typed contract directly:
+For a single managed dependency, `getInstance()` returns the typed contract directly. Prefer a named getter for repeated use; compact one-off calls may use `getInstance()` directly.
 
 ```java
 @DelegatesTo(IPlayerRewardHandler.class)
 public final class PlayerRewardHandler
         implements IPlayerRewardHandler,
-        DependencyAccess<IEconomyService> {
+                   DependencyAccess<IEconomyService> {
+
+    private IEconomyService getEconomyService() {
+        return getInstance();
+    }
 
     @Override
     public void rewardPlayer(PlayerId playerId, int amount) {
-        IEconomyService economyService = getInstance();
-        economyService.deposit(playerId, amount);
+        getEconomyService().deposit(playerId, amount);
     }
 }
 ```
 
 Rules:
 
-- capture `getInstance()` once when a method reads several dependencies;
+- prefer named dependency getters for repeated collaborators; direct `getInstance().namedCapability()` is fine when shorter and clear;
+- do not assign `getInstance()` to a method-local generated access or bundle variable as routine consumer style;
+- do not constructor-capture or field-cache ordinary Tavall-managed dependencies;
 - use generated typed getters instead of repeated class-token lookup;
 - ordinary production code MUST NOT cast or assign `getInstance()` to `IDependencyMap`;
 - optional dependencies use the repository-approved optional lookup path;
-- missing required dependencies fail fast;
-- do not store resolved managed dependencies in ordinary long-lived fields merely to avoid future lookups.
+- missing required dependencies fail fast.
 
 ##### Why
 
-Generated access keeps object identity and replacement owned by the dependency map. Consumers describe what they need without becoming composition roots or directly coupling to internal map infrastructure.
+Typed access preserves Tavall DI metadata identity and replacement semantics. Private named getters improve call sites without becoming cached state. The owning DI guide defines supported access alternatives; this chapter establishes the default ordinary-consumer style.
 
 ## Dependency Constructor Injection Is Rejected
 
