@@ -59,7 +59,7 @@ Managed consumers declare Tavall-managed collaborators through `DependencyAccess
 
 ### Multi-Dependency Expanded Access
 
-The following is a **consumer-pattern illustration adapted from** [Project Novus `AchievementProgressMutationHandler`](https://github.com/TavallStudios/tavall-mc/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/handler/AchievementProgressMutationHandler.java). It shows the *complete operation*, not just a declaration. The real production class still contains constructor-captured generated access and uses a builder for the event record; those are migration targets, not requirements to copy.
+The default consumer is **the public domain operation plus private, live, named DI getters**. The example below is a **proposed architecture migration** adapted from the actual [Project Novus `AchievementProgressMutationHandler`](https://github.com/TavallStudios/tavall-mc/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/handler/AchievementProgressMutationHandler.java). It is **not current compiling production source**: `AchievementProgressRequest`, its conversion method, and the DataHandler synchronization operation below would need to be implemented and tested together.
 
 ```java
 @DelegatesTo(IAchievementProgressMutationHandler.class)
@@ -67,17 +67,13 @@ public final class AchievementProgressMutationHandler
         implements IAchievementProgressMutationHandler,
                    DependencyAccess<
                            IPlayerAchievementDataHandler,
-                           IPlayerAchievementCache,
                            AchievementEventMutationAccess,
                            IAchievementCompletionHandler
                    > {
 
+    // Private: the consumer's live Tavall DI access surface.
     private IPlayerAchievementDataHandler getPlayerAchievementDataHandler() {
         return getInstance().playerAchievementDataHandler();
-    }
-
-    private IPlayerAchievementCache getPlayerAchievementCache() {
-        return getInstance().playerAchievementCache();
     }
 
     private AchievementEventMutationAccess getAchievementEventMutationAccess() {
@@ -88,24 +84,73 @@ public final class AchievementProgressMutationHandler
         return getInstance().achievementCompletionHandler();
     }
 
+    // Public: the operation exposed through IAchievementProgressMutationHandler.
     @Override
     public AchievementProgressMutationResult applyProgress(
-            String eventId,
-            UUID playerUUID,
-            AchievementListData achievementDefinition,
-            long progressAmount,
-            String actionType,
-            String sourceServerId,
-            String sourceContext,
-            Instant occurredAt
+            AchievementProgressRequest progressRequest
     ) {
-        // Preserve the current production guard/return contract while migrating access.
-        if (playerUUID == null || achievementDefinition == null || progressAmount <= 0L || !achievementDefinition.enabled()) {
-            return null;
+        Objects.requireNonNull(progressRequest, "progressRequest");
+
+        AchievementListData achievementDefinition =
+                progressRequest.achievementDefinition();
+
+        if (progressRequest.playerUUID() == null
+                || achievementDefinition == null
+                || progressRequest.progressAmount() <= 0L
+                || !achievementDefinition.enabled()) {
+            return null; // Existing production behavior, not a recommended new result API.
         }
 
-        // A simple record with its own validation/defaults needs no DataBuilder.
-        AchievementProgressEventData progressEventData = new AchievementProgressEventData(
+        // Conversion belongs to the record; no inline construction in this Handler.
+        AchievementProgressEventData progressEventData =
+                progressRequest.toProgressEventData();
+
+        AchievementProgressMutationResult mutationResult =
+                getAchievementEventMutationAccess().applyEventProgressOnce(
+                        progressEventData,
+                        achievementDefinition
+                );
+
+        if (mutationResult == null || mutationResult.updatedProgress() == null) {
+            return mutationResult;
+        }
+
+        // The data owner performs timestamp reconciliation, synchronization,
+        // and cache projection. The Handler does not implement that policy.
+        getPlayerAchievementDataHandler().synchronizeCommittedProgress(
+                progressRequest.playerUUID(),
+                mutationResult.updatedProgress()
+        );
+
+        if (mutationResult.completedNow()) {
+            getAchievementCompletionHandler().handleCompletion(
+                    mutationResult.updatedProgress(),
+                    achievementDefinition
+            );
+        }
+
+        return mutationResult;
+    }
+}
+```
+
+### Data-owned conversion and mutation methods
+
+The corresponding **proposed** typed request is a record carrying operation input. It owns the **public, pure conversion method** that produces the existing validated `AchievementProgressEventData` record. Its ordinary constructor is the Java record's own implementation detail, not a DI-managed behavior consumer call.
+
+```java
+public record AchievementProgressRequest(
+        String eventId,
+        UUID playerUUID,
+        AchievementListData achievementDefinition,
+        long progressAmount,
+        String actionType,
+        String sourceServerId,
+        String sourceContext,
+        Instant occurredAt
+) {
+    public AchievementProgressEventData toProgressEventData() {
+        return new AchievementProgressEventData(
                 eventId,
                 playerUUID,
                 achievementDefinition.triggerType(),
@@ -115,48 +160,24 @@ public final class AchievementProgressMutationHandler
                 sourceContext,
                 occurredAt
         );
-
-        AchievementProgressMutationResult mutationResult =
-                getAchievementEventMutationAccess().applyEventProgressOnce(
-                        progressEventData,
-                        achievementDefinition
-                );
-        if (mutationResult == null || mutationResult.updatedProgress() == null) {
-            return mutationResult;
-        }
-
-        PlayerAchievementData playerAchievementData =
-                getPlayerAchievementDataHandler().load(playerUUID);
-        if (playerAchievementData != null) {
-            synchronized (playerAchievementData) {
-                PlayerAchievementProgressData cachedProgress =
-                        playerAchievementData.findProgress(achievementDefinition.achievementKey()).orElse(null);
-                PlayerAchievementProgressData updatedProgress = mutationResult.updatedProgress();
-
-                if (cachedProgress == null
-                        || updatedProgress.updatedAt() == null
-                        || cachedProgress.updatedAt() == null
-                        || !cachedProgress.updatedAt().isAfter(updatedProgress.updatedAt())) {
-                    playerAchievementData.upsertProgress(updatedProgress);
-                }
-                getPlayerAchievementCache().saveOnline(playerAchievementData);
-            }
-        }
-
-        if (mutationResult.completedNow()) {
-            getAchievementCompletionHandler().handleCompletion(
-                    mutationResult.updatedProgress(),
-                    achievementDefinition
-            );
-        }
-        return mutationResult;
     }
 }
 ```
 
-This example preserves the current production operation's behavior while demonstrating authored named getters, direct typed DI access, and direct construction of an existing validated record. The longer operation is **not** a model for adding business logic to DataBuilders, nor proof that the current cache/update policy cannot later be consolidated behind a DataHandler. The real production implementation, runtime registration/callers, and tests must be migrated and compile-gated together before this becomes a compiled implementation. Generation-scoped consumers must additionally follow the owning [generation-owned dependency access contract](https://github.com/TavallStudios/tavall-di/blob/main/docs/GENERATION_OWNED_DEPENDENCY_ACCESS.md).
+The **proposed** `IPlayerAchievementDataHandler.synchronizeCommittedProgress(UUID, PlayerAchievementProgressData)` operation would contain the existing synchronization and cache-save sequence. A data-owned method on `PlayerAchievementData`, such as `acceptCommittedProgress(PlayerAchievementProgressData)`, would encapsulate the existing timestamp comparison and `upsertProgress` decision. These are **separate source/interface changes**, not methods claimed to exist today.
 
-For the smaller rank-operation illustration and the specialized Handler/MetaDataHandler role, see [Handler Patterns](HANDLERS.md#domain-handler-pattern). The owning [Tavall DI Access Styles](https://github.com/TavallStudios/tavall-di/blob/main/docs/DI_ACCESS_STYLES.md) guide owns access generation and bundle rules.
+Ownership is not a one-size-fits-all mechanical split:
+
+- **Public interface operation:** externally meaningful Handler/DataHandler/Resolver/Service contract.
+- **Private consumer getter:** named dynamic `DependencyAccess<...>` lookup; no fields, constructor capture, or local accessor alias.
+- **Public record/data method:** a meaningful value conversion or data-specific operation. Compact record constructors and private normalization helpers keep value invariants with the value.
+- **Private owner helper:** one owner's internal algorithm or implementation detail, not a cross-class API.
+- **Builder:** options/defaults/hydration that merit a separate construction owner, never a ceremonial wrapper for `new Record(...)`.
+- **Cache/Registry/Database:** lifecycle and storage behavior remain behind their owning tool/domain contracts.
+
+**Anti-pattern:** `new SomeClass(...)` inside a DI-managed consumer merely to populate a domain record, create another managed class, or assemble its collaborator graph. In ordinary domain consumers, call a data/record-owned factory or transformation when there is a meaningful value boundary, or call an existing DI-managed owner. The `new` expression itself is **not prohibited inside** the record's own methods, a legitimate value builder, an authorized construction factory, or a composition boundary. Do not introduce fake factories that only add a redundant forwarding layer.
+
+The existing `AchievementProgressMutationHandler` and its callers have not been migrated by this documentation example. Before a production change, update the interface, record methods, DataHandler contract, cache policy, generation-owned DI registration, and real tests as one coherent refactor. See [Tavall DI Access Styles](https://github.com/TavallStudios/tavall-di/blob/main/docs/DI_ACCESS_STYLES.md) for access semantics and [Handler Patterns](HANDLERS.md) for domain/DataHandler responsibilities.
 
 ### Single-Dependency Direct Access
 
