@@ -219,6 +219,8 @@ Constructors remain valid for:
 - genuinely externally owned platform handles that Tavall DI does not manage;
 - infrastructure internals whose owning repository explicitly defines constructor composition outside Tavall application DI.
 
+The canonical [Java Tools adoption policy](https://github.com/TavallStudios/tavall-java-tools/blob/main/docs/CONSUMER_ADOPTION.md#shared-architecture-test-distribution) recognizes a narrow **builder-owned managed-constructor** exception, governed by `DependencyArchitecturePolicy`: every managed production invocation is builder-owned and that builder resolves managed collaborators through Tavall DI. Do not generalize the exception to ordinary Handler constructors or to pure Data/MetaData builders. The owning tool's test policy is authoritative for those call sites.
+
 ##### Why
 
 Managed constructor injection moves graph ownership into callers, captures dependency identity at construction time, and can bypass replacement/reload/generation semantics.
