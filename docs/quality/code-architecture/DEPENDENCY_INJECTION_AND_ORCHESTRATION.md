@@ -154,7 +154,7 @@ public final class AchievementProgressMutationHandler
 }
 ```
 
-This example preserves the current production operation's behavior while demonstrating authored named getters, direct typed DI access, and direct construction of an existing validated record. The longer operation is **not** a model for adding business logic to DataBuilders, nor proof that the current cache/update policy cannot later be consolidated behind a DataHandler. The source and interface must be changed together before considering this a compiled implementation.
+This example preserves the current production operation's behavior while demonstrating authored named getters, direct typed DI access, and direct construction of an existing validated record. The longer operation is **not** a model for adding business logic to DataBuilders, nor proof that the current cache/update policy cannot later be consolidated behind a DataHandler. The real production implementation, runtime registration/callers, and tests must be migrated and compile-gated together before this becomes a compiled implementation. Generation-scoped consumers must additionally follow the owning [generation-owned dependency access contract](https://github.com/TavallStudios/tavall-di/blob/main/docs/GENERATION_OWNED_DEPENDENCY_ACCESS.md).
 
 For the smaller rank-operation illustration and the specialized Handler/MetaDataHandler role, see [Handler Patterns](HANDLERS.md#domain-handler-pattern). The owning [Tavall DI Access Styles](https://github.com/TavallStudios/tavall-di/blob/main/docs/DI_ACCESS_STYLES.md) guide owns access generation and bundle rules.
 
