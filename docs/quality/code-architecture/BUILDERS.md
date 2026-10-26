@@ -50,20 +50,38 @@ The builder becomes an alternate composition root, callers decide dependency ide
 
 Use `DependencyAccess<...>` on the managed behavior class. If the dependency count is too large, keep direct access when the class is genuinely cohesive, introduce one real immutable domain bundle, or split responsibilities.
 
-## Direct Record Construction and Data Builder Pattern
+## Record-Owned Construction and Data Builder Pattern
 
-**Default:** Construct simple `record` values directly. A record's canonical/compact constructor may validate or normalize its own components. Do not add a `DataBuilder` merely to copy constructor parameters, wrap one `new` expression, or satisfy a field-count threshold.
+A simple Java `record` normally needs **no DataBuilder**. Its canonical/compact constructor, private validation/normalization methods, and meaningful record-owned conversion/factory methods may create ordinary immutable values. A DataBuilder is justified only for actual construction options, defaults, hydration, or nontrivial assembly.
+
+**Anti-pattern for ordinary DI-managed behavior consumers:**
 
 ```java
-// Typed request data: no builder needed.
-RankUpdateRequest rankUpdateRequest = new RankUpdateRequest(
-        staffUUID,
-        targetUUID,
-        rankKey,
-        reason,
-        false
-);
+// Bad: the Handler manually fills a record and owns its conversion details.
+AchievementProgressEventData progressEventData =
+        new AchievementProgressEventData(
+                eventId,
+                playerUUID,
+                achievementDefinition.triggerType(),
+                progressAmount,
+                actionType,
+                sourceServerId,
+                sourceContext,
+                occurredAt
+        );
 ```
+
+A record can instead expose the conversion as a **public typed method**, keeping its own construction and private normalization implementation. The DI-managed consumer invokes that operation on the typed record supplied by the input boundary:
+
+```java
+// Good: inside a managed Handler, not a construction call.
+AchievementProgressEventData progressEventData =
+        progressRequest.toProgressEventData();
+```
+
+See the [complete consumer and proposed request record implementation](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access). The new request-record conversion method is a **proposed API**, not a current production declaration. No extra builder is necessary just because `toProgressEventData()` internally creates a validated record.
+
+This consumer rule does **not** mean all Java `new` expressions are forbidden. Value-owning record/factory methods, actual DataBuilders, persistence entity conversion, legitimate composition boundaries, and tool-governed managed-construction bridges may perform construction within their own responsibilities. But ordinary managed behavior must not use direct `new` to bypass a registered DI-managed collaborator, perform domain-data assembly inline, or rebuild the dependency graph.
 
 A `DataBuilder` becomes useful when the data object has its **own meaningful construction options**: defaults requiring coordination, optional branches, multiple source values that must be assembled, or a nontrivial conversion/hydration process. Those options belong to the data object's construction contract, not to managed dependency wiring.
 
@@ -93,7 +111,7 @@ The example's optional progress collection and loaded-time fallback are meaningf
 
 ## Metadata Builder Pattern
 
-The same test applies to `MetaDataBuilder`. Simple metadata records may be constructed directly by the owner that already has their inputs. A metadata builder earns its place when the output requires meaningful derivation, formatting, normalization, optional display settings, or more complex assembly.
+The same test applies to `MetaDataBuilder`. A simple derived metadata record may expose a meaningful conversion method in its own type; its metadata owner calls that method rather than populating the record inline. A metadata builder earns its place when the output requires formatting, normalization, optional display settings, or more complex assembly.
 
 A real production example is [`WorldCommandMetaDataBuilder`](https://github.com/TavallStudios/tavall-mc/blob/main/tavall-mc-world/src/main/java/org/tavall/minecraft/world/command/builder/WorldCommandMetaDataBuilder.java). It transforms a `WorldData` value and loaded/current flags into a display-ready metadata object, including a formatted spawn position:
 
@@ -133,7 +151,7 @@ public final class WorldCommandMetaDataBuilder {
 }
 ```
 
-The metadata owner resolves the source data/definitions; the builder transforms supplied values. A builder never becomes an excuse for lookup, persistence, cache access, DI graph ownership, or runtime composition.
+The metadata owner resolves source values; the builder only transforms the explicit inputs. Normal data-record creation does not require this builder, but nontrivial metadata formatting does. A builder never becomes a hidden persistence owner, cache, DI graph, or orchestrator.
 
 ## Request Builder Pattern
 
@@ -141,7 +159,7 @@ Use a request builder when external input needs parsing, defaults, or conversion
 
 The builder may receive collaborators as **explicit method inputs** or already-resolved values. A Tavall-managed request builder must not constructor-capture or statically locate managed services merely because parsing needs them.
 
-Simple request values, including ordinary records, do not require a builder (see [Direct Record Construction](#direct-record-construction-and-data-builder-pattern)):
+Simple request values, including ordinary records, do not require a builder (see [Record-Owned Construction](#record-owned-construction-and-data-builder-pattern)):
 
 ```java
 RankUpdateRequest request = new RankUpdateRequest(
@@ -274,7 +292,7 @@ Runtime composition creates object identity, registration, replacement, startup 
 ## Builder Review Checklist
 
 - [ ] The builder produces one explicit typed output.
-- [ ] A simple record/immutable value is directly constructed rather than wrapped in a ceremonial DataBuilder.
+- [ ] A simple record/immutable value uses its value-owned conversion/creation contract instead of an inline `new` in a managed consumer or a ceremonial DataBuilder.
 - [ ] A DataBuilder or MetaDataBuilder exists only for meaningful options, defaults, validation, or assembly beyond simple constructor arguments.
 - [ ] Construction complexity justifies the builder.
 - [ ] Required values are validated before publication.
