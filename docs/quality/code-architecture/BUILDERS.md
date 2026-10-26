@@ -50,59 +50,90 @@ The builder becomes an alternate composition root, callers decide dependency ide
 
 Use `DependencyAccess<...>` on the managed behavior class. If the dependency count is too large, keep direct access when the class is genuinely cohesive, introduce one real immutable domain bundle, or split responsibilities.
 
-## Data Builder Pattern
+## Direct Record Construction and Data Builder Pattern
 
-Data builders create one typed data value from explicit source values.
+**Default:** Construct simple `record` values directly. A record's canonical/compact constructor may validate or normalize its own components. Do not add a `DataBuilder` merely to copy constructor parameters, wrap one `new` expression, or satisfy a field-count threshold.
 
 ```java
-public final class PlayerAccountDataBuilder {
+// Typed request data: no builder needed.
+RankUpdateRequest rankUpdateRequest = new RankUpdateRequest(
+        staffUUID,
+        targetUUID,
+        rankKey,
+        reason,
+        false
+);
+```
 
-    public PlayerAccountData buildPlayerAccountData(
-            PlayerAccountEntity entity
+A `DataBuilder` becomes useful when the data object has its **own meaningful construction options**: defaults requiring coordination, optional branches, multiple source values that must be assembled, or a nontrivial conversion/hydration process. Those options belong to the data object's construction contract, not to managed dependency wiring.
+
+Project Novus has a substantive example: [`PlayerAchievementDataBuilder`](https://github.com/TavallStudios/tavall-mc/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/data/builder/PlayerAchievementDataBuilder.java) builds player achievement data from a player ID and optional progress rows, merges the rows, and marks a loaded timestamp. This does more than populate a record's canonical constructor.
+
+```java
+public final class PlayerAchievementDataBuilder {
+
+    public PlayerAchievementData buildPlayerAchievementData(
+            UUID playerId,
+            Collection<PlayerAchievementProgressData> progressRows,
+            Instant loadedAt
     ) {
-        UUID playerUUID = entity.getPlayerUUID();
-        String playerName = entity.getPlayerName();
-        RankKey rankKey = entity.getRankKey();
-
-        return new PlayerAccountData(
-                playerUUID,
-                playerName,
-                rankKey
-        );
+        PlayerAchievementData playerAchievementData = new PlayerAchievementData(playerId);
+        if (progressRows != null) {
+            progressRows.stream()
+                    .filter(Objects::nonNull)
+                    .forEach(playerAchievementData::mergeProgress);
+        }
+        Instant resolvedLoadedAt = loadedAt == null ? Instant.now() : loadedAt;
+        return playerAchievementData.markLoaded(resolvedLoadedAt);
     }
 }
 ```
 
-##### Why
-
-The class says what data it builds and the source-to-domain conversion stays separate from persistence/runtime behavior.
-
-A builder may validate or normalize its explicit inputs, but it does not load them from a service, cache, registry, or database by itself.
+The example's optional progress collection and loaded-time fallback are meaningful assembly decisions. A plain record with a canonical constructor and no additional construction options should not be given this builder.
 
 ## Metadata Builder Pattern
 
-Metadata builders create resolved or display-ready values from source data already provided to them.
+The same test applies to `MetaDataBuilder`. Simple metadata records may be constructed directly by the owner that already has their inputs. A metadata builder earns its place when the output requires meaningful derivation, formatting, normalization, optional display settings, or more complex assembly.
+
+A real production example is [`WorldCommandMetaDataBuilder`](https://github.com/TavallStudios/tavall-mc/blob/main/tavall-mc-world/src/main/java/org/tavall/minecraft/world/command/builder/WorldCommandMetaDataBuilder.java). It transforms a `WorldData` value and loaded/current flags into a display-ready metadata object, including a formatted spawn position:
 
 ```java
-public final class PlayerRankMetaDataBuilder {
+public final class WorldCommandMetaDataBuilder {
 
-    public PlayerRankMetaData buildPlayerRankMetaData(
-            PlayerAccountData accountData,
-            RankDefinition rankDefinition
+    public WorldCommandMetaData buildWorldCommandMetaData(
+            WorldData worldData,
+            boolean loaded,
+            boolean current
     ) {
-        return new PlayerRankMetaData(
-                accountData.getRankKey(),
-                rankDefinition.getDisplayName(),
-                rankDefinition.getLegacyColor(),
-                rankDefinition.getPowerLevel()
+        WorldData world = Objects.requireNonNull(worldData, "worldData");
+        String formattedSpawn = String.format(
+                Locale.ROOT,
+                "%.2f %.2f %.2f %.1f %.1f",
+                world.spawn().x(),
+                world.spawn().y(),
+                world.spawn().z(),
+                world.spawn().yaw(),
+                world.spawn().pitch()
+        );
+
+        return new WorldCommandMetaData(
+                world.worldName(),
+                world.displayName(),
+                world.serverType().name(),
+                world.environment().name(),
+                world.enabled(),
+                current,
+                loaded,
+                world.loadOnStartup(),
+                world.sortOrder(),
+                world.version(),
+                formattedSpawn
         );
     }
 }
 ```
 
-##### Why
-
-Metadata is derived state with different rebuild/invalidation semantics from its source data. The builder expresses that transformation without becoming the owner that looks up the source values.
+The metadata owner resolves the source data/definitions; the builder transforms supplied values. A builder never becomes an excuse for lookup, persistence, cache access, DI graph ownership, or runtime composition.
 
 ## Request Builder Pattern
 
@@ -110,7 +141,7 @@ Use a request builder when external input needs parsing, defaults, or conversion
 
 The builder may receive collaborators as **explicit method inputs** or already-resolved values. A Tavall-managed request builder must not constructor-capture or statically locate managed services merely because parsing needs them.
 
-Simple request values do not require a builder:
+Simple request values, including ordinary records, do not require a builder (see [Direct Record Construction](#direct-record-construction-and-data-builder-pattern)):
 
 ```java
 RankUpdateRequest request = new RankUpdateRequest(
@@ -237,6 +268,8 @@ Runtime composition creates object identity, registration, replacement, startup 
 ## Builder Review Checklist
 
 - [ ] The builder produces one explicit typed output.
+- [ ] A simple record/immutable value is directly constructed rather than wrapped in a ceremonial DataBuilder.
+- [ ] A DataBuilder or MetaDataBuilder exists only for meaningful options, defaults, validation, or assembly beyond simple constructor arguments.
 - [ ] Construction complexity justifies the builder.
 - [ ] Required values are validated before publication.
 - [ ] Defaults are intentional and tested.
