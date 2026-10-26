@@ -187,7 +187,7 @@ Data policy deserves one reusable owner when policy actually exists. A forwardin
 
 ## Builder Methods
 
-Builder methods construct typed values. They do not persist, cache, register managed behavior, schedule, authorize, or resolve Tavall-managed dependencies.
+Builder methods construct typed values. Simple records and immutable data are constructed directly; a DataBuilder/MetaDataBuilder is for meaningful options, defaults, validation, or nontrivial assembly, not copying record components. The owning [Builder Patterns](BUILDERS.md#direct-record-construction-and-data-builder-pattern) chapter has the examples. Builders do not persist, cache, register managed behavior, schedule, or authorize.
 
 ##### Why
 
