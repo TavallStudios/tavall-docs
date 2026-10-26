@@ -185,7 +185,6 @@ routes:
       - package versus module
       - system module
       - feature module
-      - system feature
       - runtime api ownership
       - runtime-owned api
       - cross-module dependency
