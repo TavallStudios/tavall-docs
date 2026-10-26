@@ -57,11 +57,14 @@ public final class RankUpdateHandler
     }
 
     @Override
-    public RankUpdateResult updatePlayerRank(RankUpdateRequest request) {
+    public RankUpdateResult updatePlayerRank(RankUpdateRequest rankUpdateRequest) {
+        UUID staffUUID = rankUpdateRequest.staffUUID();
+        UUID targetUUID = rankUpdateRequest.targetUUID();
+
         PlayerAccountData staffAccountData =
-                getPlayerAccountDataHandler().load(request.staffUUID());
+                getPlayerAccountDataHandler().load(staffUUID);
         PlayerAccountData targetAccountData =
-                getPlayerAccountDataHandler().load(request.targetUUID());
+                getPlayerAccountDataHandler().load(targetUUID);
 
         boolean canRankEdit = getPowerLevelHandler().canRankEdit(
                 staffAccountData,
@@ -71,7 +74,7 @@ public final class RankUpdateHandler
             return RankUpdateResult.targetTooPowerful();
         }
 
-        getPlayerRankDataHandler().updatePlayerRankData(request);
+        getPlayerRankDataHandler().updatePlayerRankData(rankUpdateRequest);
         return RankUpdateResult.success();
     }
 }
@@ -149,14 +152,17 @@ public final class PlayerRankMetaDataHandler
                 getPlayerAccountDataHandler().load(playerUUID);
 
         RankKey rankKey = playerAccountData.rankKey();
-        RankDefinition rankDefinition = getRankRegistry()
-                .find(rankKey)
-                .orElseThrow();
+        Optional<RankDefinition> rankDefinitionLookup =
+                getRankRegistry().find(rankKey);
+        RankDefinition rankDefinition = rankDefinitionLookup.orElseThrow();
 
-        return PlayerRankMetaData.fromRankDefinition(
-                playerAccountData,
-                rankDefinition
-        );
+        PlayerRankMetaData playerRankMetaData =
+                PlayerRankMetaData.fromRankDefinition(
+                        playerAccountData,
+                        rankDefinition
+                );
+
+        return playerRankMetaData;
     }
 }
 ```
@@ -194,7 +200,10 @@ Handlers may coordinate focused dependencies, but they do not:
 - open JDBC/EntityManager/transaction callbacks;
 - create generic CRUD repository/database wrappers;
 - absorb routing/scheduling/lifecycle behavior that belongs in an Orchestrator/Router/Runtime;
-- hide several unrelated operations behind one generic `handle()` method.
+- hide several unrelated operations behind one generic `handle()` method;
+- introduce forwarding-only public methods that merely echo a collaborator's signature and call;
+- expose one-use public helpers simply to relocate a condition that belongs in an existing domain operation;
+- nest meaningful lookup/results inside downstream delegations rather than separating typed values and handling failure.
 
 ##### Why
 
