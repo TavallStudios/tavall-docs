@@ -18,6 +18,7 @@ Rules:
 - Domain-handler methods perform one focused behavior.
 - Data methods move/transform data policy without absorbing unrelated product rules.
 - Builder methods construct typed output only.
+- Managed consumers call typed data-owned conversion methods instead of manually populating records with inline `new`; constructors remain valid within value/builder/factory owners.
 - Pure utility methods remain stateless.
 - Cache methods own cache behavior only.
 - Durable application operations follow Tavall Database entity classes/current typed contract rather than local transaction/database helper methods.
@@ -64,6 +65,16 @@ shouldSendWelcomeMessage()
 ##### Why
 
 `PlayerJoinHandler#handlePlayerJoin()` repeats the class name instead of explaining the work. Precise method names make call sites and stack traces describe the actual operation.
+
+## Method Visibility and Ownership
+
+A public method on a DI-managed Handler/Service/DataHandler expresses an operation that belongs in that role's interface contract. Do not expose raw DI wiring, constructor internals, or one-off convenience methods as public domain APIs.
+
+Private named DI getters (for example `getPlayerAchievementDataHandler()`) resolve live through `DependencyAccess<...>` and keep dependency mechanics out of the operation body. Private non-DI helpers should implement genuine class-local behavior; avoid unnecessary wrappers created only to hide an unclear design.
+
+Records/value objects may expose **public value-specific methods** (for example `toProgressEventData()`) while keeping construction, validation, normalization, and auxiliary helpers private/internal. Domain authorization or persistence does **not** become record behavior merely because the record can define methods. Record factories/converters may call their own constructors internally. This is different from an ordinary DI consumer calling `new` for a data object or another managed component.
+
+The complete [consumer pattern](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access) demonstrates the proposed record-owned conversion and DataHandler-owned cache reconciliation. The concrete source/interfaces must be updated before those methods exist in production.
 
 ## Parameters and Requests
 
