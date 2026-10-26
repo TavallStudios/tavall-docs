@@ -32,38 +32,46 @@ The command owns reusable rank/authority behavior, uses raw input, and mutates p
 
 #### Good
 
+The rank-update operation illustrates the default stateless consumer pattern. The named getters are live Tavall DI accessors, not stored dependencies. The request/result are ordinary typed values, not a reason to introduce request/result builders.
+
 ```java
 @DelegatesTo(IRankUpdateHandler.class)
 public final class RankUpdateHandler
         implements IRankUpdateHandler,
-        DependencyAccess<
-                IPlayerAccountDataHandler,
-                IPowerLevelHandler,
-                IPlayerRankDataHandler
-        > {
+                   DependencyAccess<
+                           IPlayerAccountDataHandler,
+                           IPowerLevelHandler,
+                           IPlayerRankDataHandler
+                   > {
+
+    private IPlayerAccountDataHandler getPlayerAccountDataHandler() {
+        return getInstance().playerAccountDataHandler();
+    }
+
+    private IPowerLevelHandler getPowerLevelHandler() {
+        return getInstance().powerLevelHandler();
+    }
+
+    private IPlayerRankDataHandler getPlayerRankDataHandler() {
+        return getInstance().playerRankDataHandler();
+    }
 
     @Override
-    public RankUpdateResult updatePlayerRank(
-            RankUpdateRequest request
-    ) {
-        RankUpdateHandlerDependencyAccess dependencies = getInstance();
+    public RankUpdateResult updatePlayerRank(RankUpdateRequest request) {
+        PlayerAccountData staffAccountData =
+                getPlayerAccountDataHandler().load(request.staffUUID());
+        PlayerAccountData targetAccountData =
+                getPlayerAccountDataHandler().load(request.targetUUID());
 
-        PlayerAccountData staff = dependencies
-                .playerAccountDataHandler()
-                .load(request.staffUUID());
-
-        PlayerAccountData target = dependencies
-                .playerAccountDataHandler()
-                .load(request.targetUUID());
-
-        if (!dependencies.powerLevelHandler().canRankEdit(staff, target)) {
+        boolean canRankEdit = getPowerLevelHandler().canRankEdit(
+                staffAccountData,
+                targetAccountData
+        );
+        if (!canRankEdit) {
             return RankUpdateResult.targetTooPowerful();
         }
 
-        dependencies
-                .playerRankDataHandler()
-                .updatePlayerRankData(request);
-
+        getPlayerRankDataHandler().updatePlayerRankData(request);
         return RankUpdateResult.success();
     }
 }
@@ -122,30 +130,39 @@ It does not mutate primary durable data unless the class is explicitly a differe
 @DelegatesTo(IPlayerRankMetaDataHandler.class)
 public final class PlayerRankMetaDataHandler
         implements IPlayerRankMetaDataHandler,
-        DependencyAccess<
-                IPlayerAccountDataHandler,
-                IRankRegistry
-        > {
+                   DependencyAccess<
+                           IPlayerAccountDataHandler,
+                           IRankRegistry
+                   > {
 
-    public PlayerRankMetaData load(UUID playerUUID) {
-        PlayerRankMetaDataHandlerDependencyAccess dependencies = getInstance();
-        PlayerAccountData account = dependencies
-                .playerAccountDataHandler()
-                .load(playerUUID);
+    private IPlayerAccountDataHandler getPlayerAccountDataHandler() {
+        return getInstance().playerAccountDataHandler();
+    }
 
-        RankDefinition definition = dependencies
-                .rankRegistry()
-                .find(account.rankKey())
+    private IRankRegistry getRankRegistry() {
+        return getInstance().rankRegistry();
+    }
+
+    @Override
+    public PlayerRankMetaData loadPlayerRankMetaData(UUID playerUUID) {
+        PlayerAccountData playerAccountData =
+                getPlayerAccountDataHandler().load(playerUUID);
+
+        RankKey rankKey = playerAccountData.rankKey();
+        RankDefinition rankDefinition = getRankRegistry()
+                .find(rankKey)
                 .orElseThrow();
 
         return new PlayerRankMetaData(
-                account.rankKey(),
-                definition.displayName(),
-                definition.color()
+                rankKey,
+                rankDefinition.displayName(),
+                rankDefinition.color()
         );
     }
 }
 ```
+
+This simple derived value may be constructed directly when it is a record with no meaningful construction options. If metadata requires several optional values, defaults, normalization, or nontrivial assembly, use the [Metadata Builder Pattern](BUILDERS.md#metadata-builder-pattern) and let the MetaDataHandler own source resolution.
 
 ##### Why
 
