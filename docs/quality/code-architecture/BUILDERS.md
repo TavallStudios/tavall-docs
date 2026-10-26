@@ -4,7 +4,7 @@
 > **Authority:** Binding chapter of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
 > **Applies to:** Tavall production modules, contributors, automation, generated code, reviews, and AI-assisted development
 
-Builders are construction tools. They construct typed values, definitions, requests, results, entities, configuration, or another explicit output. They do **not** become runtime composition roots, dependency containers, services, repositories, registries, or orchestrators.
+Builders are construction tools. They construct typed values, definitions, requests, results, entities, configuration, or another explicit output. Ordinary Data/MetaData/Request/Result builders do **not** become runtime composition roots, dependency containers, services, repositories, registries, or orchestrators. The narrowly permitted [Tavall DI managed-constructor bridge](#managed-constructor-builder-exception) is a separate tool-governed construction concern.
 
 ## Pattern Rules
 
@@ -244,6 +244,12 @@ The builder may snapshot/validate configuration but must not choose audience, sc
 
 Definitions remain reusable when they describe **what** should exist rather than **when**, **where**, or **through which runtime dependency** it should be used.
 
+## Managed Constructor Builder Exception
+
+The [Tavall Java Tools Consumer Adoption Contract](https://github.com/TavallStudios/tavall-java-tools/blob/main/docs/CONSUMER_ADOPTION.md#shared-architecture-test-distribution) documents a **narrow tool-owned exception**: a managed constructor call may be builder-owned when every managed production invocation is builder-owned and verified by `org.tavall.dependency.architecture.DependencyArchitecturePolicy`. The builder itself resolves its managed collaborators using Tavall DI; it does not receive or persist constructor-injected managed dependencies.
+
+This exception is **not** the `DataBuilder`, `MetaDataBuilder`, or `RequestBuilder` pattern. Do not reclassify a Handler, Service, Orchestrator, or module Runtime as a builder solely to escape DI policy. The owning DI rule and architecture tests decide which managed-construction call sites are permitted. Normal behavior consumers should still declare typed `DependencyAccess<...>` and avoid managed constructor injection.
+
 ## Runtime Composition Is Not a Builder Pattern
 
 Classes that create/register several managed services, handlers, caches, registries, schedulers, or module objects own **bootstrap/runtime composition**, not ordinary builder behavior.
@@ -273,7 +279,7 @@ Runtime composition creates object identity, registration, replacement, startup 
 - [ ] Construction complexity justifies the builder.
 - [ ] Required values are validated before publication.
 - [ ] Defaults are intentional and tested.
-- [ ] The builder does not resolve or capture Tavall-managed application dependencies.
+- [ ] Ordinary value builders do not resolve or capture Tavall-managed application dependencies; any managed-constructor builder exception follows the tool-owned DI architecture rule and resolves collaborators through Tavall DI.
 - [ ] The builder does not persist, cache, register, schedule, authorize, deliver, or orchestrate runtime behavior.
 - [ ] The builder is not being used to hide a large dependency graph.
 - [ ] Simple typed factories/constructors are preferred when they are clearer.
