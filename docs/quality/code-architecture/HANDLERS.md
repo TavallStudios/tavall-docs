@@ -124,7 +124,7 @@ Data handlers do not decide unrelated product/gameplay authorization merely beca
 
 A metadata handler resolves, refreshes, validates, enriches, or exposes derived metadata.
 
-It does not mutate primary durable data unless the class is explicitly a different persistence/domain behavior owner.
+It does not mutate primary durable data unless the class is explicitly a different persistence/domain behavior owner. The following `fromRankDefinition` is a **proposed** record-owned method to show the ownership split, not an existing production API.
 
 ```java
 @DelegatesTo(IPlayerRankMetaDataHandler.class)
@@ -153,16 +153,30 @@ public final class PlayerRankMetaDataHandler
                 .find(rankKey)
                 .orElseThrow();
 
-        return new PlayerRankMetaData(
-                rankKey,
-                rankDefinition.displayName(),
-                rankDefinition.color()
+        return PlayerRankMetaData.fromRankDefinition(
+                playerAccountData,
+                rankDefinition
         );
     }
 }
 ```
 
-This simple derived value may be constructed directly when it is a record with no meaningful construction options. If metadata requires several optional values, defaults, normalization, or nontrivial assembly, use the [Metadata Builder Pattern](BUILDERS.md#metadata-builder-pattern) and let the MetaDataHandler own source resolution.
+The record owns its conversion logic and any private normalization helpers. An illustrative value-owner method is:
+
+```java
+public static PlayerRankMetaData fromRankDefinition(
+        PlayerAccountData playerAccountData,
+        RankDefinition rankDefinition
+) {
+    return new PlayerRankMetaData(
+            playerAccountData.rankKey(),
+            rankDefinition.displayName(),
+            rankDefinition.color()
+    );
+}
+```
+
+The record's internal `new` is legitimate value construction. It does **not** make `PlayerRankMetaData` a DI-managed runtime dependency or justify creating a `MetaDataBuilder` for a trivial copy. If metadata construction genuinely needs options, formatting, or complex assembly, use the specialized [Metadata Builder Pattern](BUILDERS.md#metadata-builder-pattern) and keep resolution in this Handler.
 
 ##### Why
 
@@ -173,6 +187,8 @@ Metadata is derived state with its own refresh/rebuild behavior. Keeping primary
 Handlers may coordinate focused dependencies, but they do not:
 
 - constructor-capture Tavall-managed collaborators;
+- manually construct/populate Data/MetaData records inline instead of invoking their owning conversion/creation method;
+- directly `new` another DI-managed implementation or bypass its public interface contract;
 - statically locate Tavall-managed services;
 - own mutable registry/cache-shaped maps;
 - open JDBC/EntityManager/transaction callbacks;
