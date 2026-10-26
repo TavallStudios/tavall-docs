@@ -91,25 +91,25 @@ public final class AchievementProgressMutationHandler
     @Override
     public AchievementProgressMutationResult applyProgress(
             String eventId,
-            UUID playerId,
-            AchievementListData definition,
-            long amount,
+            UUID playerUUID,
+            AchievementListData achievementDefinition,
+            long progressAmount,
             String actionType,
             String sourceServerId,
             String sourceContext,
             Instant occurredAt
     ) {
         // Preserve the current production guard/return contract while migrating access.
-        if (playerId == null || definition == null || amount <= 0L || !definition.enabled()) {
+        if (playerUUID == null || achievementDefinition == null || progressAmount <= 0L || !achievementDefinition.enabled()) {
             return null;
         }
 
         // A simple record with its own validation/defaults needs no DataBuilder.
         AchievementProgressEventData progressEventData = new AchievementProgressEventData(
                 eventId,
-                playerId,
-                definition.triggerType(),
-                amount,
+                playerUUID,
+                achievementDefinition.triggerType(),
+                progressAmount,
                 actionType,
                 sourceServerId,
                 sourceContext,
@@ -119,18 +119,18 @@ public final class AchievementProgressMutationHandler
         AchievementProgressMutationResult mutationResult =
                 getAchievementEventMutationAccess().applyEventProgressOnce(
                         progressEventData,
-                        definition
+                        achievementDefinition
                 );
         if (mutationResult == null || mutationResult.updatedProgress() == null) {
             return mutationResult;
         }
 
         PlayerAchievementData playerAchievementData =
-                getPlayerAchievementDataHandler().load(playerId);
+                getPlayerAchievementDataHandler().load(playerUUID);
         if (playerAchievementData != null) {
             synchronized (playerAchievementData) {
                 PlayerAchievementProgressData cachedProgress =
-                        playerAchievementData.findProgress(definition.achievementKey()).orElse(null);
+                        playerAchievementData.findProgress(achievementDefinition.achievementKey()).orElse(null);
                 PlayerAchievementProgressData updatedProgress = mutationResult.updatedProgress();
 
                 if (cachedProgress == null
@@ -146,7 +146,7 @@ public final class AchievementProgressMutationHandler
         if (mutationResult.completedNow()) {
             getAchievementCompletionHandler().handleCompletion(
                     mutationResult.updatedProgress(),
-                    definition
+                    achievementDefinition
             );
         }
         return mutationResult;
