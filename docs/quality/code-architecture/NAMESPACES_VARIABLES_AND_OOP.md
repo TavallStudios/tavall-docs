@@ -99,7 +99,25 @@ Naming rules:
 - preserve established acronym capitalization such as `playerUUID`, `nativeUI`, `httpRequest`, `jsonPayload`;
 - avoid numbered locals unless the number is domain meaning;
 - avoid one-letter names outside tiny conventional scopes;
-- do not reuse one local for several meanings.
+- do not reuse one local for several meanings;
+- separate typed intermediate data/operation results before a later validation, fallback, update, or delegation;
+- keep dependency getters named on the class; do not alias a generated `DependencyAccess` object in a local as a substitute for domain values;
+- do not introduce redundant one-use locals with no meaning beyond repeating the next expression.
+
+Example from the [complete achievement consumer](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access):
+
+```java
+AchievementProgressEventData progressEventData =
+        AchievementProgressEventData.fromProgressRequest(achievementProgressRequest);
+AchievementProgressMutationResult progressMutationResult =
+        getAchievementEventMutationAccess().applyEventProgressOnce(
+                progressEventData, achievementDefinition
+        );
+PlayerAchievementProgressData updatedProgress =
+        progressMutationResult.updatedProgress();
+```
+
+The real operation checks for null/error states before the final extraction; see the full example. This excerpt shows type visibility and meaningful operation boundaries, not a valid standalone flow.
 
 ##### Why
 
