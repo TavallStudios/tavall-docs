@@ -251,17 +251,25 @@ routes:
     documents:
       - docs/quality/USER_EXPERIENCE_DOCUMENT_TEMPLATE.md
 
-  - id: class-and-naming
+  - id: class-roles
     signals:
       - class architecture
       - class size
       - class role
-      - package ownership
-      - namespace
-      - naming convention
       - object ownership
     documents:
       - docs/quality/code-architecture/CLASSES.md
+
+  - id: naming-and-fields
+    signals:
+      - package ownership
+      - namespace
+      - naming convention
+      - class naming
+      - variable naming
+      - local variable
+      - class field
+    documents:
       - docs/quality/code-architecture/NAMESPACES_VARIABLES_AND_OOP.md
 
   - id: dependency-injection-and-composition
@@ -272,20 +280,41 @@ routes:
       - dependency composition
       - bootstrap ownership
       - lifecycle owner
+      - dependency access
+      - named dependency getter
+      - generated access
+      - dependency bundle
+      - default consumer
+      - consumer pattern
     documents:
       - docs/quality/code-architecture/DEPENDENCY_INJECTION_AND_ORCHESTRATION.md
 
-  - id: handlers-and-builders
+  - id: handler-patterns
     signals:
       - handler
       - handlers
       - handler role
+      - data handler
+      - metadata handler
       - service role
       - orchestrator
-      - builder
-      - builder pattern
+      - domain handler
     documents:
       - docs/quality/code-architecture/HANDLERS.md
+
+  - id: builder-patterns
+    signals:
+      - builder
+      - builders
+      - builder pattern
+      - data builder
+      - metadata builder
+      - request builder
+      - record construction
+      - direct record
+      - simple record
+      - builder options
+    documents:
       - docs/quality/code-architecture/BUILDERS.md
 
   - id: routers-and-delegation
@@ -313,34 +342,51 @@ routes:
       - entity persistence
       - persistent entity
       - database ownership
-      - data handler
+      - entity data handler
       - persistence boundary
     documents:
       - docs/quality/code-architecture/ENTITY_PERSISTENCE.md
 
-  - id: registries-caches-and-keyed-state
+  - id: registries-and-caches
     signals:
       - registry
       - cache
-      - mutable map
-      - mutable keyed state
-      - keyed state
       - repository class
+      - keyed state
     documents:
       - docs/quality/code-architecture/REGISTRIES_CACHES_AND_REPOSITORIES.md
+
+  - id: application-owned-collections
+    signals:
+      - mutable map
+      - mutable keyed state
+      - application owned map
+      - application owned collection
+      - local keyed store
+    documents:
       - docs/quality/code-architecture/APPLICATION_OWNED_MUTABLE_MAPS.md
 
-  - id: methods-and-data-flow
+  - id: method-rules
     signals:
       - method architecture
       - method signature
+      - method naming
+      - method name
+      - method size
+      - method local
+    documents:
+      - docs/quality/code-architecture/METHODS.md
+
+  - id: typed-input-and-output
+    signals:
       - request object
       - result object
       - resolver
       - formatter
       - request result
+      - typed request
+      - typed result
     documents:
-      - docs/quality/code-architecture/METHODS.md
       - docs/quality/code-architecture/REQUESTS_RESULTS_RESOLVERS_AND_FORMATTERS.md
 
   - id: effects-validation-and-fallbacks
@@ -443,6 +489,9 @@ routes:
       - docs/quality/code-architecture/CLI_FRAMEWORK.md
 
 rules:
+  - An individual signal routes to its owning chapter; combine chapters only when distinct concerns are actually present.
+  - For Tavall DI, Database, Registry, Cache, and other canonical tool API/access behavior, consult the owning tool's current checked-in access guide after routing to the relevant shared architecture chapter; shared docs must not duplicate tool internals.
+  - Simple records are direct value construction; do not route them through a DataBuilder unless the task also involves meaningful builder options/defaults/assembly.
   - Do not load docs/quality/README.md as policy unless the user explicitly asks for the documentation index.
   - Do not load CODE_ARCHITECTURE.md merely because source code is being changed.
   - A detailed chapter may be selected without also loading CODE_ARCHITECTURE.md.
