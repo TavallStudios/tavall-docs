@@ -159,48 +159,44 @@ Use a request builder when external input needs parsing, defaults, or conversion
 
 The builder may receive collaborators as **explicit method inputs** or already-resolved values. A Tavall-managed request builder must not constructor-capture or statically locate managed services merely because parsing needs them.
 
-Simple request values, including ordinary records, do not require a builder (see [Record-Owned Construction](#record-owned-construction-and-data-builder-pattern)):
+A simple request record can own its constructor validation and any meaningful public factory/derivation operation. The following **illustrative** record factory supplies a named default; no separate RequestBuilder is needed:
 
 ```java
-RankUpdateRequest request = new RankUpdateRequest(
-        staffUUID,
-        targetUUID,
-        rankKey,
-        reason,
-        false
-);
-```
-
-Use a builder when the construction itself is meaningful:
-
-```java
-public final class RankUpdateRequestBuilder {
-
-    public RankUpdateRequest buildRankUpdateRequest(
-            UUID staffUUID,
-            UUID targetUUID,
-            RankKey rankKey,
-            String reason,
-            boolean silent
-    ) {
+public record RankUpdateRequest(
+        UUID staffUUID,
+        UUID targetUUID,
+        RankKey rankKey,
+        String reason,
+        boolean silent
+) {
+    public RankUpdateRequest {
         Objects.requireNonNull(staffUUID, "staffUUID");
         Objects.requireNonNull(targetUUID, "targetUUID");
         Objects.requireNonNull(rankKey, "rankKey");
+    }
 
+    public static RankUpdateRequest visibleRankChange(
+            UUID staffUUID,
+            UUID targetUUID,
+            RankKey rankKey,
+            String reason
+    ) {
         return new RankUpdateRequest(
                 staffUUID,
                 targetUUID,
                 rankKey,
                 reason,
-                silent
+                false
         );
     }
 }
 ```
 
+If request construction involves **several meaningful parsing options, conditional defaults, or multi-source conversion**, a `RequestBuilder` may own those supplied-input construction decisions. A builder that merely copies all fields into `new RankUpdateRequest(...)` and repeats null checks already enforced by the record is an anti-pattern.
+
 ##### Why
 
-The builder owns request construction, not command handling, target lookup, permission checks, or service access. External input adapters resolve those concerns and then ask the builder for one typed value.
+Record methods/constructors own simple value invariants. Specialized builders own substantial optional construction. The external input adapter owns platform input and delegated capability calls; it does not invent a second dependency graph to create request values.
 
 ## Result Builder Pattern
 
