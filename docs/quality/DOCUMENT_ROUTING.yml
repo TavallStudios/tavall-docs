@@ -382,6 +382,14 @@ routes:
       - private method
       - method size
       - method local
+      - variable outlining
+      - variable separation
+      - boolean condition
+      - branch predicate
+      - method side effects
+      - data loading
+      - data filling
+      - method state contract
     documents:
       - docs/quality/code-architecture/METHODS.md
 
