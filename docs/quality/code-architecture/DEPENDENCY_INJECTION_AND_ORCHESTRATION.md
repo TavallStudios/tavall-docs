@@ -96,10 +96,16 @@ public final class AchievementProgressMutationHandler
                 achievementProgressRequest.achievementDefinition();
         long progressAmount = achievementProgressRequest.progressAmount();
 
-        if (playerUUID == null
-                || achievementDefinition == null
-                || progressAmount <= 0L
-                || !achievementDefinition.enabled()) {
+        boolean hasPlayerUUID = playerUUID != null;
+        boolean hasAchievementDefinition = achievementDefinition != null;
+        boolean hasPositiveProgressAmount = progressAmount > 0L;
+        boolean achievementEnabled =
+                hasAchievementDefinition && achievementDefinition.enabled();
+
+        if (!hasPlayerUUID
+                || !hasAchievementDefinition
+                || !hasPositiveProgressAmount
+                || !achievementEnabled) {
             return null; // Existing nullable behavior retained for this migration sketch.
         }
 
@@ -131,7 +137,9 @@ public final class AchievementProgressMutationHandler
                 updatedProgress
         );
 
-        if (progressMutationResult.completedNow()) {
+        boolean achievementCompletedNow = progressMutationResult.completedNow();
+
+        if (achievementCompletedNow) {
             // Presentation belongs to the completion/notification owner.
             getAchievementCompletionHandler().sendAchievementCompletionMessage(
                     updatedProgress,
@@ -167,21 +175,32 @@ public record AchievementProgressRequest(
 public static AchievementProgressEventData fromProgressRequest(
         AchievementProgressRequest achievementProgressRequest
 ) {
+    Objects.requireNonNull(achievementProgressRequest, "achievementProgressRequest");
+
     AchievementListData achievementDefinition =
             Objects.requireNonNull(
                     achievementProgressRequest.achievementDefinition(),
                     "achievementDefinition"
             );
+    String eventId = achievementProgressRequest.eventId();
+    UUID playerUUID = achievementProgressRequest.playerUUID();
+    AchievementTriggerType achievementTriggerType =
+            achievementDefinition.triggerType();
+    long progressAmount = achievementProgressRequest.progressAmount();
+    String actionType = achievementProgressRequest.actionType();
+    String sourceServerId = achievementProgressRequest.sourceServerId();
+    String sourceContext = achievementProgressRequest.sourceContext();
+    Instant occurredAt = achievementProgressRequest.occurredAt();
 
     return new AchievementProgressEventData(
-            achievementProgressRequest.eventId(),
-            achievementProgressRequest.playerUUID(),
-            achievementDefinition.triggerType(),
-            achievementProgressRequest.progressAmount(),
-            achievementProgressRequest.actionType(),
-            achievementProgressRequest.sourceServerId(),
-            achievementProgressRequest.sourceContext(),
-            achievementProgressRequest.occurredAt()
+            eventId,
+            playerUUID,
+            achievementTriggerType,
+            progressAmount,
+            actionType,
+            sourceServerId,
+            sourceContext,
+            occurredAt
     );
 }
 ```
@@ -236,6 +255,8 @@ The `sendAchievementCompletionMessage(...)` name is a proposed coordinated renam
 **Consumer anti-patterns:**
 
 - **Long anonymous call chains:** nest `result.updatedProgress()` or several dependency operations inside another call rather than extracting `PlayerAchievementProgressData updatedProgress` once when it is reused or checked.
+- **Inline boolean reads:** write `if (progressMutationResult.completedNow())` instead of outlining `boolean achievementCompletedNow = progressMutationResult.completedNow();` before the branch.
+- **Misleading data state verbs:** call a method `get...` when it secretly constructs or loads domain data, or `build...` when it only returns already-existing data. Follow [method naming contracts](METHODS.md#data-state-and-method-name-contracts).
 - **Generic domain method names:** public `applyProgress()`, `update()`, or `handleCompletion()` when the operation needs a more specific name at its call site.
 - **Pure forwarding wrappers:** introduce a public method that does nothing except call another method with the same parameters and result, unless it is a real adapter/boundary.
 - **Single-use public predicates:** add a `canReplace()` method only to hide a one-use condition already owned by the same data object.
