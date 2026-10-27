@@ -10,8 +10,8 @@ Methods should be readable top to bottom and perform one coherent operation.
 
 Rules:
 
-- Method names explain the specific action, including the affected domain and outcome where needed.
-- Important values are extracted into named locals when that improves ownership/debugging.
+- Method names and the owning class role indicate whether an operation reads existing data, loads, constructs/fills, derives, mutates, or delivers; see [Data State and Method Name Contracts](#data-state-and-method-name-contracts).
+- Outline meaningful input values, intermediate results and branch-driving booleans in explicitly typed, domain-named locals before consuming them; see [Variable Outlining](#variable-outlining).
 - Production local variables use explicit Java types rather than `var`.
 - Avoid hiding meaningful logic inside deep chained calls.
 - Input-adapter methods receive input and delegate.
@@ -66,6 +66,27 @@ shouldSendWelcomeMessage()
 
 `PlayerJoinHandler#handlePlayerJoin()` repeats the class name instead of explaining the work. Precise method names make call sites and stack traces describe the actual operation.
 
+## Data State and Method Name Contracts
+
+**A caller must know from the class role and method name whether the value is already filled or whether the method will fill, produce, or change it.** These conventions apply to new Tavall application-domain APIs and coherent migrations; canonical Tavall Tool interfaces remain authoritative for their existing API vocabulary.
+
+| Name / role | Caller expectation |
+| --- | --- |
+| `get...` or record component accessor | Read an already-available value. Do not silently initialize missing domain data. Record booleans such as `completedNow()` retain Java's accessor name. |
+| `find...` | Look up existing data without creating it, with explicit absence (typically `Optional<T>`). |
+| `require...` | Read existing required data, failing explicitly if unavailable. |
+| `load...` in a DataHandler/Reader | Obtain data through a potentially expensive loading/hydration/cache policy. May assemble a value under that documented policy. |
+| `from...` / `create...` / `of...` on a value type | Construct and return a complete new value with the type's own validation/defaults. |
+| `build...` on a DataBuilder/MetaDataBuilder | Construct a complete typed value when meaningful optional inputs, defaults or assembly justify a separate Builder. |
+| `resolve...` / `calculate...` / `format...` on an owning role | Derive/read a computed or presentation result, not silently persist or mutate state. |
+| `is...` / `has...` / `can...` / `should...` | Read/evaluate a boolean condition without changing state. |
+| `fill...` / `populate...` / `merge...` / `update...` / `apply...` on a data owner | Change the contents/state of the explicitly owned target, not silently create a different object or conceal a load. |
+| `save...` / `send...` / `publish...` | Perform the named persistence, delivery or event side effect through its owner. |
+
+For example, a `getPlayerAchievementData()` method must not covertly create an account when missing. `loadPlayerAchievementData()` signals access through a loading path; `AchievementProgressEventData.fromProgressRequest(...)` signals construction of a newly filled record; `PlayerAchievementData.mergeCommittedProgress(...)` signals mutation of an existing data owner. Do not add a Builder solely to avoid a record's constructor.
+
+**The verb is a semantic contract, not a prefix to add mechanically.** A record's `completedNow()` is an existing-value read, not a fill command. A getter returning a DI-managed collaborator is a live dependency accessor as defined by Tavall DI, not a call to construct that collaborator. Preserve canonical tool naming where its real behavior is documented differently.
+
 ## Method Visibility and Ownership
 
 A public method on a DI-managed Handler/Service/DataHandler expresses an operation that belongs in that role's interface contract. Do not expose raw DI wiring, constructor internals, or one-off convenience methods as public domain APIs.
@@ -106,7 +127,7 @@ Typed parameters make invalid combinations harder to express. Request objects gi
 
 ## Local Variables
 
-Extract meaningful intermediate values before nested calls when they help reading, debugging, validation, or failure diagnosis. Production source uses explicit local types; detailed `var` rules live in [Namespaces, Variables, OOP, DRY, and Type Safety](NAMESPACES_VARIABLES_AND_OOP.md#local-variables).
+Outline meaningful domain reads, intermediate results and boolean conditions before calling another capability or branching. See [Variable Outlining](#variable-outlining). Production source uses explicit local types; detailed `var` rules live in [Namespaces, Variables, OOP, DRY, and Type Safety](NAMESPACES_VARIABLES_AND_OOP.md#local-variables).
 
 Bad:
 
@@ -129,6 +150,38 @@ rankMetaDataHandler.refresh(playerAccountData);
 ##### Why
 
 Named locals expose domain values and failure points. The goal is not ceremonial variables; it is making meaningful steps visible.
+
+## Variable Outlining
+
+**Outline meaningful domain values before they are evaluated, delegated or mutated.** This includes boolean-returning accessors even when their value controls only one `if` statement. Use explicit Java types, stable domain names and separate lines for distinct operation stages.
+
+Bad:
+
+```java
+if (progressMutationResult.completedNow()) {
+    getAchievementCompletionHandler().sendAchievementCompletionMessage(
+            progressMutationResult.updatedProgress(),
+            achievementProgressRequest.achievementDefinition()
+    );
+}
+```
+
+Good (after the mutation result and progress have been validated):
+
+```java
+boolean achievementCompletedNow = progressMutationResult.completedNow();
+
+if (achievementCompletedNow) {
+    getAchievementCompletionHandler().sendAchievementCompletionMessage(
+            updatedProgress,
+            achievementDefinition
+    );
+}
+```
+
+The reader sees *what data exists* (`updatedProgress`, `achievementDefinition`), *what was checked* (`achievementCompletedNow`), and *what is performed* (`sendAchievementCompletionMessage`). The boolean local is not ceremonial, even when used once. Likewise, extract `UUID playerUUID`, `AchievementProgressEventData progressEventData`, and `AchievementProgressMutationResult progressMutationResult` before dependent validation or calls.
+
+Do not outline literal constants, trivial loop mechanics or unconsumed void commands. Do not assign generated DI access to a local alias as a substitute for separating the **domain values**. Name booleans after the actual fact (`achievementCompletedNow`, `shouldMergeProgress`, `canRankEdit`), not `flag`, `valid` or `check`.
 
 ## Intermediate Values and Delegation Anti-Patterns
 
