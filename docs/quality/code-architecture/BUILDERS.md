@@ -71,18 +71,9 @@ AchievementProgressEventData progressEventData =
         );
 ```
 
-A record can instead own a meaningful **static or instance conversion/factory** that constructs its complete value using supplied inputs. The consumer should not manually invoke `new` to populate its fields; direct pure static method calls remain valid:
+When a new immutable value really **must be created**, a record's own static/instance factory may do the construction. A genuine DataBuilder is for more involved options or assembly. **When updating data already present in a result or another data owner, neither a record factory nor a Builder is needed.**
 
-```java
-// Good: value construction occurs within its owning record.
-AchievementProgressEventData progressEventData =
-        AchievementProgressEventData.fromProgressRequest(
-                achievementProgressRequest,
-                getAchievementListData()
-        );
-```
-
-See the [complete proposed record factory and consumer](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access). The factory is **not yet a current production API**. It performs real conversion, not a forwarding layer; no extra Builder is needed. For the default/exception boundary see [Object Instantiation](METHODS.md#object-instantiation-in-managed-consumer-methods).
+The [achievement update consumer](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access) therefore consumes an existing `progressMutationResult.updatedProgress()` through the DataHandler instead of invoking `AchievementProgressEventData.fromProgressRequest(...)`. That factory is not part of the update path. Static Java factory calls remain legal for *actual construction* in the appropriate path.
 
 This consumer rule does **not** mean all Java `new` expressions are forbidden. Value-owning record/factory methods, actual DataBuilders, persistence entity conversion, legitimate composition boundaries, and tool-governed managed-construction bridges may perform construction within their own responsibilities. But ordinary managed behavior must not use direct `new` to bypass a registered DI-managed collaborator, perform domain-data assembly inline, or rebuild the dependency graph.
 
