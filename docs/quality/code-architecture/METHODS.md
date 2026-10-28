@@ -180,15 +180,14 @@ if (hasUpdatedProgress && achievementCompletedNow) {
 }
 ```
 
-Good: outline a **new, meaningful** result returned by an operation.
+Good: outline a genuinely new load or computation result **where that operation belongs**:
 
 ```java
-AchievementProgressMutationResult progressMutationResult =
-        getAchievementEventMutationAccess().applyEventProgressOnce(
-                progressEventData,
-                getAchievementListData()
-        );
+PlayerAchievementData playerAchievementData =
+        getPlayerAchievementDataHandler().load(playerUUID);
 ```
+
+When the caller **already receives** `AchievementProgressMutationResult progressMutationResult`, use its populated `updatedProgress()` directly rather than recreating an event or defining an alias.
 
 Variables still use explicit Java types, domain-specific names and meaningful scopes. Avoid pointless one-use aliases for record accessors, `getInstance()`, named DI getters, constants, and data already available from their owner. Extract a getter result only if a **real** requirement exists, such as an intentional immutable snapshot, required reuse of an expensive calculation, an identity/consistency boundary, or mutation of an independently owned local value. These are exceptions justified by semantics, not stylistic ceremony.
 
@@ -215,18 +214,11 @@ IAchievementCompletionHandler completionHandler =
         new AchievementCompletionHandler(plugin);
 ```
 
-Good: use the typed DI getter for managed behavior and the value owner's actual conversion capability for data:
+Good: if progress is already filled, use that existing data with its owner. No construction is required:
 
 ```java
-AchievementProgressEventData progressEventData =
-        AchievementProgressEventData.fromProgressRequest(
-                achievementProgressRequest,
-                getAchievementListData()
-        );
-
-getAchievementCompletionHandler().sendAchievementCompletionMessage(
-        updatedProgress,
-        getAchievementListData()
+getPlayerAchievementDataHandler().updatePlayerAchievementProgress(
+        progressMutationResult.updatedProgress()
 );
 ```
 
@@ -258,17 +250,16 @@ getPlayerAchievementDataHandler().applyCommittedPlayerAchievementProgress(
 );
 ```
 
-This collapses conversion, durable mutation, possible-null result validation, and cache reconciliation into one call. The pure static factory itself is not the problem; burying a **newly produced operation result** is. Keep `AchievementProgressEventData progressEventData` and `AchievementProgressMutationResult progressMutationResult` where their separate operation stages matter. Do **not** add `updatedProgress` or `playerUUID` aliases for existing accessors; use them directly as shown in the [full consumer example](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access).
+This collapses event creation, durable mutation, result validation and cache reconciliation into one consumer call. The problem is crossing **operation ownership boundaries**, not that the static value factory is syntactically static. When the caller already has a completed `AchievementProgressMutationResult`, use `progressMutationResult.updatedProgress()` directly and do not invoke the event mutation a second time. See the [full update consumer example](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access).
 
 Bad forwarding wrapper:
 
 ```java
-public void applyCommittedPlayerAchievementProgress(
-        UUID playerUUID,
-        PlayerAchievementProgressData updatedProgress
+public void updatePlayerAchievementProgress(
+        PlayerAchievementProgressData playerAchievementProgressData
 ) {
-    getPlayerAchievementDataHandler().applyCommittedPlayerAchievementProgress(
-            playerUUID, updatedProgress
+    getPlayerAchievementDataHandler().updatePlayerAchievementProgress(
+            playerAchievementProgressData
     );
 }
 ```
