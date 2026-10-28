@@ -95,7 +95,9 @@ public final class AchievementProgressMutationHandler
     public AchievementProgressMutationResult applyAchievementProgress(
             AchievementProgressRequest achievementProgressRequest
     ) {
-        Objects.requireNonNull(achievementProgressRequest, "achievementProgressRequest");
+        if (achievementProgressRequest == null) {
+            throw new IllegalArgumentException("achievementProgressRequest is required");
+        }
 
         UUID playerUUID = achievementProgressRequest.playerUUID();
         AchievementListData achievementDefinition = getAchievementListData();
@@ -114,11 +116,10 @@ public final class AchievementProgressMutationHandler
             return null; // Existing nullable behavior retained for this migration sketch.
         }
 
-        // The target record owns conversion from the request.
+        // The request owns meaningful conversion of its existing event input.
         AchievementProgressEventData progressEventData =
-                AchievementProgressEventData.fromProgressRequest(
-                        achievementProgressRequest,
-                        achievementDefinition
+                achievementProgressRequest.createProgressEventData(
+                        getAchievementListData()
                 );
 
         AchievementProgressMutationResult progressMutationResult =
@@ -160,10 +161,10 @@ public final class AchievementProgressMutationHandler
 
 ### Data-owned conversion and mutation methods
 
-The request groups event inputs but **does not carry the DI-owned achievement definition**. The consumer receives `AchievementListData` directly through its named Tavall DI getter. The destination `AchievementProgressEventData` record owns conversion, validation and private normalization with the resolved definition supplied as an input. Neither consumer nor conversion record looks up Registry keys.
+The proposed `AchievementProgressRequest` record groups event input. The ordinary DI-managed Handler calls an **instance method on this already-supplied value**; it does not call a class-qualified factory, construct a record inline, or reimplement the event mapping. This is a real conversion using the input record and the existing DI-provided achievement definition, **not a method that only forwards to another application class**.
 
 ```java
-// Proposed request record. No builder is required merely to fill its fields.
+// Proposed AchievementProgressRequest record implementation.
 public record AchievementProgressRequest(
         String eventId,
         UUID playerUUID,
@@ -173,45 +174,41 @@ public record AchievementProgressRequest(
         String sourceContext,
         Instant occurredAt
 ) {
-}
+    public AchievementProgressEventData createProgressEventData(
+            AchievementListData achievementDefinition
+    ) {
+        if (achievementDefinition == null) {
+            throw new IllegalArgumentException("achievementDefinition is required");
+        }
 
-// Proposed public factory *inside* AchievementProgressEventData,
-// which already owns validation/normalization in its compact constructor.
-public static AchievementProgressEventData fromProgressRequest(
-        AchievementProgressRequest achievementProgressRequest,
-        AchievementListData achievementDefinition
-) {
-    Objects.requireNonNull(achievementProgressRequest, "achievementProgressRequest");
-    Objects.requireNonNull(achievementDefinition, "achievementDefinition");
-    String eventId = achievementProgressRequest.eventId();
-    UUID playerUUID = achievementProgressRequest.playerUUID();
-    AchievementTriggerType achievementTriggerType =
-            achievementDefinition.triggerType();
-    long progressAmount = achievementProgressRequest.progressAmount();
-    String actionType = achievementProgressRequest.actionType();
-    String sourceServerId = achievementProgressRequest.sourceServerId();
-    String sourceContext = achievementProgressRequest.sourceContext();
-    Instant occurredAt = achievementProgressRequest.occurredAt();
+        AchievementTriggerType achievementTriggerType =
+                achievementDefinition.triggerType();
 
-    return new AchievementProgressEventData(
-            eventId,
-            playerUUID,
-            achievementTriggerType,
-            progressAmount,
-            actionType,
-            sourceServerId,
-            sourceContext,
-            occurredAt
-    );
+        // A value owner may construct its output; the DI consumer does not.
+        return new AchievementProgressEventData(
+                eventId,
+                playerUUID,
+                achievementTriggerType,
+                progressAmount,
+                actionType,
+                sourceServerId,
+                sourceContext,
+                occurredAt
+        );
+    }
 }
 ```
+
+The constructed `AchievementProgressEventData` record retains its canonical compact-constructor validation/normalization. This record-owned constructor call is an explicit exception to the ordinary consumer's **direct class-call anti-pattern**; see [Method Rules](METHODS.md#direct-class-calls-in-consumer-method-bodies). There is no new Builder or forwarding-only DI service.
 
 The nontrivial timestamp comparison belongs to the **existing `PlayerAchievementData` owner**. There is no need to expose a one-use `PlayerAchievementProgressData.canReplace()` API merely to move the condition out of the Handler:
 
 ```java
 // Proposed public operation inside PlayerAchievementData.
 public void mergeCommittedProgress(PlayerAchievementProgressData updatedProgress) {
-    Objects.requireNonNull(updatedProgress, "updatedProgress");
+    if (updatedProgress == null) {
+        throw new IllegalArgumentException("updatedProgress is required");
+    }
 
     PlayerAchievementProgressData cachedProgress =
             findProgress(updatedProgress.achievementKey()).orElse(null);
@@ -264,6 +261,7 @@ The `sendAchievementCompletionMessage(...)` name is a proposed coordinated renam
 - **Single-use public predicates:** add a `canReplace()` method only to hide a one-use condition already owned by the same data object.
 - **Accessor aliases:** store `getInstance()` or resolved dependencies in long-lived fields or repetitive local aliases.
 - **Consumer-level manual construction:** `new SomeManagedClass(...)` or inline record population in ordinary DI-managed behavior, instead of calling the correct owner.
+- **Direct class-qualified method invocation:** call `SomeClass.someMethod(...)` from ordinary consumer behavior in place of the owning instance/DI contract; follow the narrow [exceptions and review test](METHODS.md#direct-class-calls-in-consumer-method-bodies).
 - **Ceremonial separation:** create a local for every expression even when it conveys no domain meaning; split at validation, conversion, state/ownership boundaries, and meaningful outputs.
 
 A named private getter like `getPlayerAchievementDataHandler()` is **not** a redundant forwarding method: it is the declared, live DI access mechanism. Likewise a thin input adapter that translates external input into a typed operation is a real transport boundary, not an arbitrary extra application layer.
