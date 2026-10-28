@@ -65,7 +65,7 @@ Precise suffixes give reviewers and architecture tests a usable contract. `Servi
 
 ### Local Variables
 
-Outline meaningful domain inputs, fetched or constructed data, operation results, and boolean reads controlling a condition into explicit typed locals before they are consumed. See the canonical [Variable Outlining](METHODS.md#variable-outlining) examples; do not duplicate the worked method here.
+Outline **new operation results and meaningful boolean decisions** in explicit typed locals. Do **not** create aliases for values already available from a record accessor or named Tavall DI getter. See the canonical [Variable Outlining](METHODS.md#variable-outlining) examples; do not duplicate the worked method here.
 
 #### Bad
 
@@ -100,13 +100,14 @@ Naming rules:
 - avoid numbered locals unless the number is domain meaning;
 - avoid one-letter names outside tiny conventional scopes;
 - do not reuse one local for several meanings;
-- separate typed intermediate data/operation results before a later validation, fallback, update, or delegation;
+- separate newly computed, loaded or mutated operation results before validation, fallback, update or delegation when they represent an actual new stage;
+- avoid aliases such as `UUID playerUUID = achievementProgressRequest.playerUUID();`, `AchievementListData achievementDefinition = getAchievementListData();`, or `PlayerAchievementProgressData updatedProgress = progressMutationResult.updatedProgress();` when they merely restate existing accessor data;
 - name a boolean result before a controlling `if`, e.g. `boolean achievementCompletedNow = progressMutationResult.completedNow();`;
 - use the owning class role and method verb to distinguish existing-data reads from loading, constructing, filling or updating; see [Data State and Method Name Contracts](METHODS.md#data-state-and-method-name-contracts);
 - keep dependency getters named on the class; do not alias a generated `DependencyAccess` object in a local as a substitute for domain values;
 - do not introduce redundant one-use locals with no meaning beyond repeating the next expression; a named boolean controlling a branch **is** meaningful even when used once.
 
-For a multi-step operation, the canonical [achievement consumer example](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access) separates `AchievementProgressEventData progressEventData`, `AchievementProgressMutationResult progressMutationResult`, and `PlayerAchievementProgressData updatedProgress` **after checking whether the result exists**. Keep the complete validation flow in its owning chapter rather than duplicating a truncated, unsafe method here.
+For a multi-step operation, the canonical [achievement consumer example](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access) separates the genuinely new `AchievementProgressEventData progressEventData` and `AchievementProgressMutationResult progressMutationResult` results, while calling `progressMutationResult.updatedProgress()` directly for data already held by that result. Keep the complete validation flow in its owning chapter rather than duplicating a truncated, unsafe method here.
 
 ##### Why
 
