@@ -71,17 +71,18 @@ AchievementProgressEventData progressEventData =
         );
 ```
 
-A record can instead own a **meaningful instance conversion** over its existing fields, using its own constructor (or the output record's constructor) internally. The managed consumer invokes this method on a **supplied typed record instance**, not a class-qualified factory:
+A record can instead own a meaningful **static or instance conversion/factory** that constructs its complete value using supplied inputs. The consumer should not manually invoke `new` to populate its fields; direct pure static method calls remain valid:
 
 ```java
-// Good: ordinary managed consumer invokes the input record's instance behavior.
+// Good: value construction occurs within its owning record.
 AchievementProgressEventData progressEventData =
-        achievementProgressRequest.createProgressEventData(
+        AchievementProgressEventData.fromProgressRequest(
+                achievementProgressRequest,
                 getAchievementListData()
         );
 ```
 
-See the [complete consumer and proposed request record implementation](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access). The request's `createProgressEventData(...)` method is a **proposed API**, not current production source. It performs actual record-to-record mapping using the supplied achievement definition and does not exist merely as an extra forwarding layer. No extra Builder is needed.
+See the [complete proposed record factory and consumer](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access). The factory is **not yet a current production API**. It performs real conversion, not a forwarding layer; no extra Builder is needed. For the default/exception boundary see [Object Instantiation](METHODS.md#object-instantiation-in-managed-consumer-methods).
 
 This consumer rule does **not** mean all Java `new` expressions are forbidden. Value-owning record/factory methods, actual DataBuilders, persistence entity conversion, legitimate composition boundaries, and tool-governed managed-construction bridges may perform construction within their own responsibilities. But ordinary managed behavior must not use direct `new` to bypass a registered DI-managed collaborator, perform domain-data assembly inline, or rebuild the dependency graph.
 
