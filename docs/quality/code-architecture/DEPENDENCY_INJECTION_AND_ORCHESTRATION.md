@@ -59,7 +59,9 @@ Managed consumers declare Tavall-managed collaborators through `DependencyAccess
 
 ### Multi-Dependency Expanded Access
 
-The proposed `AchievementProgressMutationHandler` example below adapts the real [Novus achievement mutation Handler](https://github.com/TavallStudios/tavall-mc/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/handler/AchievementProgressMutationHandler.java). **This is a proposed multi-class API refactor, not currently compiling source.** The direct `AchievementListData` DI binding, request, record factory, DataHandler operation and completion-method rename shown here do not yet exist together in production. Current Novus routes multiple definitions and does not register one directly available `AchievementListData` token. The runtime/DI owner must supply the right definition for the current operation; the consumer must not compensate by selecting Registry keys or inventing a lookup facade.
+**Approved-direction architecture example, not currently compiled production source.** This is an **already-committed progress update**, not event generation or the durable event-mutation operation. Upstream code must provide an already-filled `AchievementProgressMutationResult`; the Handler must not re-create `AchievementProgressEventData` or repeat `applyEventProgressOnce(...)`.
+
+The example intentionally contains **no `*Access` data/persistence classes in `DependencyAccess<...>`**. The owning DataHandler manages the update and cache policy. The runtime still must register an **operation-correct** `AchievementListData` instance for the current achievement; that binding does not exist in current multi-definition Novus production.
 
 ```java
 @DelegatesTo(IAchievementProgressMutationHandler.class)
@@ -68,78 +70,22 @@ public final class AchievementProgressMutationHandler
                    DependencyAccess<
                            AchievementListData,
                            IPlayerAchievementDataHandler,
-                           AchievementEventMutationAccess,
                            IAchievementCompletionHandler
                    > {
 
-    // The value class is supplied directly through the same typed Tavall DI pattern.
-    private AchievementListData getAchievementListData() {
-        return getInstance().achievementListData();
-    }
-
-    // Other live typed capabilities, no dependency capture or Registry plumbing.
-    private IPlayerAchievementDataHandler getPlayerAchievementDataHandler() {
-        return getInstance().playerAchievementDataHandler();
-    }
-
-    private AchievementEventMutationAccess getAchievementEventMutationAccess() {
-        return getInstance().achievementEventMutationAccess();
-    }
-
-    private IAchievementCompletionHandler getAchievementCompletionHandler() {
-        return getInstance().achievementCompletionHandler();
-    }
-
-    // Public contract operation: explicit action and meaningful typed values.
     @Override
-    public AchievementProgressMutationResult applyAchievementProgress(
-            AchievementProgressRequest achievementProgressRequest
+    public void updatePlayerAchievementProgress(
+            AchievementProgressMutationResult progressMutationResult
     ) {
-        if (achievementProgressRequest == null) {
-            throw new IllegalArgumentException("achievementProgressRequest is required");
-        }
-
-        // Outline decisions, not aliases for already-held request or DI data.
-        boolean hasPlayerUUID = achievementProgressRequest.playerUUID() != null;
-        boolean hasAchievementDefinition = getAchievementListData() != null;
-        boolean hasPositiveProgressAmount =
-                achievementProgressRequest.progressAmount() > 0L;
-        boolean achievementEnabled =
-                hasAchievementDefinition && getAchievementListData().enabled();
-
-        if (!hasPlayerUUID
-                || !hasAchievementDefinition
-                || !hasPositiveProgressAmount
-                || !achievementEnabled) {
-            return null; // Existing nullable behavior retained for this migration sketch.
-        }
-
-        // A newly constructed value is a meaningful operation result.
-        AchievementProgressEventData progressEventData =
-                AchievementProgressEventData.fromProgressRequest(
-                        achievementProgressRequest,
-                        getAchievementListData()
-                );
-
-        AchievementProgressMutationResult progressMutationResult =
-                getAchievementEventMutationAccess().applyEventProgressOnce(
-                        progressEventData,
-                        getAchievementListData()
-                );
-
-        if (progressMutationResult == null) {
-            return null;
-        }
-
-        // The existing result already owns updatedProgress(); do not alias it.
         boolean hasUpdatedProgress =
-                progressMutationResult.updatedProgress() != null;
+                progressMutationResult != null
+                        && progressMutationResult.updatedProgress() != null;
+
         if (!hasUpdatedProgress) {
-            return progressMutationResult;
+            return;
         }
 
-        getPlayerAchievementDataHandler().applyCommittedPlayerAchievementProgress(
-                achievementProgressRequest.playerUUID(),
+        getPlayerAchievementDataHandler().updatePlayerAchievementProgress(
                 progressMutationResult.updatedProgress()
         );
 
@@ -151,114 +97,83 @@ public final class AchievementProgressMutationHandler
                     getAchievementListData()
             );
         }
+    }
 
-        return progressMutationResult;
+    private AchievementListData getAchievementListData() {
+        return getInstance().achievementListData();
+    }
+
+    private IPlayerAchievementDataHandler getPlayerAchievementDataHandler() {
+        return getInstance().playerAchievementDataHandler();
+    }
+
+    private IAchievementCompletionHandler getAchievementCompletionHandler() {
+        return getInstance().achievementCompletionHandler();
     }
 }
 ```
 
-### Data-owned conversion and mutation methods
+### Already-filled Data Ownership
 
-The proposed `AchievementProgressRequest` record groups event input; the typed `AchievementListData` comes through Tavall DI. The destination `AchievementProgressEventData` record may expose a **pure static value factory** that maps supplied values into its validated result. Static class calls are not forbidden; instantiating and manually populating the domain record in the managed Handler is the anti-pattern.
+The result already owns `updatedProgress()`, whose record already owns `playerId()` and `achievementKey()`. Do not re-extract these into local aliases or reconstruct them from an event. The Handler is responsible for its meaningful cross-boundary completion decision, not low-level storage.
 
-```java
-// Proposed input record: no ceremonial Builder needed.
-public record AchievementProgressRequest(
-        String eventId,
-        UUID playerUUID,
-        long progressAmount,
-        String actionType,
-        String sourceServerId,
-        String sourceContext,
-        Instant occurredAt
-) {
-}
-
-// Proposed pure factory method inside AchievementProgressEventData.
-public static AchievementProgressEventData fromProgressRequest(
-        AchievementProgressRequest achievementProgressRequest,
-        AchievementListData achievementDefinition
-) {
-    Objects.requireNonNull(achievementProgressRequest, "achievementProgressRequest");
-    Objects.requireNonNull(achievementDefinition, "achievementDefinition");
-
-    return new AchievementProgressEventData(
-            achievementProgressRequest.eventId(),
-            achievementProgressRequest.playerUUID(),
-            achievementDefinition.triggerType(),
-            achievementProgressRequest.progressAmount(),
-            achievementProgressRequest.actionType(),
-            achievementProgressRequest.sourceServerId(),
-            achievementProgressRequest.sourceContext(),
-            achievementProgressRequest.occurredAt()
-    );
-}
-```
-
-The record factory owns its creation. It neither resolves Tavall DI itself nor introduces another managed instance. The Builder chapter defines when additional construction options justify a real Builder; see [Object Instantiation in Managed Consumers](METHODS.md#object-instantiation-in-managed-consumer-methods) for the exceptions.
-
-The nontrivial timestamp comparison belongs to the **existing `PlayerAchievementData` owner**. There is no need to expose a one-use `PlayerAchievementProgressData.canReplace()` API merely to move the condition out of the Handler:
+The proposed `IPlayerAchievementDataHandler.updatePlayerAchievementProgress(PlayerAchievementProgressData)` operation **must** encapsulate loading the correct player's data, the existing synchronized recency check, and saving the cache projection. It must not be an empty forwarding wrapper. For example, this is a **proposed method inside the DataHandler implementation**, not another method in the Handler above:
 
 ```java
-// Proposed public operation inside PlayerAchievementData.
-public void mergeCommittedProgress(PlayerAchievementProgressData updatedProgress) {
-    if (updatedProgress == null) {
-        throw new IllegalArgumentException("updatedProgress is required");
-    }
-
-    PlayerAchievementProgressData cachedProgress =
-            findProgress(updatedProgress.achievementKey()).orElse(null);
-    boolean shouldMergeProgress =
-            cachedProgress == null
-                    || updatedProgress.updatedAt() == null
-                    || cachedProgress.updatedAt() == null
-                    || !cachedProgress.updatedAt().isAfter(updatedProgress.updatedAt());
-
-    if (shouldMergeProgress) {
-        upsertProgress(updatedProgress);
-    }
-}
-
-// Proposed operation inside the DI-managed PlayerAchievementDataHandler,
-// also declared by IPlayerAchievementDataHandler.
 @Override
-public void applyCommittedPlayerAchievementProgress(
-        UUID playerUUID,
-        PlayerAchievementProgressData updatedProgress
+public void updatePlayerAchievementProgress(
+        PlayerAchievementProgressData playerAchievementProgressData
 ) {
-    PlayerAchievementData playerAchievementData = load(playerUUID);
+    if (playerAchievementProgressData == null) {
+        return;
+    }
+
+    PlayerAchievementData playerAchievementData =
+            load(playerAchievementProgressData.playerId());
+
     if (playerAchievementData == null) {
         return;
     }
 
     synchronized (playerAchievementData) {
-        playerAchievementData.mergeCommittedProgress(updatedProgress);
+        playerAchievementData.mergeCommittedProgress(playerAchievementProgressData);
         getPlayerAchievementCache().saveOnline(playerAchievementData);
     }
 }
 ```
 
-`getPlayerAchievementCache()` above is a proposed **private named DI getter** in the DataHandler, replacing its current captured cache dependency. The DataHandler method is *not* a forwarding wrapper: it owns loading, synchronization, and cache projection. The `PlayerAchievementData` method owns comparison and mutation. Their separation preserves existing semantics while making ownership testable.
+The `mergeCommittedProgress(...)` method is a **proposed method on `PlayerAchievementData`** to preserve the existing newer-timestamp check and `upsertProgress` mutation:
 
-The `sendAchievementCompletionMessage(...)` name is a proposed coordinated rename of production `IAchievementCompletionHandler.handleCompletion(...)`, whose checked-in implementation logs and sends the message to an online player. Neither the interface rename nor this example is already implemented.
+```java
+public void mergeCommittedProgress(
+        PlayerAchievementProgressData playerAchievementProgressData
+) {
+    if (playerAchievementProgressData == null) {
+        return;
+    }
 
-**Consumer anti-patterns:**
+    PlayerAchievementProgressData cachedProgress =
+            findProgress(playerAchievementProgressData.achievementKey()).orElse(null);
 
-- **Nested operation results:** bury a newly produced value or fallible operation result inside an unrelated downstream operation without checking the result. Keep `AchievementProgressMutationResult progressMutationResult` as a meaningful operation result, but call `progressMutationResult.updatedProgress()` directly for already-held data.
-- **Inline boolean reads:** write `if (progressMutationResult.completedNow())` instead of outlining `boolean achievementCompletedNow = progressMutationResult.completedNow();` before the branch.
-- **Misleading data state verbs:** use an ordinary getter that secretly fills/mutates data or a method name that does not reflect the owning class and real action. Follow the concise [method naming guidance](METHODS.md#method-naming).
-- **Consumer Registry plumbing:** reach into keys or compose a lookup adapter for a typed data class that the owning runtime should already supply through Tavall DI.
-- **Generic domain method names:** public `applyProgress()`, `update()`, or `handleCompletion()` when the operation needs a more specific name at its call site.
-- **Pure forwarding wrappers:** introduce a public method that does nothing except call another method with the same parameters and result, unless it is a real adapter/boundary.
-- **Single-use public predicates:** add a `canReplace()` method only to hide a one-use condition already owned by the same data object.
-- **Accessor aliases:** store `getInstance()` or resolved dependencies in fields or repetitive local aliases; likewise avoid `PlayerAchievementProgressData updatedProgress = progressMutationResult.updatedProgress();` and `AchievementListData achievementDefinition = getAchievementListData();` when they only rename data already held by an accessible owner.
-- **Consumer-level manual construction:** `new SomeManagedClass(...)` or inline record population in ordinary DI-managed behavior, instead of calling the correct owner.
-- **Direct consumer instantiation:** write `new SomeClass(...)` inside an ordinary Handler to create a managed collaborator or manually fill a domain object. Use Tavall DI and the actual value/construction owner instead; see [construction exceptions](METHODS.md#object-instantiation-in-managed-consumer-methods). Static method calls are not prohibited merely for being static.
-- **Ceremonial separation:** extract one-line getters/record components into local aliases merely to satisfy an outlining rule. Outline decisions and **new operation results**; use existing data owners directly unless there is a documented snapshot, mutation or performance reason to capture a value.
+    boolean shouldMergeProgress =
+            cachedProgress == null
+                    || playerAchievementProgressData.updatedAt() == null
+                    || cachedProgress.updatedAt() == null
+                    || !cachedProgress.updatedAt().isAfter(
+                            playerAchievementProgressData.updatedAt()
+                    );
 
-A named private getter like `getPlayerAchievementDataHandler()` is **not** a redundant forwarding method: it is the declared, live DI access mechanism. Likewise a thin input adapter that translates external input into a typed operation is a real transport boundary, not an arbitrary extra application layer.
+    if (shouldMergeProgress) {
+        upsertProgress(playerAchievementProgressData);
+    }
+}
+```
 
-Follow the [owning Tavall DI access contract](https://github.com/TavallStudios/tavall-di/blob/main/docs/DI_ACCESS_STYLES.md) for generated access. A production migration needs matching interfaces, factory methods, role owners, registration, compilation, and tests. Preserve current null outcomes until a separate typed-result contract change is approved.
+The DataHandler's `getPlayerAchievementCache()` is a private named DI getter on that owning implementation. The three proposed APIs and their matching interfaces, DI registrations, and tests are **not currently implemented**. The upstream event/durable mutation that fills the result still exists, but belongs to its proper persistence/event owner and is explicitly outside this update Handler.
+
+**Rejected consumer patterns:** build a new event from already-filled data, invoke a persistence `*Access` API to recompute a result, list `*Access` types as ordinary `DependencyAccess` dependencies, alias `progressMutationResult.updatedProgress()` merely to call it again, or manually construct Registry/Cache/Database collaborators. Static value methods remain permitted when there is an actual need for value creation, not as a mandatory detour in an update method.
+
+See [Method Rules](METHODS.md#variable-outlining) for locals, [Instantiation Rules](METHODS.md#object-instantiation-in-managed-consumer-methods) for `new`, and the [Tavall DI Access Styles](https://github.com/TavallStudios/tavall-di/blob/main/docs/DI_ACCESS_STYLES.md) guide for typed live getters.
 
 ### Single-Dependency Direct Access
 
