@@ -390,10 +390,11 @@ routes:
       - data loading
       - data filling
       - method state contract
-      - direct class call
-      - static method call
-      - class qualified invocation
-      - static factory in handler
+      - new class instance
+      - inline object instantiation
+      - new in method
+      - new managed class
+      - constructor inside handler
       - class construction in method
     documents:
       - docs/quality/code-architecture/METHODS.md
