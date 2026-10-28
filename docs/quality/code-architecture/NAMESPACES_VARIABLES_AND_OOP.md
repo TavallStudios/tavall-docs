@@ -107,7 +107,7 @@ Naming rules:
 - keep dependency getters named on the class; do not alias a generated `DependencyAccess` object in a local as a substitute for domain values;
 - do not introduce redundant one-use locals with no meaning beyond repeating the next expression; a named boolean controlling a branch **is** meaningful even when used once.
 
-For a multi-step operation, the canonical [achievement consumer example](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access) separates the genuinely new `AchievementProgressEventData progressEventData` and `AchievementProgressMutationResult progressMutationResult` results, while calling `progressMutationResult.updatedProgress()` directly for data already held by that result. Keep the complete validation flow in its owning chapter rather than duplicating a truncated, unsafe method here.
+For an **already-filled result**, the [achievement update example](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access) uses `progressMutationResult.updatedProgress()` directly and outlines only meaningful boolean decisions. It creates no event data or replacement mutation result inside the Handler. Keep the complete validation flow in its owning chapter rather than duplicating a truncated, unsafe method here.
 
 ##### Why
 
