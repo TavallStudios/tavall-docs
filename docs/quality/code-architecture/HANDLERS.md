@@ -58,13 +58,10 @@ public final class RankUpdateHandler
 
     @Override
     public RankUpdateResult updatePlayerRank(RankUpdateRequest rankUpdateRequest) {
-        UUID staffUUID = rankUpdateRequest.staffUUID();
-        UUID targetUUID = rankUpdateRequest.targetUUID();
-
         PlayerAccountData staffAccountData =
-                getPlayerAccountDataHandler().load(staffUUID);
+                getPlayerAccountDataHandler().load(rankUpdateRequest.staffUUID());
         PlayerAccountData targetAccountData =
-                getPlayerAccountDataHandler().load(targetUUID);
+                getPlayerAccountDataHandler().load(rankUpdateRequest.targetUUID());
 
         boolean canRankEdit = getPowerLevelHandler().canRankEdit(
                 staffAccountData,
@@ -151,18 +148,14 @@ public final class PlayerRankMetaDataHandler
         PlayerAccountData playerAccountData =
                 getPlayerAccountDataHandler().load(playerUUID);
 
-        RankKey rankKey = playerAccountData.rankKey();
-        Optional<RankDefinition> rankDefinitionLookup =
-                getRankRegistry().find(rankKey);
-        RankDefinition rankDefinition = rankDefinitionLookup.orElseThrow();
+        RankDefinition rankDefinition = getRankRegistry()
+                .find(playerAccountData.rankKey())
+                .orElseThrow();
 
-        PlayerRankMetaData playerRankMetaData =
-                PlayerRankMetaData.fromRankDefinition(
-                        playerAccountData,
-                        rankDefinition
-                );
-
-        return playerRankMetaData;
+        return PlayerRankMetaData.fromRankDefinition(
+                playerAccountData,
+                rankDefinition
+        );
     }
 }
 ```
@@ -204,7 +197,7 @@ Handlers may coordinate focused dependencies, but they do not:
 - hide several unrelated operations behind one generic `handle()` method;
 - introduce forwarding-only public methods that merely echo a collaborator's signature and call;
 - expose one-use public helpers simply to relocate a condition that belongs in an existing domain operation;
-- nest meaningful lookup/results inside downstream delegations rather than separating typed values and handling failure;
+- bury a new fallible operation result in another call without checking it, or create aliases for existing record/accessor values with no additional meaning;
 - evaluate data accessors directly in conditions (for example `if (progressMutationResult.completedNow())`) instead of outlining a named boolean;
 - name a method `get...` when it actually loads, constructs or fills domain data.
 
