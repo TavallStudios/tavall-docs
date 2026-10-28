@@ -179,6 +179,8 @@ Module CI definitions own module checks. A root definition may aggregate them bu
 
 **Temporary organization-wide policy (2026-10-28):** Do not declare the Tavall architecture-test plugin, `architectureTest` tasks, task-facing ArchUnit tools, or architecture-only `architecture`/`architecture-tests` checks. They remain suspended until the replacement suite is set up. Keep regular compilation, unit/contract/behavior, integration, runtime, quality, E2E, artifact, and Tavall CI checks that the repository owns.
 
+This suspension changes architecture-test sources and execution entries only. Preserve any existing repository-root `.tavallci/` and `.tavallcd/` directories and their user metadata; do not remove either directory as cleanup.
+
 A typed Gradle check may declare up to 32 `gradleProperties` string entries for its primary build. Each entry is passed as a separate `-Pname=value` argument, preserving spaces and punctuation as part of one value. Property names are bounded identifiers; values are non-empty single-line text up to 4096 characters. Shell checks cannot set Gradle properties. `includeInAll: false` keeps a named check out of the default profile while allowing an explicit request for that check.
 
 Gradle properties do not select or replace exact source inputs. Tavall CI rejects CI-owned `org.gradle.*`, `tavallCi*`, `tavallSource*`, `tavallDependency*`, `tavallArtifact*`, and `tavallBuildPolicy*` properties. A property name supplied by exact-source version or plugin metadata is also reserved and cannot be set by a check.
@@ -312,6 +314,8 @@ exact source workspaces
 ```
 
 `.tavallcd` is deployment/service-local configuration for deployable services/runtimes. It is not a required source-repository container around ordinary CI and pure libraries do not need deployment state merely to build.
+
+When `.tavallcd/` exists, keep its directory and existing metadata during architecture-test suspension; deployment configuration ownership is unchanged.
 
 ### Deployment and Runtime Ownership
 
