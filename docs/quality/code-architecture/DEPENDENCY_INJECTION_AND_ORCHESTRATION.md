@@ -116,9 +116,10 @@ public final class AchievementProgressMutationHandler
             return null; // Existing nullable behavior retained for this migration sketch.
         }
 
-        // The request owns meaningful conversion of its existing event input.
+        // The output record owns construction; no new class in the Handler.
         AchievementProgressEventData progressEventData =
-                achievementProgressRequest.createProgressEventData(
+                AchievementProgressEventData.fromProgressRequest(
+                        achievementProgressRequest,
                         getAchievementListData()
                 );
 
@@ -161,10 +162,10 @@ public final class AchievementProgressMutationHandler
 
 ### Data-owned conversion and mutation methods
 
-The proposed `AchievementProgressRequest` record groups event input. The ordinary DI-managed Handler calls an **instance method on this already-supplied value**; it does not call a class-qualified factory, construct a record inline, or reimplement the event mapping. This is a real conversion using the input record and the existing DI-provided achievement definition, **not a method that only forwards to another application class**.
+The proposed `AchievementProgressRequest` record groups event input; the typed `AchievementListData` comes through Tavall DI. The destination `AchievementProgressEventData` record may expose a **pure static value factory** that maps supplied values into its validated result. Static class calls are not forbidden; instantiating and manually populating the domain record in the managed Handler is the anti-pattern.
 
 ```java
-// Proposed AchievementProgressRequest record implementation.
+// Proposed input record: no ceremonial Builder needed.
 public record AchievementProgressRequest(
         String eventId,
         UUID playerUUID,
@@ -174,32 +175,40 @@ public record AchievementProgressRequest(
         String sourceContext,
         Instant occurredAt
 ) {
-    public AchievementProgressEventData createProgressEventData(
-            AchievementListData achievementDefinition
-    ) {
-        if (achievementDefinition == null) {
-            throw new IllegalArgumentException("achievementDefinition is required");
-        }
+}
 
-        AchievementTriggerType achievementTriggerType =
-                achievementDefinition.triggerType();
+// Proposed pure factory method inside AchievementProgressEventData.
+public static AchievementProgressEventData fromProgressRequest(
+        AchievementProgressRequest achievementProgressRequest,
+        AchievementListData achievementDefinition
+) {
+    Objects.requireNonNull(achievementProgressRequest, "achievementProgressRequest");
+    Objects.requireNonNull(achievementDefinition, "achievementDefinition");
 
-        // A value owner may construct its output; the DI consumer does not.
-        return new AchievementProgressEventData(
-                eventId,
-                playerUUID,
-                achievementTriggerType,
-                progressAmount,
-                actionType,
-                sourceServerId,
-                sourceContext,
-                occurredAt
-        );
-    }
+    String eventId = achievementProgressRequest.eventId();
+    UUID playerUUID = achievementProgressRequest.playerUUID();
+    AchievementTriggerType achievementTriggerType =
+            achievementDefinition.triggerType();
+    long progressAmount = achievementProgressRequest.progressAmount();
+    String actionType = achievementProgressRequest.actionType();
+    String sourceServerId = achievementProgressRequest.sourceServerId();
+    String sourceContext = achievementProgressRequest.sourceContext();
+    Instant occurredAt = achievementProgressRequest.occurredAt();
+
+    return new AchievementProgressEventData(
+            eventId,
+            playerUUID,
+            achievementTriggerType,
+            progressAmount,
+            actionType,
+            sourceServerId,
+            sourceContext,
+            occurredAt
+    );
 }
 ```
 
-The constructed `AchievementProgressEventData` record retains its canonical compact-constructor validation/normalization. This record-owned constructor call is an explicit exception to the ordinary consumer's **direct class-call anti-pattern**; see [Method Rules](METHODS.md#direct-class-calls-in-consumer-method-bodies). There is no new Builder or forwarding-only DI service.
+The record factory owns its creation. It neither resolves Tavall DI itself nor introduces another managed instance. The Builder chapter defines when additional construction options justify a real Builder; see [Object Instantiation in Managed Consumers](METHODS.md#object-instantiation-in-managed-consumer-methods) for the exceptions.
 
 The nontrivial timestamp comparison belongs to the **existing `PlayerAchievementData` owner**. There is no need to expose a one-use `PlayerAchievementProgressData.canReplace()` API merely to move the condition out of the Handler:
 
@@ -261,7 +270,7 @@ The `sendAchievementCompletionMessage(...)` name is a proposed coordinated renam
 - **Single-use public predicates:** add a `canReplace()` method only to hide a one-use condition already owned by the same data object.
 - **Accessor aliases:** store `getInstance()` or resolved dependencies in long-lived fields or repetitive local aliases.
 - **Consumer-level manual construction:** `new SomeManagedClass(...)` or inline record population in ordinary DI-managed behavior, instead of calling the correct owner.
-- **Direct class-qualified method invocation:** call `SomeClass.someMethod(...)` from ordinary consumer behavior in place of the owning instance/DI contract; follow the narrow [exceptions and review test](METHODS.md#direct-class-calls-in-consumer-method-bodies).
+- **Direct consumer instantiation:** write `new SomeClass(...)` inside an ordinary Handler to create a managed collaborator or manually fill a domain object. Use Tavall DI and the actual value/construction owner instead; see [construction exceptions](METHODS.md#object-instantiation-in-managed-consumer-methods). Static method calls are not prohibited merely for being static.
 - **Ceremonial separation:** create a local for every expression even when it conveys no domain meaning; split at validation, conversion, state/ownership boundaries, and meaningful outputs.
 
 A named private getter like `getPlayerAchievementDataHandler()` is **not** a redundant forwarding method: it is the declared, live DI access mechanism. Likewise a thin input adapter that translates external input into a typed operation is a real transport boundary, not an arbitrary extra application layer.
