@@ -41,6 +41,12 @@ Closed sets of domain states, priorities, and fixed values use native Java `enum
 
 A **Handler** owns one focused behavior or operation family. A **Service** owns one reusable cohesive capability used across consumers. An **Orchestrator** owns ordering/lifecycle across several focused boundaries.
 
+### Service creation gate
+
+**Do not introduce a `*Service` as a generic layer or the default name for new behavior.** Before creating one, identify its concrete reusable capability, actual consumers, domain policy it alone owns, state/lifecycle owner, and why existing Handlers, Resolvers, DataHandlers, Orchestrators, Runtimes, and canonical Tavall Java Tools cannot own the same work. Reject a Service that merely forwards existing methods, renames a Registry/Cache lookup, implements a second cache/registry, or collects unrelated operations. Existing valid `*Service` implementations are not automatically renamed or removed; check their real behavior and callers.
+
+Where a Registry or Cache owns identity or cached state, use the **actual** `tavall-registry` or `tavall-cache` API with its approved access patterns. Refer to [Registry and Cache Tool Authority](REGISTRIES_CACHES_AND_REPOSITORIES.md#canonical-tool-authority) rather than duplicating the tool's API in a Service or this chapter.
+
 Input adapters such as commands/listeners/controllers receive external input and delegate. They do not become the reusable domain owner merely because input arrived there first.
 
 ##### Why
