@@ -127,7 +127,7 @@ Typed parameters make invalid combinations harder to express. Request objects gi
 
 ## Local Variables
 
-Outline meaningful domain reads, intermediate results and boolean conditions before calling another capability or branching. See [Variable Outlining](#variable-outlining). Production source uses explicit local types; detailed `var` rules live in [Namespaces, Variables, OOP, DRY, and Type Safety](NAMESPACES_VARIABLES_AND_OOP.md#local-variables).
+Outline **new computed/loaded operation results** and named decisions before using them. Do **not** alias fields, record components or DI getter results already accessible through their owning instances merely for outlining. See [Variable Outlining](#variable-outlining). Production source uses explicit local types; detailed `var` rules live in [Namespaces, Variables, OOP, DRY, and Type Safety](NAMESPACES_VARIABLES_AND_OOP.md#local-variables).
 
 Bad:
 
@@ -153,35 +153,44 @@ Named locals expose domain values and failure points. The goal is not ceremonial
 
 ## Variable Outlining
 
-**Outline meaningful domain values before they are evaluated, delegated or mutated.** This includes boolean-returning accessors even when their value controls only one `if` statement. Use explicit Java types, stable domain names and separate lines for distinct operation stages.
+**Outline decisions and genuinely new operation results; do not duplicate already-owned data through local accessor aliases.** An explicit local is useful when an operation *produces* a result, when a boolean expresses a condition, or when a stable snapshot/identity is actually required. Simply reading an existing record component or a named DI getter does not justify copying it.
 
-Bad:
+Bad: locals that only re-name existing data.
 
 ```java
-if (progressMutationResult.completedNow()) {
+UUID playerUUID = achievementProgressRequest.playerUUID();
+AchievementListData achievementDefinition = getAchievementListData();
+PlayerAchievementProgressData updatedProgress =
+        progressMutationResult.updatedProgress();
+```
+
+Good: call the existing owner directly; outline branch decisions.
+
+```java
+boolean hasUpdatedProgress =
+        progressMutationResult.updatedProgress() != null;
+boolean achievementCompletedNow =
+        progressMutationResult.completedNow();
+
+if (hasUpdatedProgress && achievementCompletedNow) {
     getAchievementCompletionHandler().sendAchievementCompletionMessage(
             progressMutationResult.updatedProgress(),
-            achievementProgressRequest.achievementDefinition()
+            getAchievementListData()
     );
 }
 ```
 
-Good (after the mutation result and progress have been validated):
+Good: outline a **new, meaningful** result returned by an operation.
 
 ```java
-boolean achievementCompletedNow = progressMutationResult.completedNow();
-
-if (achievementCompletedNow) {
-    getAchievementCompletionHandler().sendAchievementCompletionMessage(
-            updatedProgress,
-            achievementDefinition
-    );
-}
+AchievementProgressMutationResult progressMutationResult =
+        getAchievementEventMutationAccess().applyEventProgressOnce(
+                progressEventData,
+                getAchievementListData()
+        );
 ```
 
-The reader sees *what data exists* (`updatedProgress`, `achievementDefinition`), *what was checked* (`achievementCompletedNow`), and *what is performed* (`sendAchievementCompletionMessage`). The boolean local is not ceremonial, even when used once. Likewise, extract `UUID playerUUID`, `AchievementProgressEventData progressEventData`, and `AchievementProgressMutationResult progressMutationResult` before dependent validation or calls.
-
-Do not outline literal constants, trivial loop mechanics or unconsumed void commands. Do not assign generated DI access to a local alias as a substitute for separating the **domain values**. Name booleans after the actual fact (`achievementCompletedNow`, `shouldMergeProgress`, `canRankEdit`), not `flag`, `valid` or `check`.
+Variables still use explicit Java types, domain-specific names and meaningful scopes. Avoid pointless one-use aliases for record accessors, `getInstance()`, named DI getters, constants, and data already available from their owner. Extract a getter result only if a **real** requirement exists, such as an intentional immutable snapshot, required reuse of an expensive calculation, an identity/consistency boundary, or mutation of an independently owned local value. These are exceptions justified by semantics, not stylistic ceremony.
 
 ## Object Instantiation in Managed Consumer Methods
 
@@ -249,7 +258,7 @@ getPlayerAchievementDataHandler().applyCommittedPlayerAchievementProgress(
 );
 ```
 
-This collapses conversion, durable mutation, possible-null result validation, and cache reconciliation into one call. The pure static factory itself is not the problem; burying a meaningful intermediate value is. Instead keep `AchievementProgressEventData progressEventData`, `AchievementProgressMutationResult progressMutationResult`, `PlayerAchievementProgressData updatedProgress`, and `UUID playerUUID` separate as shown in the [full consumer example](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access).
+This collapses conversion, durable mutation, possible-null result validation, and cache reconciliation into one call. The pure static factory itself is not the problem; burying a **newly produced operation result** is. Keep `AchievementProgressEventData progressEventData` and `AchievementProgressMutationResult progressMutationResult` where their separate operation stages matter. Do **not** add `updatedProgress` or `playerUUID` aliases for existing accessors; use them directly as shown in the [full consumer example](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access).
 
 Bad forwarding wrapper:
 
