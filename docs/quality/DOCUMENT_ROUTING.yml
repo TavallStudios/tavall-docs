@@ -255,6 +255,11 @@ routes:
       - class architecture
       - class size
       - class role
+      - service class
+      - service creation
+      - service ownership
+      - forwarding service
+      - service anti-pattern
       - object ownership
     documents:
       - docs/quality/code-architecture/CLASSES.md
@@ -356,6 +361,10 @@ routes:
     signals:
       - registry
       - cache
+      - registry access pattern
+      - cache access pattern
+      - registry implementation
+      - cache implementation
       - repository class
       - keyed state
     documents:
