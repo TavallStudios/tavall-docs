@@ -76,7 +76,10 @@ A record can instead expose the conversion as a **public typed method**, keeping
 ```java
 // Good: inside a managed Handler, not a construction call.
 AchievementProgressEventData progressEventData =
-        AchievementProgressEventData.fromProgressRequest(achievementProgressRequest);
+        AchievementProgressEventData.fromProgressRequest(
+                achievementProgressRequest,
+                achievementDefinition
+        );
 ```
 
 See the [complete consumer and proposed request record implementation](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access). The new target-record conversion factory is a **proposed API**, not a current production declaration. No extra builder is necessary just because `fromProgressRequest(...)` internally creates a validated record.
