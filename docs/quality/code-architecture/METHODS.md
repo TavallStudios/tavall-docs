@@ -18,7 +18,7 @@ Rules:
 - Domain-handler methods perform one focused behavior.
 - Data methods move/transform data policy without absorbing unrelated product rules.
 - Builder methods construct typed output only.
-- Managed consumers call typed data-owned conversion methods instead of manually populating records with inline `new`; constructors remain valid within value/builder/factory owners.
+- Managed consumers call typed instance-owned data conversions or DI-managed capabilities rather than directly constructing/calling application classes; exceptions and boundaries are documented in [Direct Class Calls](#direct-class-calls-in-consumer-method-bodies).
 - Pure utility methods remain stateless.
 - Cache methods own cache behavior only.
 - Durable application operations follow Tavall Database entity classes/current typed contract rather than local transaction/database helper methods.
@@ -93,7 +93,7 @@ A public method on a DI-managed Handler/Service/DataHandler expresses an operati
 
 Private named DI getters (for example `getPlayerAchievementDataHandler()`) resolve live through `DependencyAccess<...>` and keep dependency mechanics out of the operation body. Private non-DI helpers should implement genuine class-local behavior; avoid unnecessary wrappers created only to hide an unclear design.
 
-Records/value objects may expose **public value-specific methods** (for example `AchievementProgressEventData.fromProgressRequest(...)`) while keeping construction, validation, normalization, and auxiliary helpers private/internal. Domain authorization or persistence does **not** become record behavior merely because the record can define methods. Record factories/converters may call their own constructors internally. This is different from an ordinary DI consumer calling `new` for a data object or another managed component.
+Records/value objects may expose **public value-specific methods** (for example `achievementProgressRequest.createProgressEventData(achievementDefinition)`) while keeping construction, validation, normalization, and auxiliary helpers private/internal. Domain authorization or persistence does **not** become record behavior merely because the record can define methods. Record factories/converters may call their own constructors internally. This is different from an ordinary DI consumer calling `new` for a data object or another managed component.
 
 The complete [consumer pattern](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access) demonstrates the proposed record-owned conversion and DataHandler-owned cache reconciliation. The concrete source/interfaces must be updated before those methods exist in production.
 
@@ -183,6 +183,54 @@ The reader sees *what data exists* (`updatedProgress`, `achievementDefinition`),
 
 Do not outline literal constants, trivial loop mechanics or unconsumed void commands. Do not assign generated DI access to a local alias as a substitute for separating the **domain values**. Name booleans after the actual fact (`achievementCompletedNow`, `shouldMergeProgress`, `canRankEdit`), not `flag`, `valid` or `check`.
 
+## Direct Class Calls in Consumer Method Bodies
+
+**Default: a DI-managed Tavall consumer method does not invoke another application class by its type name.** A call such as `OtherClass.someMethod(...)` or `new OtherClass(...)` inside a Handler/Service/Orchestrator/Router/DataHandler is an anti-pattern when it reaches a domain behavior, a managed capability, or object construction that belongs to an existing owner. Static imports do not make such calls acceptable.
+
+Bad inside a managed Handler:
+
+```java
+Objects.requireNonNull(achievementProgressRequest);
+AchievementProgressEventData progressEventData =
+        AchievementProgressEventData.fromProgressRequest(
+                achievementProgressRequest,
+                getAchievementListData()
+        );
+AchievementCompletionHandler.sendAchievementCompletionMessage(...);
+```
+
+The first call is an unnecessary class-qualified helper for a simple local guard, the second reaches a class-level record factory instead of asking the supplied request to convert its data, and the third bypasses the live DI-managed completion contract.
+
+Preferred managed-consumer shape:
+
+```java
+if (achievementProgressRequest == null) {
+    throw new IllegalArgumentException("achievementProgressRequest is required");
+}
+
+AchievementProgressEventData progressEventData =
+        achievementProgressRequest.createProgressEventData(
+                getAchievementListData()
+        );
+
+getAchievementCompletionHandler().sendAchievementCompletionMessage(
+        updatedProgress,
+        getAchievementListData()
+);
+```
+
+The request method here **must own a real data conversion** (copying/validating its components with the supplied definition), not be a one-line forwarding facade. The completed example lives in [DI Consumer Patterns](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access). `getAchievementCompletionHandler()` is an authorized private live DI accessor, not a static locator.
+
+**Explicit exceptions**, based on actual ownership rather than a generic allowlist of class names:
+
+1. **Value/record internals:** a record or immutable value's constructor, compact constructor, instance conversion, or value-owned factory may call `new` and use pure helpers to construct its own result. This is not permission for a Handler to statically call that factory. No ceremonial Builder is required.
+2. **Legitimate construction owners:** an actual DataBuilder/MetaDataBuilder/factory or authorized bootstrap/composition boundary may construct the exact objects it owns; it must follow Tavall DI's managed-construction policy and cannot create a competing dependency graph.
+3. **JDK/pure stateless capabilities:** `Math`, `Objects`, `String` and similarly pure operations are permitted **when genuinely appropriate and not hiding domain/managed behavior**. Prefer an ordinary language guard over `Objects.requireNonNull(...)` in a default consumer example. See [Utilities](UTILITIES.md#pure-java-utility-pattern). Never apply an absolute ban to standard Java.
+4. **Language/infrastructure references:** enum constants, static final constants, `.class` tokens needed by framework infrastructure, annotations, generic type arguments, type declarations, and superclass/constructor language rules are not managed behavior lookups. Use class tokens and framework statics only in their authorized boundary.
+5. **Tests/framework/generated code:** unit-test factories and mocks, generated source, serializers, DI internals, and verified low-level adapters may need direct class calls under their **own** contracts. Do not copy their infrastructure style into ordinary application consumers.
+
+Before allowing a direct class call in an ordinary consumer, confirm that the operation is stateless, has no existing DI-managed owner, does not construct/resolve managed instances, and the call is clearer than a genuine existing instance operation. If any check fails, route through an owned instance or move construction into the record/factory that owns it. **Do not manufacture a forwarding class or a DI dependency merely to avoid syntactic `ClassName.method(...)`.**
+
 ## Intermediate Values and Delegation Anti-Patterns
 
 Keep meaningful operations readable as explicit stages. Separate a value when its result is checked, reused, changes domain ownership, carries an error state, or would otherwise be buried in a call chain. Use the **full Java type** and a **domain-specific variable name**. Do not create an alias for the generated DI access object or local getters solely to remove a method call.
@@ -199,7 +247,7 @@ getPlayerAchievementDataHandler().applyCommittedPlayerAchievementProgress(
 );
 ```
 
-This collapses conversion, durable mutation, possible-null result validation, and cache reconciliation into one call. Instead keep `AchievementProgressEventData progressEventData`, `AchievementProgressMutationResult progressMutationResult`, `PlayerAchievementProgressData updatedProgress`, and `UUID playerUUID` separate as shown in the [full consumer example](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access).
+This also demonstrates a class-level factory invocation that ordinary consumer code should avoid. It collapses conversion, durable mutation, possible-null result validation, and cache reconciliation into one call. Instead keep `AchievementProgressEventData progressEventData`, `AchievementProgressMutationResult progressMutationResult`, `PlayerAchievementProgressData updatedProgress`, and `UUID playerUUID` separate as shown in the [full consumer example](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access).
 
 Bad forwarding wrapper:
 
