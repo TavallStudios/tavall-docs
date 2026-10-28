@@ -59,19 +59,25 @@ Managed consumers declare Tavall-managed collaborators through `DependencyAccess
 
 ### Multi-Dependency Expanded Access
 
-The proposed `AchievementProgressMutationHandler` example below adapts the real [Novus achievement mutation Handler](https://github.com/TavallStudios/tavall-mc/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/handler/AchievementProgressMutationHandler.java). **This is a proposed multi-class API refactor, not currently compiling source.** The request, record factory, DataHandler operation and completion-method rename shown here do not yet exist together in production.
+The proposed `AchievementProgressMutationHandler` example below adapts the real [Novus achievement mutation Handler](https://github.com/TavallStudios/tavall-mc/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/handler/AchievementProgressMutationHandler.java). **This is a proposed multi-class API refactor, not currently compiling source.** The direct `AchievementListData` DI binding, request, record factory, DataHandler operation and completion-method rename shown here do not yet exist together in production. Current Novus routes multiple definitions and does not register one directly available `AchievementListData` token. The runtime/DI owner must supply the right definition for the current operation; the consumer must not compensate by selecting Registry keys or inventing a lookup facade.
 
 ```java
 @DelegatesTo(IAchievementProgressMutationHandler.class)
 public final class AchievementProgressMutationHandler
         implements IAchievementProgressMutationHandler,
                    DependencyAccess<
+                           AchievementListData,
                            IPlayerAchievementDataHandler,
                            AchievementEventMutationAccess,
                            IAchievementCompletionHandler
                    > {
 
-    // Private named DI accessors: live resolution, no captured dependency fields.
+    // The value class is supplied directly through the same typed Tavall DI pattern.
+    private AchievementListData getAchievementListData() {
+        return getInstance().achievementListData();
+    }
+
+    // Other live typed capabilities, no dependency capture or Registry plumbing.
     private IPlayerAchievementDataHandler getPlayerAchievementDataHandler() {
         return getInstance().playerAchievementDataHandler();
     }
@@ -92,8 +98,7 @@ public final class AchievementProgressMutationHandler
         Objects.requireNonNull(achievementProgressRequest, "achievementProgressRequest");
 
         UUID playerUUID = achievementProgressRequest.playerUUID();
-        AchievementListData achievementDefinition =
-                achievementProgressRequest.achievementDefinition();
+        AchievementListData achievementDefinition = getAchievementListData();
         long progressAmount = achievementProgressRequest.progressAmount();
 
         boolean hasPlayerUUID = playerUUID != null;
@@ -112,7 +117,8 @@ public final class AchievementProgressMutationHandler
         // The target record owns conversion from the request.
         AchievementProgressEventData progressEventData =
                 AchievementProgressEventData.fromProgressRequest(
-                        achievementProgressRequest
+                        achievementProgressRequest,
+                        achievementDefinition
                 );
 
         AchievementProgressMutationResult progressMutationResult =
@@ -154,14 +160,13 @@ public final class AchievementProgressMutationHandler
 
 ### Data-owned conversion and mutation methods
 
-The request groups the operation's inputs. It **does not** invent a `toX()` method solely to delegate to a constructor. Instead, the destination `AchievementProgressEventData` record owns the conversion, the target record's validation, and any private normalization helpers.
+The request groups event inputs but **does not carry the DI-owned achievement definition**. The consumer receives `AchievementListData` directly through its named Tavall DI getter. The destination `AchievementProgressEventData` record owns conversion, validation and private normalization with the resolved definition supplied as an input. Neither consumer nor conversion record looks up Registry keys.
 
 ```java
 // Proposed request record. No builder is required merely to fill its fields.
 public record AchievementProgressRequest(
         String eventId,
         UUID playerUUID,
-        AchievementListData achievementDefinition,
         long progressAmount,
         String actionType,
         String sourceServerId,
@@ -173,15 +178,11 @@ public record AchievementProgressRequest(
 // Proposed public factory *inside* AchievementProgressEventData,
 // which already owns validation/normalization in its compact constructor.
 public static AchievementProgressEventData fromProgressRequest(
-        AchievementProgressRequest achievementProgressRequest
+        AchievementProgressRequest achievementProgressRequest,
+        AchievementListData achievementDefinition
 ) {
     Objects.requireNonNull(achievementProgressRequest, "achievementProgressRequest");
-
-    AchievementListData achievementDefinition =
-            Objects.requireNonNull(
-                    achievementProgressRequest.achievementDefinition(),
-                    "achievementDefinition"
-            );
+    Objects.requireNonNull(achievementDefinition, "achievementDefinition");
     String eventId = achievementProgressRequest.eventId();
     UUID playerUUID = achievementProgressRequest.playerUUID();
     AchievementTriggerType achievementTriggerType =
@@ -256,7 +257,8 @@ The `sendAchievementCompletionMessage(...)` name is a proposed coordinated renam
 
 - **Long anonymous call chains:** nest `result.updatedProgress()` or several dependency operations inside another call rather than extracting `PlayerAchievementProgressData updatedProgress` once when it is reused or checked.
 - **Inline boolean reads:** write `if (progressMutationResult.completedNow())` instead of outlining `boolean achievementCompletedNow = progressMutationResult.completedNow();` before the branch.
-- **Misleading data state verbs:** call a method `get...` when it secretly constructs or loads domain data, or `build...` when it only returns already-existing data. Follow [method naming contracts](METHODS.md#data-state-and-method-name-contracts).
+- **Misleading data state verbs:** use an ordinary getter that secretly fills/mutates data or a method name that does not reflect the owning class and real action. Follow the concise [method naming guidance](METHODS.md#method-naming).
+- **Consumer Registry plumbing:** reach into keys or compose a lookup adapter for a typed data class that the owning runtime should already supply through Tavall DI.
 - **Generic domain method names:** public `applyProgress()`, `update()`, or `handleCompletion()` when the operation needs a more specific name at its call site.
 - **Pure forwarding wrappers:** introduce a public method that does nothing except call another method with the same parameters and result, unless it is a real adapter/boundary.
 - **Single-use public predicates:** add a `canReplace()` method only to hide a one-use condition already owned by the same data object.
