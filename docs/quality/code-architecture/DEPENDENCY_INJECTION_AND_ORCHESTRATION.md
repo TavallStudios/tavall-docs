@@ -99,15 +99,13 @@ public final class AchievementProgressMutationHandler
             throw new IllegalArgumentException("achievementProgressRequest is required");
         }
 
-        UUID playerUUID = achievementProgressRequest.playerUUID();
-        AchievementListData achievementDefinition = getAchievementListData();
-        long progressAmount = achievementProgressRequest.progressAmount();
-
-        boolean hasPlayerUUID = playerUUID != null;
-        boolean hasAchievementDefinition = achievementDefinition != null;
-        boolean hasPositiveProgressAmount = progressAmount > 0L;
+        // Outline decisions, not aliases for already-held request or DI data.
+        boolean hasPlayerUUID = achievementProgressRequest.playerUUID() != null;
+        boolean hasAchievementDefinition = getAchievementListData() != null;
+        boolean hasPositiveProgressAmount =
+                achievementProgressRequest.progressAmount() > 0L;
         boolean achievementEnabled =
-                hasAchievementDefinition && achievementDefinition.enabled();
+                hasAchievementDefinition && getAchievementListData().enabled();
 
         if (!hasPlayerUUID
                 || !hasAchievementDefinition
@@ -116,7 +114,7 @@ public final class AchievementProgressMutationHandler
             return null; // Existing nullable behavior retained for this migration sketch.
         }
 
-        // The output record owns construction; no new class in the Handler.
+        // A newly constructed value is a meaningful operation result.
         AchievementProgressEventData progressEventData =
                 AchievementProgressEventData.fromProgressRequest(
                         achievementProgressRequest,
@@ -126,32 +124,31 @@ public final class AchievementProgressMutationHandler
         AchievementProgressMutationResult progressMutationResult =
                 getAchievementEventMutationAccess().applyEventProgressOnce(
                         progressEventData,
-                        achievementDefinition
+                        getAchievementListData()
                 );
 
         if (progressMutationResult == null) {
             return null;
         }
 
-        PlayerAchievementProgressData updatedProgress =
-                progressMutationResult.updatedProgress();
-        if (updatedProgress == null) {
+        // The existing result already owns updatedProgress(); do not alias it.
+        boolean hasUpdatedProgress =
+                progressMutationResult.updatedProgress() != null;
+        if (!hasUpdatedProgress) {
             return progressMutationResult;
         }
 
-        // Real data policy: load + recency merge + synchronization + cache save.
         getPlayerAchievementDataHandler().applyCommittedPlayerAchievementProgress(
-                playerUUID,
-                updatedProgress
+                achievementProgressRequest.playerUUID(),
+                progressMutationResult.updatedProgress()
         );
 
         boolean achievementCompletedNow = progressMutationResult.completedNow();
 
         if (achievementCompletedNow) {
-            // Presentation belongs to the completion/notification owner.
             getAchievementCompletionHandler().sendAchievementCompletionMessage(
-                    updatedProgress,
-                    achievementDefinition
+                    progressMutationResult.updatedProgress(),
+                    getAchievementListData()
             );
         }
 
@@ -185,25 +182,15 @@ public static AchievementProgressEventData fromProgressRequest(
     Objects.requireNonNull(achievementProgressRequest, "achievementProgressRequest");
     Objects.requireNonNull(achievementDefinition, "achievementDefinition");
 
-    String eventId = achievementProgressRequest.eventId();
-    UUID playerUUID = achievementProgressRequest.playerUUID();
-    AchievementTriggerType achievementTriggerType =
-            achievementDefinition.triggerType();
-    long progressAmount = achievementProgressRequest.progressAmount();
-    String actionType = achievementProgressRequest.actionType();
-    String sourceServerId = achievementProgressRequest.sourceServerId();
-    String sourceContext = achievementProgressRequest.sourceContext();
-    Instant occurredAt = achievementProgressRequest.occurredAt();
-
     return new AchievementProgressEventData(
-            eventId,
-            playerUUID,
-            achievementTriggerType,
-            progressAmount,
-            actionType,
-            sourceServerId,
-            sourceContext,
-            occurredAt
+            achievementProgressRequest.eventId(),
+            achievementProgressRequest.playerUUID(),
+            achievementDefinition.triggerType(),
+            achievementProgressRequest.progressAmount(),
+            achievementProgressRequest.actionType(),
+            achievementProgressRequest.sourceServerId(),
+            achievementProgressRequest.sourceContext(),
+            achievementProgressRequest.occurredAt()
     );
 }
 ```
@@ -221,15 +208,11 @@ public void mergeCommittedProgress(PlayerAchievementProgressData updatedProgress
 
     PlayerAchievementProgressData cachedProgress =
             findProgress(updatedProgress.achievementKey()).orElse(null);
-    Instant updatedAt = updatedProgress.updatedAt();
-    Instant cachedUpdatedAt =
-            cachedProgress == null ? null : cachedProgress.updatedAt();
-
     boolean shouldMergeProgress =
             cachedProgress == null
-                    || updatedAt == null
-                    || cachedUpdatedAt == null
-                    || !cachedUpdatedAt.isAfter(updatedAt);
+                    || updatedProgress.updatedAt() == null
+                    || cachedProgress.updatedAt() == null
+                    || !cachedProgress.updatedAt().isAfter(updatedProgress.updatedAt());
 
     if (shouldMergeProgress) {
         upsertProgress(updatedProgress);
@@ -261,17 +244,17 @@ The `sendAchievementCompletionMessage(...)` name is a proposed coordinated renam
 
 **Consumer anti-patterns:**
 
-- **Long anonymous call chains:** nest `result.updatedProgress()` or several dependency operations inside another call rather than extracting `PlayerAchievementProgressData updatedProgress` once when it is reused or checked.
+- **Nested operation results:** bury a newly produced value or fallible operation result inside an unrelated downstream operation without checking the result. Keep `AchievementProgressMutationResult progressMutationResult` as a meaningful operation result, but call `progressMutationResult.updatedProgress()` directly for already-held data.
 - **Inline boolean reads:** write `if (progressMutationResult.completedNow())` instead of outlining `boolean achievementCompletedNow = progressMutationResult.completedNow();` before the branch.
 - **Misleading data state verbs:** use an ordinary getter that secretly fills/mutates data or a method name that does not reflect the owning class and real action. Follow the concise [method naming guidance](METHODS.md#method-naming).
 - **Consumer Registry plumbing:** reach into keys or compose a lookup adapter for a typed data class that the owning runtime should already supply through Tavall DI.
 - **Generic domain method names:** public `applyProgress()`, `update()`, or `handleCompletion()` when the operation needs a more specific name at its call site.
 - **Pure forwarding wrappers:** introduce a public method that does nothing except call another method with the same parameters and result, unless it is a real adapter/boundary.
 - **Single-use public predicates:** add a `canReplace()` method only to hide a one-use condition already owned by the same data object.
-- **Accessor aliases:** store `getInstance()` or resolved dependencies in long-lived fields or repetitive local aliases.
+- **Accessor aliases:** store `getInstance()` or resolved dependencies in fields or repetitive local aliases; likewise avoid `PlayerAchievementProgressData updatedProgress = progressMutationResult.updatedProgress();` and `AchievementListData achievementDefinition = getAchievementListData();` when they only rename data already held by an accessible owner.
 - **Consumer-level manual construction:** `new SomeManagedClass(...)` or inline record population in ordinary DI-managed behavior, instead of calling the correct owner.
 - **Direct consumer instantiation:** write `new SomeClass(...)` inside an ordinary Handler to create a managed collaborator or manually fill a domain object. Use Tavall DI and the actual value/construction owner instead; see [construction exceptions](METHODS.md#object-instantiation-in-managed-consumer-methods). Static method calls are not prohibited merely for being static.
-- **Ceremonial separation:** create a local for every expression even when it conveys no domain meaning; split at validation, conversion, state/ownership boundaries, and meaningful outputs.
+- **Ceremonial separation:** extract one-line getters/record components into local aliases merely to satisfy an outlining rule. Outline decisions and **new operation results**; use existing data owners directly unless there is a documented snapshot, mutation or performance reason to capture a value.
 
 A named private getter like `getPlayerAchievementDataHandler()` is **not** a redundant forwarding method: it is the declared, live DI access mechanism. Likewise a thin input adapter that translates external input into a typed operation is a real transport boundary, not an arbitrary extra application layer.
 
