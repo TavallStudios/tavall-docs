@@ -127,7 +127,7 @@ Data handlers do not decide unrelated product/gameplay authorization merely beca
 
 A metadata handler resolves, refreshes, validates, enriches, or exposes derived metadata.
 
-It does not mutate primary durable data unless the class is explicitly a different persistence/domain behavior owner. The following `fromRankDefinition` is a **proposed** record-owned method to show the ownership split, not an existing production API.
+It does not mutate primary durable data unless the class is explicitly a different persistence/domain behavior owner. The following `createPlayerRankMetaData` is a **proposed value-owned instance conversion**, not an existing production API. It is **not** a new DI forwarding class.
 
 ```java
 @DelegatesTo(IPlayerRankMetaDataHandler.class)
@@ -157,32 +157,28 @@ public final class PlayerRankMetaDataHandler
         RankDefinition rankDefinition = rankDefinitionLookup.orElseThrow();
 
         PlayerRankMetaData playerRankMetaData =
-                PlayerRankMetaData.fromRankDefinition(
-                        playerAccountData,
-                        rankDefinition
-                );
+                playerAccountData.createPlayerRankMetaData(rankDefinition);
 
         return playerRankMetaData;
     }
 }
 ```
 
-The record owns its conversion logic and any private normalization helpers. An illustrative value-owner method is:
+The `PlayerAccountData` value owner may expose an instance conversion that uses its own already-filled fields; the example below is **inside that value class**, not the Handler:
 
 ```java
-public static PlayerRankMetaData fromRankDefinition(
-        PlayerAccountData playerAccountData,
+public PlayerRankMetaData createPlayerRankMetaData(
         RankDefinition rankDefinition
 ) {
     return new PlayerRankMetaData(
-            playerAccountData.rankKey(),
+            rankKey(),
             rankDefinition.displayName(),
             rankDefinition.color()
     );
 }
 ```
 
-The record's internal `new` is legitimate value construction. It does **not** make `PlayerRankMetaData` a DI-managed runtime dependency or justify creating a `MetaDataBuilder` for a trivial copy. If metadata construction genuinely needs options, formatting, or complex assembly, use the specialized [Metadata Builder Pattern](BUILDERS.md#metadata-builder-pattern) and keep resolution in this Handler.
+This value owner's `new` is legitimate value construction. It does **not** make `PlayerRankMetaData` a DI-managed runtime dependency or justify creating a `MetaDataBuilder` for a trivial copy. If metadata construction genuinely needs options, formatting, or complex assembly, use the specialized [Metadata Builder Pattern](BUILDERS.md#metadata-builder-pattern) and keep resolution in this Handler.
 
 ##### Why
 
@@ -196,6 +192,7 @@ Handlers may coordinate focused dependencies, but they do not:
 - manually construct/populate Data/MetaData records inline instead of invoking their owning conversion/creation method;
 - directly `new` another DI-managed implementation or bypass its public interface contract;
 - statically locate Tavall-managed services;
+- invoke other application classes as `SomeClass.someMethod(...)` from an ordinary Handler method when the work belongs to a DI-managed capability or an existing value instance (see [Method Rules](METHODS.md#direct-class-calls-in-consumer-method-bodies));
 - own mutable registry/cache-shaped maps;
 - open JDBC/EntityManager/transaction callbacks;
 - create generic CRUD repository/database wrappers;
