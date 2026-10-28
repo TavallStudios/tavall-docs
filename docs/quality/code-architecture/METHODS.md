@@ -68,24 +68,24 @@ shouldSendWelcomeMessage()
 
 ## Data State and Method Name Contracts
 
-**A caller must know from the class role and method name whether the value is already filled or whether the method will fill, produce, or change it.** These conventions apply to new Tavall application-domain APIs and coherent migrations; canonical Tavall Tool interfaces remain authoritative for their existing API vocabulary.
+**Keep method vocabulary small and consistent with the existing examples.** Favor `get`, `set`, `has`, `is`, `can`, `should`, `add` and `remove`, followed by the **exact domain action or value**. Use established specialized verbs (`load`, `save`, `build`, `resolve`, `send`, `refresh`, `update`, `merge`) when the class role and actual behavior call for them. This is guidance, **not** an exhaustive word dictionary or an automatic rewrite of canonical Java Tool APIs.
 
-| Name / role | Caller expectation |
-| --- | --- |
-| `get...` or record component accessor | Read an already-available value. Do not silently initialize missing domain data. Record booleans such as `completedNow()` retain Java's accessor name. |
-| `find...` | Look up existing data without creating it, with explicit absence (typically `Optional<T>`). |
-| `require...` | Read existing required data, failing explicitly if unavailable. |
-| `load...` in a DataHandler/Reader | Obtain data through a potentially expensive loading/hydration/cache policy. May assemble a value under that documented policy. |
-| `from...` / `create...` / `of...` on a value type | Construct and return a complete new value with the type's own validation/defaults. |
-| `build...` on a DataBuilder/MetaDataBuilder | Construct a complete typed value when meaningful optional inputs, defaults or assembly justify a separate Builder. |
-| `resolve...` / `calculate...` / `format...` on an owning role | Derive/read a computed or presentation result, not silently persist or mutate state. |
-| `is...` / `has...` / `can...` / `should...` | Read/evaluate a boolean condition without changing state. |
-| `fill...` / `populate...` / `merge...` / `update...` / `apply...` on a data owner | Change the contents/state of the explicitly owned target, not silently create a different object or conceal a load. |
-| `save...` / `send...` / `publish...` | Perform the named persistence, delivery or event side effect through its owner. |
+```text
+getAchievementListData()          // Named DI getter for the available typed class
+hasAchievementProgress()
+isAchievementEnabled()
+canRankEdit()
+shouldSendWelcomeMessage()
+addAchievementProgress()
+removeAchievementProgress()
+loadPlayerAccountData()           // DataHandler owns loading
+buildPlayerRankMetaData()         // Meaningful metadata construction
+sendAchievementCompletionMessage()
+```
 
-For example, a `getPlayerAchievementData()` method must not covertly create an account when missing. `loadPlayerAchievementData()` signals access through a loading path; `AchievementProgressEventData.fromProgressRequest(...)` signals construction of a newly filled record; `PlayerAchievementData.mergeCommittedProgress(...)` signals mutation of an existing data owner. Do not add a Builder solely to avoid a record's constructor.
+A method name should communicate whether data is already available or will be filled/changed. Do not hide initialization or mutation inside an ordinary `get...` method, add a builder for a trivial record, or create a forwarding class merely to rename an existing tool API. The **class role, actual operation, and current tests** determine the correct name.
 
-**The verb is a semantic contract, not a prefix to add mechanically.** A record's `completedNow()` is an existing-value read, not a fill command. A getter returning a DI-managed collaborator is a live dependency accessor as defined by Tavall DI, not a call to construct that collaborator. Preserve canonical tool naming where its real behavior is documented differently.
+A private DI getter such as `getAchievementListData()` accesses an already registered typed instance. Registry identity/key selection and backing storage are not consumer responsibilities. The owning runtime must ensure the appropriate instance is bound for the operation. Native Java record component accessors such as `completedNow()` keep their language-defined names; [Variable Outlining](#variable-outlining) governs named boolean locals at call sites.
 
 ## Method Visibility and Ownership
 
