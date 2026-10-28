@@ -107,7 +107,7 @@ Define what must be proven before this design can be considered implemented or a
 
 Examples:
 
-- architecture tests;
+- architecture tests, when the organization-wide suite is active;
 - unit/integration tests;
 - E2E/browser/game/runtime validation;
 - consumer compilation/adoption;

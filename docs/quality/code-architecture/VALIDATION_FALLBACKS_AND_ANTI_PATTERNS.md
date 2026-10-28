@@ -80,7 +80,7 @@ FFARoundOrchestrator
 
 ##### Why
 
-`Manager` does not state what the class owns. Exact suffixes give callers, reviewers, and architecture tests a contract.
+`Manager` does not state what the class owns. Exact suffixes give callers and reviewers a contract and can support a future executable architecture check. Architecture-test enforcement is suspended while the replacement suite is prepared.
 
 ## Helper Pattern
 

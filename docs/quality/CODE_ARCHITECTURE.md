@@ -30,9 +30,11 @@ Before changing architecture:
 
 1. Read this file for shared invariants and topic routing.
 2. Read **every delegated chapter relevant to the code being touched**.
-3. Read repository/module `AGENTS.md`, architecture tests, and local design rules.
+3. Read repository/module `AGENTS.md`, regular test contracts, and local design rules. The organization-wide architecture-test suite is suspended; do not require or invoke it until canonical Docs policy re-enables it.
 4. Read the current checked-in Tavall tool/module contracts used by the implementation.
 5. Inspect the current lifecycle/composition owner and production behavior before designing a replacement.
+
+Before an implementation edit, record the exact target source files, existing owner classes and behavior tests, module type and runtime owner, and the delegated sections needed. For every changed or added production Java type, record its package/class role and whether Tavall DI, Registry, Cache, Database, Event routing, Concurrency, or Java utilities apply, with a reason for each inapplicable tool. Capture this evidence before editing; do not reconstruct it afterward.
 
 When a rule concerns an existing Tavall tool, inspect that canonical tool's interfaces, implementation, tests, and owning documentation before changing shared guidance. Canonical Tavall tools own their API shape, inheritance model, lifecycle semantics, supported low-level/framework surfaces, and naming vocabulary. Shared architecture may classify when a tool is used and constrain ordinary application consumers, but it must not silently redesign the canonical tool itself. A desired redesign belongs in the owning tool first and in shared docs only after that change becomes the accepted tool contract.
 
@@ -70,7 +72,7 @@ If a direct conflict is discovered:
 
 1. treat it as a documentation defect;
 2. follow the root invariant until the conflict is reconciled;
-3. inspect current architecture tests and owning module contracts before changing behavior;
+3. inspect current regular tests and owning module contracts before changing behavior; do not run the suspended architecture suite;
 4. fix the conflicting documentation in the same coherent work when practical.
 
 Do not choose whichever paragraph is more convenient and call that architecture.
@@ -379,6 +381,8 @@ Detailed fallback rules: [Validation, Fallbacks, and Anti-Patterns](code-archite
 
 Test real behavior at the narrowest meaningful boundary and report exactly what ran and what remains untested. Unit, integration, simulation, and E2E boundaries should match the contract being exercised rather than merely maximize test count.
 
+**Temporary organization-wide policy (2026-10-28):** Tavall architecture-test tasks, gates, and task-facing ArchUnit validation tools are suspended while a replacement suite is prepared. Continue the regular Tavall testing stack and do not require or invoke an architecture-test plugin, `architectureTest`, `architectureAnalyze`, `runArchUnitValidation`, or `runCleanJavaArchUnit` during this period. Written architecture rules remain binding for implementation and review.
+
 Detailed testing rules: [Testing and Git](code-architecture/TESTING_AND_GIT.md). Repository workflow and review requirements remain owned by [Git Workflow](GIT_WORKFLOW.md).
 
 ## Architecture Review Checklist
@@ -405,4 +409,6 @@ Before accepting a change, confirm:
 - [ ] Async/lifecycle cleanup is explicit.
 - [ ] Requests/results/keys/state are typed and validation precedes mutation.
 - [ ] Tests exercise real contracts and meaningful failure/cleanup paths.
-- [ ] Current architecture tests pass or pre-existing migration debt is explicitly baselined and cannot grow.
+- [ ] Exact source files, owning module/runtime, relevant existing classes/tests, and current delegated policy sections were recorded before implementation edits.
+- [ ] For each changed production Java type, the class role, exact sections, and Tavall Java tool applicability or inapplicability are recorded before editing.
+- [ ] Regular Tavall unit/contract/integration/runtime/quality/E2E checks appropriate to the change pass; architecture-test execution remains suspended until canonical policy re-enables it.
