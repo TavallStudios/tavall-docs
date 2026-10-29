@@ -52,7 +52,7 @@ A change may require several delegated chapters. A Handler using Tavall DI, Cach
 | Tavall DI, dependency access, default consumers, orchestration, cleanup | [Dependency Injection and Orchestration](code-architecture/DEPENDENCY_INJECTION_AND_ORCHESTRATION.md) |
 | Handler/DataHandler/MetaDataHandler behavior | [Handlers](code-architecture/HANDLERS.md) |
 | Builders and construction-only behavior | [Builders](code-architecture/BUILDERS.md) |
-| Requests, results, resolvers, formatters | [Requests, Results, Resolvers, and Formatters](code-architecture/REQUESTS_RESULTS_RESOLVERS_AND_FORMATTERS.md) |
+| Requests, results, data resolvers, viewers, formatters | [Requests, Results, Resolvers, Viewers, and Formatters](code-architecture/REQUESTS_RESULTS_RESOLVERS_AND_FORMATTERS.md) |
 | Routers and delegation | [Routers and Delegation](code-architecture/ROUTERS_AND_DELEGATION.md) |
 | Registry, Cache, Redis, operation state, durable-state classification | [Registries, Caches, and Persistence](code-architecture/REGISTRIES_CACHES_AND_REPOSITORIES.md) |
 | Application-owned mutable maps/sets/keyed collections | [Application-Owned Mutable Maps](code-architecture/APPLICATION_OWNED_MUTABLE_MAPS.md) |
@@ -91,7 +91,7 @@ The sections below are **cross-cutting summaries**. Follow their delegated chapt
 
 Packages describe domain ownership and role. Avoid broad new buckets such as `util`, `misc`, `common`, or `manager`; platform-specific code stays in its platform boundary and product/mode-specific code stays with its owner.
 
-Common roles include Handler, Service, Orchestrator, Router, Resolver, Registry, Cache, Builder, Mapper, Serializer, Reader, Writer, Publisher, Consumer, Listener, Bootstrap, Runtime, and Timer. The suffix must describe actual ownership rather than decorate an implementation after the fact.
+Common roles include Handler, Service, Orchestrator, Router, Resolver, DataResolver, Viewer, Formatter, Registry, Cache, Builder, Mapper, Serializer, Reader, Writer, Publisher, Consumer, Listener, Bootstrap, Runtime, and Timer. The suffix must describe actual ownership rather than decorate an implementation after the fact.
 
 Detailed rules: [Namespaces and Class Names](code-architecture/NAMESPACES_VARIABLES_AND_OOP.md#namespaces-and-class-names) and [Class Roles](code-architecture/CLASSES.md).
 
