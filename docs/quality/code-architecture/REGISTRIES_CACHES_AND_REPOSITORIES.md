@@ -109,6 +109,12 @@ If a concrete registry genuinely requires additional maintained lookup structure
 
 “Indexed” describes one implementation technique. Registry callers care about registry identity and lookup behavior. Keeping implementation terminology subordinate to the canonical Registry vocabulary prevents shared docs from forcing one optimization strategy across every registry.
 
+### Replacement in domain Registries
+
+The upstream [Registry access ranking](https://github.com/TavallStudios/tavall-registry/blob/main/docs/REGISTRY_ACCESS_STYLES.md) makes **domain-named methods via Tavall DI** the default consumer shape. Inside the subclass, `createRegistry(key, data)` is first-wins; use it for initial registration. An intentional replacement operation may use `put` **inside the domain Registry subclass** because it must replace an existing entry. Consumers never use raw `put` and do not store a shadow map.
+
+For example, production [`FFAKitSessionRegistry`](https://github.com/TavallStudios/tavall-mc/blob/main/novus-ffa/src/main/java/org/tavall/minecraft/ffa/kit/registry/FFAKitSessionRegistry.java) currently uses `put` inside `activate` because changing an active kit replaces the previous selection; the [production test](https://github.com/TavallStudios/tavall-mc/blob/main/novus-ffa/src/test/java/org/tavall/minecraft/ffa/kit/registry/FFAKitSessionRegistryTest.java) asserts that behavior. Replacing `put` with `createRegistry` would be a regression. Its remaining style/typing issues (bare kit-name `String`, ambiguous `clear` naming, layout, typed domain access, runtime cleanup) should be audited at its actual owner; those concerns do not invalidate this supported `AbstractRegistry` operation.
+
 ## Tavall Cache
 
 Use `tavall-cache` for disposable/reloadable/expiring/stale-able fast state. Use its current [`AbstractCache` API](https://github.com/TavallStudios/tavall-cache/blob/main/abstract-cache-system/src/main/java/org/tavall/abstractcache/cache/AbstractCache.java) or the owning [semantic-tier contracts](https://github.com/TavallStudios/tavall-cache/blob/main/abstract-cache-semantic/README.md), not an application-authored replacement for cache mechanics. [`PlayerAchievementCache`](https://github.com/TavallStudios/tavall-mc/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/cache/PlayerAchievementCache.java) is a current typed consumer example; source compatibility and tool authority must still be checked when adopting it.
