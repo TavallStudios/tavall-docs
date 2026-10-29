@@ -40,6 +40,7 @@ The shared docs are policy for Tavall's actual libraries, not a replacement desi
 | Tavall Registry | Typed definitions, providers, strategies, active objects, sessions, keyed runtime identity | Runtime only | Owning runtime/generation |
 | Tavall Cache | State is disposable, reloadable, stale-able, expiring, or exists to avoid work | Never durable authority | TTL + owning lifecycle |
 | Tavall Database entity model | State must survive restart and is durable application truth | Durable authority | Database lifecycle |
+| File-backed durable state (NFS) | Owner-local state must survive process and host restarts, needs no queries or multi-record transactions, and is read and written by its single owner (for example Executor and agent-run state) | Durable authority for that owner | Owner retention policy |
 | Redis/distributed-state boundary | State coordinates processes, streams, leases, locks, sessions, projections | Only when explicitly assigned | Key-family policy |
 | Typed operation/runtime owner | Futures, scheduled tasks, in-flight writes, retries, cancellation state | Operation owner | Completion/cancellation |
 | Immutable value/snapshot | Built value observed by consumers | Source that built it | Value owner |
@@ -52,7 +53,7 @@ A collection implementation cannot tell us whether loss means a cache miss, runt
 
 Before adding or preserving a mutable keyed collection, ask:
 
-1. Must it survive restart? Use the Tavall Database entity model/current entity contract.
+1. Must it survive restart? If it is shared, queried, or transactional application truth, use the Tavall Database entity model/current entity contract. If it is single-owner state that only needs to be read back by key (for example Executor or agent-run state), use [file-backed durable state](#file-backed-durable-state-nfs). Do not keep restart-surviving state only in Java memory.
 2. Can it be discarded/rebuilt or expire? Use Tavall Cache.
 3. Does it represent active keyed runtime identity/definitions/providers/sessions? Use Tavall Registry.
 4. Do several lookup dimensions describe one runtime identity? Keep one Registry owner and follow the current `tavall-registry` contract for lookup/view behavior rather than publishing unrelated maps as independent owners.
@@ -157,6 +158,31 @@ If a durable capability is missing, extend `tavall-database` rather than creatin
 
 The persistence module is the source of truth for its own entity API. Duplicating that API in application docs makes application architecture stale and preserves abstractions after the underlying module changes.
 
+## File-Backed Durable State (NFS)
+
+Tavall hosts share NFS. Single-owner durable state that only needs to be read back by key lives in files on that NFS, not in Java memory and not in a new database schema. Its main users are Executors and agent runs: in-flight runs, provider usage-limit and reset windows, provider switches and resume pointers, and the leased workspace's last observed source.
+
+Rules:
+
+- **Authority.** The owning module is the only writer. The files are the durable authority for that state. The process rebuilds its in-memory view from them on start, so a restart resumes instead of starting over.
+- **Record shape.** One typed, versioned record per key in a fast, compact format chosen by the owner. Every record carries its schema version, owner identity, and a monotonic revision. Never a loose map dumped to disk.
+- **Mechanics.** Write, replace, rename, lock, and digest only through [`tavall-filesystem`](https://github.com/TavallStudios/tavall-filesystem) atomic primitives: write-temp then atomic replace, and the cross-process exclusive lock when more than one process can write the same key. Read-check-replace under that lock is the compare-and-set. Consumers never call `java.nio` file mutation directly for this state.
+- **Location.** Under the owner's configured state root on the Executor's local NFS, laid out by typed identity (for example `<state-root>/<owner>/<record-type>/<id>`). Per [Tavall NLEW and Service Ownership](../NLEW_AND_SERVICE_OWNERSHIP.md), a path is a physical location, never canonical identity, and `/srv/<service>` does not become a registry or configuration authority.
+- **Lifecycle.** The owner defines retention and cleanup for completed or abandoned records, and recovery of torn or partial writes on start (a record that fails its digest or schema check is quarantined and reported, not silently dropped).
+- **Not for** cross-owner queries, multi-record transactions, or user-facing application truth. Those stay in Tavall Database.
+
+### File redundancy for PostgreSQL-authoritative state
+
+Some PostgreSQL-authoritative domains also keep a file copy on NFS. The QA task authority is the first. PostgreSQL stays the single authority. The file copy is a recovery and audit mirror, not a second source of truth:
+
+- Write it after the PostgreSQL commit, as part of the projection step in [Cross-Storage Mutation](#cross-storage-mutation), using the same record rules above.
+- On disagreement, PostgreSQL wins. The owner reconciles the mirror from PostgreSQL, and uses the mirror only to restore or verify PostgreSQL through an explicit recovery operation.
+- Never read the mirror as live authority in normal request paths.
+
+##### Why
+
+Executor and agent work has to survive interruption: a restart, a usage limit, or a host move. State kept only in a JVM is lost exactly when it is needed. The shared NFS already provides durable, host-independent storage, and `tavall-filesystem` already owns the atomic mechanics. Using files for single-owner state avoids putting every runtime detail into PostgreSQL, while the PostgreSQL file mirror gives task records a second, independent copy.
+
 ## `*Repository` Is Migration Debt
 
 New Tavall-owned production declared types ending in `Repository` are prohibited.
@@ -197,7 +223,7 @@ For PostgreSQL-authoritative state, the normal order is:
 ```text
 validate
   -> commit through the current Tavall Database entity contract
-  -> update/invalidate Redis/cache/registry projections
+  -> update/invalidate Redis/cache/registry projections and any file redundancy mirror
   -> publish typed result/event
 ```
 
@@ -215,6 +241,7 @@ Cover:
 - Tavall Database entity behavior and database-specific contracts using the current module test surface;
 - Redis/distributed partial failures and reconciliation;
 - operation cancellation/shutdown;
+- file-backed state: restart recovery from files, concurrent-writer compare-and-set under the lock, torn/partial write quarantine, schema-version migration, retention cleanup, and PostgreSQL-mirror reconciliation where used;
 - migration enforcement preventing new `*Repository` production types.
 
 A test that requires persistence substitution should use the test/entity facilities provided by the current Tavall Database module or a correctly named domain-capability fake. Do not create an `InMemory*Repository` merely to make a test convenient.
