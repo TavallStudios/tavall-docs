@@ -10,14 +10,15 @@ Methods should be readable top to bottom and perform one coherent operation.
 
 Rules:
 
-- Method names explain the action.
-- Important values are extracted into named locals when that improves ownership/debugging.
+- Method names and the owning class role indicate whether an operation reads existing data, loads, constructs/fills, derives, mutates, or delivers; see [Data State and Method Name Contracts](#data-state-and-method-name-contracts).
+- Outline meaningful input values, intermediate results and branch-driving booleans in explicitly typed, domain-named locals before consuming them; see [Variable Outlining](#variable-outlining).
 - Production local variables use explicit Java types rather than `var`.
 - Avoid hiding meaningful logic inside deep chained calls.
 - Input-adapter methods receive input and delegate.
 - Domain-handler methods perform one focused behavior.
 - Data methods move/transform data policy without absorbing unrelated product rules.
 - Builder methods construct typed output only.
+- Managed consumers use typed DI getters for managed capabilities and value-owned creation or conversion APIs for data; avoid routine inline application object instantiation. See [Object Instantiation](#object-instantiation-in-managed-consumer-methods).
 - Pure utility methods remain stateless.
 - Cache methods own cache behavior only.
 - Durable application operations follow Tavall Database entity classes/current typed contract rather than local transaction/database helper methods.
@@ -65,6 +66,41 @@ shouldSendWelcomeMessage()
 
 `PlayerJoinHandler#handlePlayerJoin()` repeats the class name instead of explaining the work. Precise method names make call sites and stack traces describe the actual operation.
 
+## Data State and Method Name Contracts
+
+**Keep method vocabulary small and consistent with the existing examples.** Favor `get`, `set`, `has`, `is`, `can`, `should`, `add` and `remove`, followed by the **exact domain action or value**. Use established specialized verbs (`load`, `save`, `build`, `resolve`, `send`, `refresh`, `update`, `merge`) when the class role and actual behavior call for them. This is guidance, **not** an exhaustive word dictionary or an automatic rewrite of canonical Java Tool APIs.
+
+```text
+getAchievementListData()          // Named DI getter for the available typed class
+hasAchievementProgress()
+isAchievementEnabled()
+canRankEdit()
+shouldSendWelcomeMessage()
+addAchievementProgress()
+removeAchievementProgress()
+loadPlayerAccountData()           // DataHandler owns loading
+buildPlayerRankMetaData()         // Meaningful metadata construction
+sendAchievementCompletionMessage()
+```
+
+A method name should communicate whether data is already available or will be filled/changed. Do not hide initialization or mutation inside an ordinary `get...` method, add a builder for a trivial record, or create a forwarding class merely to rename an existing tool API. The **class role, actual operation, and current tests** determine the correct name.
+
+A private DI getter such as `getAchievementListData()` accesses an already registered typed instance. Registry identity/key selection and backing storage are not consumer responsibilities. The owning runtime must ensure the appropriate instance is bound for the operation. Native Java record component accessors such as `completedNow()` keep their language-defined names; [Variable Outlining](#variable-outlining) governs named boolean locals at call sites.
+
+## Method Visibility and Ownership
+
+A public method on a DI-managed Handler/Service/DataHandler expresses an operation that belongs in that role's interface contract. Do not expose raw DI wiring, constructor internals, or one-off convenience methods as public domain APIs.
+
+Private named DI getters (for example `getPlayerAchievementDataHandler()`) resolve live through `DependencyAccess<...>` and keep dependency mechanics out of the operation body. Private non-DI helpers should implement genuine class-local behavior; avoid unnecessary wrappers created only to hide an unclear design.
+
+Records/value objects may expose **public value-specific methods** (for example `AchievementProgressEventData.fromProgressRequest(...)`) while keeping construction, validation, normalization, and auxiliary helpers private/internal. Pure static value factories are permitted when they perform actual construction with their supplied inputs. Domain authorization or persistence does **not** become record behavior merely because the record can define methods. Record factories/converters may call their own constructors internally. This is different from an ordinary DI consumer calling `new` for a data object or another managed component.
+
+The complete [consumer pattern](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access) demonstrates the proposed record-owned conversion and DataHandler-owned cache reconciliation. The concrete source/interfaces must be updated before those methods exist in production.
+
+**Pure forwarding is an anti-pattern:** a new public method that only calls another method with the same parameters and returns its result adds no behavior, policy, translation, or ownership. Keep the underlying capability public when it truly is the supported operation; otherwise give the adapter a real input/output translation job. Private named DI getters remain an intentional exception because they own live typed lookup, not domain forwarding.
+
+**One-use method extraction is not always separation:** avoid promoting a one-line predicate such as `canReplace(...)` to a new public API merely because it can be moved from the actual data owner's merge operation. Method visibility is based on a real external contract or reuse need; keep localized implementation details private or inline with their owner.
+
 ## Parameters and Requests
 
 Use specific typed parameters. Prefer a request object when several values belong to one operation.
@@ -91,7 +127,7 @@ Typed parameters make invalid combinations harder to express. Request objects gi
 
 ## Local Variables
 
-Extract meaningful intermediate values before nested calls when they help reading, debugging, validation, or failure diagnosis. Production source uses explicit local types; detailed `var` rules live in [Namespaces, Variables, OOP, DRY, and Type Safety](NAMESPACES_VARIABLES_AND_OOP.md#local-variables).
+Outline **new computed/loaded operation results** and named decisions before using them. Do **not** alias fields, record components or DI getter results already accessible through their owning instances merely for outlining. See [Variable Outlining](#variable-outlining). Production source uses explicit local types; detailed `var` rules live in [Namespaces, Variables, OOP, DRY, and Type Safety](NAMESPACES_VARIABLES_AND_OOP.md#local-variables).
 
 Bad:
 
@@ -115,6 +151,123 @@ rankMetaDataHandler.refresh(playerAccountData);
 
 Named locals expose domain values and failure points. The goal is not ceremonial variables; it is making meaningful steps visible.
 
+## Variable Outlining
+
+**Outline decisions and genuinely new operation results; do not duplicate already-owned data through local accessor aliases.** An explicit local is useful when an operation *produces* a result, when a boolean expresses a condition, or when a stable snapshot/identity is actually required. Simply reading an existing record component or a named DI getter does not justify copying it.
+
+Bad: locals that only re-name existing data.
+
+```java
+UUID playerUUID = achievementProgressRequest.playerUUID();
+AchievementListData achievementDefinition = getAchievementListData();
+PlayerAchievementProgressData updatedProgress =
+        progressMutationResult.updatedProgress();
+```
+
+Good: call the existing owner directly; outline branch decisions.
+
+```java
+boolean hasUpdatedProgress =
+        progressMutationResult.updatedProgress() != null;
+boolean achievementCompletedNow =
+        progressMutationResult.completedNow();
+
+if (hasUpdatedProgress && achievementCompletedNow) {
+    getAchievementCompletionHandler().sendAchievementCompletionMessage(
+            progressMutationResult.updatedProgress(),
+            getAchievementListData()
+    );
+}
+```
+
+Good: outline a genuinely new load or computation result **where that operation belongs**:
+
+```java
+PlayerAchievementData playerAchievementData =
+        getPlayerAchievementDataHandler().load(playerUUID);
+```
+
+When the caller **already receives** `AchievementProgressMutationResult progressMutationResult`, use its populated `updatedProgress()` directly rather than recreating an event or defining an alias.
+
+Variables still use explicit Java types, domain-specific names and meaningful scopes. Avoid pointless one-use aliases for record accessors, `getInstance()`, named DI getters, constants, and data already available from their owner. Extract a getter result only if a **real** requirement exists, such as an intentional immutable snapshot, required reuse of an expensive calculation, an identity/consistency boundary, or mutation of an independently owned local value. These are exceptions justified by semantics, not stylistic ceremony.
+
+## Object Instantiation in Managed Consumer Methods
+
+**Default: ordinary Tavall DI-managed consumers do not instantiate application classes inside their behavior methods with `new SomeClass(...)`.** Managed instances come from Tavall DI through typed named getters. Data/value creation belongs to the record, real Builder, factory or owning composition boundary. Consumer methods primarily operate on typed inputs and managed capabilities rather than constructing collaborators or filling domain objects manually.
+
+Bad in an ordinary Handler:
+
+```java
+AchievementProgressEventData progressEventData =
+        new AchievementProgressEventData(
+                eventId,
+                playerUUID,
+                triggerType,
+                progressAmount,
+                actionType,
+                sourceServerId,
+                sourceContext,
+                occurredAt
+        );
+
+IAchievementCompletionHandler completionHandler =
+        new AchievementCompletionHandler(plugin);
+```
+
+Good: if progress is already filled, use that existing data with its owner. No construction is required:
+
+```java
+getPlayerAchievementDataHandler().updatePlayerAchievementProgress(
+        progressMutationResult.updatedProgress()
+);
+```
+
+**This is not a ban on static calls.** A pure record factory such as `AchievementProgressEventData.fromProgressRequest(...)`, `Objects.requireNonNull(...)`, `Math.max(...)`, enum constants, and legitimate JDK/platform utility methods may be called directly when appropriate. A static method that secretly locates a managed dependency, mutates shared runtime state, or bypasses its DI owner remains prohibited **because of its behavior**, not because the syntax is static. Typed declarations such as `AchievementProgressEventData progressEventData` are also entirely valid; they do not create an object.
+
+### Construction exceptions
+
+- **Value/data owners:** record compact/canonical constructors and genuine value conversion/factory methods may use `new` internally to create complete immutable results.
+- **Actual Builders and factories:** meaningful DataBuilder/MetaDataBuilder, parsing, serialization, and construction adapters may create the object they own. Do not add ceremonial Builders merely to remove a single `new` from a consumer.
+- **DI infrastructure and composition boundaries:** bootstrap, providers, lifecycle setup and tool-governed managed constructor bridges may construct and register their declared instances according to Tavall DI policy.
+- **Explicitly permitted lightweight objects:** local standard-library structures, exceptions, immutable utilities and other short-lived nonmanaged objects may be instantiated in ordinary methods when construction is incidental, has no domain ownership implications, and no Tavall tool contract says otherwise.
+- **Tests and generated/framework code:** fixtures, mocks, code generators and low-level adapters follow their own verified creation contracts.
+
+The review question is **who owns this instance and its lifecycle?** If the class is Tavall DI-managed, resolve it through DI. If it is a domain data object, favor its actual value owner or purposeful Builder. If `new` is an essential local Java construct with no competing owner, the exception may apply. Never create an extra class solely to satisfy this rule.
+
+## Intermediate Values and Delegation Anti-Patterns
+
+Keep meaningful operations readable as explicit stages. Separate a value when its result is checked, reused, changes domain ownership, carries an error state, or would otherwise be buried in a call chain. Use the **full Java type** and a **domain-specific variable name**. Do not create an alias for the generated DI access object or local getters solely to remove a method call.
+
+Bad:
+
+```java
+getPlayerAchievementDataHandler().applyCommittedPlayerAchievementProgress(
+        achievementProgressRequest.playerUUID(),
+        getAchievementEventMutationAccess().applyEventProgressOnce(
+                AchievementProgressEventData.fromProgressRequest(achievementProgressRequest),
+                achievementProgressRequest.achievementDefinition()
+        ).updatedProgress()
+);
+```
+
+This collapses event creation, durable mutation, result validation and cache reconciliation into one consumer call. The problem is crossing **operation ownership boundaries**, not that the static value factory is syntactically static. When the caller already has a completed `AchievementProgressMutationResult`, use `progressMutationResult.updatedProgress()` directly and do not invoke the event mutation a second time. See the [full update consumer example](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access).
+
+Bad forwarding wrapper:
+
+```java
+public void updatePlayerAchievementProgress(
+        PlayerAchievementProgressData playerAchievementProgressData
+) {
+    getPlayerAchievementDataHandler().updatePlayerAchievementProgress(
+            playerAchievementProgressData
+    );
+}
+```
+
+This method owns no translation, data policy, cache mutation, or domain rule; it only copies the signature. A DataHandler implementation that **loads player data, locks its state, merges newer progress, and updates the Cache** is different: those are real responsibilities.
+
+Also avoid ceremonial locals that only rename a one-time literal/return expression. Extractions are for meaningful stages and diagnostics, not adding lines for their own sake.
+
 ## Method Size
 
 A method is probably too large when it:
@@ -132,31 +285,11 @@ Method size matters because it often reveals several reasons to change. Extracti
 
 ## Domain Handler Methods
 
-A domain handler method may own the focused rule it exists to implement.
+A domain handler method may own the focused rule it exists to implement. The canonical complete method example now lives in [Handler Patterns](HANDLERS.md#domain-handler-pattern): `RankUpdateHandler.updatePlayerRank(RankUpdateRequest)`.
 
-Example shape:
+That example shows explicit, meaningful locals (`staffAccountData`, `targetAccountData`, `canRankEdit`), named live DI getters, a typed outcome, and no manually captured dependency-access variable. Keep the method naming and code-shape rules here; keep full Handler examples in their owning chapter so the two documents do not drift apart.
 
-```java
-public RankUpdateResult updatePlayerRank(
-        RankUpdateRequest request
-) {
-    PlayerAccountData staff = getDataHandler().load(request.staffUUID());
-    PlayerAccountData target = getDataHandler().load(request.targetUUID());
-
-    if (!getPowerLevelHandler().canRankEdit(staff, target)) {
-        return RankUpdateResult.targetTooPowerful();
-    }
-
-    getRankDataHandler().updatePlayerRankData(request);
-    return RankUpdateResult.success();
-}
-```
-
-The handler may coordinate focused dependencies through Tavall DI. It does not own their backing maps, transaction callbacks, or unrelated rules.
-
-##### Why
-
-A handler is an operation owner, not a storage/runtime-container owner. Domain rules can live there while persistence/cache/registry mechanics stay behind the dependencies designed to own them.
+A handler is an operation owner, not a storage/runtime-container owner. Domain rules may live there while persistence/cache/registry mechanics stay behind the capabilities designed to own them.
 
 ## Input Adapter Methods
 
@@ -187,7 +320,7 @@ Data policy deserves one reusable owner when policy actually exists. A forwardin
 
 ## Builder Methods
 
-Builder methods construct typed values. They do not persist, cache, register managed behavior, schedule, authorize, or resolve Tavall-managed dependencies.
+Builder methods construct typed values. Simple records and immutable data are constructed directly; a DataBuilder/MetaDataBuilder is for meaningful options, defaults, validation, or nontrivial assembly, not copying record components. The owning [Builder Patterns](BUILDERS.md#record-owned-construction-and-data-builder-pattern) chapter has the examples. Builders do not persist, cache, register managed behavior, schedule, or authorize.
 
 ##### Why
 

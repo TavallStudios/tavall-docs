@@ -36,6 +36,8 @@ Before changing architecture:
 
 When a rule concerns an existing Tavall tool, inspect that canonical tool's interfaces, implementation, tests, and owning documentation before changing shared guidance. Canonical Tavall tools own their API shape, inheritance model, lifecycle semantics, supported low-level/framework surfaces, and naming vocabulary. Shared architecture may classify when a tool is used and constrain ordinary application consumers, but it must not silently redesign the canonical tool itself. A desired redesign belongs in the owning tool first and in shared docs only after that change becomes the accepted tool contract.
 
+**Route by concern, then by owner:** this root classifies and routes; a delegated chapter owns its specific application role; a canonical Tavall Java Tool repository owns the precise tool API/access pattern. Read the relevant tool access guide where one exists (for example [Tavall DI](https://github.com/TavallStudios/tavall-di/blob/main/docs/DI_ACCESS_STYLES.md), [Registry](https://github.com/TavallStudios/tavall-registry/blob/main/docs/REGISTRY_ACCESS_STYLES.md), or [Database](https://github.com/TavallStudios/tavall-database/blob/main/docs/ENTITY_ACCESS_STYLES.md)). Do not duplicate tool implementation recipes into the shared chapters or treat a simplified old example as newer than its tool contract.
+
 A change may require several delegated chapters. A Handler using Tavall DI, Cache, and persistence must not read only `HANDLERS.md`; it also requires the DI and state/persistence chapters that own those boundaries.
 
 ### Required Topic Routing
@@ -50,7 +52,7 @@ A change may require several delegated chapters. A Handler using Tavall DI, Cach
 | Tavall DI, dependency access, default consumers, orchestration, cleanup | [Dependency Injection and Orchestration](code-architecture/DEPENDENCY_INJECTION_AND_ORCHESTRATION.md) |
 | Handler/DataHandler/MetaDataHandler behavior | [Handlers](code-architecture/HANDLERS.md) |
 | Builders and construction-only behavior | [Builders](code-architecture/BUILDERS.md) |
-| Requests, results, resolvers, formatters | [Requests, Results, Resolvers, and Formatters](code-architecture/REQUESTS_RESULTS_RESOLVERS_AND_FORMATTERS.md) |
+| Requests, results, data resolvers, viewers, formatters | [Requests, Results, Resolvers, Viewers, and Formatters](code-architecture/REQUESTS_RESULTS_RESOLVERS_AND_FORMATTERS.md) |
 | Routers and delegation | [Routers and Delegation](code-architecture/ROUTERS_AND_DELEGATION.md) |
 | Registry, Cache, Redis, operation state, durable-state classification | [Registries, Caches, and Persistence](code-architecture/REGISTRIES_CACHES_AND_REPOSITORIES.md) |
 | Application-owned mutable maps/sets/keyed collections | [Application-Owned Mutable Maps](code-architecture/APPLICATION_OWNED_MUTABLE_MAPS.md) |
@@ -89,7 +91,7 @@ The sections below are **cross-cutting summaries**. Follow their delegated chapt
 
 Packages describe domain ownership and role. Avoid broad new buckets such as `util`, `misc`, `common`, or `manager`; platform-specific code stays in its platform boundary and product/mode-specific code stays with its owner.
 
-Common roles include Handler, Service, Orchestrator, Router, Resolver, Registry, Cache, Builder, Mapper, Serializer, Reader, Writer, Publisher, Consumer, Listener, Bootstrap, Runtime, and Timer. The suffix must describe actual ownership rather than decorate an implementation after the fact.
+Common roles include Handler, Service, Orchestrator, Router, Resolver, DataResolver, Viewer, Formatter, Registry, Cache, Builder, Mapper, Serializer, Reader, Writer, Publisher, Consumer, Listener, Bootstrap, Runtime, and Timer. The suffix must describe actual ownership rather than decorate an implementation after the fact.
 
 Detailed rules: [Namespaces and Class Names](code-architecture/NAMESPACES_VARIABLES_AND_OOP.md#namespaces-and-class-names) and [Class Roles](code-architecture/CLASSES.md).
 

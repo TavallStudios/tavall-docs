@@ -59,67 +59,156 @@ Managed consumers declare Tavall-managed collaborators through `DependencyAccess
 
 ### Multi-Dependency Expanded Access
 
+**Approved-direction architecture example, not currently compiled production source.** This is an **already-committed progress update**, not event generation or the durable event-mutation operation. Upstream code must provide an already-filled `AchievementProgressMutationResult`; the Handler must not re-create `AchievementProgressEventData` or repeat `applyEventProgressOnce(...)`.
+
+The example intentionally contains **no `*Access` data/persistence classes in `DependencyAccess<...>`**. The owning DataHandler manages the update and cache policy. The runtime still must register an **operation-correct** `AchievementListData` instance for the current achievement; that binding does not exist in current multi-definition Novus production.
+
 ```java
 @DelegatesTo(IAchievementProgressMutationHandler.class)
 public final class AchievementProgressMutationHandler
         implements IAchievementProgressMutationHandler,
-        DependencyAccess<
-                IPlayerAchievementDataHandler,
-                IPlayerAchievementCache,
-                IAchievementCompletionHandler
-        > {
+                   DependencyAccess<
+                           AchievementListData,
+                           IPlayerAchievementDataHandler,
+                           IAchievementCompletionHandler
+                   > {
 
     @Override
-    public AchievementProgressMutationResult applyProgress(
-            AchievementProgressRequest request
+    public void updatePlayerAchievementProgress(
+            AchievementProgressMutationResult progressMutationResult
     ) {
-        AchievementProgressMutationHandlerDependencyAccess dependencies = getInstance();
+        boolean hasUpdatedProgress =
+                progressMutationResult != null
+                        && progressMutationResult.updatedProgress() != null;
 
-        PlayerAchievementData data = dependencies
-                .playerAchievementDataHandler()
-                .load(request.playerId());
-
-        if (data != null) {
-            dependencies
-                    .playerAchievementCache()
-                    .saveOnline(data);
+        if (!hasUpdatedProgress) {
+            return;
         }
 
-        return AchievementProgressMutationResult.applied();
+        getPlayerAchievementDataHandler().updatePlayerAchievementProgress(
+                progressMutationResult.updatedProgress()
+        );
+
+        boolean achievementCompletedNow = progressMutationResult.completedNow();
+
+        if (achievementCompletedNow) {
+            getAchievementCompletionHandler().sendAchievementCompletionMessage(
+                    progressMutationResult.updatedProgress(),
+                    getAchievementListData()
+            );
+        }
+    }
+
+    private AchievementListData getAchievementListData() {
+        return getInstance().achievementListData();
+    }
+
+    private IPlayerAchievementDataHandler getPlayerAchievementDataHandler() {
+        return getInstance().playerAchievementDataHandler();
+    }
+
+    private IAchievementCompletionHandler getAchievementCompletionHandler() {
+        return getInstance().achievementCompletionHandler();
     }
 }
 ```
 
+### Already-filled Data Ownership
+
+The result already owns `updatedProgress()`, whose record already owns `playerId()` and `achievementKey()`. Do not re-extract these into local aliases or reconstruct them from an event. The Handler is responsible for its meaningful cross-boundary completion decision, not low-level storage.
+
+The proposed `IPlayerAchievementDataHandler.updatePlayerAchievementProgress(PlayerAchievementProgressData)` operation **must** encapsulate loading the correct player's data, the existing synchronized recency check, and saving the cache projection. It must not be an empty forwarding wrapper. For example, this is a **proposed method inside the DataHandler implementation**, not another method in the Handler above:
+
+```java
+@Override
+public void updatePlayerAchievementProgress(
+        PlayerAchievementProgressData playerAchievementProgressData
+) {
+    if (playerAchievementProgressData == null) {
+        return;
+    }
+
+    PlayerAchievementData playerAchievementData =
+            load(playerAchievementProgressData.playerId());
+
+    if (playerAchievementData == null) {
+        return;
+    }
+
+    synchronized (playerAchievementData) {
+        playerAchievementData.mergeCommittedProgress(playerAchievementProgressData);
+        getPlayerAchievementCache().saveOnline(playerAchievementData);
+    }
+}
+```
+
+The `mergeCommittedProgress(...)` method is a **proposed method on `PlayerAchievementData`** to preserve the existing newer-timestamp check and `upsertProgress` mutation:
+
+```java
+public void mergeCommittedProgress(
+        PlayerAchievementProgressData playerAchievementProgressData
+) {
+    if (playerAchievementProgressData == null) {
+        return;
+    }
+
+    PlayerAchievementProgressData cachedProgress =
+            findProgress(playerAchievementProgressData.achievementKey()).orElse(null);
+
+    boolean shouldMergeProgress =
+            cachedProgress == null
+                    || playerAchievementProgressData.updatedAt() == null
+                    || cachedProgress.updatedAt() == null
+                    || !cachedProgress.updatedAt().isAfter(
+                            playerAchievementProgressData.updatedAt()
+                    );
+
+    if (shouldMergeProgress) {
+        upsertProgress(playerAchievementProgressData);
+    }
+}
+```
+
+The DataHandler's `getPlayerAchievementCache()` is a private named DI getter on that owning implementation. The three proposed APIs and their matching interfaces, DI registrations, and tests are **not currently implemented**. The upstream event/durable mutation that fills the result still exists, but belongs to its proper persistence/event owner and is explicitly outside this update Handler.
+
+**Rejected consumer patterns:** build a new event from already-filled data, invoke a persistence `*Access` API to recompute a result, list `*Access` types as ordinary `DependencyAccess` dependencies, alias `progressMutationResult.updatedProgress()` merely to call it again, or manually construct Registry/Cache/Database collaborators. Static value methods remain permitted when there is an actual need for value creation, not as a mandatory detour in an update method.
+
+See [Method Rules](METHODS.md#variable-outlining) for locals, [Instantiation Rules](METHODS.md#object-instantiation-in-managed-consumer-methods) for `new`, and the [Tavall DI Access Styles](https://github.com/TavallStudios/tavall-di/blob/main/docs/DI_ACCESS_STYLES.md) guide for typed live getters.
+
 ### Single-Dependency Direct Access
 
-For a single managed dependency, `getInstance()` returns the typed contract directly:
+For a single managed dependency, `getInstance()` returns the typed contract directly. Prefer a named getter for repeated use; compact one-off calls may use `getInstance()` directly.
 
 ```java
 @DelegatesTo(IPlayerRewardHandler.class)
 public final class PlayerRewardHandler
         implements IPlayerRewardHandler,
-        DependencyAccess<IEconomyService> {
+                   DependencyAccess<IEconomyService> {
+
+    private IEconomyService getEconomyService() {
+        return getInstance();
+    }
 
     @Override
     public void rewardPlayer(PlayerId playerId, int amount) {
-        IEconomyService economyService = getInstance();
-        economyService.deposit(playerId, amount);
+        getEconomyService().deposit(playerId, amount);
     }
 }
 ```
 
 Rules:
 
-- capture `getInstance()` once when a method reads several dependencies;
+- prefer named dependency getters for repeated collaborators; direct `getInstance().namedCapability()` is fine when shorter and clear;
+- do not assign `getInstance()` to a method-local generated access or bundle variable as routine consumer style;
+- do not constructor-capture or field-cache ordinary Tavall-managed dependencies;
 - use generated typed getters instead of repeated class-token lookup;
 - ordinary production code MUST NOT cast or assign `getInstance()` to `IDependencyMap`;
 - optional dependencies use the repository-approved optional lookup path;
-- missing required dependencies fail fast;
-- do not store resolved managed dependencies in ordinary long-lived fields merely to avoid future lookups.
+- missing required dependencies fail fast.
 
 ##### Why
 
-Generated access keeps object identity and replacement owned by the dependency map. Consumers describe what they need without becoming composition roots or directly coupling to internal map infrastructure.
+Typed access preserves Tavall DI metadata identity and replacement semantics. Private named getters improve call sites without becoming cached state. The owning DI guide defines supported access alternatives; this chapter establishes the default ordinary-consumer style.
 
 ## Dependency Constructor Injection Is Rejected
 
@@ -146,6 +235,8 @@ Constructors remain valid for:
 - builder inputs;
 - genuinely externally owned platform handles that Tavall DI does not manage;
 - infrastructure internals whose owning repository explicitly defines constructor composition outside Tavall application DI.
+
+The canonical [Java Tools adoption policy](https://github.com/TavallStudios/tavall-java-tools/blob/main/docs/CONSUMER_ADOPTION.md#shared-architecture-test-distribution) recognizes a narrow **builder-owned managed-constructor** exception, governed by `DependencyArchitecturePolicy`: every managed production invocation is builder-owned and that builder resolves managed collaborators through Tavall DI. Do not generalize the exception to ordinary Handler constructors or to pure Data/MetaData builders. The owning tool's test policy is authoritative for those call sites.
 
 ##### Why
 

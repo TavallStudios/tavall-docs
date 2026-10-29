@@ -38,8 +38,10 @@ ChatFormatPlaceholderResolver
 PlayerAccountDataBuilder
 AchievementListRegistry
 PlayerAchievementCache
-FFARoundOrchestrator
+FfaRoundService
 ```
+
+New types use PascalCase (`FfaRoundService`, `TavallDiHandler`, `ApiClient`, `CiPipeline`), with normal capitalization for abbreviations, rather than requiring `FFARoundService`, `TavallDIHandler`, `APIClient`, or `CIPipeline`. Existing class names remain unchanged until their callers, tests and public contracts can be migrated coherently.
 
 Role expectations:
 
@@ -65,7 +67,7 @@ Precise suffixes give reviewers and architecture tests a usable contract. `Servi
 
 ### Local Variables
 
-Extract important domain values into named locals when it improves reading, debugging, validation, or failure diagnosis.
+Outline **new operation results and meaningful boolean decisions** in explicit typed locals. Do **not** create aliases for values already available from a record accessor or named Tavall DI getter. See the canonical [Variable Outlining](METHODS.md#variable-outlining) examples; do not duplicate the worked method here.
 
 #### Bad
 
@@ -96,10 +98,20 @@ Tests, fixtures, generated source, and tooling may define narrower rules indepen
 Naming rules:
 
 - names describe domain meaning, not merely Java type;
-- preserve established acronym capitalization such as `playerUUID`, `nativeUI`, `httpRequest`, `jsonPayload`;
+- methods, fields, parameters, record components and local variables use ordinary Java **camelCase** (`getPlayerUuid()`, `findActiveKit()`, `playerUuid`, `httpRequest`, `jsonPayload`); do not force all-caps acronym fragments into camelCase names;
+- classes, interfaces, records and enum types use **PascalCase**; abbreviations are naturally word-cased (`FfaRoundService`, `TavallDiHandler`, `ApiClient`, `CiPipeline`, `PlayerUuidResolver`) instead of applying an all-caps-acronym mandate. Existing production names such as `FFARoundService` are historical identifiers, not a naming requirement for new declarations;
+- keep domain meaning precise (`playerUuid` for a UUID, `playerId` only when that identifier has an established typed meaning). Migrate public method names, record components, and their consumers/tests together instead of silently breaking an existing Java API;
 - avoid numbered locals unless the number is domain meaning;
 - avoid one-letter names outside tiny conventional scopes;
-- do not reuse one local for several meanings.
+- do not reuse one local for several meanings;
+- separate newly computed, loaded or mutated operation results before validation, fallback, update or delegation when they represent an actual new stage;
+- avoid aliases such as `UUID playerUUID = achievementProgressRequest.playerUUID();`, `AchievementListData achievementDefinition = getAchievementListData();`, or `PlayerAchievementProgressData updatedProgress = progressMutationResult.updatedProgress();` when they merely restate existing accessor data;
+- name a boolean result before a controlling `if`, e.g. `boolean achievementCompletedNow = progressMutationResult.completedNow();`;
+- use the owning class role and method verb to distinguish existing-data reads from loading, constructing, filling or updating; see [Data State and Method Name Contracts](METHODS.md#data-state-and-method-name-contracts);
+- keep dependency getters named on the class; do not alias a generated `DependencyAccess` object in a local as a substitute for domain values;
+- do not introduce redundant one-use locals with no meaning beyond repeating the next expression; a named boolean controlling a branch **is** meaningful even when used once.
+
+For an **already-filled result**, the [achievement update example](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access) uses `progressMutationResult.updatedProgress()` directly and outlines only meaningful boolean decisions. It creates no event data or replacement mutation result inside the Handler. Keep the complete validation flow in its owning chapter rather than duplicating a truncated, unsafe method here.
 
 ##### Why
 
@@ -123,6 +135,24 @@ Rules:
 ##### Why
 
 A field is long-lived relative to a method. Putting mutable keyed or managed dependency state there implicitly declares lifecycle ownership, whether the author intended to or not.
+
+### Java Block and Brace Layout
+
+Use expanded Java statement bodies: each statement and closing brace occupies its own line. Put the opening `{` with its declaration or control statement, including on the last line of a wrapped class declaration; never strand `> {` on a separate line. Do not compress `if`, `switch`, method, constructor, class or `catch` bodies into single-line `{ ... }` examples. Keep the style consistent in generated and documentation examples. This governs **source layout**, not a preference for changing runtime behavior.
+
+```java
+public final class FfaRoundService
+        implements IFfaRoundService, DependencyAccess<IFfaRoundHandler> {
+
+    public boolean isRunning() {
+        if (!running) {
+            return false;
+        }
+
+        return getRoundTaskScheduler().isRunning();
+    }
+}
+```
 
 ## Constants
 

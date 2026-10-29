@@ -19,7 +19,9 @@ Classes should have one coherent reason to change. Role suffixes are architectur
 | `*Service` | One cohesive reusable domain capability. |
 | `*Orchestrator` | Ordered workflow/lifecycle coordination across focused collaborators. |
 | `*Router` | Select and delegate. |
-| `*Resolver` | Derive one typed answer from explicit input. |
+| `*Resolver` | Resolve an existing typed value or capability from supplied input and a designated authority. | 
+| `*DataResolver` | Resolve domain data from supplied keys/context; not display titles or rendering. |
+| `*Viewer` | Derive a caller-facing view/title/presentation from already available typed values; does not fetch data or render to a device. |
 | `*Registry` | Runtime keyed identity/lookup ownership. |
 | `*Cache` | Disposable/expiring/reloadable fast-state ownership. |
 | `*Builder` | Construct typed values/definitions/requests/results/configuration. |
@@ -41,11 +43,23 @@ Closed sets of domain states, priorities, and fixed values use native Java `enum
 
 A **Handler** owns one focused behavior or operation family. A **Service** owns one reusable cohesive capability used across consumers. An **Orchestrator** owns ordering/lifecycle across several focused boundaries.
 
+### Service creation gate
+
+**Do not introduce a `*Service` as a generic layer or the default name for new behavior.** Before creating one, identify its concrete reusable capability, actual consumers, domain policy it alone owns, state/lifecycle owner, and why existing Handlers, Resolvers, DataHandlers, Orchestrators, Runtimes, and canonical Tavall Java Tools cannot own the same work. Reject a Service that merely forwards existing methods, renames a Registry/Cache lookup, implements a second cache/registry, or collects unrelated operations. Existing valid `*Service` implementations are not automatically renamed or removed; check their real behavior and callers.
+
+Where a Registry or Cache owns identity or cached state, use the **actual** `tavall-registry` or `tavall-cache` API with its approved access patterns. Refer to [Registry and Cache Tool Authority](REGISTRIES_CACHES_AND_REPOSITORIES.md#canonical-tool-authority) rather than duplicating the tool's API in a Service or this chapter.
+
 Input adapters such as commands/listeners/controllers receive external input and delegate. They do not become the reusable domain owner merely because input arrived there first.
 
 ##### Why
 
 These roles separate operation behavior, reusable capability, and multi-step sequencing. Without that distinction, one class slowly absorbs rules, storage, routing, and lifecycle until its suffix stops meaning anything.
+
+## Resolver and Viewer
+
+Use a `*DataResolver` for domain data resolution, a `*Viewer` for deriving a presentation from data already supplied, and a `*Formatter` for simple representation formatting. Do not name display-title derivation `*Resolver` merely because the method returns a derived value. The existing `AchievementPointTitleResolver` is a migration candidate for `AchievementPointTitleViewer`; its pure mapping has no lookup authority. `Viewer` is a **class role**, not a new module type or a mandatory extra layer. Maintain its actual consumer contract during any rename; do not manufacture a second Viewer beside the existing Resolver.
+
+Pure, deterministic Viewers may legitimately be non-DI when they have no managed behavior and are expressly excluded by policy; `@ExplicitNonDi` on the current title mapper records that reason. Pluggable, DI-managed Viewers use `@DelegatesTo` and typed `DependencyAccess`, without simultaneously retaining `@ExplicitNonDi`.
 
 ## Builders
 

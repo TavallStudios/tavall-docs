@@ -1,4 +1,4 @@
-# Tavall Requests, Results, Resolvers, and Formatters
+# Tavall Requests, Results, Resolvers, Viewers, and Formatters
 
 > **Status:** Active  
 > **Authority:** Binding chapter of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
@@ -12,8 +12,8 @@ Bad:
 
 ```java
 updateRank(
-        UUID staffUUID,
-        UUID targetUUID,
+        UUID staffUuid,
+        UUID targetUuid,
         RankKey rankKey,
         String reason,
         boolean silent
@@ -24,8 +24,8 @@ Good:
 
 ```java
 public record RankUpdateRequest(
-        UUID staffUUID,
-        UUID targetUUID,
+        UUID staffUuid,
+        UUID targetUuid,
         RankKey rankKey,
         String reason,
         boolean silent
@@ -79,15 +79,14 @@ Infrastructure failures and violated invariants still use operation-specific exc
 
 ## Resolver Pattern
 
-A Resolver derives one typed answer from explicit input and managed capabilities.
+A Resolver selects or retrieves an **existing typed answer** from explicit input and an identified authority, applying only lookup/selection or narrowly specified fallback rules. It does not generate UI labels, format titles, build a view, render output, or own persistence/Registry/Cache mechanics.
 
 Examples:
 
 ```text
-MessageResolver
-PlaceholderResolver
-RankDisplayResolver
-FormatResolver
+MessageDataResolver
+PlaceholderDataResolver
+PlayerAccountDataResolver
 DestinationResolver
 ```
 
@@ -122,6 +121,18 @@ The caller uses a typed key while the resolver owns lookup/fallback/derivation b
 
 A Resolver should not become a repository, cache owner, or generic service locator.
 
+## DataResolver Pattern
+
+Prefer a concrete subtype name such as `*DataResolver` when the resolved output is domain data. For example, a `PlayerAccountDataResolver` may resolve an already-authorized account value from a typed identity and its owning data capability, without reimplementing loading, persistence, caching, or authorization. A `*Resolver` is still valid when its resolution responsibility is specific and does not fit a narrower subtype; do not add a parent class or interface solely to model a suffix hierarchy.
+
+## Viewer Pattern
+
+A `*Viewer` maps **already supplied typed data** to a caller-facing view or domain presentation (titles, labels, presentation metadata). A Viewer does not perform source resolution, data loading, permission checks, persistence, or platform rendering. It may use a focused Formatter or other supplied pure presentation values; do not create one solely to forward a Formatter.
+
+`AchievementPointTitleResolver` currently calculates a point-title label from `AchievementPointType`, earned points and obtainable points without retrieving data. Its correct role is a proposed `AchievementPointTitleViewer`, and the interface and callers must migrate together. Do not introduce `AchievementPointTitleViewer` as a parallel second implementation while the original continues to be used.
+
+The existing title implementation's `@ExplicitNonDi` is explicitly justified by pure deterministic behavior. That is a valid exception if the Viewer remains pure and non-managed, **not** proof that every Viewer must bypass DI. If the Viewer is managed or substitutable, register its contract using `@DelegatesTo` and consume it via typed DI instead; remove the non-DI marker.
+
 ## Formatter Pattern
 
 A Formatter converts already-known data into a presentation representation.
@@ -131,8 +142,8 @@ It should not load data, save data, resolve permissions, mutate caches, or perfo
 Bad:
 
 ```java
-public String format(UUID playerUUID) {
-    PlayerAccountData data = dataHandler.load(playerUUID);
+public String format(UUID playerUuid) {
+    PlayerAccountData data = dataHandler.load(playerUuid);
     return data.rankKey().name();
 }
 ```
@@ -155,7 +166,9 @@ Formatting is deterministic from already-known input. Once the formatter starts 
 
 - [ ] Requests group genuinely related operation input.
 - [ ] Results explain meaningful expected outcomes.
-- [ ] Resolvers derive one typed answer and use Tavall DI for managed collaborators.
+- [ ] Resolvers retrieve/select existing typed values without becoming display-title helpers or data stores.
+- [ ] DataResolvers resolve typed data from named input and the existing authority.
+- [ ] Viewers derive presentation from already known data, without fetching or rendering.
 - [ ] Formatters receive the values they format rather than loading them.
 - [ ] Raw strings/maps are not used where a stable typed key/value exists.
 - [ ] These roles do not become hidden persistence/cache/registry/service-locator boundaries.

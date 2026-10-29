@@ -32,38 +32,46 @@ The command owns reusable rank/authority behavior, uses raw input, and mutates p
 
 #### Good
 
+The rank-update operation illustrates the default stateless consumer pattern. The named getters are live Tavall DI accessors, not stored dependencies. The request/result are ordinary typed values, not a reason to introduce request/result builders.
+
 ```java
 @DelegatesTo(IRankUpdateHandler.class)
 public final class RankUpdateHandler
         implements IRankUpdateHandler,
-        DependencyAccess<
-                IPlayerAccountDataHandler,
-                IPowerLevelHandler,
-                IPlayerRankDataHandler
-        > {
+                   DependencyAccess<
+                           IPlayerAccountDataHandler,
+                           IPowerLevelHandler,
+                           IPlayerRankDataHandler
+                   > {
+
+    private IPlayerAccountDataHandler getPlayerAccountDataHandler() {
+        return getInstance().playerAccountDataHandler();
+    }
+
+    private IPowerLevelHandler getPowerLevelHandler() {
+        return getInstance().powerLevelHandler();
+    }
+
+    private IPlayerRankDataHandler getPlayerRankDataHandler() {
+        return getInstance().playerRankDataHandler();
+    }
 
     @Override
-    public RankUpdateResult updatePlayerRank(
-            RankUpdateRequest request
-    ) {
-        RankUpdateHandlerDependencyAccess dependencies = getInstance();
+    public RankUpdateResult updatePlayerRank(RankUpdateRequest rankUpdateRequest) {
+        PlayerAccountData staffAccountData =
+                getPlayerAccountDataHandler().load(rankUpdateRequest.staffUUID());
+        PlayerAccountData targetAccountData =
+                getPlayerAccountDataHandler().load(rankUpdateRequest.targetUUID());
 
-        PlayerAccountData staff = dependencies
-                .playerAccountDataHandler()
-                .load(request.staffUUID());
-
-        PlayerAccountData target = dependencies
-                .playerAccountDataHandler()
-                .load(request.targetUUID());
-
-        if (!dependencies.powerLevelHandler().canRankEdit(staff, target)) {
+        boolean canRankEdit = getPowerLevelHandler().canRankEdit(
+                staffAccountData,
+                targetAccountData
+        );
+        if (!canRankEdit) {
             return RankUpdateResult.targetTooPowerful();
         }
 
-        dependencies
-                .playerRankDataHandler()
-                .updatePlayerRankData(request);
-
+        getPlayerRankDataHandler().updatePlayerRankData(rankUpdateRequest);
         return RankUpdateResult.success();
     }
 }
@@ -116,36 +124,58 @@ Data handlers do not decide unrelated product/gameplay authorization merely beca
 
 A metadata handler resolves, refreshes, validates, enriches, or exposes derived metadata.
 
-It does not mutate primary durable data unless the class is explicitly a different persistence/domain behavior owner.
+It does not mutate primary durable data unless the class is explicitly a different persistence/domain behavior owner. The following `fromRankDefinition` is a **proposed pure record factory**, not a current production API. Static factories are permitted when their role is genuinely value construction.
 
 ```java
 @DelegatesTo(IPlayerRankMetaDataHandler.class)
 public final class PlayerRankMetaDataHandler
         implements IPlayerRankMetaDataHandler,
-        DependencyAccess<
-                IPlayerAccountDataHandler,
-                IRankRegistry
-        > {
+                   DependencyAccess<
+                           IPlayerAccountDataHandler,
+                           IRankRegistry
+                   > {
 
-    public PlayerRankMetaData load(UUID playerUUID) {
-        PlayerRankMetaDataHandlerDependencyAccess dependencies = getInstance();
-        PlayerAccountData account = dependencies
-                .playerAccountDataHandler()
-                .load(playerUUID);
+    private IPlayerAccountDataHandler getPlayerAccountDataHandler() {
+        return getInstance().playerAccountDataHandler();
+    }
 
-        RankDefinition definition = dependencies
-                .rankRegistry()
-                .find(account.rankKey())
+    private IRankRegistry getRankRegistry() {
+        return getInstance().rankRegistry();
+    }
+
+    @Override
+    public PlayerRankMetaData loadPlayerRankMetaData(UUID playerUUID) {
+        PlayerAccountData playerAccountData =
+                getPlayerAccountDataHandler().load(playerUUID);
+
+        RankDefinition rankDefinition = getRankRegistry()
+                .find(playerAccountData.rankKey())
                 .orElseThrow();
 
-        return new PlayerRankMetaData(
-                account.rankKey(),
-                definition.displayName(),
-                definition.color()
+        return PlayerRankMetaData.fromRankDefinition(
+                playerAccountData,
+                rankDefinition
         );
     }
 }
 ```
+
+The `PlayerRankMetaData` record may own pure construction; this proposed factory belongs **inside that record**, not the Handler:
+
+```java
+public static PlayerRankMetaData fromRankDefinition(
+        PlayerAccountData playerAccountData,
+        RankDefinition rankDefinition
+) {
+    return new PlayerRankMetaData(
+            playerAccountData.rankKey(),
+            rankDefinition.displayName(),
+            rankDefinition.color()
+    );
+}
+```
+
+This value owner's internal `new` is legitimate construction. It does **not** make `PlayerRankMetaData` a DI-managed runtime dependency or justify creating a `MetaDataBuilder` for a trivial copy. If metadata construction genuinely needs options, formatting, or complex assembly, use the specialized [Metadata Builder Pattern](BUILDERS.md#metadata-builder-pattern) and keep resolution in this Handler.
 
 ##### Why
 
@@ -156,12 +186,20 @@ Metadata is derived state with its own refresh/rebuild behavior. Keeping primary
 Handlers may coordinate focused dependencies, but they do not:
 
 - constructor-capture Tavall-managed collaborators;
+- manually construct/populate Data/MetaData records inline instead of invoking their owning conversion/creation method;
+- directly `new` another DI-managed implementation or bypass its public interface contract;
 - statically locate Tavall-managed services;
+- instantiate DI-managed collaborators or manually populate domain objects using `new SomeClass(...)` inside ordinary Handler methods; construction belongs to Tavall DI or the actual value/construction owner (see [Method Rules](METHODS.md#object-instantiation-in-managed-consumer-methods));
 - own mutable registry/cache-shaped maps;
 - open JDBC/EntityManager/transaction callbacks;
 - create generic CRUD repository/database wrappers;
 - absorb routing/scheduling/lifecycle behavior that belongs in an Orchestrator/Router/Runtime;
-- hide several unrelated operations behind one generic `handle()` method.
+- hide several unrelated operations behind one generic `handle()` method;
+- introduce forwarding-only public methods that merely echo a collaborator's signature and call;
+- expose one-use public helpers simply to relocate a condition that belongs in an existing domain operation;
+- bury a new fallible operation result in another call without checking it, or create aliases for existing record/accessor values with no additional meaning;
+- evaluate data accessors directly in conditions (for example `if (progressMutationResult.completedNow())`) instead of outlining a named boolean;
+- name a method `get...` when it actually loads, constructs or fills domain data.
 
 ##### Why
 

@@ -4,7 +4,7 @@
 > **Authority:** Binding chapter of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
 > **Applies to:** Tavall production modules, contributors, automation, generated code, reviews, and AI-assisted development
 
-Builders are construction tools. They construct typed values, definitions, requests, results, entities, configuration, or another explicit output. They do **not** become runtime composition roots, dependency containers, services, repositories, registries, or orchestrators.
+Builders are construction tools. They construct typed values, definitions, requests, results, entities, configuration, or another explicit output. Ordinary Data/MetaData/Request/Result builders do **not** become runtime composition roots, dependency containers, services, repositories, registries, or orchestrators. The narrowly permitted [Tavall DI managed-constructor bridge](#managed-constructor-builder-exception) is a separate tool-governed construction concern.
 
 ## Pattern Rules
 
@@ -50,59 +50,102 @@ The builder becomes an alternate composition root, callers decide dependency ide
 
 Use `DependencyAccess<...>` on the managed behavior class. If the dependency count is too large, keep direct access when the class is genuinely cohesive, introduce one real immutable domain bundle, or split responsibilities.
 
-## Data Builder Pattern
+## Record-Owned Construction and Data Builder Pattern
 
-Data builders create one typed data value from explicit source values.
+A simple Java `record` normally needs **no DataBuilder**. Its canonical/compact constructor, private validation/normalization methods, and meaningful record-owned conversion/factory methods may create ordinary immutable values. A DataBuilder is justified only for actual construction options, defaults, hydration, or nontrivial assembly.
+
+**Anti-pattern for ordinary DI-managed behavior consumers:**
 
 ```java
-public final class PlayerAccountDataBuilder {
-
-    public PlayerAccountData buildPlayerAccountData(
-            PlayerAccountEntity entity
-    ) {
-        UUID playerUUID = entity.getPlayerUUID();
-        String playerName = entity.getPlayerName();
-        RankKey rankKey = entity.getRankKey();
-
-        return new PlayerAccountData(
+// Bad: the Handler manually fills a record and owns its conversion details.
+AchievementProgressEventData progressEventData =
+        new AchievementProgressEventData(
+                eventId,
                 playerUUID,
-                playerName,
-                rankKey
+                achievementDefinition.triggerType(),
+                progressAmount,
+                actionType,
+                sourceServerId,
+                sourceContext,
+                occurredAt
         );
+```
+
+When a new immutable value really **must be created**, a record's own static/instance factory may do the construction. A genuine DataBuilder is for more involved options or assembly. **When updating data already present in a result or another data owner, neither a record factory nor a Builder is needed.**
+
+The [achievement update consumer](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md#multi-dependency-expanded-access) therefore consumes an existing `progressMutationResult.updatedProgress()` through the DataHandler instead of invoking `AchievementProgressEventData.fromProgressRequest(...)`. That factory is not part of the update path. Static Java factory calls remain legal for *actual construction* in the appropriate path.
+
+This consumer rule does **not** mean all Java `new` expressions are forbidden. Value-owning record/factory methods, actual DataBuilders, persistence entity conversion, legitimate composition boundaries, and tool-governed managed-construction bridges may perform construction within their own responsibilities. But ordinary managed behavior must not use direct `new` to bypass a registered DI-managed collaborator, perform domain-data assembly inline, or rebuild the dependency graph.
+
+A `DataBuilder` becomes useful when the data object has its **own meaningful construction options**: defaults requiring coordination, optional branches, multiple source values that must be assembled, or a nontrivial conversion/hydration process. Those options belong to the data object's construction contract, not to managed dependency wiring.
+
+Project Novus has a substantive example: [`PlayerAchievementDataBuilder`](https://github.com/TavallStudios/tavall-mc/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/data/builder/PlayerAchievementDataBuilder.java) builds player achievement data from a player ID and optional progress rows, merges the rows, and marks a loaded timestamp. This does more than populate a record's canonical constructor.
+
+```java
+public final class PlayerAchievementDataBuilder {
+
+    public PlayerAchievementData buildPlayerAchievementData(
+            UUID playerId,
+            Collection<PlayerAchievementProgressData> progressRows,
+            Instant loadedAt
+    ) {
+        PlayerAchievementData playerAchievementData = new PlayerAchievementData(playerId);
+        if (progressRows != null) {
+            progressRows.stream()
+                    .filter(Objects::nonNull)
+                    .forEach(playerAchievementData::mergeProgress);
+        }
+        Instant resolvedLoadedAt = loadedAt == null ? Instant.now() : loadedAt;
+        return playerAchievementData.markLoaded(resolvedLoadedAt);
     }
 }
 ```
 
-##### Why
-
-The class says what data it builds and the source-to-domain conversion stays separate from persistence/runtime behavior.
-
-A builder may validate or normalize its explicit inputs, but it does not load them from a service, cache, registry, or database by itself.
+The example's optional progress collection and loaded-time fallback are meaningful assembly decisions. A plain record with a canonical constructor and no additional construction options should not be given this builder.
 
 ## Metadata Builder Pattern
 
-Metadata builders create resolved or display-ready values from source data already provided to them.
+The same test applies to `MetaDataBuilder`. A simple derived metadata record may expose a meaningful conversion method in its own type; its metadata owner calls that method rather than populating the record inline. A metadata builder earns its place when the output requires formatting, normalization, optional display settings, or more complex assembly.
+
+A real production example is [`WorldCommandMetaDataBuilder`](https://github.com/TavallStudios/tavall-mc/blob/main/tavall-mc-world/src/main/java/org/tavall/minecraft/world/command/builder/WorldCommandMetaDataBuilder.java). It transforms a `WorldData` value and loaded/current flags into a display-ready metadata object, including a formatted spawn position:
 
 ```java
-public final class PlayerRankMetaDataBuilder {
+public final class WorldCommandMetaDataBuilder {
 
-    public PlayerRankMetaData buildPlayerRankMetaData(
-            PlayerAccountData accountData,
-            RankDefinition rankDefinition
+    public WorldCommandMetaData buildWorldCommandMetaData(
+            WorldData worldData,
+            boolean loaded,
+            boolean current
     ) {
-        return new PlayerRankMetaData(
-                accountData.getRankKey(),
-                rankDefinition.getDisplayName(),
-                rankDefinition.getLegacyColor(),
-                rankDefinition.getPowerLevel()
+        WorldData world = Objects.requireNonNull(worldData, "worldData");
+        String formattedSpawn = String.format(
+                Locale.ROOT,
+                "%.2f %.2f %.2f %.1f %.1f",
+                world.spawn().x(),
+                world.spawn().y(),
+                world.spawn().z(),
+                world.spawn().yaw(),
+                world.spawn().pitch()
+        );
+
+        return new WorldCommandMetaData(
+                world.worldName(),
+                world.displayName(),
+                world.serverType().name(),
+                world.environment().name(),
+                world.enabled(),
+                current,
+                loaded,
+                world.loadOnStartup(),
+                world.sortOrder(),
+                world.version(),
+                formattedSpawn
         );
     }
 }
 ```
 
-##### Why
-
-Metadata is derived state with different rebuild/invalidation semantics from its source data. The builder expresses that transformation without becoming the owner that looks up the source values.
+The metadata owner resolves source values; the builder only transforms the explicit inputs. Normal data-record creation does not require this builder, but nontrivial metadata formatting does. A builder never becomes a hidden persistence owner, cache, DI graph, or orchestrator.
 
 ## Request Builder Pattern
 
@@ -110,48 +153,44 @@ Use a request builder when external input needs parsing, defaults, or conversion
 
 The builder may receive collaborators as **explicit method inputs** or already-resolved values. A Tavall-managed request builder must not constructor-capture or statically locate managed services merely because parsing needs them.
 
-Simple request values do not require a builder:
+A simple request record can own its constructor validation and any meaningful public factory/derivation operation. The following **illustrative** record factory supplies a named default; no separate RequestBuilder is needed:
 
 ```java
-RankUpdateRequest request = new RankUpdateRequest(
-        staffUUID,
-        targetUUID,
-        rankKey,
-        reason,
-        false
-);
-```
-
-Use a builder when the construction itself is meaningful:
-
-```java
-public final class RankUpdateRequestBuilder {
-
-    public RankUpdateRequest build(
-            UUID staffUUID,
-            UUID targetUUID,
-            RankKey rankKey,
-            String reason,
-            boolean silent
-    ) {
+public record RankUpdateRequest(
+        UUID staffUUID,
+        UUID targetUUID,
+        RankKey rankKey,
+        String reason,
+        boolean silent
+) {
+    public RankUpdateRequest {
         Objects.requireNonNull(staffUUID, "staffUUID");
         Objects.requireNonNull(targetUUID, "targetUUID");
         Objects.requireNonNull(rankKey, "rankKey");
+    }
 
+    public static RankUpdateRequest visibleRankChange(
+            UUID staffUUID,
+            UUID targetUUID,
+            RankKey rankKey,
+            String reason
+    ) {
         return new RankUpdateRequest(
                 staffUUID,
                 targetUUID,
                 rankKey,
                 reason,
-                silent
+                false
         );
     }
 }
 ```
 
+If request construction involves **several meaningful parsing options, conditional defaults, or multi-source conversion**, a `RequestBuilder` may own those supplied-input construction decisions. A builder that merely copies all fields into `new RankUpdateRequest(...)` and repeats null checks already enforced by the record is an anti-pattern.
+
 ##### Why
 
-The builder owns request construction, not command handling, target lookup, permission checks, or service access. External input adapters resolve those concerns and then ask the builder for one typed value.
+Record methods/constructors own simple value invariants. Specialized builders own substantial optional construction. The external input adapter owns platform input and delegated capability calls; it does not invent a second dependency graph to create request values.
 
 ## Result Builder Pattern
 
@@ -213,6 +252,12 @@ The builder may snapshot/validate configuration but must not choose audience, sc
 
 Definitions remain reusable when they describe **what** should exist rather than **when**, **where**, or **through which runtime dependency** it should be used.
 
+## Managed Constructor Builder Exception
+
+The [Tavall Java Tools Consumer Adoption Contract](https://github.com/TavallStudios/tavall-java-tools/blob/main/docs/CONSUMER_ADOPTION.md#shared-architecture-test-distribution) documents a **narrow tool-owned exception**: a managed constructor call may be builder-owned when every managed production invocation is builder-owned and verified by `org.tavall.dependency.architecture.DependencyArchitecturePolicy`. The builder itself resolves its managed collaborators using Tavall DI; it does not receive or persist constructor-injected managed dependencies.
+
+This exception is **not** the `DataBuilder`, `MetaDataBuilder`, or `RequestBuilder` pattern. Do not reclassify a Handler, Service, Orchestrator, or module Runtime as a builder solely to escape DI policy. The owning DI rule and architecture tests decide which managed-construction call sites are permitted. Normal behavior consumers should still declare typed `DependencyAccess<...>` and avoid managed constructor injection.
+
 ## Runtime Composition Is Not a Builder Pattern
 
 Classes that create/register several managed services, handlers, caches, registries, schedulers, or module objects own **bootstrap/runtime composition**, not ordinary builder behavior.
@@ -237,10 +282,12 @@ Runtime composition creates object identity, registration, replacement, startup 
 ## Builder Review Checklist
 
 - [ ] The builder produces one explicit typed output.
+- [ ] A simple record/immutable value uses its value-owned conversion/creation contract instead of an inline `new` in a managed consumer or a ceremonial DataBuilder.
+- [ ] A DataBuilder or MetaDataBuilder exists only for meaningful options, defaults, validation, or assembly beyond simple constructor arguments.
 - [ ] Construction complexity justifies the builder.
 - [ ] Required values are validated before publication.
 - [ ] Defaults are intentional and tested.
-- [ ] The builder does not resolve or capture Tavall-managed application dependencies.
+- [ ] Ordinary value builders do not resolve or capture Tavall-managed application dependencies; any managed-constructor builder exception follows the tool-owned DI architecture rule and resolves collaborators through Tavall DI.
 - [ ] The builder does not persist, cache, register, schedule, authorize, deliver, or orchestrate runtime behavior.
 - [ ] The builder is not being used to hide a large dependency graph.
 - [ ] Simple typed factories/constructors are preferred when they are clearer.

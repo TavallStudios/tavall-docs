@@ -12,6 +12,16 @@ This chapter classifies runtime, cached, distributed, operation, and durable sta
 
 Shared architecture documentation classifies when a tool should be used and records accepted cross-project policy. It must not silently redesign a canonical tool, replace an intentional inheritance model with a generic composition preference, hide supported APIs, or invent a parallel vocabulary because another implementation style appears cleaner in isolation.
 
+**Mandatory Java Tool boundary:** a new Tavall-owned `*Registry` uses the current `tavall-registry` contracts; a new `*Cache` uses the current `tavall-cache` contracts and an approved backing/semantic adapter where relevant. Ordinary Services, Handlers and Orchestrators do not implement substitute keyed maps, TTL/eviction logic, shadow indexes or Registry/Cache lifecycle. Use Tavall DI to access the owned typed capability and follow the owning Tool's documented consumer pattern, rather than introducing a forwarding `*Service` or another container.
+
+**Canonical access references (owned upstream):**
+
+- Registry: [Registry access styles and current API semantics](https://github.com/TavallStudios/tavall-registry/blob/main/docs/REGISTRY_ACCESS_STYLES.md). Its prior ranked examples are **under design review**, not a final implementation requirement. Verify the owning Registry tool's API, consumer ownership and DI contract before imposing an access style.
+- Cache: [Tavall Cache module/adapter guide](https://github.com/TavallStudios/tavall-cache/blob/main/README.md), [`AbstractCache<K,V>` source contract](https://github.com/TavallStudios/tavall-cache/blob/main/abstract-cache-system/src/main/java/org/tavall/abstractcache/cache/AbstractCache.java), and [semantic-tier ownership](https://github.com/TavallStudios/tavall-cache/blob/main/abstract-cache-semantic/README.md). Cache currently has no equivalent ranked `CACHE_ACCESS_STYLES.md` on `main`; do **not** invent one in shared docs or claim it exists.
+- DI: [Tavall DI access styles](https://github.com/TavallStudios/tavall-di/blob/main/docs/DI_ACCESS_STYLES.md) for registration, typed getters and replacement semantics.
+
+These links are the required implementation authority. This chapter owns **whether** a Registry or Cache fits; the Java Tool owns **how** to subclass, access, configure, invalidate and test it.
+
 Before changing a Tavall Java tool pattern in shared docs:
 
 1. inspect the current canonical repository, its interfaces, tests, and owning documentation;
@@ -54,7 +64,7 @@ Do not route durable state into a new `*Repository` merely because the state is 
 
 ## Tavall Registry
 
-Use `tavall-registry` for runtime lookup ownership.
+Use `tavall-registry` for runtime lookup ownership. The [ranked Registry access guide](https://github.com/TavallStudios/tavall-registry/blob/main/docs/REGISTRY_ACCESS_STYLES.md) is binding for application access styles; a domain subclass with named methods and a typed Tavall DI getter is its production default. This chapter does not override its ranking.
 
 The canonical base deliberately models a registry as a thread-safe map-backed collection. `AbstractRegistry<K, V>` extends `ConcurrentHashMap<K, V>` and implements `IAbstractRegistry<K, V>`. That inheritance is an accepted part of the tool contract, not an implementation accident that shared docs should automatically replace with composition.
 
@@ -99,9 +109,15 @@ If a concrete registry genuinely requires additional maintained lookup structure
 
 “Indexed” describes one implementation technique. Registry callers care about registry identity and lookup behavior. Keeping implementation terminology subordinate to the canonical Registry vocabulary prevents shared docs from forcing one optimization strategy across every registry.
 
+### Replacement in domain Registries
+
+The upstream [Registry access guide](https://github.com/TavallStudios/tavall-registry/blob/main/docs/REGISTRY_ACCESS_STYLES.md) describes currently supported operations; its former ranking is **not accepted as the final implementation prescription**. Consumer patterns remain under design review. Domain-named operations via Tavall DI are a candidate boundary, not a reason to introduce additional wrappers or force one universal Registry shape. Inside the subclass, `createRegistry(key, data)` is first-wins; use it for initial registration. An intentional replacement operation may use `put` **inside the domain Registry subclass** because it must replace an existing entry. Consumers never use raw `put` and do not store a shadow map.
+
+For example, production [`FFAKitSessionRegistry`](https://github.com/TavallStudios/tavall-mc/blob/main/novus-ffa/src/main/java/org/tavall/minecraft/ffa/kit/registry/FFAKitSessionRegistry.java) currently uses `put` inside `activate` because changing an active kit replaces the previous selection; the [production test](https://github.com/TavallStudios/tavall-mc/blob/main/novus-ffa/src/test/java/org/tavall/minecraft/ffa/kit/registry/FFAKitSessionRegistryTest.java) asserts that behavior. Replacing `put` with `createRegistry` would be a regression. Its remaining style/typing issues (bare kit-name `String`, ambiguous `clear` naming, layout, typed domain access, runtime cleanup) should be audited at its actual owner; those concerns do not invalidate this supported `AbstractRegistry` operation.
+
 ## Tavall Cache
 
-Use `tavall-cache` for disposable/reloadable/expiring/stale-able fast state.
+Use `tavall-cache` for disposable/reloadable/expiring/stale-able fast state. Use its current [`AbstractCache` API](https://github.com/TavallStudios/tavall-cache/blob/main/abstract-cache-system/src/main/java/org/tavall/abstractcache/cache/AbstractCache.java) or the owning [semantic-tier contracts](https://github.com/TavallStudios/tavall-cache/blob/main/abstract-cache-semantic/README.md), not an application-authored replacement for cache mechanics. [`PlayerAchievementCache`](https://github.com/TavallStudios/tavall-mc/blob/main/novus-achievements/src/main/java/org/tavall/minecraft/achievement/cache/PlayerAchievementCache.java) is a current typed consumer example; source compatibility and tool authority must still be checked when adopting it.
 
 A cache defines:
 
