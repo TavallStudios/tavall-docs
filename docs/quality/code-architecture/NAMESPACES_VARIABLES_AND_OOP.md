@@ -38,10 +38,10 @@ ChatFormatPlaceholderResolver
 PlayerAccountDataBuilder
 AchievementListRegistry
 PlayerAchievementCache
-FfaRoundService
+FFARoundService
 ```
 
-New types use PascalCase (`FfaRoundService`, `TavallDiHandler`, `ApiClient`, `CiPipeline`), with normal capitalization for abbreviations, rather than requiring `FFARoundService`, `TavallDIHandler`, `APIClient`, or `CIPipeline`. Existing class names remain unchanged until their callers, tests and public contracts can be migrated coherently.
+**Acronyms and established abbreviations keep their full uppercase spelling within PascalCase class/interface names:** `FFARoundService`, `TavallDIHandler`, `APIClient`, `CIPipeline`, `PlayerUUIDResolver`, `FFAKitSessionRegistry`, `IFFARoundService`. Never change `FFA` to `Ffa`, `DI` to `Di`, `CI` to `Ci`, or `API` to `Api` merely to impose title-casing. Names may be updated only with a coherent migration of callers, tests, and public contracts, not through isolated renames.
 
 Role expectations:
 
@@ -98,9 +98,10 @@ Tests, fixtures, generated source, and tooling may define narrower rules indepen
 Naming rules:
 
 - names describe domain meaning, not merely Java type;
-- methods, fields, parameters, record components and local variables use ordinary Java **camelCase** (`getPlayerUuid()`, `findActiveKit()`, `playerUuid`, `httpRequest`, `jsonPayload`); do not force all-caps acronym fragments into camelCase names;
-- classes, interfaces, records and enum types use **PascalCase**; abbreviations are naturally word-cased (`FfaRoundService`, `TavallDiHandler`, `ApiClient`, `CiPipeline`, `PlayerUuidResolver`) instead of applying an all-caps-acronym mandate. Existing production names such as `FFARoundService` are historical identifiers, not a naming requirement for new declarations;
-- keep domain meaning precise (`playerUuid` for a UUID, `playerId` only when that identifier has an established typed meaning). Migrate public method names, record components, and their consumers/tests together instead of silently breaking an existing Java API;
+- class, interface, record, enum and type names use **PascalCase while preserving uppercase acronyms**: `FFARoundService`, `TavallDIHandler`, `APIClient`, `CIPipeline`, `PlayerUUIDResolver`, `IFFARoundService`;
+- methods, fields, parameters, record components and local variables use **camelCase while preserving uppercase acronyms within the identifier**: `getPlayerUUID()`, `findActiveKit()`, `playerUUID`, `nativeUI`, `getHTTPResponse()`, `loadFFAConfig()`; when an abbreviation is the initial word of a lower-camel identifier, that starting word is lowercase (`httpRequest`, `jsonPayload`) to preserve camelCase. This initial lowercase convention does **not** apply to class names or later acronym segments;
+- do not normalize established `FFA`, `UUID`, `DI`, `CI`, `API`, `UI`, `HTTP`, `JSON`, `SQL`, `URL`, `TTL`, or equivalent acronyms into `Ffa`, `Uuid`, `Di`, `Ci`, `Api`, etc. in class names or later segments of method/variable names;
+- keep domain meaning precise (`playerUUID` for a UUID, `playerId` only when that identifier has an established typed meaning). Migrate public method names, record components, and their consumers/tests together instead of silently breaking an existing Java API;
 - avoid numbered locals unless the number is domain meaning;
 - avoid one-letter names outside tiny conventional scopes;
 - do not reuse one local for several meanings;
@@ -141,8 +142,8 @@ A field is long-lived relative to a method. Putting mutable keyed or managed dep
 Use expanded Java statement bodies: each statement and closing brace occupies its own line. Put the opening `{` with its declaration or control statement, including on the last line of a wrapped class declaration; never strand `> {` on a separate line. Do not compress `if`, `switch`, method, constructor, class or `catch` bodies into single-line `{ ... }` examples. Keep the style consistent in generated and documentation examples. This governs **source layout**, not a preference for changing runtime behavior.
 
 ```java
-public final class FfaRoundService
-        implements IFfaRoundService, DependencyAccess<IFfaRoundHandler> {
+public final class FFARoundService
+        implements IFFARoundService, DependencyAccess<IFFARoundHandler> {
 
     public boolean isRunning() {
         if (!running) {
