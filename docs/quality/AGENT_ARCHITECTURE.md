@@ -133,19 +133,26 @@ First-party Tavall Agents support two normalized execution modes:
 - **`ROLE`**: The active AI context assumes the Agent responsibility directly. No distinct worker is created. This is the preferred default mode for low-overhead, in-context operations.
 - **`AI_SUBAGENT`**: A separate, bounded AI worker is spawned in an isolated context. The worker **must register with `tavall-agent-ledger`** before performing any mutations.
 
-## 5. Main Document Skills and 1:1 Section Adapters
+## 5. Canonical Document Sections via Local Docs Toolkit
 
-Document-backed skills act as tiny section adapters:
+**Accepted 2026-10-29:** Section content is no longer represented by one generated skill per Markdown heading. Genuine procedural Agent skills remain; document knowledge stays in its canonical GitHub/Notion owner.
 
 ```text
-canonical document
-  ↓
-main document skill (index of all routable sections)
-  ↓
-section skill (1:1 with canonical section title)
-  ↓
-exact canonical document section
+Tavall AI + one procedural Docs entry skill
+                  |
+                  v
+  policy.py routing / local_docs.py
+       search → exact read → SHA256 receipt
+                  |
+                  v
+   canonical GitHub / Notion document
 ```
+
+The installed Tavall Docs Agent uses its existing Python parser and ripgrep, not a new Java system, independent service, or database authority. Its commands are `local_docs.py search`, `read`, `index` and `check`. An exact read reports the matched heading path, document hash, section hash, and **verified local Git revision**. The locally indexed revision is never assumed to match GitHub `main` unless independently checked. Search results are candidates, not policy reads.
+
+The previous per-heading `SKILL.md` generator and stale `section-index.json` have been retired from the active plugin; other meaningful procedural and domain Agent skills are preserved. A compatibility reader continues to support surviving section-bearing Agent skills without maintaining generated wrappers.
+
+**Source implementation:** [Tavall AI PR #81](https://github.com/TavallStudios/tavall-ai/pull/81). Provider installation, remote-head freshness, GitHub/Notion reconciliation and E2E source-to-agent compliance are independently verified outcomes, not things this design presumes.
 
 ## 6. Typed Tavall AI Directory Format (`.tavallai`)
 
@@ -169,7 +176,7 @@ The canonical installed Memory Plane root is `/srv/dev-storage/.ai/plugins/Taval
 5. **Scope hierarchy**: Each repository has a `PROVENANCE` root; each independently testable/deployable source or build module may have a `PROVENANCE` root with a relative parent reference. Circular links are forbidden.
 6. **Pass lifecycle**: `START` binds active run, provider thread, Ledger scope, Git/Cloud/Memory authorities; `UPDATE` records meaningful transitions, not every tool call; `FINALIZE` records a handoff and clears active state.
 
-Main document skills list every routable section in canonical order without duplicating policy. Section skills provide minimal trigger and pointer instructions, ensuring context budget is preserved.
+The Docs entry skill documents the retrieval workflow. The local manifest derives exact sections from the canonical checkout and the reader returns bounded verified content on demand. Do not produce a per-heading skill registry; preserve the context budget by retrieving only relevant current sections and recording their hashes.
 
 ## 7. Plugin-Native Skill Surface Architecture
 
