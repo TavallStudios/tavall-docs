@@ -70,6 +70,20 @@ routes:
     documents:
       - docs/quality/PRODUCT_DESIGN_STANDARDS.md
 
+  - id: marketing-document-type
+    signals:
+      - marketing
+      - marketing document
+      - marketing strategy
+      - growth loop
+      - distribution strategy
+      - acquisition channels
+      - user acquisition
+      - marketing document template
+    documents:
+      - docs/quality/DOCUMENT_TYPES.md
+      - docs/quality/MARKETING_DOCUMENT_TEMPLATE.md
+
   - id: documentation-lifecycle
     signals:
       - documentation

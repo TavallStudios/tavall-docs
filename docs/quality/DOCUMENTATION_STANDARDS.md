@@ -147,7 +147,7 @@ Tavall uses Notion and GitHub as coordinated documentation surfaces, but not eve
 | Progression / Evidence | Required | Required | 1:1 shared document. |
 | Deployment | Required for deployable systems | Required for deployable systems | 1:1 shared operational deployment record. |
 | GENERAL | Required | Prohibited by default | Notion-only. Do not create or mirror GENERAL documents in GitHub unless TJ explicitly changes the rule. |
-| ARTICLE / PRODUCT / USER EXPERIENCE | Allowed | By request | Share only when explicitly requested or when a narrower owning rule designates the document as dual-surface. |
+| ARTICLE / PRODUCT / MARKETING / USER EXPERIENCE | Allowed | By request | Share only when explicitly requested or when a narrower owning rule designates the document as dual-surface. |
 | Quality / standards / operational / reference documents | Allowed | Allowed | Share by request or explicit document-specific policy. This document is explicitly dual-surface. |
 
 A 1:1 shared document is one logical document with two surface representations, not two independent authorities. Surface-native formatting, links, mentions, and tables may differ, but the owned rules, status, lifecycle, and substantive content must remain equivalent.
@@ -168,7 +168,7 @@ Its responsibilities are to:
 - consolidate implementation evidence into the correct progression owner without inventing product behavior;
 - keep required Notion ↔ GitHub shared documents synchronized 1:1;
 - preserve GENERAL as Notion-only;
-- sync optional document types only when explicitly requested or already designated dual-surface;
+- sync optional document types (including MARKETING) only when explicitly requested or already designated dual-surface;
 - backfill and maintain the Documentation Update State section from verifiable Git/Notion history;
 - normalize human-facing document times to the canonical 12-hour Pacific Time format while preserving machine/original timestamps as evidence when needed;
 - update links after document moves or renames;

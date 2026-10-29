@@ -1,7 +1,7 @@
 # Tavall Documentation Types
 
 > **Status:** Active  
-> **Applies to:** Tavall GENERAL, ARTICLE, PRODUCT, USER EXPERIENCE, DESIGN, Technical, PROGRESSION, Deployment, and related documentation  
+> **Applies to:** Tavall GENERAL, ARTICLE, PRODUCT, MARKETING, USER EXPERIENCE, DESIGN, Technical, PROGRESSION, Deployment, and related documentation  
 > **Purpose:** Make each document answer one kind of question well instead of forcing product explanation, reasoning, commercial strategy, UX, accepted design, technical architecture, implementation evidence, and live deployment state into one giant file.
 
 Document **type** and document **lifecycle** are separate dimensions.
@@ -13,13 +13,14 @@ Document **type** and document **lifecycle** are separate dimensions.
 | `GENERAL` | What is this product/system? | Broad readable product/system overview and documentation map. |
 | `ARTICLE` | Why do we believe or choose this? | Reasoning, argument, policy position, and explainer. |
 | `PRODUCT` | How does this create and capture value? | Commercial/product operating model for systems that sell or should sell something. |
+| `MARKETING` | How do people discover, try, adopt, recommend, and return to this? | Audience positioning, channel and referral strategy, acquisition loops, campaigns, activation, trust, and measured growth hypotheses. |
 | `USER EXPERIENCE` | What is it actually like for different users? | Target journeys, archetypes, friction, outcomes, recovery, and cross-surface continuity. |
 | `DESIGN` | What behavior, boundaries, composition, and consumer shape are accepted? | Detailed accepted or proposed design contract for one module or aggregate system according to the current Draft/Final lifecycle. |
 | Technical | How is it built and operated? | Detailed implementation/architecture contract according to the current Draft/Final lifecycle. |
 | `PROGRESSION` | What is actually implemented, integrated, validated, blocked, or missing? | Evidence-backed implementation state and chronological progression for one module or aggregate system. |
 | Deployment | What is deployed where now, and what deployment transitions occurred? | Current and historical deployment state for one independently deployable system tied to exact source/release/runtime evidence. |
 
-These types are complementary. A monetizable product may legitimately have GENERAL + PRODUCT + USER EXPERIENCE + ARTICLEs + DESIGN + Technical + PROGRESSION + Deployment. Every real source/build module with an independent responsibility boundary has a module-scoped DESIGN document and a module-scoped PROGRESSION document even when it does not need PRODUCT, USER EXPERIENCE, or Deployment. Systems composed from modules or subordinate systems have a system-scoped DESIGN document whenever aggregate behavior, composition, ownership, or cross-module boundaries are meaningful.
+These types are complementary. A monetizable product may legitimately have GENERAL + PRODUCT + MARKETING + USER EXPERIENCE + ARTICLEs + DESIGN + Technical + PROGRESSION + Deployment. Every real source/build module with an independent responsibility boundary has a module-scoped DESIGN document and a module-scoped PROGRESSION document even when it does not need PRODUCT, USER EXPERIENCE, or Deployment. Systems composed from modules or subordinate systems have a system-scoped DESIGN document whenever aggregate behavior, composition, ownership, or cross-module boundaries are meaningful.
 
 ## GENERAL
 
@@ -36,7 +37,7 @@ A strong GENERAL document:
 - explains how the major pieces compose;
 - identifies important audiences and boundaries;
 - distinguishes live, being-built, designed, unresolved, and retired behavior;
-- links applicable PRODUCT, USER EXPERIENCE, ARTICLE, DESIGN, Technical, PROGRESSION, Deployment, and implementation sources.
+- links applicable PRODUCT, MARKETING, USER EXPERIENCE, ARTICLE, DESIGN, Technical, PROGRESSION, Deployment, and implementation sources.
 
 GENERAL is normally continuously maintained rather than promoted to a frozen Final state.
 
@@ -98,6 +99,29 @@ Use [PRODUCT_DOCUMENT_TEMPLATE.md](PRODUCT_DOCUMENT_TEMPLATE.md).
 ### Style reference
 
 **Tavall Contractors — Product, Marketplace & Growth Operating Record** is the strongest current precedent: product thesis, customer/provider flows, marketplace surfaces, fulfillment, acquisition, monetization boundaries, evidence, and growth priorities.
+
+## MARKETING
+
+MARKETING owns how an audience discovers, evaluates, adopts, recommends, and returns to a product. It may also own portfolio-wide distribution strategy when the subject legitimately spans products.
+
+Document the product's *distribution mechanics*, not merely promotional copy. A connector, API, embeddable component, creator marketplace, public trial, or referral path can be both a useful product capability and a deliberate customer-acquisition surface.
+
+A strong MARKETING document explains:
+
+- **Audience and jobs:** which users, creators, partners, or teams need the capability, how they already search or solve the problem, and which claim is genuinely differentiated;
+- **Positioning and claims:** message hierarchy, promises, proof, brand separation, and truthful feature/readiness disclosures;
+- **Discovery and channels:** organic search, product directories, AI-client/connector discovery where supported, creator storefronts, partners, public demos, editorial/media, owned products, communities, referrals, and other legitimate paths;
+- **Activation:** first useful result, required permissions/account steps, trial → install → repeat path, the point at which pricing or onboarding appears, and failure recovery;
+- **Growth loops:** what causes genuine sharing or repeat discovery, why contributors participate, how supply and demand might reinforce each other, and what breaks the loop;
+- **Campaigns and experiments:** targeted cohorts, creative assets, channels, hypotheses, measurable conversion gates, budgets, evidence, review dates, and stop conditions;
+- **Measurement:** qualified visitors, discovery-to-first-value, creator activation, safe installs, repeat usage, retained users, referrals, verified paid conversion, customer acquisition cost, actual revenue and contribution margin as applicable;
+- **Trust and fairness:** no fabricated social proof, forced promotion, hidden advertising, dark patterns, spam, false marketplace availability, or permission escalation disguised as onboarding.
+
+**Boundaries:** PRODUCT owns commercial terms, packaging, prices, unit economics, entitlements and buyer/seller obligations. USER EXPERIENCE owns what the person experiences. DESIGN/Technical own actual connector behavior, permissions, ranking and discovery APIs. PROGRESSION/Deployment own live evidence. MARKETING proposes acquisition strategy and measures it; it cannot invent implementation, guaranteed exposure in third-party clients, placement in AI answers, sales, network effects, or published campaign results.
+
+**Applicability:** create for products or cross-product initiatives where audience acquisition/distribution merits explicit strategy. Not mandatory for every module or internal library. Use Draft / Experimenting / Validated / Active / Historical states with evidence. Default Notion-only; GitHub only by explicit product-specific opt-in, like PRODUCT/USER EXPERIENCE. Link back to the owning GENERAL and to relevant PRODUCT, USER EXPERIENCE, DESIGN and measured evidence.
+
+Use [MARKETING_DOCUMENT_TEMPLATE.md](MARKETING_DOCUMENT_TEMPLATE.md).
 
 ## USER EXPERIENCE
 
@@ -260,6 +284,7 @@ GENERAL is the rendezvous point for applicable specialized docs.
 GENERAL
 ├── ARTICLE(s)             reasoning / arguments
 ├── PRODUCT                commercial model, when applicable
+├── MARKETING              positioning, acquisition, activation, growth loops
 ├── USER EXPERIENCE        lived user journeys, when applicable
 ├── DESIGN Draft / Final   accepted module/system behavior and composition contract
 ├── Technical Draft / Final implementation/architecture contract
@@ -271,6 +296,7 @@ Important authority rules:
 
 - A persuasive ARTICLE does not override DESIGN/Technical Final authority.
 - A PRODUCT pricing or packaging idea does not silently become an entitlement or payment contract.
+- A MARKETING hypothesis does not establish a network effect, integration, ranking, guaranteed discovery, or live campaign.
 - A USER EXPERIENCE story does not prove implementation.
 - GENERAL summarizes; it does not duplicate every specialist document.
 - Accepted DESIGN/Technical docs own their assigned contract.
@@ -286,6 +312,7 @@ Type and lifecycle are independent.
 - GENERAL is normally active/continuously maintained.
 - ARTICLE may be Draft / Reviewed / Published / Historical.
 - PRODUCT may be Idea / Designing / Validating / Launching / Active / Retired, with explicit approval where commercial commitments require it.
+- MARKETING may be Draft / Experimenting / Validated / Active / Historical; external claims and measurable outcomes require evidence.
 - USER EXPERIENCE may be Exploring / Draft / Reviewed / Accepted / Needs Revalidation.
 - DESIGN and Technical retain the formal Draft/Final lifecycle originally defined in the early repository `DOC_DESIGN_RULES.md` lineage (Project Novus/Tavall MC `b5e690859` / `dff1d0818`) and now fully codified and superseded by [DOCUMENTATION_STANDARDS.md](DOCUMENTATION_STANDARDS.md) (Sections 3–8) and this taxonomy.
 - PROGRESSION remains an active evidence record while its module/system exists; Current Status changes while Progression Timeline preserves historical transitions.
