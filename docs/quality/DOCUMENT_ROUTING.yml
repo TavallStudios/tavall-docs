@@ -292,6 +292,12 @@ routes:
       - service ownership
       - forwarding service
       - service anti-pattern
+      - manager pattern
+      - manager anti-pattern
+      - manager class
+      - manager migration
+      - generic manager
+      - Manager suffix
       - viewer class
       - viewer role
       - data resolver role
