@@ -4,7 +4,7 @@
 > **Authority:** Binding chapter of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
 > **Applies to:** Tavall production modules, contributors, automation, generated code, reviews, and AI-assisted development
 
-Utilities are either **pure stateless helpers** or **focused runtime/platform adapters**. They must not become global junk drawers, alternate service locators, or convenient places to hide domain behavior.
+Utilities require an **isolated pattern review** because their shape depends on the actual capability. Supported shapes include pure static utilities, composable Java interface defaults, and DI-managed concrete platform utilities. They must not become global junk drawers, alternate service locators, or convenient places to hide domain behavior.
 
 ## Pure Java Utility Pattern
 
@@ -32,6 +32,39 @@ public final class DurationFormatUtil {
 ##### Why
 
 Pure helpers are safe to call broadly because they cannot retain generation state, bypass DI, or hide runtime ownership. Their result depends only on their arguments.
+
+## Interface Default-Method and Concrete-Override Utility Pattern
+
+The original [Minecraft-CTF `InventoryGuardUtil`](https://github.com/tjXJNOOBIE/Minecraft-CTF/blob/main/ctf-paper/src/main/java/dev/tjxjnoobie/ctf/util/bukkit/inventory/InventoryGuardUtil.java) and [`IInventoryUtils`](https://github.com/tjXJNOOBIE/Minecraft-CTF/blob/main/ctf-paper/src/main/java/dev/tjxjnoobie/ctf/util/bukkit/interfaces/IInventoryUtils.java) use composed interface `default` methods; the concrete [`InventoryUtils`](https://github.com/tjXJNOOBIE/Minecraft-CTF/blob/main/ctf-paper/src/main/java/dev/tjxjnoobie/ctf/util/bukkit/inventory/InventoryUtils.java) inherits them. [`BukkitMessageSender`](https://github.com/tjXJNOOBIE/Minecraft-CTF/blob/main/ctf-paper/src/main/java/dev/tjxjnoobie/ctf/util/bukkit/message/BukkitMessageSender.java) uses guarded default forwarding into a concrete delivery utility. These are historical source evidence for **flexible interface composition**, not authority to keep the retired static `DependencyLoaderAccess` lookup pattern.
+
+A utility may expose optional `default` behavior in its interface and let a concrete implementation override it. A null-returning default or no-op default is supported only when "unavailable" / "no work" is the **declared** and safe operation outcome. Never hide a required capability failure behind `return null` or an empty body. When the behavior must always be implemented, use an abstract interface method instead. A utility that is complete as interface defaults need not manufacture an empty concrete class unless Tavall DI/composition really requires an instance/alias.
+
+```java
+public interface IInventoryDisplayUtil {
+
+    /** Returns null when no display name is available. */
+    default Component findDisplayName(ItemStack item) {
+        return null;
+    }
+}
+```
+
+```java
+@DelegatesTo(IInventoryDisplayUtil.class)
+public final class BukkitInventoryDisplayUtil implements IInventoryDisplayUtil {
+
+    @Override
+    public Component findDisplayName(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) {
+            return null;
+        }
+
+        return item.getItemMeta().displayName();
+    }
+}
+```
+
+The example is **illustrative**, not an existing CTF API. Pure default methods can implement the real behavior directly, as the historical inventory utilities do. Managed platform utilities still register normally through Tavall DI, not an interface default locator. Review each utility family separately before converting between static, interface-default and concrete-managed styles.
 
 ## Runtime/Platform Utility Pattern
 
@@ -207,3 +240,6 @@ Moving platform calls into a utility does not transfer product authority. Renami
 - [ ] Client-only presentation is restored by the owning lifecycle.
 - [ ] Java-only helpers do not import platform APIs.
 - [ ] Utility names are focused and do not become generic buckets.
+- [ ] Utility interface defaults and concrete overrides are chosen by actual capability, not forced uniformly.
+- [ ] A null/no-op default is documented as a valid optional outcome, not hidden failure; required methods are abstract.
+- [ ] Historical CTF composition is preserved without resurrecting static dependency lookup.
