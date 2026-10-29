@@ -12,8 +12,8 @@ Bad:
 
 ```java
 updateRank(
-        UUID staffUuid,
-        UUID targetUuid,
+        UUID staffUUID,
+        UUID targetUUID,
         RankKey rankKey,
         String reason,
         boolean silent
@@ -24,8 +24,8 @@ Good:
 
 ```java
 public record RankUpdateRequest(
-        UUID staffUuid,
-        UUID targetUuid,
+        UUID staffUUID,
+        UUID targetUUID,
         RankKey rankKey,
         String reason,
         boolean silent
@@ -142,8 +142,8 @@ It should not load data, save data, resolve permissions, mutate caches, or perfo
 Bad:
 
 ```java
-public String format(UUID playerUuid) {
-    PlayerAccountData data = dataHandler.load(playerUuid);
+public String format(UUID playerUUID) {
+    PlayerAccountData data = dataHandler.load(playerUUID);
     return data.rankKey().name();
 }
 ```
