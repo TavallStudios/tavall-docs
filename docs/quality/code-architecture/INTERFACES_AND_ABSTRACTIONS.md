@@ -4,27 +4,36 @@
 > **Authority:** Binding chapter of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
 > **Applies to:** Tavall production modules, contributors, automation, generated code, reviews, and AI-assisted development
 
-Interfaces describe stable behavioral capabilities and substitution boundaries.
+Interfaces define stable behavioral capabilities and substitution or lifecycle boundaries.
 
-> **Governing Doctrine:** Tavall-owned behavior is interface-first and DI-managed by default. See canonical authority in [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md).
+> **Governing Doctrine:** Tavall-owned behavior is DI-managed by default. **Interface-first remains the default for meaningful reusable capabilities**, but not every managed concrete class needs a separate interface. The concrete can be registered directly with bare `@DelegatesTo`.
 
 ```text
-behavior
-    ↓
-interface / contract
-    ↓
-tavall-di
-    ↓
-implementation
+Meaningful shared capability:
+consumer → typed interface contract → Tavall DI → concrete implementation
+
+Concrete-only managed capability:
+consumer → typed concrete token → Tavall DI → concrete implementation
 ```
 
-## Interface-First Behavioral Doctrine
+## Interface Creation Gate
 
-For a Tavall-owned class, the default assumption is that it participates in `tavall-di` behind an interface contract:
+**An interface can be valuable with only one implementation.** A good interface documents behavior independent of its implementation and makes module fan-in, stable access, replacement, testing, or lifecycle guarantees explicit.
 
-- **Contracts First:** Any class defining application/domain behavior, coordinating components, owning lifecycle, accessing infrastructure, or implementing business logic MUST expose its contract through an interface.
-- **Consumer Dependency:** Consumers depend on contracts (`consumer → contract`), never on concrete Tavall implementations. The object graph is owned by `tavall-di`.
-- **Default Posture:** Do NOT ask "Should this class use an interface or DI?" Ask "What explicit reason does this class have not to be interface-first and DI-managed?"
+| Class role | When to use an interface |
+| --- | --- |
+| Handler / DataHandler / MetaDataHandler | Normally when consumed as a domain operation or shared across class/module boundaries. |
+| Service | Normally; sustained capabilities need stable lifecycle and consumer contracts. |
+| Router / Resolver / DataResolver / Viewer / Provider / Gateway | When they expose a real shared, pluggable, testable or substitutable capability. |
+| Registry / Cache | Follow the owning Tavall Java Tool's real contracts. No ornamental wrapper interfaces. |
+| Platform utility / Adapter | Composition interfaces with reusable defaults are preferred; see [Utilities](UTILITIES.md). |
+| Bootstrap / Runtime | Use existing module lifecycle interfaces or introduce one only for independently controlled runtime capability. |
+| Data / State / Snapshot / MetaData / Request / Result / enum / CustomEnum / Exception | Normally no interface, unless a distinct real API demands one. |
+| Pure Formatter / Mapper / Builder / private helper | Interface optional; justify actual substitution or ownership rather than generating `IWhatever` automatically. |
+
+An interface should expose a **narrow, useful behavioral contract** with real consumers. Before adding one, identify what responsibility it protects, whether multiple callers need it, how it supports substitution/test replacement/module access/lifecycle, and whether an existing Tavall interface or Java Tool already serves that purpose.
+
+**Do not equate DI registration with the need for an interface.** A single concrete implementation can still be managed by Tavall DI. Conversely, one implementation is not proof that an interface is unnecessary: stable cross-module APIs may deserve an interface before alternatives exist.
 
 ## Explicit Exceptions Where Interfaces Are Not Forced
 
@@ -46,11 +55,49 @@ Do not force meaningless interfaces onto pure data structures. Reasonable except
 
 Empty interfaces without behavioral methods created solely to satisfy a syntactic rule MUST NOT be created. The purpose of interface contracts is architectural boundaries, substitution, testing, lifecycle control, and dependency ownership.
 
-## Dependency Access
+## Dependency Access and Concrete Registration
 
-Managed consumers depend on the narrowest stable capability interface and resolve it through Tavall DI (`DependencyAccess<...>`). They do not constructor-inject Tavall-managed dependencies, construct concrete implementations directly, or use static service locators.
+The [Tavall DI `@DelegatesTo` implementation](https://github.com/TavallStudios/tavall-di/blob/main/src/main/java/org/tavall/dependency/annotations/DelegatesTo.java) declares `Class<?>[] value() default {}`. It **always registers the annotated concrete**. Optional parameters register additional assignable interface or supertype tokens that point to the same managed implementation and metadata.
 
-Concrete implementations register their interface contracts via `@DelegatesTo` and may also be registered under their concrete type when diagnostics or explicit advanced access requires it.
+**Concrete only: no interface is required solely for DI.**
+
+```java
+/**
+ * Provides diagnostic information owned by one FFA runtime.
+ */
+@DelegatesTo
+public final class FFARoundDiagnostics {
+
+    public String getSummary() {
+        return "FFA round diagnostics";
+    }
+}
+```
+
+**Real behavioral contract: declare and register the interface.**
+
+```java
+public interface IFFARoundService extends AutoCloseable {
+
+    void start();
+
+    boolean isRunning();
+
+    @Override
+    void close();
+}
+```
+
+```java
+@DelegatesTo(IFFARoundService.class)
+public final class FFARoundService implements IFFARoundService {
+    // Illustrative declaration only; provide the actual lifecycle methods.
+}
+```
+
+Multiple interface parameters are supported only when they are **assignable from the same concrete class** and each interface carries a real capability (e.g., `@DelegatesTo({IPlayerSessionReader.class, IPlayerSessionWriter.class})`). Do not generate arbitrary Reader/Writer contracts merely because several annotation parameters are available.
+
+Managed consumers use `DependencyAccess<...>` to resolve the narrowest meaningful interface or, when the class has no useful contract, its registered concrete token. Avoid constructor-captured managed collaborators, static service locators, direct DI map queries and duplicate dependency containers. [Tavall DI access styles](https://github.com/TavallStudios/tavall-di/blob/main/docs/DI_ACCESS_STYLES.md) own the exact resolution API.
 
 ## Prohibited Repository Interfaces
 
