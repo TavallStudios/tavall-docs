@@ -129,6 +129,55 @@ Tavall application persistence is modeled through **Tavall Database entity class
 
 Shared class-role docs do not prescribe a concrete Tavall Database accessor and do not create a parallel persistence class role around it.
 
+## The `*Manager` Anti-Pattern
+
+**A generic `*Manager` is not an approved Tavall application class role.** New Tavall-owned application classes and interfaces must not use `*Manager` / `I*Manager` as a catch-all behavior suffix. Classify the **actual responsibility** before naming the type. Do not merely substitute `*Service` or `*Handler` while leaving a god class intact.
+
+| Actual owned responsibility | Prefer |
+| --- | --- |
+| One action or cohesive operation family | `*Handler` |
+| Domain data access/update policy | `*DataHandler` |
+| Runtime keyed identity, active sessions or definitions | `*Registry`, using Tavall Registry |
+| Disposable, expiring, or reloadable fast state | `*Cache`, using Tavall Cache |
+| Multi-target input dispatch with real destination choice | `*Router` |
+| Domain value or target resolution | `*Resolver` / `*DataResolver` |
+| Presentation from supplied values | `*Viewer` / `*Formatter` |
+| Construction of typed output | `*Builder` |
+| Ongoing cohesive shared capability with independently justified lifecycle | `*Service` |
+| Active module/runtime-generation ownership | `*Runtime` / `*Bootstrap` |
+| Platform/protocol boundary | `*Adapter` / `*Gateway` |
+| Focused infrastructure operation with no better existing owner | Precise `*Handler` or a **canonical tool-owned** name, justified from source |
+
+A class holding a map is not necessarily a Registry: first establish **who owns the state** and read the actual `tavall-registry` API. A class with several methods is not automatically a Service. A class forwarding to existing Handlers may need to disappear entirely rather than be renamed to a Router. Avoid unnecessary new interfaces: [Interfaces and Abstractions](INTERFACES_AND_ABSTRACTIONS.md) allows bare `@DelegatesTo` for genuinely concrete-only managed behavior.
+
+### Scope and exceptions
+
+- This is a **new Tavall-owned application declaration** rule. Do not rename third-party or JDK API types such as `EntityManager`, `PluginManager`, or an externally fixed contract. Do not reinterpret product/UI titles such as **Discord Manager** as Java role policy.
+- Existing Tavall `*Manager` declarations are **migration candidates**, not instructions to break working APIs, generated DI tokens or externally consumed names immediately. A narrowly established canonical Tavall Java Tool that deliberately publishes a `*Manager` type can retain its approved public API; document the ownership and use its actual contract instead of creating a local imitation.
+- Do not evade this rule with `ManagerImpl`, `ManagerService`, `CoreManager`, `GeneralHandler`, `CoordinatorManager`, a `manager` package, or an `I*Manager` interface. The **behavior**, not just the file name, must become focused.
+
+### Existing production evidence and migration selection
+
+The following concrete classes are **current code evidence, not approved targets for blind renaming**:
+
+- [`AccountLinkAdminManager`](https://github.com/TavallStudios/tavall-mc/blob/main/novus-backend/src/main/java/org/tavall/api/minecraft/backend/account/AccountLinkAdminManager.java) already implements `IAccountLinkAdminHandler` but forwards to several specialized admin Handlers. Check whether that forwarding class is needed at all, or whether the aggregation is a genuine operation boundary.
+- [`AccountLinkManager`](https://github.com/TavallStudios/tavall-mc/blob/main/novus-backend/src/main/java/org/tavall/api/minecraft/backend/account/AccountLinkManager.java) implements `IPlayerAccountLinkHandler` but mixes token inspection, completion/fallback, account mutation, and auditing. Audit and separate responsibilities as needed before renaming the existing owner.
+- [`AccountLinkSessionManager`](https://github.com/TavallStudios/tavall-mc/blob/main/novus-backend/src/main/java/org/tavall/api/minecraft/backend/account/AccountLinkSessionManager.java) implements `IAccountLinkSessionHandler` and creates link sessions. Candidate: `AccountLinkSessionHandler` after consumer/DI and session lifecycle audit.
+- [`CreatorAccountManager`](https://github.com/TavallStudios/tavall-mc/blob/main/novus-backend/src/main/java/org/tavall/api/minecraft/backend/account/CreatorAccountManager.java) implements `ICreatorAccountLinkHandler`. Candidate: `CreatorAccountLinkHandler`, with a separate check that the `creatorStatus` read path does not unintentionally create accounts.
+- [`GitWorktreeManager`](https://github.com/TavallStudios/tavall-ai/blob/main/tavall-ai-core/src/main/java/org/tavall/ai/app/orchestration/GitWorktreeManager.java) prepares Git worktrees and gathers status/diffs. Reassess its Git workspace operation boundary and Spring/runtime ownership before choosing a precise Handler or other established tool-owned role.
+
+### Migration acceptance
+
+1. Inventory usages, public APIs, declared interface contracts, runtime ownership, DI registration and callers (including tests/reflection, commands, config, and any external names). Audit analogous `*Manager` occurrences in affected production/active PR sources, not just `main`.
+2. Classify every method by operation, state authority, persistence access, routing, scheduling, lifecycle and effects. Identify a canonical owner before creating a replacement.
+3. Reuse existing focused classes, Tavall Java Tools and interface contracts; **audit broadly, change deliberately**. Do not add forwarding compatibility Services or duplicate Registries/Caches. Keep legacy aliases temporarily only if proven necessary, explicitly bounded, and tested.
+4. Migrate behavior, classes, interfaces, DI bindings, consumers, package imports and tests together. Preserve actual semantics, result contracts, account security, audit events, and module hot reload/startup.
+5. Validate exact-source module compilation, relevant integration tests, cleanup/replacement and negative paths before merging. Report untested runtime/provider acceptance separately.
+
+##### Why
+
+`Manager` conceals whether the class executes domain behavior, owns state, routes input or manages a lifecycle. That ambiguity allowed collection-of-everything classes and forwarding layers to grow; substituting a fashionable suffix without moving responsibilities merely repaints the same design flaw.
+
 ## Prohibited `*Repository` Class Name
 
 **New Tavall-owned production declared types ending in `Repository` are prohibited.** This applies to classes, interfaces, records, enums, and other production type declarations.
@@ -208,6 +257,7 @@ Reject a class when:
 - it owns mutable keyed state that belongs to Registry/Cache/Tavall Database/operation runtime;
 - it constructor-injects Tavall-managed dependencies;
 - it ends in `Repository` and is not already grandfathered migration debt;
+- it introduces a Tavall-owned application `*Manager` / `I*Manager` role, or merely renames legacy Manager behavior without separating actual ownership;
 - it exists mainly as a forwarding wrapper with no independent behavior or lifecycle;
 - it uses an inner/nested type for a real runtime role that should have explicit top-level ownership;
 - a nested namespace type violates the narrow static, stateless, compile-time-only exception above.
