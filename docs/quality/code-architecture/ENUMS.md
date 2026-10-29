@@ -39,8 +39,13 @@ public enum EventPriority {
     CRITICAL(15);
 
     private final int level;
-    EventPriority(int level) { this.level = level; }
-    public int getLevel() { return level; }
+    EventPriority(int level) {
+        this.level = level;
+    }
+
+    public int getLevel() {
+        return level;
+    }
 }
 ```
 
@@ -53,7 +58,20 @@ Use `CustomEnum<T>` when the set of values is **open and extensible**:
 - Thread types, task dispatch categories, database capability providers, or Minecraft custom item categories contributed across separate JARs.
 - Multiple separate contributors may reference the same conceptual value (e.g. `DATABASE`), where repeated registration converges safely on the exact same canonical instance.
 
-### Canonical `CustomEnum` Definition Pattern
+### Canonical `CustomEnum` Consumer Call
+
+**Consuming code should use the short family registration method**, not repeat the generic base internals:
+
+```java
+ThreadType databaseThread = ThreadType.register("DATABASE");
+ThreadType aiThread = ThreadType.register("AI");
+```
+
+This is the **current verified `tavall-custom-enum-java` API**. A module can also publish `public static final ThreadType DATABASE = ThreadType.register("DATABASE");`, retaining typed values without editing `ThreadType`. A repeat registration returns the same canonical object.
+
+### Family Definition: Bind the Generic Call Only Once
+
+The longer call belongs inside the family, not ordinary callers. No per-family `valueOf()`/`values()` forwarding facade is needed.
 
 ```java
 package org.tavall.thread;
@@ -83,13 +101,15 @@ Independent modules can contribute values without altering core classes:
 // In tavall-database:
 public final class DatabaseThreadTypes {
     public static final ThreadType DATABASE = ThreadType.register("DATABASE");
-    private DatabaseThreadTypes() {}
+    private DatabaseThreadTypes() {
+    }
 }
 
 // In tavall-ai:
-public final class AiThreadTypes {
+public final class AIThreadTypes {
     public static final ThreadType AI = ThreadType.register("AI");
-    private AiThreadTypes() {}
+    private AIThreadTypes() {
+    }
 }
 ```
 

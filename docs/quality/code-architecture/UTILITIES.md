@@ -4,7 +4,15 @@
 > **Authority:** Binding chapter of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
 > **Applies to:** Tavall production modules, contributors, automation, generated code, reviews, and AI-assisted development
 
-Utilities require an **isolated pattern review** because their shape depends on the actual capability. Supported shapes include pure static utilities, composable Java interface defaults, and DI-managed concrete platform utilities. They must not become global junk drawers, alternate service locators, or convenient places to hide domain behavior.
+Utilities require an **isolated pattern review** because their shape depends on the actual capability. **Interface composition with reusable default methods is the preferred utility pattern**, especially for managed/platform utilities; pure static and concrete-only shapes remain supported when composition adds no real value. Supported shapes include pure static utilities, composable Java interface defaults, and DI-managed concrete platform utilities. They must not become global junk drawers, alternate service locators, or convenient places to hide domain behavior.
+
+## Default Utility Pattern: Interface Composition
+
+Start with the smallest cohesive utility interface. Put shared, working behavior in `default` methods and override only necessary platform- or implementation-specific mechanics in a concrete class. An optional null/no-op default remains valid when its contract **explicitly** defines absence as safe; required operations remain abstract.
+
+A managed concrete utility registers with `@DelegatesTo(IUtility.class)`. A concrete-only managed utility may use bare `@DelegatesTo`; it does not need an invented empty interface. A utility whose defaults are complete does not require an empty concrete wrapper. Pure Java helpers with no useful composition boundary may remain static.
+
+This default is based on the [Minecraft-CTF composed utility pattern](https://github.com/tjXJNOOBIE/Minecraft-CTF/blob/main/ctf-paper/src/main/java/dev/tjxjnoobie/ctf/util/bukkit/interfaces/IInventoryUtils.java), without retaining obsolete static dependency lookup.
 
 ## Pure Java Utility Pattern
 
@@ -40,9 +48,21 @@ The original [Minecraft-CTF `InventoryGuardUtil`](https://github.com/tjXJNOOBIE/
 A utility may expose optional `default` behavior in its interface and let a concrete implementation override it. A null-returning default or no-op default is supported only when "unavailable" / "no work" is the **declared** and safe operation outcome. Never hide a required capability failure behind `return null` or an empty body. When the behavior must always be implemented, use an abstract interface method instead. A utility that is complete as interface defaults need not manufacture an empty concrete class unless Tavall DI/composition really requires an instance/alias.
 
 ```java
-public interface IInventoryDisplayUtil {
+/**
+ * A composed Bukkit utility with real common defaults and an
+ * optional display-name extension.
+ */
+public interface IBukkitInventoryUtil {
 
-    /** Returns null when no display name is available. */
+    default boolean hasDisplayName(ItemStack item) {
+        return item != null
+                && item.hasItemMeta()
+                && item.getItemMeta().hasDisplayName();
+    }
+
+    /**
+     * @return display name or null when unavailable
+     */
     default Component findDisplayName(ItemStack item) {
         return null;
     }
@@ -50,12 +70,12 @@ public interface IInventoryDisplayUtil {
 ```
 
 ```java
-@DelegatesTo(IInventoryDisplayUtil.class)
-public final class BukkitInventoryDisplayUtil implements IInventoryDisplayUtil {
+@DelegatesTo(IBukkitInventoryUtil.class)
+public final class BukkitInventoryUtil implements IBukkitInventoryUtil {
 
     @Override
     public Component findDisplayName(ItemStack item) {
-        if (item == null || !item.hasItemMeta()) {
+        if (!hasDisplayName(item)) {
             return null;
         }
 
@@ -64,7 +84,7 @@ public final class BukkitInventoryDisplayUtil implements IInventoryDisplayUtil {
 }
 ```
 
-The example is **illustrative**, not an existing CTF API. Pure default methods can implement the real behavior directly, as the historical inventory utilities do. Managed platform utilities still register normally through Tavall DI, not an interface default locator. Review each utility family separately before converting between static, interface-default and concrete-managed styles.
+The example is **illustrative**, not an existing CTF API. The concrete inherits the working `hasDisplayName` default and overrides only `findDisplayName`. Pure defaults can implement complete behavior without an override. Managed platform utilities still register normally through Tavall DI, not an interface default locator. Review each utility family separately before converting between static, interface-default and concrete-managed styles.
 
 ## Runtime/Platform Utility Pattern
 
@@ -240,6 +260,7 @@ Moving platform calls into a utility does not transfer product authority. Renami
 - [ ] Client-only presentation is restored by the owning lifecycle.
 - [ ] Java-only helpers do not import platform APIs.
 - [ ] Utility names are focused and do not become generic buckets.
-- [ ] Utility interface defaults and concrete overrides are chosen by actual capability, not forced uniformly.
+- [ ] Start with composed utility interfaces and default methods when reusable behavior exists; use a pure static or concrete-only utility when composition is unnecessary.
+- [ ] The concrete overrides only necessary behavior; no ornamental interface or implementation exists solely to satisfy a template.
 - [ ] A null/no-op default is documented as a valid optional outcome, not hidden failure; required methods are abstract.
 - [ ] Historical CTF composition is preserved without resurrecting static dependency lookup.

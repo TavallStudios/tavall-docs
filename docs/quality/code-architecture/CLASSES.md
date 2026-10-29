@@ -35,6 +35,51 @@ Classes should have one coherent reason to change. Role suffixes are architectur
 
 Naming a real role makes ownership visible before reading implementation. The suffix should answer what kind of behavior or lifecycle the class owns, not merely provide a respectable-sounding noun.
 
+## Class Role Ownership Graph (Conceptual)
+
+This is a **responsibility diagram, not a mandatory class hierarchy or call pipeline**. `SYSTEM`, `FEATURE`, and `RUNTIME` are module/lifecycle classifications. Input adapters delegate; focused Handlers own ordinary operations; Services are rare sustained capabilities. Supporting roles are selected only when needed. Consumers may use Tavall Java Tools directly through their approved typed contracts; no intermediary Service or Resolver is required.
+
+```mermaid
+flowchart TB
+    MODULE["SYSTEM / FEATURE / RUNTIME<br/>module ownership and lifecycle"]
+
+    subgraph INPUT["Input / integration adapters"]
+      COMMAND["Command"]
+      LISTENER["Listener"]
+      CONTROLLER["Controller"]
+    end
+
+    subgraph BEHAVIOR["Primary behavior"]
+      HANDLER["Handler<br/>focused operation"]
+      SERVICE["Service<br/>sustained capability"]
+    end
+
+    subgraph SUPPORT["Focused supporting capabilities<br/>only when justified"]
+      DATA["DataHandler"]
+      ROUTER["Router"]
+      VIEWER["Viewer"]
+      RESOLVER["Resolver / DataResolver"]
+      REGISTRY["Registry"]
+      CACHE["Cache"]
+      BUILDER["Builder"]
+      MAPPER["Mapper"]
+      PROVIDER["Provider / Adapter"]
+    end
+
+    TOOLS["Typed contracts and Tavall Java Tools<br/>DI · Database · Registry · Cache · Event · Logging · Concurrency"]
+
+    MODULE -. "owns and composes" .-> INPUT
+    MODULE -. "owns and composes" .-> BEHAVIOR
+    INPUT --> BEHAVIOR
+    BEHAVIOR -. "uses only required owners" .-> SUPPORT
+    BEHAVIOR -. "can access tools directly" .-> TOOLS
+    SUPPORT -. "uses tool contracts" .-> TOOLS
+```
+
+Registry/Cache appear both as specialized domain owners and as Java Tools: the concrete domain capability and its underlying canonical implementation have distinct responsibilities. A `Viewer` or `DataResolver` need not exist just because an output is shown or data is accessed. A meaningful behavioral interface is preferred for shared capabilities, while bare `@DelegatesTo` can register a concrete-only DI component. Utility interface composition is the default where applicable. Orchestration is a responsibility; existing `*Orchestrator` implementations remain under role review.
+
+See [Interfaces and Abstractions](INTERFACES_AND_ABSTRACTIONS.md), [Utilities](UTILITIES.md), and [Registry/Cache Tool Authority](REGISTRIES_CACHES_AND_REPOSITORIES.md).
+
 ## Enums and CustomEnum Values
 
 Closed sets of domain states, priorities, and fixed values use native Java `enum`. Dynamically extensible sets intended for cross-module or plugin contribution must extend `CustomEnum<T>` (`tavall-custom-enum-java`). See the canonical chapter: [Tavall Enums & Extensible Enum Values](ENUMS.md).

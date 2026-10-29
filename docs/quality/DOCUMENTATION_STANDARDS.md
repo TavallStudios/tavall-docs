@@ -10,6 +10,7 @@ Documentation is part of the engineering contract.
 
 - Every document must state what it owns and what it must not define.
 - One subject must have one canonical source of truth.
+- For authored **technical SVG diagrams**, use [Tavall Technical Diagram Standards](DIAGRAM_STANDARDS.md): Agent WebMCP visual language by default, verified editable source and consistent Notion/GitHub output. System facts and document-surface ownership remain with their existing authorities.
 - Final documents define accepted behavior; progression documents report audited implementation status.
 - Draft documents may propose behavior but must not claim that the behavior is implemented or approved.
 - Code, schemas, tests, issues, and pull requests provide implementation evidence. A confident paragraph does not.
