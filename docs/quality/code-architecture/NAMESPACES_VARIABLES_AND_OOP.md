@@ -38,8 +38,10 @@ ChatFormatPlaceholderResolver
 PlayerAccountDataBuilder
 AchievementListRegistry
 PlayerAchievementCache
-FFARoundOrchestrator
+FfaRoundService
 ```
+
+New types use PascalCase (`FfaRoundService`, `TavallDiHandler`, `ApiClient`, `CiPipeline`), with normal capitalization for abbreviations, rather than requiring `FFARoundService`, `TavallDIHandler`, `APIClient`, or `CIPipeline`. Existing class names remain unchanged until their callers, tests and public contracts can be migrated coherently.
 
 Role expectations:
 
@@ -96,8 +98,9 @@ Tests, fixtures, generated source, and tooling may define narrower rules indepen
 Naming rules:
 
 - names describe domain meaning, not merely Java type;
-- preserve well-established uppercase initialisms **within names**: `FFA`, `UUID`, `UI`, `API`, `DI`, `JSON`, `HTTP`, `URL`, `SQL`, `TTL` (e.g., `FFARoundService`, `IPlayerUUIDResolver`, `getPlayerUUID()`, `getHTTPResponse()`, `nativeUI`); for lower-camel fields/locals/parameters keep the initial character lowercase (`playerUUID`, `httpRequest`, `jsonPayload`), not `UUIDPlayer` or `HTTPRequest` variables;
-- do not turn true UUID identifiers into ambiguously named `playerId` or de-capitalize acronym segments as `Ffa` / `Uuid` in new code; external APIs, published contracts, record components and existing references migrate together rather than being silently renamed in one file;
+- methods, fields, parameters, record components and local variables use ordinary Java **camelCase** (`getPlayerUuid()`, `findActiveKit()`, `playerUuid`, `httpRequest`, `jsonPayload`); do not force all-caps acronym fragments into camelCase names;
+- classes, interfaces, records and enum types use **PascalCase**; abbreviations are naturally word-cased (`FfaRoundService`, `TavallDiHandler`, `ApiClient`, `CiPipeline`, `PlayerUuidResolver`) instead of applying an all-caps-acronym mandate. Existing production names such as `FFARoundService` are historical identifiers, not a naming requirement for new declarations;
+- keep domain meaning precise (`playerUuid` for a UUID, `playerId` only when that identifier has an established typed meaning). Migrate public method names, record components, and their consumers/tests together instead of silently breaking an existing Java API;
 - avoid numbered locals unless the number is domain meaning;
 - avoid one-letter names outside tiny conventional scopes;
 - do not reuse one local for several meanings;
@@ -138,8 +141,8 @@ A field is long-lived relative to a method. Putting mutable keyed or managed dep
 Use expanded Java statement bodies: each statement and closing brace occupies its own line. Put the opening `{` with its declaration or control statement, including on the last line of a wrapped class declaration; never strand `> {` on a separate line. Do not compress `if`, `switch`, method, constructor, class or `catch` bodies into single-line `{ ... }` examples. Keep the style consistent in generated and documentation examples. This governs **source layout**, not a preference for changing runtime behavior.
 
 ```java
-public final class FFARoundService
-        implements IFFARoundService, DependencyAccess<IFFARoundHandler> {
+public final class FfaRoundService
+        implements IFfaRoundService, DependencyAccess<IFfaRoundHandler> {
 
     public boolean isRunning() {
         if (!running) {
