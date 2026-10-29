@@ -4,6 +4,8 @@
 > **Authority:** Binding architecture/testing chapter of [Tavall Studios Code Architecture](../CODE_ARCHITECTURE.md)  
 > **Applies to:** Tavall production modules, contributors, automation, generated code, reviews, and AI-assisted development
 
+> **Temporary organization-wide suspension (2026-10-28):** Architecture-test execution, plugin dependencies, architecture-only CI gates, and task-facing ArchUnit validation tools are paused until the replacement suite is set up. Use the regular Tavall testing procedures below. Written architecture policy remains in force, but no architecture-test task or tool is a required check during this suspension.
+
 This chapter defines testing expectations and the architecture implications of Git boundaries. The authoritative branch, pull-request, staging, review, owner-authority, and production-promotion rules live in [GIT_WORKFLOW.md](../GIT_WORKFLOW.md). Do not duplicate a simplified branch graph here and accidentally create a second workflow.
 
 # Testing
@@ -18,9 +20,11 @@ Use the tools appropriate to the repository/runtime, commonly:
 - Mineflayer or equivalent client harnesses for Minecraft command/routing/lifecycle/interaction scenarios;
 - Gradle test suites for explicit unit/contract/integration separation.
 
-Repository-specific test skills and canonical Tavall architecture tests may impose additional requirements.
+Repository-specific test skills continue to apply. Canonical Tavall architecture tests are suspended organization-wide; do not add their plugin, task, MCP tool, or CI gate to a consumer until the replacement suite is explicitly re-enabled.
 
 ## Canonical Architecture-Test Boundary
+
+The contract in this section is retained as future setup guidance. It is not an active consumer requirement while the organization-wide suspension above is in effect.
 
 [`TavallStudios/tavall-test-suite-tools`](https://github.com/TavallStudios/tavall-test-suite-tools) owns the reusable executable subset of Tavall-wide architecture policy. This documentation remains the human-readable authority for the policy itself; an executable rule implements policy, it does not replace or silently redefine it.
 
@@ -44,9 +48,11 @@ Putting the canonical dependency at the repository test-suite boundary gives eac
 
 ## Continuous Per-Class Architecture Assessment
 
-Architecture validation is part of implementation authoring, not only a final aggregate JUnit failure after the code is supposedly finished.
+The assessment engine and `architectureAnalyze` workflow are not part of the active testing procedure during the organization-wide suspension. The content below describes a possible replacement capability and must not be treated as a required local, CI, MCP, or approval gate until canonical Docs policy re-enables it.
 
-The canonical architecture engine must:
+When a replacement architecture assessment is ready, it should support implementation authoring rather than act only as a final aggregate JUnit failure after code is supposedly finished.
+
+A future replacement engine should:
 
 - produce an explicit assessment for every discovered production class, including classes with zero findings;
 - report class identity, source location when available, selected rule families, pass/fail state, compliance score, and the findings that produced the result;
@@ -58,7 +64,7 @@ The canonical architecture engine must:
 
 The compliance score is diagnostic prioritization, not a threshold that can average away a broken architecture rule. `75/100 FAIL` still means fail.
 
-For normal AI-assisted Java work, run the repository test suite's canonical `architectureAnalyze` task after each coherent production or test-source edit. In a durable interactive development environment, the same task may run under Gradle continuous mode while the AI edits. Repository/root `check` remains the authoritative completion gate.
+Do not run `architectureAnalyze` or Gradle continuous architecture analysis during this suspension. Repository-specific unit/contract/integration/runtime tests and the regular Tavall `quality`/`check` procedures remain the active completion gates.
 
 ##### Why
 
@@ -128,9 +134,9 @@ src/main/java/org/tavall/permissions/power/PowerLevelService.java
 src/test/java/org/tavall/permissions/power/PowerLevelServiceTest.java
 ```
 
-Canonical test scaffolding and canonical test validation must use the same test-authoring policy model. An AI may ask the architecture-test plugin to create the expected package/class/JUnit scaffold before writing the behavior, but generated scaffolds must fail closed. A generated placeholder is not test coverage and must remain rejected until replaced by real behavior-oriented assertions.
+Architecture-test scaffolding and validation are suspended with the plugin. Continue to create regular JUnit behavior tests from the repository's checked-in test conventions; generated placeholders are never coverage and must be replaced by real behavior-oriented assertions.
 
-The architecture-test layer should enforce only mechanically reliable portions of this policy. It must not invent static heuristics and then claim they prove infrastructure realism, failure-path completeness, or semantic test quality when those require actual runtime evidence or review.
+When a replacement architecture-test layer is set up, it should enforce only mechanically reliable portions of this policy. It must not invent static heuristics and then claim they prove infrastructure realism, failure-path completeness, or semantic test quality when those require actual runtime evidence or review.
 
 ##### Why
 
@@ -227,8 +233,7 @@ Do not claim validation that did not run. Keep one commit to one coherent system
 # Review Checklist
 
 - [ ] Tests exercise real behavior rather than mocking the subject under test.
-- [ ] Tavall architecture tests are consumed through the repository test-suite boundary and inspect real production `main` outputs/source roots plus test-authoring evidence.
-- [ ] Every discovered production class receives a canonical architecture assessment with exact source evidence where mechanically available.
+- [ ] No Tavall architecture-test plugin, task, or CI gate is configured while the organization-wide suspension is active.
 - [ ] Behavior-bearing concrete production types have the required direct JUnit 5 test evidence, or an explicit stronger integration boundary owns that behavior.
 - [ ] Direct behavior tests contain real assertions/verifications and are not unfinished generated scaffolds.
 - [ ] Tavall-managed behavior uses production-equivalent DI composition in tests.
@@ -236,7 +241,7 @@ Do not claim validation that did not run. Keep one commit to one coherent system
 - [ ] PostgreSQL-specific behavior uses PostgreSQL-capable integration coverage.
 - [ ] Failure, cleanup, reload, retry, and shutdown paths are covered where they exist.
 - [ ] Test names describe behavior and packages match production.
-- [ ] AI-assisted Java edits ran canonical architecture analysis during authoring and the final repository `check` before acceptance.
+- [ ] AI-assisted Java edits inspected the exact production source and canonical pattern sections before editing, compiled production code early, and ran the regular repository tests and Tavall CI checks appropriate to the change.
 - [ ] Branch/review/staging/promotion decisions follow `GIT_WORKFLOW.md`, not a duplicated diagram.
 - [ ] Ordinary contributor review rules and explicit owner authority are not conflated.
 - [ ] Commit messages report truthful validation and one coherent reason for the change.

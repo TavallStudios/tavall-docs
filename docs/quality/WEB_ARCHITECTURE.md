@@ -292,7 +292,7 @@ Aliases look harmless until one changes without the other. Duplicate route const
 
 ### Architecture Validation
 
-Tavall Architecture Tests should enforce the routing contract where mechanically practical. Validation should detect at least:
+The following source-level routing constraints remain written architecture policy. Their executable architecture-test gate is suspended organization-wide until the replacement suite is configured. When that suite is re-enabled, it should enforce the routing contract where mechanically practical and detect at least:
 
 - application route literals in Spring mapping annotations outside the canonical route definition;
 - duplicate canonical route values where duplicates are not explicitly intentional;
@@ -306,7 +306,7 @@ Network-boundary validation belongs with deployment, service, and infrastructure
 
 ##### Why
 
-The pattern is valuable only if drift is detectable. Architecture tests should enforce source-level ownership, while deployment and network controls enforce reachability. Each layer verifies the thing it can actually know.
+The pattern is valuable only if drift is detectable. When the architecture-test suite is re-enabled, it can enforce source-level ownership; deployment and network controls enforce reachability. Each layer verifies the thing it can actually know. Until then, source-level ownership remains a review requirement and no architecture-test gate runs.
 
 ### Review
 

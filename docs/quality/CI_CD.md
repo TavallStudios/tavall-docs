@@ -114,7 +114,7 @@ Example:
     ├── tavall-mc/                    # exact SHA A
     ├── tavall-minecraft-framework/   # exact SHA B
     ├── tavall-java-tools/            # exact SHA C
-    └── Tavall-Architecture-Tests/    # exact SHA D, when required
+    └── <shared-dependency>/             # exact SHA, only when declared
 ```
 
 Rules:
@@ -176,6 +176,10 @@ CI intent lives with source.
 Module CI definitions own module checks. A root definition may aggregate them but must not become a stale second copy of every module's build logic.
 
 `.tavallci` may request typed Gradle work, source-controlled scripts, test harnesses, exact-source repository dependencies, immutable artifacts, tools, and additional approved execution capabilities.
+
+**Temporary organization-wide policy (2026-10-28):** Do not declare the Tavall architecture-test plugin, `architectureTest` tasks, task-facing ArchUnit tools, or architecture-only `architecture`/`architecture-tests` checks. They remain suspended until the replacement suite is set up. Keep regular compilation, unit/contract/behavior, integration, runtime, quality, E2E, artifact, and Tavall CI checks that the repository owns.
+
+This suspension changes architecture-test sources and execution entries only. Preserve any existing repository-root `.tavallci/` and `.tavallcd/` directories and their user metadata; do not remove either directory as cleanup.
 
 A typed Gradle check may declare up to 32 `gradleProperties` string entries for its primary build. Each entry is passed as a separate `-Pname=value` argument, preserving spaces and punctuation as part of one value. Property names are bounded identifiers; values are non-empty single-line text up to 4096 characters. Shell checks cannot set Gradle properties. `includeInAll: false` keeps a named check out of the default profile while allowing an explicit request for that check.
 
@@ -310,6 +314,8 @@ exact source workspaces
 ```
 
 `.tavallcd` is deployment/service-local configuration for deployable services/runtimes. It is not a required source-repository container around ordinary CI and pure libraries do not need deployment state merely to build.
+
+When `.tavallcd/` exists, keep its directory and existing metadata during architecture-test suspension; deployment configuration ownership is unchanged.
 
 ### Deployment and Runtime Ownership
 

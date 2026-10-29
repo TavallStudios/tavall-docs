@@ -61,7 +61,7 @@ Do not use generic application `*Database` classes as the normal persistence rol
 
 ##### Why
 
-Precise suffixes give reviewers and architecture tests a usable contract. `Service` is about reusable capability, not how many minutes the object stays alive, and `Repository` no longer exists as an approved Tavall application role.
+Precise suffixes give reviewers a usable contract and can support a future executable architecture check. `Service` is about reusable capability, not how many minutes the object stays alive, and `Repository` no longer exists as an approved Tavall application role. Architecture-test enforcement is suspended while the replacement suite is prepared.
 
 ## Variables and Fields
 

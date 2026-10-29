@@ -80,7 +80,7 @@ Contextual and historical evidence recovered from prior interactions, past decis
 
 ### Validation
 
-Evidence-producing verification of a candidate change against an exact source SHA or runtime environment generation (for example, local CI, architecture tests, or E2E suites).
+Evidence-producing verification of a candidate change against an exact source SHA or runtime environment generation (for example, local CI, unit/integration tests, or E2E suites; architecture-test execution is currently suspended).
 
 ### Acceptance
 

@@ -678,6 +678,11 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall Test Suite Tools
 
+- [ ] 2026-10-29 — **Restore organization-wide consumer architecture-test execution after a validated replacement suite is available** (temporary pause policy: [Tavall Docs PR #86](https://github.com/TavallStudios/tavall-docs/pull/86)).
+  - Scope of suspension: architecture-test Gradle plugins, `architectureTest` / `architectureAnalyze` tasks, task-facing ArchUnit tools, and architecture-only CI gates. Do not disable ordinary compiler, JUnit, contract, integration, runtime, quality, E2E, or test-authoring validation.
+  - Keep canonical written architecture rules enforceable through source-aware implementation review while the executable suite is paused; preserve historical test findings and repository-root `.tavallci/` / `.tavallcd/` metadata.
+  - Re-enable only after the owning `tavall-test-suite-tools` producer establishes verified replacement API/artifact, positive/negative fixtures, compatibility against representative actual consumers, and exact-head Tavall CI evidence. Update [Testing and Git](docs/quality/code-architecture/TESTING_AND_GIT.md) and affected architecture/CI docs together, then reconcile Docs Agent section-index/skill projections.
+
 - [ ] 2026-10-22 — Add canonical module-name/type validation to the shared architecture test rules after existing source/module inventory is reconciled.  ([canonical issue](https://github.com/TavallStudios/tavall-test-suite-tools/issues/25))
   - Inspect actual Gradle projects and declared **primary** type. For new SYSTEM and RUNTIME definitions require `-system` and `-runtime` respectively; explicitly exempt repository/aggregate roots, APPLICATIONs, API/FEATURE/TOOLING/TEST_SUITE modules and provider/adapter roles. Report legacy names with mapped migration tasks rather than breaking all existing consumers before coordinated cutover.
   - Verify positive/negative fixtures, exact-source source/build metadata and per-module `.tavallci` lint integration. Do not key off a folder's mere text or a README heading like `System —`.

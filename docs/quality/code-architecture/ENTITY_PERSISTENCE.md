@@ -80,7 +80,7 @@ When migrating existing repository-shaped code:
 3. move real domain sequencing to the Handler/Service/Orchestrator that owns that behavior;
 4. give any genuine external/provider boundary a name describing that capability rather than `Repository`;
 5. delete the legacy `*Repository` type and its DI token once consumers move;
-6. shrink the executable architecture-test debt baseline in the same coherent migration.
+6. when the architecture-test suite is re-enabled, shrink its executable debt baseline in the same coherent migration; while suspended, validate persistence behavior through regular unit/integration tests and review.
 
 Do not evade the rule with names such as `RepositoryImpl`, `RepositoryAdapter`, `RepositoryStore`, or `PersistenceRepository`. A forwarding layer whose only purpose is preserving repository architecture remains the same problem with fresh stationery.
 
@@ -135,7 +135,7 @@ Persistence discovery should follow one runtime contract. Parallel discovery/com
 
 ## Enforcement
 
-Architecture tests must treat `*Repository` production declarations as a prohibited-name rule.
+Written Tavall policy prohibits new `*Repository` production declarations. The suspended architecture-test suite does not currently enforce this rule; reviewers must apply it directly until the replacement suite is re-enabled.
 
 Existing declarations present at the adopted migration cutoff may be grandfathered only as explicit migration debt. Enforcement must prevent any new declaration from being added after that cutoff, and cleanup must never require adding another repository type.
 
