@@ -60,6 +60,7 @@ A change may require several delegated chapters. A Handler using Tavall DI, Cach
 | Validation, fallbacks, prohibited patterns, direct Thread ownership | [Validation, Fallbacks, and Anti-Patterns](code-architecture/VALIDATION_FALLBACKS_AND_ANTI_PATTERNS.md) |
 | Utilities and pure/static boundaries | [Utilities](code-architecture/UTILITIES.md) |
 | Enums, extensible enum families, and CustomEnum | [Enums and Extensible Enums](code-architecture/ENUMS.md) |
+| SVG diagrams, architecture graphs, Notion visual presentation | [Tavall Technical Diagram Standards](DIAGRAM_STANDARDS.md) |
 | Effect/animation sequences and timing ownership | [Effect Sequences](code-architecture/EFFECT_SEQUENCES.md) |
 | CLI commands, arguments, options, routers, execution results | [CLI Framework](code-architecture/CLI_FRAMEWORK.md) and [CLI Architecture](CLI_ARCHITECTURE.md) |
 | Test structure and Git-facing architecture expectations | [Testing and Git](code-architecture/TESTING_AND_GIT.md) and [Git Workflow](GIT_WORKFLOW.md) |
