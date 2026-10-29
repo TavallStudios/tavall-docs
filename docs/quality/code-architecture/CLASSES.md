@@ -19,7 +19,9 @@ Classes should have one coherent reason to change. Role suffixes are architectur
 | `*Service` | One cohesive reusable domain capability. |
 | `*Orchestrator` | Ordered workflow/lifecycle coordination across focused collaborators. |
 | `*Router` | Select and delegate. |
-| `*Resolver` | Derive one typed answer from explicit input. |
+| `*Resolver` | Resolve an existing typed value or capability from supplied input and a designated authority. | 
+| `*DataResolver` | Resolve domain data from supplied keys/context; not display titles or rendering. |
+| `*Viewer` | Derive a caller-facing view/title/presentation from already available typed values; does not fetch data or render to a device. |
 | `*Registry` | Runtime keyed identity/lookup ownership. |
 | `*Cache` | Disposable/expiring/reloadable fast-state ownership. |
 | `*Builder` | Construct typed values/definitions/requests/results/configuration. |
@@ -52,6 +54,12 @@ Input adapters such as commands/listeners/controllers receive external input and
 ##### Why
 
 These roles separate operation behavior, reusable capability, and multi-step sequencing. Without that distinction, one class slowly absorbs rules, storage, routing, and lifecycle until its suffix stops meaning anything.
+
+## Resolver and Viewer
+
+Use a `*DataResolver` for domain data resolution, a `*Viewer` for deriving a presentation from data already supplied, and a `*Formatter` for simple representation formatting. Do not name display-title derivation `*Resolver` merely because the method returns a derived value. The existing `AchievementPointTitleResolver` is a migration candidate for `AchievementPointTitleViewer`; its pure mapping has no lookup authority. `Viewer` is a **class role**, not a new module type or a mandatory extra layer. Maintain its actual consumer contract during any rename; do not manufacture a second Viewer beside the existing Resolver.
+
+Pure, deterministic Viewers may legitimately be non-DI when they have no managed behavior and are expressly excluded by policy; `@ExplicitNonDi` on the current title mapper records that reason. Pluggable, DI-managed Viewers use `@DelegatesTo` and typed `DependencyAccess`, without simultaneously retaining `@ExplicitNonDi`.
 
 ## Builders
 
