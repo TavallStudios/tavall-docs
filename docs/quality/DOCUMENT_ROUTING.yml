@@ -260,6 +260,9 @@ routes:
       - service ownership
       - forwarding service
       - service anti-pattern
+      - viewer class
+      - viewer role
+      - data resolver role
       - object ownership
     documents:
       - docs/quality/code-architecture/CLASSES.md
@@ -270,6 +273,10 @@ routes:
       - namespace
       - naming convention
       - class naming
+      - acronym capitalization
+      - uppercase abbreviations
+      - brace formatting
+      - java block formatting
       - variable naming
       - local variable
       - class field
@@ -362,6 +369,7 @@ routes:
       - registry
       - cache
       - registry access pattern
+      - registry replacement
       - cache access pattern
       - registry implementation
       - cache implementation
@@ -413,6 +421,8 @@ routes:
       - request object
       - result object
       - resolver
+      - data resolver
+      - viewer
       - formatter
       - request result
       - typed request
@@ -449,6 +459,10 @@ routes:
   - id: utilities
     signals:
       - utility class
+      - utility default method
+      - interface utility default
+      - null default interface
+      - utility concrete override
       - utilities
       - helper class
     documents:
