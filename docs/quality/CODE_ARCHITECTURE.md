@@ -56,7 +56,7 @@ A change may require several delegated chapters. A Handler using Tavall DI, Cach
 | Builders and construction-only behavior | [Builders](code-architecture/BUILDERS.md) |
 | Requests, results, data resolvers, viewers, formatters | [Requests, Results, Resolvers, Viewers, and Formatters](code-architecture/REQUESTS_RESULTS_RESOLVERS_AND_FORMATTERS.md) |
 | Routers and delegation | [Routers and Delegation](code-architecture/ROUTERS_AND_DELEGATION.md) |
-| Registry, Cache, Redis, operation state, durable-state classification | [Registries, Caches, and Persistence](code-architecture/REGISTRIES_CACHES_AND_REPOSITORIES.md) |
+| Registry, Cache, Redis, operation state, durable-state classification, file-backed NFS state | [Registries, Caches, and Persistence](code-architecture/REGISTRIES_CACHES_AND_REPOSITORIES.md) |
 | Application-owned mutable maps/sets/keyed collections | [Application-Owned Mutable Maps](code-architecture/APPLICATION_OWNED_MUTABLE_MAPS.md) |
 | Tavall Database entity persistence and `*Repository` migration | [Entity Persistence](code-architecture/ENTITY_PERSISTENCE.md) |
 | Validation, fallbacks, prohibited patterns, direct Thread ownership | [Validation, Fallbacks, and Anti-Patterns](code-architecture/VALIDATION_FALLBACKS_AND_ANTI_PATTERNS.md) |
