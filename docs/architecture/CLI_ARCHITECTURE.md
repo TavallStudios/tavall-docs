@@ -26,6 +26,8 @@ The CLI framework never accumulates domain behavior (Cloud, CI, AI, Minecraft, d
 - **Typed Java capabilities** own actual business and domain behavior.
 - **Tavall DI** owns object graphs, lifecycle, and composition.
 
+Provider discovery is scoped to the modules present on a `TavallCliApplication` runtime classpath. The source-level Cloud, CI, and Harness providers do not by themselves prove that one approved installed distribution loads all three.
+
 ---
 
 ## 2. Canonical Ownership and Dependency Model
@@ -83,8 +85,8 @@ When both sides share a JVM, the CLI is an external ingress adapter, not an inte
 
 CLI commands are behavioral components within the Tavall architecture. Consequently, they participate fully in `tavall-di`:
 
-1. **Interface Contract First:** Every concrete command implements a domain command interface (e.g. `ICloudServiceDeployCLICommand`, `ICiValidateCLICommand`).
-2. **`@DelegatesTo` Declaration:** The concrete implementation declares `@DelegatesTo(IDomainCLICommand.class)`.
+1. **Meaningful Contract:** All commands already implement `ICLICommand<R>` via `CLICommand<R>`. Add a domain-specific interface only for a real shared behavioral or lifecycle contract, not for every concrete adapter.
+2. **`@DelegatesTo` Declaration:** Use bare `@DelegatesTo` for concrete-only commands; provide assignable interface parameters only when a meaningful domain contract exists.
 3. **`DependencyAccess` for Collaborators:** Commands implement `DependencyAccess<...>` or domain bundles to access collaborators via `getInstance().myCapability()`.
 4. **No Constructor Injection:** Commands must never declare constructors accepting managed collaborators.
 5. **No Direct Map Access:** Commands do not interact directly with `IDependencyMap` or `DependencyMap`. Dependency lookup infrastructure is restricted to `@CompositionBoundary` roots.
@@ -92,37 +94,29 @@ CLI commands are behavioral components within the Tavall architecture. Consequen
 ### Canonical CLI Command Pattern
 
 ```java
-public interface ICloudServiceDeployCLICommand extends ICLICommand<CloudServiceDeployResult> {
-}
-
-@DelegatesTo(ICloudServiceDeployCLICommand.class)
+@DelegatesTo
 public final class CloudServiceDeployCLICommand
         extends CLICommand<CloudServiceDeployResult>
-        implements ICloudServiceDeployCLICommand,
-                   DependencyAccess<ICloudServiceOperations, ILogger> {
+        implements DependencyAccess<ICloudServiceOperations, ILogger> {
 
     public CloudServiceDeployCLICommand() {
-        super(CLICommandSettings.builder()
-                .name("deploy")
+        super(CLICommandBuilder.create("cloud", "service", "deploy")
                 .description("Deploy a service")
-                .path(CLICommandPath.of("cloud", "service", "deploy"))
-                .addArgument(CLICommandArgument.required("service", "Target service name"))
-                .addOption(CLICommandOption.optional("image", "Image reference", "latest"))
+                .argument(CLICommandArgument.required("service", "Target service name"))
+                .option(CLICommandOption.optional("image", "Image reference", "latest"))
                 .build());
     }
 
     @Override
-    public CLIExecutionResult<CloudServiceDeployResult> execute(CLICommandContext context) {
-        String service = context.input().argument("service");
-        String image = context.input().option("image").orElse("latest");
-
-        CloudServiceDeployResult result = getInstance().cloudServiceOperations()
-                .deploy(new CloudDeployRequest(service, image));
-
-        return CLIExecutionResult.success(result);
+    protected CloudServiceDeployResult handle(CLICommandInput input) {
+        String service = input.argument("service");
+        String image = input.findOption("image").orElse("latest");
+        return getInstance().cloudServiceOperations().deploy(new CloudDeployRequest(service, image));
     }
 }
 ```
+
+`ICLICommand.execute(CLICommandInput)` returns `CLICommandResult`. `CLICommand<R>` validates input, maps execution errors, and converts the typed `R` returned by `handle` into that non-generic result.
 
 ---
 
@@ -134,20 +128,19 @@ Command modules register with the root executable via the Java Service Provider 
 META-INF/services/org.tavall.cli.api.bootstrap.ICLIBootstrap
 ```
 
-Each owning module supplies an `ICLIBootstrap` implementation (e.g. `CloudCLIBootstrap`, `CiCLIBootstrap`, `HarnessCLIBootstrap`) that registers its subcommands into the shared `CLICommandRegistry`:
+Each owning module supplies an `ICLIBootstrap` implementation (e.g. `CloudCLIBootstrap`, `CICLIBootstrap`, `HarnessCLIBootstrap`) that registers its subcommands into the shared `CLICommandRegistry`:
 
 ```java
-public final class CiCLIBootstrap implements ICLIBootstrap {
+public final class CICLIBootstrap implements ICLIBootstrap {
     @Override
-    public void bootstrap(ICLIBootstrapContext context) {
-        ICLICommandRegistry registry = context.registry();
-        registry.register(new CiRootCLICommand());
-        registry.register(new CiValidateCLICommand());
-        registry.register(new CiPlanCLICommand());
-        registry.register(new CiExecuteCLICommand());
+    public void registerCommands(ICLICommandRegistry registry) {
+        registry.registerCommand(new CIRootCLICommand());
+        registry.registerCommand(new CIValidateCLICommand());
+        registry.registerCommand(new CIPlanCLICommand());
+        registry.registerCommand(new CIExecuteCLICommand());
         ...
     }
 }
 ```
 
-`TavallCliApplication` discovers all registered bootstraps dynamically, initializes DI composition roots, constructs the command tree, and executes incoming requests.
+`TavallCliApplication` discovers bootstrap providers present on its runtime classpath, initializes the shared CLI composition, constructs the command tree, and executes incoming requests. The owning distribution determines which provider modules are packaged.

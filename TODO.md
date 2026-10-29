@@ -3,7 +3,7 @@
 > **Status:** Active  
 > **Authority:** Canonical organization-wide TODO ledger  
 > **Repository projections:** Every maintained TavallStudios repository exposes a bot-managed root `TODO.md` that projects only that repository's section from this file.  
-> **Last updated:** 2026-10-23
+> **Last updated:** 2026-10-29
 
 **Transition notice (2026-10-22):** We are moving to [GitHub Issue-owned work tracking](docs/quality/WORK_TRACKING.md). For rows that contain a **canonical issue** link, that issue owns future task state and acceptance; the checkbox and prose here are **historical migration snapshots**. Unlinked rows retain their previous ledger authority until individually reconciled. Root TODO projections stay on their established v1 protocol until the GitHub Bot v2 generator is tested. See the [migration inventory](docs/progression/TAVALL_WORK_GRAPH_LEGACY_TODO_MIGRATION_20261022.md).
 
@@ -215,6 +215,21 @@ _No open global TODO items currently tracked._
 
 - [ ] 2026-10-02 — Enforce strict artifact reference and digest binding in delivery bundle materialization.
   - Verify that `tavall-ci-cd` rejects mismatched `storageRef` and artifact digests before delivery.
+
+### `TavallStudios/tavall-cli`
+
+#### System — Tavall CLI organization migration
+
+- [ ] 2026-10-24 — Complete and validate the source-backed CLI migration matrix under the existing `tavall-cli` owner PR #4.
+  - Matrix includes Cloud, CI, Open Harness, AI legacy sources, Minecraft/Novus game commands and embedded server console, Hytale sim/control console, `TAL`, build/test mains, infrastructure tools, and the planned-but-absent `tavall module` / `tavall-cd-cli` rows. It records each current owner, source revision/path, target owner/dependencies, status, and priority. The current matrix is in the Draft [`tavall-cli` PR #4](https://github.com/TavallStudios/tavall-cli/pull/4); its CLI code/config source commit is `3dc58ae0354c78a36a37ce4596292e639f7e5908`.
+  - CLI #4, Open Harness #2 source/config `033013b8`, and CI #38 source/config `39ce1cf5` select TST `patterns+cli` and bind the CLI rule artifact to exact TST source `:modules:cli`; exact owner/consumer TCI remains pending while Web PR #84 uses the shared Executor.
+  - Cloud #469's tested production source `29154920` remains main-based; its exact `all` run failed at the pre-existing architecture finding before behavior. The targeted `behavior` profile is pending. Cloud #114 root CLI-rule config source `e207e875` also contains unrelated Browser feature work and remains Draft; do not merge it as a CLI-only change. Cloud #186 is a separate Browser video child and remains unchanged.
+  - Do not claim a unified installed distribution until approved package composition loads the Cloud, CI, and Harness providers. Keep in-game Paper/Velocity handlers, the TypeScript `hytale-sim` CLI, and build/test entrypoints with their owning runtime/tool.
+
+#### Canonical CLI contract reconciliation
+
+- [ ] 2026-10-24 — Keep the shared CLI architecture examples aligned with current `tavall-cli` source: `ICLICommand.execute(CLICommandInput)`, `CLICommandResult`, `ICLIBootstrap.registerCommands(ICLICommandRegistry)`, and `CLICommandBuilder`; track API/progression evidence in the owner documents.
+- [ ] 2026-10-24 — Reconcile the Cloud CLI command reference with Cloud main parser source `40954a97208b57b04edf7fd1d3b0f94f07eab939`: 138 accepted forms/17 families, including the current 15-form `executor` family. Preserve the Cloud CONTROL/local-socket authority boundary and keep the currently pending exact-source/package evidence separate.
 
 ### `TavallStudios/tavall-cloud`
 

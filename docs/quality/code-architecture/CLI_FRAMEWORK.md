@@ -26,33 +26,31 @@ CLICommand<R>
 [Concrete Domain Command]
 ```
 
-- `ICLICommand<R>`: Behavioral contract representing a command in the command tree. Defines `path()`, `settings()`, and `execute(CLICommandContext)`.
-- `CLICommand<R>`: Abstract base class implementing execution mechanics, exception-to-exit-code mapping, and settings validation.
+- `ICLICommand<R>`: Behavioral contract representing a command in the command tree. Defines `path()`, `settings()`, and `execute(CLICommandInput)`, which returns `CLICommandResult`.
+- `CLICommand<R>`: Abstract base class implementing execution mechanics, exception-to-exit-code mapping, and settings validation. Concrete subclasses implement typed `handle(CLICommandInput)` behavior.
 
 ### 2.2 Command Definition and Settings
 
-Commands configure their metadata and inputs during construction via `CLICommandSettings` and `CLICommandBuilder`:
+Commands configure their metadata and inputs during construction with `CLICommandBuilder`:
 
 ```java
-CLICommandSettings settings = CLICommandSettings.builder()
-        .name("validate")
+CLICommandSettings settings = CLICommandBuilder.create("ci", "validate")
         .description("Validate CI workspace configuration")
-        .path(CLICommandPath.of("ci", "validate"))
-        .addArgument(CLICommandArgument.required("workspace", "Path to target workspace"))
-        .addOption(CLICommandOption.optional("profile", "Validation execution profile", "default"))
+        .argument(CLICommandArgument.required("workspace", "Path to target workspace"))
+        .option(CLICommandOption.optional("profile", "Validation execution profile", "default"))
         .build();
 ```
 
 - `CLICommandPath`: Path segments representing the position in the command hierarchy (e.g. `ci validate`).
 - `CLICommandArgument<T>`: Positional argument definition.
 - `CLICommandOption<T>`: Named command-line option/flag (e.g. `--profile <value>`, `--dry-run`).
+- **Pending producer change** ([`tavall-cli` PR #4](https://github.com/TavallStudios/tavall-cli/pull/4)): `CLICommandBuilder.trailingArguments(name, description)` will opt into an opaque token tail after declared arguments and `CLICommandInput.trailingArguments()` will preserve it. These methods are **not part of the current `tavall-cli/main` API**. Do not use them in production consumers until the owning PR is accepted.
 
 ### 2.3 Input and Execution Context
 
-During execution, commands interact with:
-- `CLICommandContext`: Provides access to the parsed input, terminal output writer, command registry, and environment.
-- `CLICommandInput`: Encapsulates parsed positional arguments (`input.argument("name")`) and options (`input.option("name")`).
-- `CLIExecutionResult<R>`: Outcome envelope containing the exit code (`0` for success, non-zero for failures), typed domain result value, and diagnostic messages.
+During execution, commands receive:
+- `CLICommandInput`: Immutable command path, raw tokens, parsed positional arguments and options, optional opaque trailing tokens, caller id, and metadata.
+- `CLICommandResult`: Non-generic outcome carrying success, exit code, message, failure reason, data, and an optional payload. `CLICommand<R>` maps its typed domain result into this outcome.
 
 ---
 
@@ -60,39 +58,40 @@ During execution, commands interact with:
 
 CLI commands participate in `tavall-di` following the same invariants as all other behavioral components in Tavall:
 
-### Rule 1: Interface Contract First
-Every command extending `CLICommand<R>` must implement a domain-specific interface:
+### Rule 1: Reuse the Existing Command Contract
 
-```java
-public interface ICiValidateCLICommand extends ICLICommand<CiValidationResult> {
-}
-```
+`CLICommand<R>` already implements `ICLICommand<R>`. A domain-specific `ICIDomainCommand` interface is justified only when it provides a meaningful consumer contract, not when it simply repeats the inherited interface.
 
 ### Rule 2: `@DelegatesTo` Annotation
-The implementation must declare its delegation contract:
+
+A command without a meaningful additional interface registers its concrete class directly:
 
 ```java
-@DelegatesTo(ICiValidateCLICommand.class)
-public final class CiValidateCLICommand
-        extends CLICommand<CiValidationResult>
-        implements ICiValidateCLICommand,
-                   DependencyAccess<ICiWorkspaceValidator, ILogger> {
-    ...
+@DelegatesTo
+public final class CIValidateCLICommand
+        extends CLICommand<CIValidationResult>
+        implements DependencyAccess<ICIWorkspaceValidator, ILogger> {
+    // The real command implements handle(CLICommandInput) below.
 }
 ```
+
+For a genuinely shared, independently consumed domain command interface, use `@DelegatesTo(IMeaningfulCommandContract.class)`. The annotated concrete is registered implicitly either way.
 
 ### Rule 3: Zero Constructor Injection of Collaborators
 Commands must not take managed dependencies via constructor parameters:
 
 ```java
 // PROHIBITED:
-public CiValidateCLICommand(ICiWorkspaceValidator validator, ILogger logger) { ... }
+public CIValidateCLICommand(ICIWorkspaceValidator validator, ILogger logger) {
+    // Prohibited: managed collaborators are not constructor parameters.
+}
 
 // CANONICAL:
-public CiValidateCLICommand() {
-    super(CLICommandSettings.builder()
-            .name("validate")
-            ...
+public CIValidateCLICommand() {
+    super(CLICommandBuilder.create("ci", "validate")
+            .description("Validate CI workspace configuration")
+            .argument(CLICommandArgument.required("workspace", "Path to target workspace"))
+            .option(CLICommandOption.optional("profile", "Validation execution profile", "default"))
             .build());
 }
 ```
@@ -102,11 +101,10 @@ Commands resolve collaborators through `DependencyAccess<...>`:
 
 ```java
 @Override
-public CLIExecutionResult<CiValidationResult> execute(CLICommandContext context) {
-    String workspace = context.input().argument("workspace");
+protected CIValidationResult handle(CLICommandInput input) {
+    String workspace = input.argument("workspace");
     
-    CiValidationResult result = getInstance().ciWorkspaceValidator().validate(workspace);
-    return CLIExecutionResult.success(result);
+    return getInstance().ciWorkspaceValidator().validate(workspace);
 }
 ```
 
@@ -122,13 +120,13 @@ Owning repositories (e.g. `tavall-cloud`, `tavall-ci`, `tavall-open-harness`) cr
 1. Subsystem defines commands extending `CLICommand<R>`.
 2. Subsystem implements `ICLIBootstrap`:
    ```java
-   public final class CiCLIBootstrap implements ICLIBootstrap {
+   public final class CICLIBootstrap implements ICLIBootstrap {
        @Override
-       public void bootstrap(ICLIBootstrapContext context) {
-           context.registry().register(new CiRootCLICommand());
-           context.registry().register(new CiValidateCLICommand());
+       public void registerCommands(ICLICommandRegistry registry) {
+           registry.registerCommand(new CIRootCLICommand());
+           registry.registerCommand(new CIValidateCLICommand());
        }
    }
    ```
 3. Subsystem registers the bootstrap in `META-INF/services/org.tavall.cli.api.bootstrap.ICLIBootstrap`.
-4. `TavallCliApplication` automatically discovers all registered bootstraps via `ServiceLoader`, constructing a unified CLI tree under `tavall`.
+4. `TavallCliApplication` discovers bootstrap providers present on its runtime classpath via `ServiceLoader`. The owning distribution determines which provider modules are packaged; source-level provider discovery alone does not prove that one installed organization-wide distribution loads every provider.
