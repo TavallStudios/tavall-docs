@@ -402,11 +402,16 @@ _No open global TODO items currently tracked._
 
 #### System — Tavall Documentation
 
-- [ ] 2026-10-29 — Select and publish a **single Tavall diagram visual system** suitable for Notion and Markdown/README architecture documentation.
-  - Review the three SVG visual proposals from the 2026-10-29 class-role-graph design discussion; **none is an approved standard yet**. Choose one vocabulary and implement reusable graph themes/layout templates rather than forcing one fixed topology.
-  - Preserve canonical graph facts and ownership in their existing docs/module contracts; SVG is a presentation output, not a second source of truth. Keep source-editable diagram definitions, accessible text, legible mobile Notion rendering, and predictable dark/light presentation.
-  - Pilot with the [Class Role Ownership Graph](docs/quality/code-architecture/CLASSES.md#class-role-ownership-graph-conceptual), then validate Notion embedding/rendering and README/Markdown fallbacks before applying to other diagrams. Preserve existing module-README current-module highlighting and "← This Module" rules.
-  - Synchronize related Notion pages and generated Docs Agent section projections **after the visual style is selected and accepted**; do not publish provisional SVGs as final Tavall branding.
+- [ ] 2026-10-29 — Implement and validate the **Agent WebMCP SVG visual standard** for Tavall technical diagrams.
+  - **Style selected and documented:** [Tavall Technical Diagram Standards](docs/quality/DIAGRAM_STANDARDS.md) now adopts SVG styling from [Agent WebMCP source diagrams](https://github.com/tjXJNOOBIE/agent-webmcp/tree/main/docs/hackathon/devpost); reject the three earlier generic draft designs as the default. Distinct topologies remain valid under one graphic language.
+  - Build reusable editable SVG layout/style helpers with accessible labels, and a truthful visual verification workflow for clipping, arrow endpoints, readable Notion widths and printable/light fallback. Keep source facts with their original architecture owners, not in a graph-specific second database.
+  - Redraw the [Class Role Ownership Graph](docs/quality/code-architecture/CLASSES.md#class-role-ownership-graph-conceptual) with WebMCP styling while preserving verified responsibilities, then test actual Notion and GitHub rendering. Preserve module-README current-module highlighting and "← This Module" requirements.
+  - Publish/sync Notion render and canonical SVG source together only for documents requiring or requesting a Notion counterpart. Record actual synchronization receipts; the style's documentation merge is not evidence of a completed Notion rollout.
+
+- [ ] 2026-10-29 — Evaluate **Tavall Docs Knowledge Plane** as a replacement for per-section skill proliferation, without prematurely retiring current Docs Agent.
+  - Preserve canonical GitHub/Notion document authority, exact heading/section hashes, read receipts and fail-closed drift detection. Move rapidly changing section indexes, query/routing logic and sync work into a versioned docs capability rather than rebuilding hundreds of agent skills.
+  - Pilot read-only exact-section retrieval, provenance receipts, provider-neutral policy route resolution and section-to-source citations against selected architecture/DI documents; compare completeness, latency, drift and context use with current Docs Agent `section-index.json` and `sections.py`.
+  - Add Notion/GitHub sync reconciliation and WebMCP SVG render verification as bounded workflows, not mandatory documentation layers or a new duplicate knowledge authority. Keep old section-skill route operational until shadow validation and controlled cutover pass.
 
 - [ ] 2026-10-22 — Enforce the canonical `-system` / `-runtime` suffix rule for **actual** modules, excluding parent repositories, organizational aggregates, APPLICATIONs and secondary-role labels.  ([canonical issue](https://github.com/TavallStudios/tavall-docs/issues/78))
   - Apply [Module Types](docs/quality/MODULE_TYPES.md#module-name-suffix-contract-2026-10-22) and [Module Separation](docs/quality/code-architecture/MODULE_SEPARATION.md#module-identity-naming-during-separation); classify from source before proposing each migration. A `System —` TODO heading or the word `runtime` in a folder is not proof of primary type.
