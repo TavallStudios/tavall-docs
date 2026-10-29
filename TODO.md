@@ -3,7 +3,7 @@
 > **Status:** Active  
 > **Authority:** Canonical organization-wide TODO ledger  
 > **Repository projections:** Every maintained TavallStudios repository exposes a bot-managed root `TODO.md` that projects only that repository's section from this file.  
-> **Last updated:** 2026-10-24
+> **Last updated:** 2026-10-29
 
 **Transition notice (2026-10-22):** We are moving to [GitHub Issue-owned work tracking](docs/quality/WORK_TRACKING.md). For rows that contain a **canonical issue** link, that issue owns future task state and acceptance; the checkbox and prose here are **historical migration snapshots**. Unlinked rows retain their previous ledger authority until individually reconciled. Root TODO projections stay on their established v1 protocol until the GitHub Bot v2 generator is tested. See the [migration inventory](docs/progression/TAVALL_WORK_GRAPH_LEGACY_TODO_MIGRATION_20261022.md).
 
