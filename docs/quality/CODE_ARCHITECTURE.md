@@ -93,7 +93,7 @@ Packages describe domain ownership and role. Avoid broad new buckets such as `ut
 
 Common roles include Handler, Service, Orchestrator, Router, Resolver, DataResolver, Viewer, Formatter, Registry, Cache, Builder, Mapper, Serializer, Reader, Writer, Publisher, Consumer, Listener, Bootstrap, Runtime, and Timer. The suffix must describe actual ownership rather than decorate an implementation after the fact.
 
-Detailed rules: [Namespaces and Class Names](code-architecture/NAMESPACES_VARIABLES_AND_OOP.md#namespaces-and-class-names) and [Class Roles](code-architecture/CLASSES.md).
+Detailed rules: [Namespaces and Class Names](code-architecture/NAMESPACES_VARIABLES_AND_OOP.md#namespaces-and-class-names) and [Class Roles](code-architecture/CLASSES.md). See the [conceptual class-role ownership graph](code-architecture/CLASSES.md#class-role-ownership-graph-conceptual) for module ownership, input adapters, primary behavior and optional supporting capabilities.
 
 ### Prohibited `*Repository` Production Type Name
 
@@ -109,16 +109,14 @@ Detailed migration and persistence rules: [Entity Persistence](code-architecture
 
 ## Interfaces and Abstractions
 
-> **Governing Doctrine:** Tavall-owned behavior is interface-first and DI-managed by default.
+> **Governing Doctrine:** Tavall-owned behavior is DI-managed by default and interface-first for **meaningful behavioral contracts**, not for every concrete implementation. Bare `@DelegatesTo` registers a concrete without requiring an interface.
 
 ```text
-behavior
-    ↓
-interface / contract
-    ↓
-tavall-di
-    ↓
-implementation
+meaningful shared capability:
+consumer → interface contract → tavall-di → implementation
+
+concrete-only managed capability:
+consumer → concrete token → tavall-di → implementation
 ```
 
 For a Tavall-owned class, the default assumption is that it participates in `tavall-di`.
@@ -129,7 +127,7 @@ Do NOT ask:
 Ask:
 > What explicit reason does this class have not to be DI-managed?
 
-Interfaces define behavioral contracts inside Tavall architecture (`consumer → contract`). For meaningful Tavall behavior, consumers depend on contracts, not concrete implementations. Implementation details sit behind that contract.
+Interfaces define meaningful behavioral contracts (`consumer → contract`) and are valuable even with one implementation when multiple consumers, module ownership, testing/substitution, replacement, or lifecycle need a stable boundary. Concrete-only DI registration is supported when an interface would be decorative.
 
 Empty interfaces created without behavioral methods solely to satisfy a syntactic rule MUST NOT be created. The purpose of interface contracts is architectural boundaries, substitution, testing, lifecycle control, and dependency ownership.
 
@@ -151,9 +149,9 @@ Detailed rules: [Interfaces and Abstractions](code-architecture/INTERFACES_AND_A
 
 `tavall-di` is the first-class architectural invariant and default runtime composition system for all Tavall-owned behavioral components.
 
-### Classes That MUST Normally Participate in DI
+### Classes That Normally Participate in DI
 
-Any Tavall-owned class that does one or more of the following MUST normally be interface-first and DI-managed:
+Any Tavall-owned class that does one or more of the following MUST normally be DI-managed. Use an interface when the capability contract adds value; otherwise `@DelegatesTo` may register a concrete without an `IFoo` interface:
 
 - defines application or domain behavior;
 - coordinates other components;
@@ -182,14 +180,14 @@ This applies broadly across Tavall systems, including `TavallEvent`, `AbstractCa
 
 ### Consumer Rule
 
-Consumers depend on contracts/interfaces, not concrete Tavall implementations:
+Consumers use the narrowest meaningful contract. A concrete-only managed capability may instead be resolved by its typed concrete token:
 
 ```text
-consumer → contract (interface)
-                ↑
-             tavall-di
-                ↓
-          implementation
+consumer → meaningful interface or concrete token
+                        ↑
+                     tavall-di
+                        ↓
+                  implementation
 ```
 
 The object graph is owned by `tavall-di`. Arbitrary consumers MUST NOT construct implementations themselves (`new UserServiceImpl(...)` outside approved composition boundaries is prohibited).
@@ -392,8 +390,8 @@ Before accepting a change, confirm:
 - [ ] Existing canonical Tavall tools were inspected before changing or documenting their API, inheritance, lifecycle, or naming assumptions.
 - [ ] Owner/module/package and class/method roles are correct.
 - [ ] No new Tavall-owned production type ends in `Repository`; migration debt does not grow.
-- [ ] Tavall-owned behavior is interface-first and DI-managed by default.
-- [ ] Consumers depend on contracts/interfaces rather than concrete implementations.
+- [ ] Tavall-owned behavior is DI-managed by default; interfaces are preferred for meaningful behavioral boundaries, not mechanically generated.
+- [ ] Consumers prefer useful contracts, but concrete-only `@DelegatesTo` DI registration is valid when no interface is justified.
 - [ ] Direct construction of DI-managed implementations is prohibited outside approved composition boundaries.
 - [ ] Ordinary production code uses `DependencyAccess` and typed accessors; `IDependencyMap` / `DependencyMap` is not accessed directly.
 - [ ] Tavall-managed dependencies resolve through Tavall DI rather than constructor/static-locator ownership.
