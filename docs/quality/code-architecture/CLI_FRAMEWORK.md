@@ -44,7 +44,7 @@ CLICommandSettings settings = CLICommandBuilder.create("ci", "validate")
 - `CLICommandPath`: Path segments representing the position in the command hierarchy (e.g. `ci validate`).
 - `CLICommandArgument<T>`: Positional argument definition.
 - `CLICommandOption<T>`: Named command-line option/flag (e.g. `--profile <value>`, `--dry-run`).
-- `CLICommandBuilder.trailingArguments(name, description)`: Opts in to an opaque token tail after the declared positional arguments. The default remains strict; the parser preserves token boundaries in `CLICommandInput.trailingArguments()`.
+- **Pending producer change** ([`tavall-cli` PR #4](https://github.com/TavallStudios/tavall-cli/pull/4)): `CLICommandBuilder.trailingArguments(name, description)` will opt into an opaque token tail after declared arguments and `CLICommandInput.trailingArguments()` will preserve it. These methods are **not part of the current `tavall-cli/main` API**. Do not use them in production consumers until the owning PR is accepted.
 
 ### 2.3 Input and Execution Context
 
@@ -58,36 +58,36 @@ During execution, commands receive:
 
 CLI commands participate in `tavall-di` following the same invariants as all other behavioral components in Tavall:
 
-### Rule 1: Interface Contract First
-Every command extending `CLICommand<R>` must implement a domain-specific interface:
+### Rule 1: Reuse the Existing Command Contract
 
-```java
-public interface ICiValidateCLICommand extends ICLICommand<CiValidationResult> {
-}
-```
+`CLICommand<R>` already implements `ICLICommand<R>`. A domain-specific `ICIDomainCommand` interface is justified only when it provides a meaningful consumer contract, not when it simply repeats the inherited interface.
 
 ### Rule 2: `@DelegatesTo` Annotation
-The implementation must declare its delegation contract:
+
+A command without a meaningful additional interface registers its concrete class directly:
 
 ```java
-@DelegatesTo(ICiValidateCLICommand.class)
-public final class CiValidateCLICommand
-        extends CLICommand<CiValidationResult>
-        implements ICiValidateCLICommand,
-                   DependencyAccess<ICiWorkspaceValidator, ILogger> {
-    ...
+@DelegatesTo
+public final class CIValidateCLICommand
+        extends CLICommand<CIValidationResult>
+        implements DependencyAccess<ICIWorkspaceValidator, ILogger> {
+    // The real command implements handle(CLICommandInput) below.
 }
 ```
+
+For a genuinely shared, independently consumed domain command interface, use `@DelegatesTo(IMeaningfulCommandContract.class)`. The annotated concrete is registered implicitly either way.
 
 ### Rule 3: Zero Constructor Injection of Collaborators
 Commands must not take managed dependencies via constructor parameters:
 
 ```java
 // PROHIBITED:
-public CiValidateCLICommand(ICiWorkspaceValidator validator, ILogger logger) { ... }
+public CIValidateCLICommand(ICIWorkspaceValidator validator, ILogger logger) {
+    // Prohibited: managed collaborators are not constructor parameters.
+}
 
 // CANONICAL:
-public CiValidateCLICommand() {
+public CIValidateCLICommand() {
     super(CLICommandBuilder.create("ci", "validate")
             .description("Validate CI workspace configuration")
             .argument(CLICommandArgument.required("workspace", "Path to target workspace"))
@@ -101,7 +101,7 @@ Commands resolve collaborators through `DependencyAccess<...>`:
 
 ```java
 @Override
-protected CiValidationResult handle(CLICommandInput input) {
+protected CIValidationResult handle(CLICommandInput input) {
     String workspace = input.argument("workspace");
     
     return getInstance().ciWorkspaceValidator().validate(workspace);
@@ -120,11 +120,11 @@ Owning repositories (e.g. `tavall-cloud`, `tavall-ci`, `tavall-open-harness`) cr
 1. Subsystem defines commands extending `CLICommand<R>`.
 2. Subsystem implements `ICLIBootstrap`:
    ```java
-   public final class CiCLIBootstrap implements ICLIBootstrap {
+   public final class CICLIBootstrap implements ICLIBootstrap {
        @Override
        public void registerCommands(ICLICommandRegistry registry) {
-           registry.registerCommand(new CiRootCLICommand());
-           registry.registerCommand(new CiValidateCLICommand());
+           registry.registerCommand(new CIRootCLICommand());
+           registry.registerCommand(new CIValidateCLICommand());
        }
    }
    ```
