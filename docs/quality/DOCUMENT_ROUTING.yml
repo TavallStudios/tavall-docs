@@ -250,6 +250,22 @@ routes:
     documents:
       - docs/quality/USER_EXPERIENCE_DOCUMENT_TEMPLATE.md
 
+  - id: diagrams-and-svg
+    signals:
+      - technical diagram
+      - class role graph
+      - architecture graph
+      - architecture diagram
+      - SVG visual style
+      - SVG diagram
+      - notion diagram
+      - notion graph
+      - diagram standards
+      - graph visual system
+      - WebMCP SVG
+    documents:
+      - docs/quality/DIAGRAM_STANDARDS.md
+
   - id: class-roles
     signals:
       - class architecture
