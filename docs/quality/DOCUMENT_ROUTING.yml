@@ -255,6 +255,8 @@ routes:
       - class architecture
       - class size
       - class role
+      - class role graph
+      - class ownership diagram
       - service class
       - service creation
       - service ownership
@@ -346,6 +348,10 @@ routes:
   - id: interfaces-and-abstractions
     signals:
       - interface boundary
+      - interface creation
+      - when to use interface
+      - concrete-only DI
+      - DelegatesTo
       - abstraction boundary
       - abstraction
       - api contract
@@ -460,6 +466,8 @@ routes:
     signals:
       - utility class
       - utility default method
+      - utility composition
+      - default utility pattern
       - interface utility default
       - null default interface
       - utility concrete override
