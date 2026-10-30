@@ -22,6 +22,18 @@ The shared product standard owns *why the product creates value and how users en
 4. **Do not hide ordinary usability behind payment.** Baseline clarity, safety, accessibility, correctness, data ownership, and recovery are not luxury features.
 5. **Make the paid offer honest.** Show price, duration, renewal, charges, entitlements, limits, and cancellation/fulfillment terms before commitment. Never fabricate adoption, demand, scarcity, performance, or savings.
 
+### No Manufactured Friction
+
+**Never create a worse product on purpose so payment becomes the escape hatch.** Tavall must not intentionally add delay, extra steps, degraded interoperability, awkward export or migration paths, reduced reliability, artificial cooldowns, needless setup, or other avoidable inconvenience whose primary purpose is to pressure users into upgrading.
+
+- Paid tiers must win by adding **real value**: additional capability, economically meaningful capacity, managed service, support, convenience that genuinely costs or improves the product, collaboration, distribution, or other clearly beneficial extras.
+- Do not remove ordinary usability from a product merely so it can be sold back as relief. If Tavall can make a common workflow materially simpler, faster, or more interoperable at negligible marginal cost, the default should be to improve the product rather than preserve friction for conversion.
+- Real constraints are allowed when they are real: compute, storage, bandwidth, third-party fees, abuse prevention, safety, legal/platform rules, operational capacity, or other evidenced costs. Make them transparent and proportionate to the underlying constraint.
+- Pricing and packaging may create differentiated tiers; **intentional user pain may not be the differentiation strategy**.
+- A monetization review should be suspicious of any proposal whose strongest upgrade pitch is effectively, “the paid tier stops Tavall from inconveniencing you.”
+
+This principle applies across free and paid plans. Existing customers must not be deliberately inconvenienced to manufacture demand for a higher tier.
+
 ### Cost constraint: limit users before product quantity
 
 If a meaningful free core cannot sustainably serve everyone, first evaluate **limiting how many users can access it** (capacity-based cohorts, admission queues, invite waves, account/seat allocation, or regional rollout), **rather than restricting how much of the core product each admitted user can meaningfully use or own**.
@@ -91,7 +103,7 @@ The [PRODUCT document template](PRODUCT_DOCUMENT_TEMPLATE.md) must route future 
 
 ## Final Rules Summary
 
-**Free core first. Sell compelling adjacent value. If scale is unaffordable, prioritize limiting admitted users over limiting the amount of core product they receive. Prove the economics. Design for trust, legibility, fairness, and consistency. Keep specialized design authority with its owning product.**
+**Free core first. Sell compelling adjacent value. Never manufacture friction to force an upgrade. If scale is unaffordable, prioritize limiting admitted users over limiting the amount of core product they receive. Prove the economics. Design for trust, legibility, fairness, and consistency. Keep specialized design authority with its owning product.**
 
 ## DOC TODO:
 
@@ -118,4 +130,4 @@ The [PRODUCT document template](PRODUCT_DOCUMENT_TEMPLATE.md) must route future 
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| 2026-10-11 8:22 PM PDT | GitHub + Notion | CREATED | Tavall Product Design Standards | Shared design principles dispersed among specialized product/design records | User decision, 2026-10-11 | Established free-first + user-capacity-before-product-quantity policy, shared UX rules, source-owner migration index. |
+| 2026-10-11 8:22 PM PDT | GitHub + Notion | CREATED | Tavall Product Design Standards | Shared design principles dispersed among specialized product/design records | User decision, 2026-10-11 | Established free-first + user-capacity-before-product-quantity policy, shared UX rules, source-owner migration index. |\n| 2026-10-30 | GitHub | UPDATED | Tavall Product Design Standards | Same path | User decision, 2026-10-30 | Added explicit No Manufactured Friction principle: upgrades must earn conversion through real added value, not intentionally degraded UX or avoidable inconvenience. |
