@@ -93,7 +93,7 @@ Use [Tavall Content #76](https://github.com/TavallStudios/tavall-content/issues/
 - Verify PR merge/CI evidence does not prematurely close issue or QA task; demonstrate distinct SOURCE_MERGED, SOURCE_VALIDATED, DELIVERED, RUNTIME_VERIFIED; Human Verify remains separate.
 - Explicit regression for **GitHub mirror closure not canceling Linear TJ-224** and for a closed original implementation issue (#52) having a separate open completion/verification issue (#76) without reopening #52.
 - Validate no private Notion content or Cloud Browser credential fields are projected to unauthorized UI. Per-organization and per-task authorizations and human commitment approvals are rechecked.
-- Verify durable QA mapped PostgreSQL state, exact source SAHs, source-owned CI, restart/replay after outage and UI/browser E2E at desktop/mobile.
+- Verify durable QA mapped PostgreSQL state, exact source SHAs, source-owned CI, restart/replay after outage and UI/browser E2E at desktop/mobile.
 - Once and only once all source mappings/reviews reconcile, archive prior `tavall-docs/TODO.md`, enable read-only generated per-repo TODO and cross-system views. Validate two byte-identical reruns and rollback.
 - Update the existing [Work Graph initiative #9](https://github.com/TavallStudios/tavall-github-bot/issues/9), its #10–#13 slices and QA consumer issue with a single ownership map. Do not create a mandatory GitHub Projects workflow that duplicates Linear/QA without demonstrated operator value.
 
