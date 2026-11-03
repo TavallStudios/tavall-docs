@@ -1,5 +1,7 @@
 # Tavall Documentation
 
+**Technology stack inventory:** [TECH_STACK.md](TECH_STACK.md) (implementation and deployment evidence remain with their owning documents).
+
 The shared engineering, architecture, workflow, and quality reference for TavallStudios repositories.
 
 Tavall Docs keeps shared engineering policy in one public source and routes system-specific contracts to their owning repositories and Notion twins.
