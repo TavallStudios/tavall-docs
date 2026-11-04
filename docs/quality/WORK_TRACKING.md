@@ -36,7 +36,41 @@ Workflow values: `INBOX → READY → IN_PROGRESS → REVIEW → VERIFY → DONE
 
 Suggested board views: **Next & Ready**, **Blocked**, **Active Agent Work**, **By System/Repository**, **Awaiting Verification**, **Deferred**. Use existing GitHub capabilities rather than building a separate visual dashboard in the first phase.
 
-## 4. Intake and deduplication
+## 4. GitHub Issue Types and Priority
+
+The TavallStudios organization now configures native GitHub Issue **Types** and a native org **Priority** field. These are the canonical classification dimensions for every owner-repository issue. They supersede ad-hoc kind/priority labels and replace the JSON agent ledger as a task source (see §2 and §3).
+
+### Issue Types
+
+- **Task** — a single bounded, actionable unit of work.
+- **Bug** — a defect or incorrect behavior to fix.
+- **Feature** — a bounded new capability implemented through FEATURE PRs; relates to PR Type FEATURE / DEVELOPMENT_STAGING / RUNTIME / STAGING.
+- **TODO** — a lightweight loose reminder or follow-up, not yet promoted to a planned Task.
+- **Idea** — a proposal or suggestion; never auto-converted into a Task until explicitly accepted.
+- **Epic** — a Notion goal/milestone parent that groups child sub-issues.
+- **Migration** — a move, port, or cutover of code, data, or ownership.
+- **Infrastructure** — platform, build, CI, or operational-environment work.
+- **Test** — test coverage, harness, or verification work.
+- **Documentation** — docs, standards, or authored reference content.
+- **Security** — vulnerability, hardening, or compliance work.
+- **Research** — investigation, spike, or evaluation without a committed deliverable.
+- **Design** — product, UX, or technical design artifact.
+- **Incident** — an active or post-mortem production/service disruption.
+
+### Priority
+
+The native org **Priority** field carries `Urgent / High / Medium / Low`, derived from launch directives and Notion goals:
+
+- **P0 → Urgent** — resolve immediately; blocks launch or safety.
+- **P1 → High** — required for the current goal/milestone.
+- **P2 → Medium** — scheduled but not blocking.
+- **P3 / none → Low** — backlog, nice-to-have, or deferred.
+
+### Authority and consumer
+
+GitHub Issues feed the QA Task Board; **QA remains the task authority** and `qa.tavall.org` is unchanged. The JSON agent ledger is **retired as a task source** — issues, not ledger entries, are now the canonical task identity.
+
+## 5. Intake and deduplication
 
 1. Recover owning repo/module and the accepted Tavall contract. Classify the smallest actionable task or parent initiative, and identify original request, source SHA, and supporting docs.
 2. Search **open and closed** issues and linked PRs in that owner and adjacent authority repos. Identify EXACT_MATCH / OVERLAP_REVIEW / NEW / HISTORICAL / VERIFIED_DONE. An approximate title match is review evidence, not permission to create a duplicate.
@@ -46,11 +80,11 @@ Suggested board views: **Next & Ready**, **Blocked**, **Active Agent Work**, **B
 
 Migration provenance `source_commit + source_line` links in first-wave issues identify the immutable historical document; the bot must also derive a **content fingerprint** independent of mutable line numbers and reuse an already linked canonical Issue URL.
 
-## 5. Completion and evidence
+## 6. Completion and evidence
 
 An issue is **not** complete merely because a PR was merged. Completion requires the acceptance claimed by that issue: typed contracts, exact accepted SHA, test/CI outcome, consumer integration, operational rollout, and human verification when the scope calls for them. Explicitly distinguish `SOURCE_MERGED`, `SOURCE_VALIDATED`, `DELIVERED`, and `RUNTIME_VERIFIED` evidence. Do not require production deployment for docs-only work or static tools that have no runtime. Stale heads, missing CI evidence, partial accepted branches, and unreadable host state cannot silently transition to DONE. Rollback may reopen affected acceptance if authorized and demonstrably regressed.
 
-## 6. Migration and projection cutover
+## 7. Migration and projection cutover
 
 **Current baseline:** [legacy global ledger](../../TODO.md) at snapshot `7022d23f9be07ddd7fd0539ae9e928a0550e1f9a` contains 150 unchecked and 2 checked tasks across 55 repository sections. The GitHub open-issue search returned 63 issues, including potential overlaps; this is a discovery snapshot, not an exhaustive dedup verdict.
 
@@ -62,7 +96,7 @@ During migration:
 - After complete audited mapping, preserve/archive the legacy document and change root `TODO.md` into a **generated, read-only view** of GitHub Issues with canonical URLs, deterministic metadata and no feedback loop. Keep the legacy Git history intact.
 - The GitHub Projects org-wide board requires a UI/operator or a correctly scoped integration because the currently available GitHub connector has no Projects mutation capability. The bot must not claim the board exists before a successful read-back.
 
-## 7. Implementation and proof
+## 8. Implementation and proof
 
 Owning [initiative #9](https://github.com/TavallStudios/tavall-github-bot/issues/9) has implementation slices: [ingestion/dedup #10](https://github.com/TavallStudios/tavall-github-bot/issues/10), [PR/CI and completion evidence #11](https://github.com/TavallStudios/tavall-github-bot/issues/11), [projections + full migration #12](https://github.com/TavallStudios/tavall-github-bot/issues/12), [org Project views #13](https://github.com/TavallStudios/tavall-github-bot/issues/13).
 
