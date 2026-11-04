@@ -3,6 +3,7 @@
 > **Document Type:** PROGRESSION / source-to-issue reconciliation.  
 > **Capture date:** 2026-11-03 Pacific (some connected records were updated early 2026-11-04 UTC).  
 > **Status:** DRAFT REVIEW. Reconstructed from available conversation summaries, surviving design records, repository issues and existing progression material. This is **not** a claim to have inspected every original 1:1 chat turn, accepted all speculative designs, merged code, executed tests or deployed software.  
+> **Notion navigation twin:** [Tavall 10-Day Discussion Backfill — Oct 25–Nov 3](https://app.notion.com/p/40e38458ddfd8103bd53cf1295fbc3c1) (summary/index only; no second mutable task ledger).  
 > **Canonical tasks:** owner-repository GitHub Issues per [Work Graph](../quality/WORK_TRACKING.md). This page indexes work and decisions, never maintains independent task states or substitutes for issue-body acceptance.  
 > **Scope:** Tavall engineering, products, ventures and explicitly technical future experiments discussed in the window. Private legal/health/benefits and personal reminder records must stay in their private owners, **not this public repository**. Historical clip production requests are evidence for Content contracts, not permission to reproduce or post third-party media.
 
