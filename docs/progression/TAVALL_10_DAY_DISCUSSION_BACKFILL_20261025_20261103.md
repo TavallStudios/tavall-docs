@@ -43,6 +43,8 @@
 | Authenticated Cloud Browser profile continuity; no raw cookie cloning; Stagehand host separation | [AI Browser #7](https://github.com/TavallStudios/tavall-ai-browser/issues/7) |
 | Cloud Phone optional link to existing phone or separately provisioned number; calls/text/MFA feasibility | [Cloud #496](https://github.com/TavallStudios/tavall-cloud/issues/496), RESEARCH |
 | AI Chat-specific Flow UI only in Tavall AI, developer terms retained in Workflows, opt-in 'Use as flow in Tavall AI' | [Workflows #8](https://github.com/TavallStudios/tavall-workflows/issues/8) |
+| Human-guided recursive self-improvement with independently held-out evaluation | [AI #104](https://github.com/TavallStudios/tavall-ai/issues/104), RESEARCH |
+| Local-first AR task-awareness interface, offline alerts and HUD | [AI Chat #3](https://github.com/TavallStudios/tavall-ai-chat/issues/3), RESEARCH |
 | Execution-native reasoning agent not limited to tiny model or simple action selector | [AI #103](https://github.com/TavallStudios/tavall-ai/issues/103), RESEARCH |
 | Continuous Monitor/autonomous incident diagnosis and safe code change, bounded loop promotion | [AI #101](https://github.com/TavallStudios/tavall-ai/issues/101), [Cloud #495](https://github.com/TavallStudios/tavall-cloud/issues/495), [CI #50](https://github.com/TavallStudios/tavall-ci/issues/50) |
 | Separate production Ops grants/kill switches, analytics evidence, read-only unified dashboard | [Web Ops #6](https://github.com/TavallStudios/tavall-web-ops/issues/6), [Analytics #21](https://github.com/TavallStudios/tavall-analytics/issues/21), [Dashboard #7](https://github.com/TavallStudios/tavall-web-dashboard/issues/7) |
@@ -62,6 +64,7 @@
 | Renamed \`tavall-affiliates\` and \`tavall-web-affiliates\` actual repositories; preserve PR #1 before draft PR #3 | [Web #92](https://github.com/TavallStudios/tavall-web/issues/92) and existing source PRs |
 | Games-only independent rewards experiment, optional TAV/community token, Web crypto/rewards surfaces | [Web #92](https://github.com/TavallStudios/tavall-web/issues/92), [Portfolio charter](https://app.notion.com/p/40738458ddfd81e080bcefc92a8c1105); token issue/implementation not auto-authorized |
 | Locked moth silhouette, center-icon variants only | [Web #104](https://github.com/TavallStudios/tavall-web/issues/104) |
+| Editorial article 'Stop Signing Up for Services' for developers/managers | [Web Blog #11](https://github.com/TavallStudios/tavall-web-blog/issues/11), EDITORIAL DRAFT |
 | Partner-facing engineering portfolio, evidence graph/history, desired \`tj.tavall.org\` | [Web #103](https://github.com/TavallStudios/tavall-web/issues/103) |
 
 ### Core Java / CI / QA / Minecraft / docs
@@ -70,6 +73,8 @@
 | --- | --- |
 | Preserve Java-first, TIDI direct-getter DI, record/builder split, explicit names, no invented wrapper Services | [Java Tools #10](https://github.com/TavallStudios/tavall-java-tools/issues/10), [MC #112](https://github.com/TavallStudios/tavall-mc/issues/112), [Code Architecture](../quality/CODE_ARCHITECTURE.md) |
 | Project Babylon/FFM/native computation only where measured, Java objects for domain data and Paper compatibility | [Java Tools #10](https://github.com/TavallStudios/tavall-java-tools/issues/10), RESEARCH/benchmark |
+| Anti-cheat packet filter/reloadable FEATURE authority and source verification | [MC #394](https://github.com/TavallStudios/tavall-mc/issues/394) |
+| Repeatable Builder Studio/FFA research case study and experiment template | [MC #393](https://github.com/TavallStudios/tavall-mc/issues/393) |
 | FFA Edge Director, East/West, NFQUEUE first-flow preconnect, region routing/fallback/return tunnel | [MC #392](https://github.com/TavallStudios/tavall-mc/issues/392), [MC #306](https://github.com/TavallStudios/tavall-mc/issues/306), [Cloud #40](https://github.com/TavallStudios/tavall-cloud/issues/40) |
 | Builder Studio simulation and research experimentation | [MC #201](https://github.com/TavallStudios/tavall-mc/issues/201), [MC #255](https://github.com/TavallStudios/tavall-mc/issues/255); research writeups are not the same as verified implementation |
 | Streamer/Twitch participation rewards | [MC #386](https://github.com/TavallStudios/tavall-mc/issues/386), existing |
@@ -77,14 +82,22 @@
 | GitHub owner issues are canonical, Linear/QA/Notion are projections; no second issue/task authority | [GitHub Bot #16](https://github.com/TavallStudios/tavall-github-bot/issues/16), [QA #6](https://github.com/TavallStudios/tavall-qa/issues/6), [Bot #9](https://github.com/TavallStudios/tavall-github-bot/issues/9) |
 | Java 25, Postgres+JSONB defaults, Redis only where needed, Cloud Redis live state, NFS durable, domain-owned tech stack docs | [TECH_STACK.md](../../TECH_STACK.md), **already documented** 2026-11-03; no duplicate implementation ticket |
 
+### Strategy / research tasks
+
+| Contract or investigation | Canonical work |
+| --- | --- |
+| OSS/free Tavall Workflows plus optional Tavall Studios exclusive partner offers and transparent support links | [Docs #98](https://github.com/TavallStudios/tavall-docs/issues/98), STRATEGY DESIGN |
+| $TAV fixed-supply/community-token legal/security/treasury investigation only | [Docs #99](https://github.com/TavallStudios/tavall-docs/issues/99), RESEARCH |
+| Accountable final source-level reconciliation, including unavailable original conversation evidence | [Docs #100](https://github.com/TavallStudios/tavall-docs/issues/100), VERIFICATION |
+
 ## 4. Items intentionally not activated as implementation
 
 1. **Standalone tiered Suggest skill:** expressly **REVOKED 2026-11-03**; ordinary contextual suggestions remain part of agents. No execution issue.
 2. **AI-native executor research:** AI #103 is a research program, **not** a commitment to train or deploy a model.
-3. **RSI / human-in-the-loop reward-model experimentation:** speculative research. Record questions/benchmarks before seeking implementation and do not assume autonomous training.
+3. **RSI / human-in-the-loop reward-model experimentation:** [AI #104](https://github.com/TavallStudios/tavall-ai/issues/104) is speculative research only; do not assume autonomous training.
 4. **Cloud Phone:** feasibility and security/cost work only, no number purchases, carrier account migrations or MFA bypass.
 5. **TAV community coin:** fan/community utility concept, not equity or revenue rights; no mint, token listing, holder reward promise, investment return, custody deployment or funded pool authorized.
-6. **Additional ventures (Roblox rhythm, TAL/JAAL research, AR awareness app, gaming rewards):** research and venture registry entries unless an owner approved an execution slice. Do not revive paused Kingdoms development.
+6. **Additional ventures (Roblox rhythm, TAL/JAAL research, AR awareness app, gaming rewards):** research and venture registry entries unless an owner approved an execution slice. AR concept is now scoped in [AI Chat #3](https://github.com/TavallStudios/tavall-ai-chat/issues/3), still research only. Do not revive paused Kingdoms development.
 7. **Tavall business model:** OSS/low-friction licensing and partner/collaborator programs are strategy, not permission for unreviewed contracts, fundraising, ownership transfers or paid subscriptions.
 8. **Paid marketing / ads:** explicitly future. Content organic-post automation is not authority to spend on advertising.
 9. **Cloud Browser/AI Chat hosted production:** designs and local branches are not evidence of authorized, tested, deployed providers or Cloud Apps.
@@ -92,7 +105,7 @@
 
 ## 5. Remaining reconciliation checks
 
-- [ ] Audit all ten days against **original source message IDs** where accessible; this document is currently a recovered-topic inventory, not a 1:1 transcript audit.
+- [ ] Audit all ten days against **original source message IDs** where accessible via [Docs #100](https://github.com/TavallStudios/tavall-docs/issues/100); this document is currently a recovered-topic inventory, not a 1:1 transcript audit.
 - [ ] Review open and closed GitHub Issues in all owner repositories, including migration-era unmatched tasks; mark existing/dedup/new with stable source keys before more creation.
 - [ ] Map these issues into the intended GitHub org Project view once actually installed. Do **not** claim Project, Linear or QA sync is live without read-after-write.
 - [ ] Reconcile canonical Notion SYSTEM/GENERAL, DESIGN, TECHNICAL, PROGRESSION pages and cross-link issues; documentation might exist on draft branches and should not be falsely represented as merged.
