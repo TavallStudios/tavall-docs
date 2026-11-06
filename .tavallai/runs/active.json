@@ -1,4 +1,31 @@
 {
   "$schema": "https://tavall.org/schemas/tavallai/run-active/v1.json",
-  "activeRun": null
+  "activeRun": {
+    "agent": "tavall-agent-memory",
+    "agentMode": "ROLE",
+    "campaignId": "tavall-memory-plane-20261005",
+    "git": {
+      "authority": "github.com/TavallStudios/tavall-docs",
+      "branch": "working/tavallai-directory-types-memory-plane-20261005",
+      "headCommit": "ec966186ecbf1f7dabe23ca03d7e193bb4d7e9f0"
+    },
+    "ledger": {
+      "authority": "tavall-agent-ledger",
+      "delegatedWorkers": [],
+      "mode": "ROLE",
+      "scopeClaim": ".",
+      "workerId": "worker-20261005-01a1041f"
+    },
+    "provider": "codex",
+    "runId": "run-20261005-memory-plane-docs",
+    "scope": {
+      "directoryType": "PROVENANCE",
+      "path": ".",
+      "repository": "TavallStudios/tavall-docs"
+    },
+    "startedAt": "2026-10-05T17:13:58Z",
+    "status": "ACTIVE",
+    "threadId": "01a1041f-ba11-7e72-82e6-ae41dcb24ed3",
+    "workId": "work-20261005-memory-plane-graphify-graphiti"
+  }
 }

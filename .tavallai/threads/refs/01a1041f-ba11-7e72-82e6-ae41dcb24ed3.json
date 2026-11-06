@@ -1,0 +1,30 @@
+{
+  "$schema": "https://tavall.org/schemas/tavallai/thread-ref/v1.json",
+  "associatedAt": "2026-10-05T17:13:58Z",
+  "provider": "codex",
+  "runs": [
+    "run-20261005-memory-plane-docs"
+  ],
+  "sourceConversations": [
+    {
+      "conversationId": "6ac19444-0450-83e8-b6b2-280ed7f44cf9",
+      "originalRef": "https://chatgpt.com/c/6ac19444-0450-83e8-b6b2-280ed7f44cf9",
+      "provider": "CHATGPT",
+      "title": "Design Tavallai Memory Plane"
+    },
+    {
+      "conversationId": "6a8247bc-c62c-83e8-a3bb-a52f47bd8457",
+      "originalRef": "https://chatgpt.com/c/6a8247bc-c62c-83e8-a3bb-a52f47bd8457",
+      "provider": "CHATGPT",
+      "title": "Cache in Big Models"
+    },
+    {
+      "conversationId": "6a887709-4250-83e8-994c-78bc6c9c7096",
+      "originalRef": "https://chatgpt.com/c/6a887709-4250-83e8-994c-78bc6c9c7096",
+      "provider": "CHATGPT",
+      "title": "Memory Plane Status Check"
+    }
+  ],
+  "threadId": "01a1041f-ba11-7e72-82e6-ae41dcb24ed3",
+  "title": "Create system overview documents"
+}

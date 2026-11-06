@@ -1,8 +1,12 @@
 {
   "$schema": "https://tavall.org/schemas/tavallai/work-current/v1.json",
-  "activeWorkId": "work-20261003-provenance-rollout",
-  "description": "Establish repo-local and module-local raw AI work provenance layer.",
-  "status": "COMPLETE",
-  "title": "Canonical .tavallai AI-work provenance architecture rollout",
-  "updatedAt": "2026-10-03T09:07:30Z"
+  "activeWorkId": "work-20261005-memory-plane-graphify-graphiti",
+  "campaignId": "tavall-memory-plane-20261005",
+  "description": "Define the canonical typed .tavallai schema and ownership/mutation boundaries for PROVENANCE and MEMORY_PLANE directories.",
+  "mode": "ROLE",
+  "ownerAgent": "tavall-agent-memory",
+  "status": "ACTIVE",
+  "title": "Populate and integrate Tavall AI Memory Plane",
+  "updatedAt": "2026-10-05T17:13:58Z",
+  "workerId": "worker-20261005-01a1041f"
 }

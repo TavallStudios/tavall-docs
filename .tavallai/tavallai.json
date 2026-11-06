@@ -1,5 +1,5 @@
 {
-  "$schema": "https://tavall.org/schemas/tavallai/v1.json",
+  "$schema": "https://raw.githubusercontent.com/TavallStudios/tavall-docs/main/docs/schemas/tavallai-directory.schema.json",
   "authorities": {
     "docs": {
       "authority": "github.com/TavallStudios/tavall-docs",
@@ -9,9 +9,9 @@
     },
     "git": {
       "authority": "github.com/TavallStudios/tavall-docs",
-      "observedAt": "2026-10-03T09:07:30Z",
-      "ref": "refs/heads/main",
-      "revision": "566606b8c2fbf034883c8564187141868c7be46d"
+      "observedAt": "2026-10-05T17:13:58Z",
+      "ref": "refs/heads/working/tavallai-directory-types-memory-plane-20261005",
+      "revision": "ec966186ecbf1f7dabe23ca03d7e193bb4d7e9f0"
     },
     "ledger": {
       "authority": "tavall-agent-ledger",
@@ -24,6 +24,7 @@
       "ref": "memory-plane"
     }
   },
+  "directoryType": "PROVENANCE",
   "entrypoints": {
     "refs": {
       "cloud": "refs/cloud.json",
@@ -41,6 +42,7 @@
     }
   },
   "modules": [],
+  "schemaVersion": 1,
   "scope": {
     "name": "tavall-docs",
     "path": ".",

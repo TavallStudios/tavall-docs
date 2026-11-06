@@ -2,6 +2,16 @@
   "$schema": "https://tavall.org/schemas/tavallai/threads-index/v1.json",
   "threads": [
     {
+      "id": "01a1041f-ba11-7e72-82e6-ae41dcb24ed3",
+      "observedAt": "2026-10-05T17:13:58Z",
+      "provider": "codex",
+      "ref": "threads/refs/01a1041f-ba11-7e72-82e6-ae41dcb24ed3.json",
+      "runIds": [
+        "run-20261005-memory-plane-docs"
+      ],
+      "title": "Create system overview documents"
+    },
+    {
       "id": "b51591dd-6f6e-4b4a-b76f-a243b36e8042",
       "observedAt": "2026-10-03T09:07:30Z",
       "provider": "antigravity-cli",
