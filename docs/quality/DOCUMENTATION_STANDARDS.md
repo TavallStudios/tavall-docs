@@ -384,13 +384,15 @@ For historical repositories, the consolidation loop should backfill these rows i
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `1:1` | `TavallStudios/tavall-docs/docs/quality/DOCUMENTATION_STANDARDS.md` | 2026-09-27 11:45 AM PDT | Direct docs-only update to `main`; README and Deployment policy integration. |
-| Notion | `1:1` | [Tavall Documentation Standards](https://app.notion.com/p/3e738458ddfd813aa513f13de0975985?pvs=204) | 2026-09-26 9:22 AM PDT | Existing Notion twin; synchronization required for this update. |
+| GitHub | `1:1` | `TavallStudios/tavall-docs/docs/quality/DOCUMENTATION_STANDARDS.md` | 2026-11-06 9:19 PM PST | Visual evidence policy update (commit 1695de74cb1d). |
+| Notion | `1:1` | [Tavall Documentation Standards](https://app.notion.com/p/3e738458ddfd813aa513f13de0975985?pvs=204) | 2026-11-06 9:19 PM PST | Matching visual media section synced and read back in Notion; other pre-existing differences not audited. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-06 9:19 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/DOCUMENTATION_STANDARDS.md` | Same path | [Commit](https://github.com/TavallStudios/tavall-docs/commit/1695de74cb1d53261e7ee955a76fd18b6a55907b) | Added visual media lifecycle: design concepts, real build/QA capture, verified production capture; synced matching section to Notion. |
+| 2026-11-06 9:19 PM PST | Notion | `SYNCED` | Existing canonical Notion twin | Same page | Notion page edit and readback | Mirrored the visual media policy section; no broader content drift audit performed. |
 | 2026-09-27 11:45 AM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/DOCUMENTATION_STANDARDS.md` | Same path | Direct docs-only update to `main`. | Added README routing authority and required 1:1 Deployment placement. |
 | 2026-09-26 9:22 AM PDT | Notion | `CREATED` | `Tavall / Tavall Documentation Standards` | — | Notion page creation | Created as the requested 1:1 shared counterpart to the GitHub documentation standards. |
 | 2026-09-26 9:22 AM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/DOCUMENTATION_STANDARDS.md` | Same path | Docs-only PR | Added 1:1 surface placement, progression consolidation automation, and documentation update-state rules. |
