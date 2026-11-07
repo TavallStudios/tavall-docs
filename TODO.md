@@ -112,6 +112,11 @@ _No open global TODO items currently tracked._
 
 ### `TavallStudios/tavall-ai`
 
+- [ ] 2026-10-29 — Review [`GitWorktreeManager`](https://github.com/TavallStudios/tavall-ai/blob/main/tavall-ai-core/src/main/java/org/tavall/ai/app/orchestration/GitWorktreeManager.java) against the [`*Manager` role gate](docs/quality/code-architecture/CLASSES.md#the-manager-anti-pattern).
+  - Existing class owns worktree preparation plus Git diff/status inspection. Identify whether these belong to one focused Git workspace operation Handler or already established Tavall Cloud Git/tool capabilities, before choosing a target name; preserve workspace lifecycle, current Spring integration and callers.
+  - Verify the actual active Tavall AI branch/source and tests before migration. Avoid redundant Services, managers or parallel Git runtime facilities.
+
+
 #### System — Tavall AI Platform
 
 - [ ] 2026-10-22 — Normalize Tavall AI module types and suffixes without treating agents or non-process capabilities as independent runtimes.  ([canonical issue](https://github.com/TavallStudios/tavall-ai/issues/74))
@@ -533,6 +538,14 @@ _No open global TODO items currently tracked._
 ### `TavallStudios/tavall-mc`
 
 #### System — Tavall MC / Project Novus
+
+- [ ] 2026-10-29 — Migrate the legacy `*Manager` classes in the account-link backend to actual Tavall class roles, after ownership/consumer review.
+  - Follow the [canonical Manager anti-pattern gate](docs/quality/code-architecture/CLASSES.md#the-manager-anti-pattern), [Handlers](docs/quality/code-architecture/HANDLERS.md), [Interfaces/DI](docs/quality/code-architecture/INTERFACES_AND_ABSTRACTIONS.md) and the existing production migration TODO. Do not auto-replace `Manager` with `Service` or break runtime DI.
+  - [`AccountLinkAdminManager`](https://github.com/TavallStudios/tavall-mc/blob/main/novus-backend/src/main/java/org/tavall/api/minecraft/backend/account/AccountLinkAdminManager.java): already delegates to three `I*AdminHandler` roles; remove redundant forwarding if no meaningful aggregate operation remains, otherwise preserve its established `IAccountLinkAdminHandler` contract.
+  - [`AccountLinkManager`](https://github.com/TavallStudios/tavall-mc/blob/main/novus-backend/src/main/java/org/tavall/api/minecraft/backend/account/AccountLinkManager.java): largest risk, with player link completion/fallback, token inspection, audit and provider mutations; review security, idempotency, replay/audit behavior and existing `IPlayerAccountLinkHandler` before extracting or renaming.
+  - [`AccountLinkSessionManager`](https://github.com/TavallStudios/tavall-mc/blob/main/novus-backend/src/main/java/org/tavall/api/minecraft/backend/account/AccountLinkSessionManager.java): evaluate `AccountLinkSessionHandler`, preserving session state, token expiry and consumer DI.
+  - [`CreatorAccountManager`](https://github.com/TavallStudios/tavall-mc/blob/main/novus-backend/src/main/java/org/tavall/api/minecraft/backend/account/CreatorAccountManager.java): evaluate `CreatorAccountLinkHandler`; inspect `creatorStatus` read-side upsert separately rather than silently preserving or changing it.
+  - Check current worktree/PR ancestry and tests before implementation; preserve already accepted changes and verify caller imports, interfaces, DI tokens, persisted identities and runtime lifecycle. No mass rename or parallel layer.
 
 - [ ] 2026-10-29 — **Incrementally migrate existing Tavall MC Java implementations to the approved class-role and DI patterns**; preserve behavior and validate exact-source caller contracts.
   - Source of truth: [Tavall Class Roles](docs/quality/code-architecture/CLASSES.md), [Interfaces and Abstractions](docs/quality/code-architecture/INTERFACES_AND_ABSTRACTIONS.md), [Utilities](docs/quality/code-architecture/UTILITIES.md), [Enums](docs/quality/code-architecture/ENUMS.md), [Dependency Injection](docs/quality/code-architecture/DEPENDENCY_INJECTION_AND_ORCHESTRATION.md), and [Handler guidance](docs/quality/code-architecture/HANDLERS.md). Proposed additions under [Tavall Docs PR #89](https://github.com/TavallStudios/tavall-docs/pull/89) must be promoted/accepted before being treated as binding production migration requirements.
