@@ -399,6 +399,18 @@ routes:
       - persistence boundary
     documents:
       - docs/quality/code-architecture/ENTITY_PERSISTENCE.md
+      - docs/quality/DATABASE_AND_PERSISTENCE_SEPARATION_DESIGN.md
+
+  - id: database-environment-separation
+    signals:
+      - database separation
+      - database environment separation
+      - database roles
+      - database migrations
+      - db separation
+      - database design
+    documents:
+      - docs/quality/DATABASE_AND_PERSISTENCE_SEPARATION_DESIGN.md
 
   - id: registries-and-caches
     signals:
