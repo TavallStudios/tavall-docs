@@ -114,13 +114,14 @@ For an independently deployable user-visible product, link representative **scre
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/DEPLOYMENT_DOCUMENT_TEMPLATE.md` | 2026-09-27 11:45 AM PDT | Direct docs-only update to `main`. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/DEPLOYMENT_DOCUMENT_TEMPLATE.md` | 2026-11-06 9:19 PM PST | Visual evidence policy update (commit de6d9dde607a). |
 | Notion | `NOT_APPLICABLE` | — | 2026-09-27 11:45 AM PDT | Quality template; deployment instances, not this template, carry the required 1:1 sync rule. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-06 9:19 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/DEPLOYMENT_DOCUMENT_TEMPLATE.md` | Same path | [Commit](https://github.com/TavallStudios/tavall-docs/commit/de6d9dde607aa78f4ca7a3e84e1824f649e85568) | Added release-linked production screenshots and screen recording instructions. |
 | 2026-09-27 11:45 AM PDT | GitHub | `CREATED` | `TavallStudios/tavall-docs/docs/quality/DEPLOYMENT_DOCUMENT_TEMPLATE.md` | — | Direct docs-only update to `main`. | Added canonical Deployment document structure, event vocabulary, and 1:1 surface rule. |
 
 </details>
