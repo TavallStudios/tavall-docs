@@ -24,8 +24,8 @@
 
 3. **Separation of Concerns**:
    - Merging source into Git `main` does not deploy software.
-   - Database credentials and migrations are separated per environment (coordinated with wDB).
-   - Production promotion requires explicit human owner authorization (`HUMAN_REQUIRED`).
+   - Database credentials and migrations are separated per environment (coordinated with wDB; see `DATABASE_AND_PERSISTENCE_SEPARATION_DESIGN.md`).
+   - Production promotion is pre-authorized (Owner Directive 2026-11-07: deploy aggressively, zero users) following an exact-head REQUIRED_ALL PASS, typed Cloud deployment, deployer actor record, and documented rollback target. Backup via `pg_dump` is mandatory before any production DB migrations.
 
 ---
 
@@ -52,8 +52,8 @@
                                |
                                v
 +-------------------------------------------------------------+
-| 4. Production Authorization (HUMAN_REQUIRED Gate)           |
-|    Owner approves frozen delivery bundle & records token     |
+| 4. Production Pre-Authorization & Rollback Pinning          |
+|    Deployer records actor identity & verified rollback target|
 +-------------------------------------------------------------+
                                |
                                v
@@ -143,7 +143,7 @@ sudo -n tavall service deploy verify <service-id> \
 ```
 
 ### Step 5: Production Traffic Promotion (A/B)
-For PRODUCTION target, candidate is deployed to STANDBY, health-verified, and then shifted to ACTIVE:
+Production deployment is pre-authorized (Owner Directive 2026-11-07: deploy aggressively, zero users). For PRODUCTION target, candidate is deployed to STANDBY, health-verified, and then shifted to ACTIVE:
 ```bash
 sudo -n tavall service deploy promote <service-id> \
   --revision "$SOURCE_SHA" \
@@ -152,7 +152,7 @@ sudo -n tavall service deploy promote <service-id> \
   --runtime-instance-id "<prod-runtime-instance-id>" \
   --deployment-generation <generation> \
   --promotion-authorization-bundle-digest "$BUNDLE" \
-  --promotion-authorization-actor "<owner-operator-id>" \
+  --promotion-authorization-actor "<deploying-agent-identity>" \
   --promotion-authorized-at "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 ```
 
