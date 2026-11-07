@@ -22,6 +22,10 @@ Document **type** and document **lifecycle** are separate dimensions.
 
 These types are complementary. A monetizable product may legitimately have GENERAL + PRODUCT + MARKETING + USER EXPERIENCE + ARTICLEs + DESIGN + Technical + PROGRESSION + Deployment. Every real source/build module with an independent responsibility boundary has a module-scoped DESIGN document and a module-scoped PROGRESSION document even when it does not need PRODUCT, USER EXPERIENCE, or Deployment. Systems composed from modules or subordinate systems have a system-scoped DESIGN document whenever aggregate behavior, composition, ownership, or cross-module boundaries are meaningful.
 
+### Visual Media Routing
+
+For visually observable products and interfaces, **DESIGN / USER EXPERIENCE** carry labeled concept artwork, reference photography, mockups and prototype clips; **PROGRESSION** carries actual screenshots and videos captured while building and validating; **Deployment** carries captures from the verified live release. Generated imagery must never be passed off as running software or a production photograph. Each owner links the same stable, appropriately permissioned artifacts instead of inventing another media-document type. Agents capture useful milestones as part of implementation, not merely at launch. See [Visual Artifacts During Design, Build, and Deployment](DOCUMENTATION_STANDARDS.md#visual-artifacts-during-design-build-and-deployment) and the corresponding document templates. Nonvisual modules do not require a gallery.
+
 ## GENERAL
 
 GENERAL is the readable product/system overview.
