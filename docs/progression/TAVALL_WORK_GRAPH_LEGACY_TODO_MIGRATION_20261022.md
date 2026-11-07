@@ -97,6 +97,22 @@ These are **counts only**. The immutable TODO retains task text, all source cons
 | `tavall-web-mc` | 2 | 0 | 2 |
 | `tavall-web-mcp` | 1 | 0 | 1 |
 
+## Wave 2: Full Organization Intake, QA Task Board Mirroring, and Backlog Triage (2026-11-07)
+
+On 2026-11-07, `W15-flash-backlog` (agy) completed the organization-wide intake, deduplication, and QA Task Board synchronization across all maintained TavallStudios repositories under owner directive 2026-11-07:
+
+| Metric | Observed |
+| --- | ---: |
+| Total open GitHub issues discovered & cataloged | 203 |
+| Missing issues filed (CI gate diagnostics #120, Ops prod deploy #19, TODO retirement #107) | 3 |
+| Total active engineering backlog issues | 206 |
+| Mirrored to QA Task Board (`projectKey: tavall-engineering`) | 206 (100%) |
+| Ranked engineering backlog delivered | `BACKLOG.md` (206 rows, value-to-release sorted) |
+| Active execution authority | QA Task Board (`https://qa.tavall.org`) & GitHub Issues |
+| Legacy manual TODO state | **RETIRED** (replaced by canonical GitHub issue keys) |
+
+All 206 open issues across all repositories are mapped to stable keys (`github/<org>/<repo>/issues/<n>`) on the live QA Task Board in the admin-only `tavall-engineering` project, with typed priorities (CRITICAL, HIGH, NORMAL, LOW) and section assignments. Manual checkbox editing in `TODO.md` is officially retired in favor of issue-driven PR workflow and QA Task Board execution state.
+
 ## Next wave sequencing
 
 1. Check all existing **open and closed** owner-repository issues and PRs, not just title similarity; map matches, skip verified DONE, and review ambiguous overlaps. Prioritize Cloud, Content, MC, Web, AI, CI and deployment blockers.
