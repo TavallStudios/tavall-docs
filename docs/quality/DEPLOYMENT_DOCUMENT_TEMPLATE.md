@@ -91,6 +91,10 @@ Use a different explicit event only when none of these accurately describes the 
 <Use the canonical Documentation Update State footer from DOCUMENTATION_STANDARDS.md.>
 ```
 
+## Production Visual Evidence (when applicable)
+
+For an independently deployable user-visible product, link representative **screenshots or short recordings captured from the verified live deployment** in its Current Deployments evidence/notes, or in a brief visual index associated with a specific deployment event. Record target, runtime/release, source SHA, tested URL or surface, observed scenario, viewport/device, capture time in Pacific, and stable artifact URI. Re-capture material user-facing changes after promotions or rollbacks. A staging/local image or concept render is **not** production evidence; runtime/deployment verification remains authoritative. Redact private information and record missing capture honestly.
+
 ## Ownership Rules
 
 - Deployment documents are operational records, not design contracts.
