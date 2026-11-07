@@ -22,25 +22,14 @@ A pull request is not merely a final merge request. For Tavall development, an o
 
 There is no organization-wide limit on the number of open pull requests and no global rule that freezes creation of unrelated pull requests merely because reconciliation is active elsewhere. Large open-PR counts are normal for sufficiently active repositories. Coordination happens through accurate targets, stacking, dependency metadata, staging files, and reconciliation, not by serializing the entire organization behind one integration queue.
 
-Ordinary contributor changes may not enter `main` without accountable review recorded on GitHub.
+Pull-request merge readiness is governed by exact-head integration validation and documented work-graph metadata: an exact-head `REQUIRED_ALL` PASS from the canonical Tavall CI gate, combined with complete PR metadata (PR Type, PR State, staging ancestry, and Tavall work item linkage), constitutes full authorization to merge.
 
-Accountable pull-request review uses one of two paths:
-
-1. **Independent review**
-   - The current change is presented through a GitHub pull request.
-   - At least one qualified human other than the author approves the current diff.
-   - Reviewable changes after approval require renewed approval.
-2. **Owner self-promotion**
-   - This path is limited to an authorized repository owner when they authored the pull request and no separate qualified reviewer is available.
-   - The owner reviews the complete current diff and posts an **Owner Self-Review** record on the pull request.
-   - The record names scope, validation, untested paths, risks, rollback, and the merge decision.
-   - Reviewable changes after the record require a renewed Owner Self-Review.
+**No PR may wait on a human review gate:**
+- Once exact-head checks have passed and documented metadata conforms, the PR is merged directly into its authorized target branch without pausing for independent human approval, review ceremonies, or an "awaiting review" gate.
+- Independent review and Owner Self-Review provide valuable architectural, security, and operational feedback, and should continue asynchronously or post-merge; they do not constitute a blocking gate that halts continuous automated integration.
+- Draft status is an implementation-in-progress indicator, not a merge blocker: when authorized changes and checks are complete, Draft PRs are merged directly via standard merge commit or squashed per repository policy.
 
 Pull-request promotion requires configured checks to pass unless an authorized owner explicitly accepts an override, blocking conversations to be resolved, requested changes to be cleared, and the change to reach `main` through the GitHub merge flow.
-
-GitHub does not allow an author to approve their own pull request. Owner self-promotion therefore uses a visible review record and, when required, repository-owner or ruleset-bypass merge control instead of fictional self-approval.
-
-Automated reviews, AI reviews, status checks, comments, or reactions support review but satisfy neither independent human approval nor Owner Self-Review.
 
 Authorized repository owners retain direct commit, push, force-push, check-bypass, and merge-bypass authority where repository-specific synchronization or protection rules do not impose a stricter path.
 
@@ -205,6 +194,14 @@ CONTROL coordination values such as `CANONICAL` and `SUPERSEDED` describe enviro
 - `AMBIGUOUS`: conflicting potential owners or identities exist.
 
 `LOGICAL_ONLY` is valid. Reconciliation MUST NOT create a worktree merely to make metadata symmetrical. `MATERIALIZED_DIRTY`, `MATERIALIZED_STALE`, `ORPHANED_PHYSICAL`, `ORPHANED_CONTROL`, and `AMBIGUOUS` are protected attachment states: automation MUST NOT reset, overwrite, relocate, condense, or delete them as cleanup.
+
+**Tavall Work Item Linkage** is mandatory work-graph metadata. Every pull request body MUST include explicit links back to its corresponding Tavall tracking authorities:
+
+- `QA Task:` Typed QA Task Board key or UUID (e.g. `orchestrator/<wave>/<worker-id>` or `github/<owner>/<repo>/issues/<n>`);
+- `Issue:` GitHub Issue URL or reference (when backed by an issue);
+- `Work Graph Node:` Specific Work Graph node identity;
+- `Parent PR:` Explicit reference to parent pull request in the stack (or `None (<target>)`);
+- `Staging PR:` Link to the persistent integration root PR for the repository.
 
 ##### Canonical source identity
 
@@ -564,7 +561,7 @@ Keep a pull request in **Draft** while implementation, validation, dependency re
 
 Mark it ready only when its current scope is complete, the author reviewed the diff, validation is recorded, risks and gaps are disclosed, documentation is current, dependency state is accurate, and the change is reasonably reviewable as one coherent boundary.
 
-During a user-authorized fix-and-merge campaign, an incomplete readiness item is an intermediate work state. Continue repairing the in-scope source, dependencies, local checks, Tavall CI/Bot path, and documentation. Do not return a status-only list of merge gates while authorized repairs remain actionable. Keep the PR Draft until the exact readiness conditions are met. Draft status does not prevent an authorized merge: if the normal GitHub merge endpoint rejects the PR only because it is Draft, keep it Draft and use the repository-permitted ordinary merge-commit path after exact-head checks. Verify GitHub records the PR as merged. Before any transition that could trigger automatic review, disable Codex automatic Code Review in both personal preferences and that repository's Codex settings.
+During a user-authorized fix-and-merge campaign, an incomplete readiness item is an intermediate work state. Continue repairing the in-scope source, dependencies, local checks, Tavall CI/Bot path, and documentation. Do not return a status-only list of merge gates while authorized repairs remain actionable. Once exact-head `REQUIRED_ALL` PASS and documented work-graph metadata are achieved, the PR is merge-ready: merge immediately into its authorized integration target. Draft status does not prevent an authorized merge: if the normal GitHub merge endpoint rejects the PR only because it is Draft, use the repository-permitted ordinary merge-commit path after exact-head checks. No PR may pause or remain unmerged waiting on a human review gate. Verify GitHub records the PR as merged. Before any transition that could trigger automatic review, disable Codex automatic Code Review in both personal preferences and that repository's Codex settings.
 
 Large coherent systems are allowed. Do not split one system into artificial fragments merely to satisfy an arbitrary line-count preference.
 
@@ -579,7 +576,9 @@ Pull requests created by Tavall automation, ChatGPT, Codex, or another bot must 
 - Request `tjXJNOOBIE` as a reviewer when they are not the pull-request author. GitHub does not permit an author to review or approve their own pull request, so an owner-authored pull request uses the Owner Self-Review path instead of a fake self-review request.
 - Do not request or trigger Codex GitHub Code Review for Tavall PRs. Keep Automatic review disabled in personal preferences and in each connected Tavall repository's Codex settings. Use the Tavall PR Review Agent ROLE for the review pass and the exact-head Tavall CI/GitHub Bot checks for automated acceptance. Keep the GitHub connection available for repository and Check operations.
 
-### 4.7 Accountable review
+### 4.7 Accountable review and continuous feedback
+
+Review is continuous and advisory; exact-head integration validation (`REQUIRED_ALL` PASS) and documented metadata govern merge readiness. PRs do not block awaiting human review gates.
 
 Reviewers evaluate:
 
@@ -661,7 +660,7 @@ Each meaningful automated finding should include severity, affected code, a real
 
 For a user-authorized fix-and-merge campaign, conflicts, Draft status, absent hosted TCI, stale blocker records, and missing checks are active work states, not reasons to stop. Refresh current remote PR heads, parent refs, and check state before deciding what remains. After each merge, reconcile `.tavallai` and ledger state to GitHub; superseded blocker text is historical evidence and does not override current user authorization.
 
-Use repository-local exact-source checks and the Tavall GitHub Bot's check/review tools as the merge evidence surface. When those checks pass and the target branch rules permit the authorized owner merge, continue even if hosted Tavall CI or CONTROL execution is unavailable. Do not switch to GitHub Actions or request Codex PR review. Keep a Draft PR Draft while repairing; do not mark it Ready just to trigger a merge or review. A merge API response that rejects only Draft status is not a stopping condition: push an ordinary two-parent merge commit to the authorized target using the repository's permitted owner path, then confirm the PR's merged state and exact merge commit on GitHub. A conflict, stale base, stale check, or absent check similarly starts another repair pass; do not hand the user a “merge blockers” list while an authorized repair path remains available. Preserve branch protections and use only repository-permitted merge paths.
+Use repository-local exact-source checks and the Tavall GitHub Bot's check/review tools as the merge evidence surface. When those checks pass and the target branch rules permit the authorized owner merge, continue even if hosted Tavall CI or CONTROL execution is unavailable. Standing merge authorization applies: merge directly once exact-head `REQUIRED_ALL` PASS is achieved and PR metadata is valid. Do not solicit a second confirmation, pause for human review approval, or create artificial blockers. Do not switch to GitHub Actions or request Codex PR review. Keep a Draft PR Draft while repairing; do not mark it Ready just to trigger a merge or review. A merge API response that rejects only Draft status is not a stopping condition: push an ordinary two-parent merge commit to the authorized target using the repository's permitted owner path, then confirm the PR's merged state and exact merge commit on GitHub. A conflict, stale base, stale check, or absent check similarly starts another repair pass; do not hand the user a “merge blockers” list while an authorized repair path remains available. Preserve branch protections and use only repository-permitted merge paths.
 
 ## 5. Git hygiene
 
@@ -816,13 +815,14 @@ Record rejected approaches, link implementation work, and close issues only when
 - [ ] Meaningful in-progress work is pushed to the remote PR branch.
 - [ ] The pull request explains what changed and why.
 - [ ] `tjXJNOOBIE` and every materially authoring bot or automation are attributed in the pull-request body; real commit-level co-authorship is recorded when available.
-- [ ] `tjXJNOOBIE` is requested as reviewer when they are not the author; owner-authored pull requests use Owner Self-Review instead.
+- [ ] Exact-head `REQUIRED_ALL` PASS is achieved and documented.
+- [ ] PR Type, PR State, Parent PR, Staging PR, and QA Task Board task link are recorded in the PR body; no PR waits on a human review gate before merging once checks pass.
 - [ ] Tavall PR Review Agent ROLE pass is recorded and meaningful findings are addressed or explained.
 - [ ] Local exact-source checks and current-head Tavall CI/GitHub Bot checks are recorded. List any unrun gate explicitly and continue its repair while authorized work remains.
 
 ## 9. Reviewer checklist
 
-- [ ] Review is independent, or the author is an authorized owner using valid Owner Self-Review.
+- [ ] Review provides continuous architectural, security, and operational feedback; exact-head `REQUIRED_ALL` PASS and metadata govern merge authorization without blocking on human gates.
 - [ ] Requested behavior is implemented correctly.
 - [ ] Architecture and repository-specific rules are respected.
 - [ ] No duplicate or parallel system was introduced.
