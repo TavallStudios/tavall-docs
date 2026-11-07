@@ -248,6 +248,18 @@ Do not duplicate ordinary child milestones here. Add a child event only when it 
 <Use the canonical Documentation Update State footer from DOCUMENTATION_STANDARDS.md.>
 ```
 
+## Visual Implementation Evidence (when applicable)
+
+When the module/system has a visual surface, agents should capture its **real running UI or physical output** during meaningful build/QA milestones using available browser, app, game-client, or device capture tooling. Keep screenshots, screen recordings, and brief clips tied to the same implementation/revision as the Timeline and validation table. Compare them with the owning DESIGN's intended visuals; call out differences and remaining work rather than presenting mockups as test evidence.
+
+Suggested evidence index (place within the instantiated module/system Progression document, not its document-update footer):
+
+| Observed State / Scenario | Evidence Link | Environment / Device / Viewport | Source / Build | Captured (PST/PDT) | QA Result / Remaining Work |
+| --- | --- | --- | --- | --- | --- |
+| ... | screenshot/video URI | local, test, or staging; browser/viewport | repo@SHA; build or PR | YYYY-MM-DD h:mm AM/PM PST/PDT | verified observation or blocker |
+
+Label `CONCEPT` images as design links, not progression proof. Never label an artifact `PRODUCTION` without production target and release verification in the owning Deployment document. Scrub private data and secrets; keep large recordings in stable access-controlled artifact storage. When capture is impossible, record `NOT_CAPTURED`/`UNVERIFIED` and the missing verification work. Only add an evidence index where it improves understanding; do not turn each commit into a screenshot chore.
+
 ## Ownership Rules
 
 - Every real source/build module with an independent responsibility boundary has one module-scoped Progression document.
