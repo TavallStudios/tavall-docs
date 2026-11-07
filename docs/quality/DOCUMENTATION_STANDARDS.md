@@ -244,6 +244,21 @@ Cover:
 
 The document must provide raw format text or a precise textual description even when images exist.
 
+### Visual Artifacts During Design, Build, and Deployment
+
+For any product, interface, game, physical deliverable, or user-visible flow where appearance matters, **agents capture and maintain visual artifacts as part of the ordinary work**, rather than deferring them to a presentation or launch pass. This extends existing DESIGN, USER EXPERIENCE, PROGRESSION, and Deployment authorities; it does not create a new document type.
+
+- **DESIGN / USER EXPERIENCE:** Author or link concept art, mockups, visual references, prototype frames, storyboards, product photography references, and short interaction demos when they materially communicate the intended result. Label each artifact `CONCEPT`, `REFERENCE`, `PROTOTYPE`, or `ACCEPTED_DESIGN`; generated art is not an actual product screenshot. Cite source, rights/permission, current design revision, and the behavior or appearance it illustrates. Include an accessible text specification; visuals do not become the sole design contract.
+- **PROGRESSION:** During meaningful implementation and validation milestones, use available browser, game-client, capture, or device tooling to take **real screenshots, screen recordings, or short clips** of the running work. Capture representative success, failure, responsive/mobile, and interaction states where relevant, and link each to the exact audited source/build and test or QA result. Mark `IMPLEMENTATION`, `STAGING`, or other accurately observed environment; a screenshot by itself cannot establish correctness.
+- **Deployment:** For user-visible independently deployable systems, link production-captured screenshots or video to the verified deployed release/runtime and target. Label `PRODUCTION` only when the environment, release, and capture were actually verified. Deployed screenshots supplement, never replace, release and runtime evidence.
+- **Continuous loop:** An agent developing a visual surface should compare intended DESIGN imagery with observed implementation at meaningful slices, capture after functional/visual changes and before claiming visual acceptance, record discrepancies and next work in PROGRESSION, and capture production again after significant promotions. Avoid recording every insignificant commit. For nonvisual/backend-only changes, visual capture is not mandatory.
+- **Evidence metadata:** Every retained capture must identify what is shown, artifact kind and truth status, source URI/path, capture environment, revision/build/release when applicable, date/time (12-hour Pacific in prose), capture tool/device/browser/viewport where relevant, scenario, and linked issue/PR/QA evidence. Identify superseded captures and preserve useful history. Use stable, access-controlled artifact storage; keep image assets under the owning system's `imgs/` when appropriate, and link substantial videos rather than bloating Git history. Mirror links/embeds on required Notion ↔ GitHub document surfaces without creating competing asset authorities.
+- **Trust and safety:** Never imply a generated mockup is live, use a local/staging capture to claim production, fabricate a screenshot, or claim visual inspection when the agent lacks visual access. Redact secrets, tokens, customer data, and sensitive UI before sharing; obey asset licenses and environment permissions. If capture or asset synchronization is unavailable, record it as `NOT_CAPTURED`/`UNVERIFIED` with the blocker and next validation action.
+
+##### Why
+
+A visual design that cannot be compared with the running product is easy to misimplement, and a progress report without observable UI evidence can mistake code passing for an experience working. Keeping visual artifacts attached to their existing owners makes differences inspectable without inventing another documentation system.
+
 ## 7. Progression Documents
 
 Progression documents report what is demonstrably implemented, integrated, tested, blocked, or missing at an exact audited commit.
