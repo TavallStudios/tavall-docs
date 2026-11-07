@@ -47,6 +47,10 @@ Use [GENERAL_DOCUMENT_TEMPLATE.md](GENERAL_DOCUMENT_TEMPLATE.md).
 
 The Tavall PvP Notion overview, **Tavall PvP — Competitive Minecraft PvP, Built Like a Game**, is the style reference: strong product claim, problem, readable differentiators, coherent system story, honest roadmap/evidence context.
 
+### Research-paper specialization (November 4, 2026)
+
+A Tavall engineering research article remains an `ARTICLE`, not a new document type, independent runtime or replacement for owner DESIGN/TECHNICAL/PROGRESSION. When a question is empirical and generalizable, record the original falsifiable hypothesis, competing explanation, controlled environment, source/test and scenario SHA, reproducible method, observed measurements, uncertainty, failure/counterexamples, costs, limitations, and subsequent decision. Distinguish a useful engineering fix from a documented research hypothesis tested under explicit constraints. Do not claim peer review, academic publication or live deployment without external evidence. [Docs #101](https://github.com/TavallStudios/tavall-docs/issues/101) owns cross-project guidance; [MC #393](https://github.com/TavallStudios/tavall-mc/issues/393) owns the initial Builder Studio/FFA pilot.
+
 ## ARTICLE
 
 ARTICLE preserves Tavall's reasoning.
