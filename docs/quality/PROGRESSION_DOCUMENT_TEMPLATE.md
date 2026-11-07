@@ -283,13 +283,14 @@ Label `CONCEPT` images as design links, not progression proof. Never label an ar
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/PROGRESSION_DOCUMENT_TEMPLATE.md` | 2026-09-27 2:58 PM PDT | Direct docs-only update to `main`. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/PROGRESSION_DOCUMENT_TEMPLATE.md` | 2026-11-06 9:19 PM PST | Visual evidence policy update (commit ba096881bb38). |
 | Notion | `NOT_APPLICABLE` | — | 2026-09-27 2:58 PM PDT | Quality template; instantiated Progression documents carry the required 1:1 sync rule. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-06 9:19 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/PROGRESSION_DOCUMENT_TEMPLATE.md` | Same path | [Commit](https://github.com/TavallStudios/tavall-docs/commit/ba096881bb380360471053880a784672192b6786) | Added optional real screenshot/video implementation evidence index and capture truth requirements. |
 | 2026-09-27 2:58 PM PDT | GitHub | `CREATED` | `TavallStudios/tavall-docs/docs/quality/PROGRESSION_DOCUMENT_TEMPLATE.md` | — | Direct docs-only update to `main`. | Added module/system Progression scopes, table timelines, module-type lenses, aggregation rules, and required document-state footer. |
 
 </details>
