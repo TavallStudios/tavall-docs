@@ -38,7 +38,7 @@ Suggested board views: **Next & Ready**, **Blocked**, **Active Agent Work**, **B
 
 ## 4. GitHub Issue Types and Priority
 
-The TavallStudios organization now configures native GitHub Issue **Types** and a native org **Priority** field. These are the canonical classification dimensions for every owner-repository issue. They supersede ad-hoc kind/priority labels and replace the JSON agent ledger as a task source (see §2 and §3).
+The TavallStudios organization defines native GitHub Issue **Types** and a native org **Priority** field. These are the canonical classification dimensions for every owner-repository issue. They supersede ad-hoc kind/priority labels and replace the JSON agent ledger as a task source (see §2 and §3). **A missing native type is `UNCLASSIFIED`, not implicitly `TODO`, `Task`, or `Other`; type assignment is not yet complete across the organization.**
 
 ### Issue Types
 
@@ -56,6 +56,38 @@ The TavallStudios organization now configures native GitHub Issue **Types** and 
 - **Research** — investigation, spike, or evaluation without a committed deliverable.
 - **Design** — product, UX, or technical design artifact.
 - **Incident** — an active or post-mortem production/service disruption.
+
+### Issue title prefixes and TODO promotion
+
+All newly created or materially retitled Tavall Issues must use **one uppercase type prefix followed by `: `**. Titles are a searchable human/agent projection; the native GitHub Issue **Type** is the classification authority. Never infer a type from a prefix alone or use a label as a substitute when the native field is available.
+
+| Native Issue Type | Required title prefix | Meaning |
+| --- | --- | --- |
+| TODO | `TODO:` | Captured follow-up or loose reminder; owner/acceptance/scheduling may be incomplete. |
+| Task | `TASK:` | Accepted, bounded actionable work with an owner and testable completion conditions. |
+| Bug | `BUG:` | Confirmed incorrect behavior, with reproduction and expected behavior where possible. |
+| Feature | `FEATURE:` | Accepted new user/system capability. |
+| Idea | `IDEA:` | Unaccepted proposal; does not imply implementation authorization. |
+| Epic | `EPIC:` | Parent outcome coordinating linked child issues. |
+| Migration | `MIGRATION:` | Governed cutover or ownership/data/code migration. |
+| Infrastructure | `INFRA:` | Infrastructure, CI, deployment, or operational platform work. |
+| Test | `TEST:` | Tests, simulations, test harnesses, or verification. |
+| Documentation | `DOCS:` | Documentation, policy, templates, and reference material. |
+| Security | `SECURITY:` | Security hardening, vulnerabilities, or compliance controls. |
+| Research | `RESEARCH:` | Investigation or experiment, with uncertainty and evidence as the deliverable. |
+| Design | `DESIGN:` | UX, product, architectural, or technical design deliverable. |
+| Incident | `INCIDENT:` | Production disruption, impact, mitigation, or postmortem. |
+
+**Other/unknown:** Reserve `OTHER:` only as an explicit short-lived triage fallback when no existing Type applies. Use the native **Other** type *only if it is actually configured in the organization*; otherwise leave the native type unassigned, record `NEEDS_TYPE_TRIAGE` and the reason, and never claim the issue was typed. Prefer an existing type over adding a catch-all. Do not treat `OTHER` as a generic TODO.
+
+- Choose the **primary intent**, not every activity inside an issue. A `BUG:` issue can require tests; a `FEATURE:` issue can contain implementation checklists. Those are not automatically separate `TASK:` or `TEST:` issues.
+- Use `TODO:` when a follow-up is worth retaining but **not yet approved/scoped**; use `TASK:` when the work is accepted and the owner, result, and acceptance evidence are known. Promote by updating the **same issue** (native type, title prefix, body, status/priority as warranted), preserving issue number, discussion, and links. Do not silently turn `IDEA:` or `RESEARCH:` into committed work.
+- Before creating/updating, deduplicate against open/closed issues and linked PRs; read back both **native type** and **title prefix** after mutation. If the client cannot write native Issue Types, record the blocker and leave the item pending rather than misreporting success. Never create duplicate issues merely to change type.
+- Use exactly one prefix, not `TODO: TASK:` or new stacked prefixes. Existing PR title/branch conventions are separate and unchanged.
+- **Historical rollout:** inventory native types and titles first; review untyped or mismatched issues per owner repository in reversible batches. Preserve identity/acceptance, do not mass-rename all existing issues without a verified mapping, and do not claim the prefix policy has already retroactively classified the backlog.
+- Search/report separately for **unclassified**, **TODO**, **planned actionable**, **research/ideas**, and **closed**. `open` is a status, not synonymous with `TODO`.
+
+Examples: `TODO: Audit current blog attribution configuration`, `TASK: Add verified footer links to live hosts`, `BUG: Fix OAuth redirect loop`, `RESEARCH: Evaluate credential-safe browser import`.
 
 ### Priority
 
