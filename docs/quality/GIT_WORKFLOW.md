@@ -790,6 +790,8 @@ Create or update an issue when a challenge blocks progress, may change architect
 
 Do not create issues for every tiny task, routine formatting change, temporary note, or trivial correction fully explained by one small pull request.
 
+When an issue is warranted, apply the **native Issue Type plus uppercase title prefix** from [Work Graph §4](WORK_TRACKING.md#4-github-issue-types-and-priority). Keep `TODO:` for unplanned reminders and `TASK:` for accepted, bounded work. Check existing issues before opening another and read back the assigned native type after creation; do not treat an untyped issue or `TODO:` prefix as verified classification. Existing PR/branch prefixes are separate.
+
 Direction-setting issues should document summary, current behavior, why it matters, evidence, constraints, options, current direction, acceptance criteria, related work, and AI implementation context.
 
 Record rejected approaches, link implementation work, and close issues only when acceptance criteria are satisfied.
