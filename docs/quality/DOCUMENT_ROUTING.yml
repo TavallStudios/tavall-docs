@@ -104,6 +104,11 @@ routes:
       - work graph
       - work tracking
       - issue intake
+      - issue type
+      - issue types
+      - issue prefix
+      - issue title prefix
+      - todo issue
       - task triage
       - task board
       - github projects
