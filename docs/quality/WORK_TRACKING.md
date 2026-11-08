@@ -38,56 +38,38 @@ Suggested board views: **Next & Ready**, **Blocked**, **Active Agent Work**, **B
 
 ## 4. GitHub Issue Types and Priority
 
-The TavallStudios organization defines native GitHub Issue **Types** and a native org **Priority** field. These are the canonical classification dimensions for every owner-repository issue. They supersede ad-hoc kind/priority labels and replace the JSON agent ledger as a task source (see §2 and §3). **A missing native type is `UNCLASSIFIED`, not implicitly `TODO`, `Task`, or `Other`; type assignment is not yet complete across the organization.**
+Use **five** Tavall Issue Types. The native GitHub type is authoritative; the uppercase `TYPE: ` title prefix makes it easy to scan. A missing native type is **UNCLASSIFIED** until genuinely assigned. Issue type is the *kind of item*, not its size, owner, status or priority.
 
-### Issue Types
+### Canonical Issue Types
 
-- **Task** — a single bounded, actionable unit of work.
-- **Bug** — a defect or incorrect behavior to fix.
-- **Feature** — a bounded new capability implemented through FEATURE PRs; relates to PR Type FEATURE / DEVELOPMENT_STAGING / RUNTIME / STAGING.
-- **TODO** — a lightweight loose reminder or follow-up, not yet promoted to a planned Task.
-- **Idea** — a proposal or suggestion; never auto-converted into a Task until explicitly accepted.
-- **Epic** — a Notion goal/milestone parent that groups child sub-issues.
-- **Migration** — a move, port, or cutover of code, data, or ownership.
-- **Infrastructure** — platform, build, CI, or operational-environment work.
-- **Test** — test coverage, harness, or verification work.
-- **Documentation** — docs, standards, or authored reference content.
-- **Security** — vulnerability, hardening, or compliance work.
-- **Research** — investigation, spike, or evaluation without a committed deliverable.
-- **Design** — product, UX, or technical design artifact.
-- **Incident** — an active or post-mortem production/service disruption.
-
-### Issue title prefixes and TODO promotion
-
-All newly created or materially retitled Tavall Issues must use **one uppercase type prefix followed by `: `**. Titles are a searchable human/agent projection; the native GitHub Issue **Type** is the classification authority. Never infer a type from a prefix alone or use a label as a substitute when the native field is available.
-
-| Native Issue Type | Required title prefix | Meaning |
+| Native Issue Type | Title prefix | Use |
 | --- | --- | --- |
-| TODO | `TODO:` | Captured follow-up or loose reminder; owner/acceptance/scheduling may be incomplete. |
-| Task | `TASK:` | Accepted, bounded actionable work with an owner and testable completion conditions. |
-| Bug | `BUG:` | Confirmed incorrect behavior, with reproduction and expected behavior where possible. |
-| Feature | `FEATURE:` | Accepted new user/system capability. |
-| Idea | `IDEA:` | Unaccepted proposal; does not imply implementation authorization. |
-| Epic | `EPIC:` | Parent outcome coordinating linked child issues. |
-| Migration | `MIGRATION:` | Governed cutover or ownership/data/code migration. |
-| Infrastructure | `INFRA:` | Infrastructure, CI, deployment, or operational platform work. |
-| Test | `TEST:` | Tests, simulations, test harnesses, or verification. |
-| Documentation | `DOCS:` | Documentation, policy, templates, and reference material. |
-| Security | `SECURITY:` | Security hardening, vulnerabilities, or compliance controls. |
-| Research | `RESEARCH:` | Investigation or experiment, with uncertainty and evidence as the deliverable. |
-| Design | `DESIGN:` | UX, product, architectural, or technical design deliverable. |
-| Incident | `INCIDENT:` | Production disruption, impact, mitigation, or postmortem. |
+| **TODO** | `TODO:` | Work that needs doing: new features, tasks, multi-issue goals, documentation, testing, infrastructure, migration, design, operational maintenance or security hardening. |
+| **Bug** | `BUG:` | Incorrect, broken or unsafe behavior that needs fixing, including confirmed security defects. |
+| **Idea** | `IDEA:` | A possible direction or suggestion not yet accepted for execution. |
+| **Research** | `RESEARCH:` | Investigation, experiments, feasibility work or questions whose conclusion is not yet known. |
+| **Other** | `OTHER:` | Genuine exceptions that are none of the above, with a documented reason. Do not use as a default catch-all. |
 
-**Other/unknown:** Reserve `OTHER:` only as an explicit short-lived triage fallback when no existing Type applies. Use the native **Other** type *only if it is actually configured in the organization*; otherwise leave the native type unassigned, record `NEEDS_TYPE_TRIAGE` and the reason, and never claim the issue was typed. Prefer an existing type over adding a catch-all. Do not treat `OTHER` as a generic TODO.
+**Configuration note:** GitHub currently has the previous 14 native types and does **not** have an `Other` type configured. The policy above is the target. Updating this document does not update native GitHub organization settings. Configure `Other`, then retire the unused legacy types only after all linked issues have been migrated and integrations audited. Do not assert that `OTHER:` implies a real native type when it is unavailable.
 
-- Choose the **primary intent**, not every activity inside an issue. A `BUG:` issue can require tests; a `FEATURE:` issue can contain implementation checklists. Those are not automatically separate `TASK:` or `TEST:` issues.
-- Use `TODO:` when a follow-up is worth retaining but **not yet approved/scoped**; use `TASK:` when the work is accepted and the owner, result, and acceptance evidence are known. Promote by updating the **same issue** (native type, title prefix, body, status/priority as warranted), preserving issue number, discussion, and links. Do not silently turn `IDEA:` or `RESEARCH:` into committed work.
-- Before creating/updating, deduplicate against open/closed issues and linked PRs; read back both **native type** and **title prefix** after mutation. If the client cannot write native Issue Types, record the blocker and leave the item pending rather than misreporting success. Never create duplicate issues merely to change type.
-- Use exactly one prefix, not `TODO: TASK:` or new stacked prefixes. Existing PR title/branch conventions are separate and unchanged.
-- **Historical rollout:** inventory native types and titles first; review untyped or mismatched issues per owner repository in reversible batches. Preserve identity/acceptance, do not mass-rename all existing issues without a verified mapping, and do not claim the prefix policy has already retroactively classified the backlog.
-- Search/report separately for **unclassified**, **TODO**, **planned actionable**, **research/ideas**, and **closed**. `open` is a status, not synonymous with `TODO`.
+### Relationships and classifications that are not types
 
-Examples: `TODO: Audit current blog attribution configuration`, `TASK: Add verified footer links to live hosts`, `BUG: Fix OAuth redirect loop`, `RESEARCH: Evaluate credential-safe browser import`.
+- **No separate Epic, Task or Feature type.** They are `TODO:` work items, regardless of scale, maturity or whether they have child issues. Use GitHub sub-issues/relationships for parent-child structure, QA Task Board state for planned vs captured work, and priority for urgency.
+- **No separate Migration, Infrastructure, Test, Documentation, Security, Design or Incident type.** Represent the domain in issue body, repository, scope or optional facets. Defects remain `BUG:`; new feature implementation remains `TODO:`. Security and incidents retain their own response/authorization protocols, not a less strict workflow.
+- **Idea vs TODO:** `IDEA:` does not authorize implementation. Acceptance can convert the same issue to `TODO:` with preserved number, discussion and links.
+- **Research vs TODO:** `RESEARCH:` promises findings and evidence, not a feature implementation. Accepted work following research becomes a `TODO:` in the same issue or a linked child, as appropriate.
+- **Other:** dedicated command channels, automation receipts, historical duplicates and accidental closed issues are *not* automatically TODOs or OTHER. Preserve and exclude special-purpose records unless the owning integration confirms a safe reclassification.
+
+### Naming, intake, migration and reporting
+
+1. Classify by substantive intent from the issue title **and body**, never by a keyword alone. Choose one native type and exactly one matching uppercase prefix. Preserve the meaningful descriptive title after removing a legacy prefix such as `FEATURE:`, `TASK:` or `EPIC:`.
+2. Deduplicate against open and closed issues and linked PRs first. Use parent/child links and existing canonical issue identities; no duplicate tracking record just to express size or acceptance.
+3. Keep acceptance, assigned owner, QA work status, priority, issue state, verification and dependency evidence separate from the type. A `TODO:` issue may be captured, active, blocked, done or a parent of many child TODOs.
+4. On mutation, read back both native Issue Type and title. If the GitHub client cannot write the native field, record the failure and do not claim successful classification.
+5. Audit existing issues before migration and apply in reversible read-after-write batches. Retype legacy Task/Feature/Epic/Migration/Infrastructure/Test/Documentation/Security/Design/Incident issues to TODO where appropriate; migrate genuine bugs to Bug and investigations to Research. Do not retitle command channels or other special consumer interfaces without verifying compatibility.
+6. Reports must distinguish `TODO`, `BUG`, `IDEA`, `RESEARCH`, `OTHER`, `UNCLASSIFIED`, and `closed`. Closed is a *state*, not another type. Native organization type configuration must be verified separately from policy documents.
+
+Examples: `TODO: Build Tavall AI Chat`, `TODO: Run CI simulation suite`, `BUG: Fix OAuth redirect loop`, `IDEA: Explore a token-based rewards system`, `RESEARCH: Evaluate credential-safe browser import`.
 
 ### Priority
 
@@ -100,7 +82,7 @@ The native org **Priority** field carries `Urgent / High / Medium / Low`, derive
 
 ### Authority and consumer
 
-GitHub Issues feed the QA Task Board; **QA remains the task authority** and `qa.tavall.org` is unchanged. The JSON agent ledger is **retired as a task source** — issues, not ledger entries, are now the canonical task identity.
+GitHub Issues provide the canonical engineering issue identity; the QA Task Board remains the execution/task-state authority through its typed API. The retired JSON Agent Ledger is not a task source. **Neither a prefix nor a migration manifest is native GitHub type evidence.**
 
 ## 5. Intake and deduplication
 

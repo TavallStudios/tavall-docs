@@ -12,11 +12,7 @@ import re
 import subprocess
 import sys
 
-ALLOWED_TYPES = frozenset({
-    "Task", "Bug", "Feature", "TODO", "Idea", "Epic", "Migration",
-    "Infrastructure", "Test", "Documentation", "Security",
-    "Research", "Design", "Incident",
-})
+ALLOWED_TYPES = frozenset({"TODO", "Bug", "Idea", "Research", "Other"})
 ISSUE_URL = re.compile(r"^https://github\.com/([^/]+)/([^/]+)/issues/([0-9]+)$")
 
 
@@ -36,7 +32,7 @@ def github_api(*args):
 
 def read_manifest(path):
     data = json.loads(path.read_text(encoding="utf-8"))
-    if data.get("schema_version") != 1:
+    if data.get("schema_version") != 2:
         raise ValueError("Unsupported issue-type migration schema")
     seen = set()
     for row in data["entries"]:
@@ -53,13 +49,14 @@ def read_manifest(path):
             continue
         if proposed not in ALLOWED_TYPES:
             raise ValueError("Unsupported native issue type: " + proposed)
-        expected_prefix = {
-            "Infrastructure": "INFRA:", "Documentation": "DOCS:",
-        }.get(proposed, proposed.upper() + ":")
+        expected_prefix = proposed.upper() + ":"
         if not title or not title.startswith(expected_prefix):
             raise ValueError("Title prefix/type mismatch: " + url)
-        if row["current_native_type"] is not None:
-            raise ValueError("Only currently untyped issues belong in this migration")
+        # The migration includes both untyped and previously typed legacy issues.
+        # A non-null old Type is a compare-and-swap precondition, not an error.
+        current_type = row.get("current_native_type")
+        if current_type is not None and not isinstance(current_type, str):
+            raise ValueError("Invalid existing Type value: " + url)
         if row["current_state"] not in ("open", "closed"):
             raise ValueError("Invalid state: " + url)
     return data
@@ -100,7 +97,8 @@ def run(path, *, apply, states, limit):
             if current_type == expected_type and actual_title == expected_title:
                 summary["already_applied"] += 1
                 continue
-            if current_type is not None or actual_title != item["source_title"]:
+            if (current_type != item.get("current_native_type")
+                    or actual_title != item["source_title"]):
                 print("SKIP_TYPE_OR_TITLE_DRIFT", item["issue_url"])
                 summary["skipped_drift"] += 1
                 continue
