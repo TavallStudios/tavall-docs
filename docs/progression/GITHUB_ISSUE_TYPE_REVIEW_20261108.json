@@ -1,16 +1,17 @@
 {
-  "schema_version": 1,
-  "source": "TavallStudios native GitHub Issues (all open and closed); GitHub search 2026-11-08",
+  "schema_version": 2,
+  "source": "TavallStudios GitHub issues snapshot 2026-11-08; simplified 5 types (TODO/BUG/IDEA/RESEARCH/OTHER)",
   "snapshot_date": "2026-11-08",
-  "status": "REVIEWED_NOT_APPLIED",
+  "status": "REVIEWED_SIMPLIFIED_TYPES_NOT_APPLIED",
   "scope": {
     "organization_total": 271,
     "open": 210,
     "closed": 61,
-    "already_native_typed": 50,
-    "currently_untyped": 221,
-    "proposed_type_assignments": 177,
-    "non_work_or_exception_issues": 44
+    "previously_typed": 50,
+    "untyped_at_snapshot": 221,
+    "reviewed_classifiable": 227,
+    "excluded_special_records": 44,
+    "proposed_native_other_count": 0
   },
   "preserve": "Verify same repository, number, source_title and currently null native type before update. Set both native Type and uppercase prefix; reread after mutation. Do not apply when mismatched, closed or otherwise changed. No new issues.",
   "types": {
@@ -52,11 +53,12 @@
       "issue_url": "https://github.com/TavallStudios/function-catalog/issues/27",
       "source_title": "Add Strands MCP agent provider for Java-first Tavall agents",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Add Strands MCP agent provider for Java-first Tavall agents",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Add Strands MCP agent provider for Java-first Tavall agents",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/function-catalog/issues/35",
@@ -72,11 +74,12 @@
       "issue_url": "https://github.com/TavallStudios/function-catalog/issues/39",
       "source_title": "Migration: Bring the independently executable `mcp-server` Gradle module into Tavall naming as `tavall-function-catalog-mcp-runtime`, preserving the `function-catalog` repository name",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Bring the independently executable `mcp-server` Gradle module into Tavall naming as `tavall-function-catalog-mcp-runtime`, preserving the `function-catalog` repository name",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Bring the independently executable `mcp-server` Gradle module into Tavall naming as `tavall-function-catalog-mcp-runtime`, preserving the `function-catalog` repository name",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/TAL/issues/2",
@@ -86,47 +89,63 @@
       "proposed_title": "RESEARCH: Reconcile accepted TAL-native x86-64 language/OS direction and create compiler research milestones",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Research"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-affiliates/issues/2",
       "source_title": "Build minimal Tavall Times affiliate offer and tracked-link authority for Deals launch",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Build minimal Tavall Times affiliate offer and tracked-link authority for Deals launch",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Build minimal Tavall Times affiliate offer and tracked-link authority for Deals launch",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-affiliates/issues/4",
       "source_title": "Build PC Hardware Drop Watch lifecycle and verified eligible affiliate alerts",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Build PC Hardware Drop Watch lifecycle and verified eligible affiliate alerts",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Build PC Hardware Drop Watch lifecycle and verified eligible affiliate alerts",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ai-browser/issues/7",
       "source_title": "Design persistent authenticated Cloud Browser sessions and secure browser profile import",
       "current_native_type": null,
-      "proposed_native_type": "Design",
-      "proposed_title": "DESIGN: Design persistent authenticated Cloud Browser sessions and secure browser profile import",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Design persistent authenticated Cloud Browser sessions and secure browser profile import",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Design"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-ai-browser/issues/8",
+      "source_title": "Tests: convert tavall-ai-browser to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-ai-browser to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ai-chat/issues/1",
       "source_title": "Implement Tavall AI Chat goal contracts, supervisory continuity and experience-mode orchestration",
       "current_state": "closed",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Implement Tavall AI Chat goal contracts, supervisory continuity and experience-mode orchestration",
-      "review_status": "REVIEWED_CLOSED_PENDING_APPLY",
-      "note": null
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Implement Tavall AI Chat goal contracts, supervisory continuity and experience-mode orchestration",
+      "review_status": "REVIEWED_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ai-chat/issues/2",
@@ -136,37 +155,41 @@
       "proposed_title": "RESEARCH: Research local-first AR task awareness and multimodal personal assistant interface",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Research"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ai-chat/issues/5",
       "source_title": "browser import",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: browser import",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: browser import",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ai-memory/issues/4",
       "source_title": "Migration: Select the canonical primary type and module/artifact name for the dedicated memory owner before migrating `tavall-ai-runtime-memory`",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Select the canonical primary type and module/artifact name for the dedicated memory owner before migrating `tavall-ai-runtime-memory`",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Select the canonical primary type and module/artifact name for the dedicated memory owner before migrating `tavall-ai-runtime-memory`",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ai/issues/101",
       "source_title": "Autonomous Operations: continuous evidence-driven incident, repair and campaign orchestration",
       "current_native_type": null,
-      "proposed_native_type": "Epic",
-      "proposed_title": "EPIC: Autonomous Operations: continuous evidence-driven incident, repair and campaign orchestration",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Autonomous Operations: continuous evidence-driven incident, repair and campaign orchestration",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Epic"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ai/issues/102",
@@ -176,7 +199,8 @@
       "proposed_title": "RESEARCH: Benchmark cross-provider native harness routing, proxy boundaries, fallback and subscription quotas",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Research"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ai/issues/103",
@@ -186,7 +210,8 @@
       "proposed_title": "RESEARCH: Research an execution-native intelligent model beyond conversational LLM objectives",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Research"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ai/issues/104",
@@ -196,27 +221,30 @@
       "proposed_title": "RESEARCH: Research human-in-the-loop recursive self-improvement with held-out verification",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Research"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ai/issues/106",
       "source_title": "Add evidence-driven friction meta-loop to existing Tavall task orchestration",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Add evidence-driven friction meta-loop to existing Tavall task orchestration",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Add evidence-driven friction meta-loop to existing Tavall task orchestration",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ai/issues/107",
       "source_title": "Reconcile portfolio-management Agent intake with founder-approved backlog and launch-first gates",
       "current_native_type": null,
-      "proposed_native_type": "Task",
-      "proposed_title": "TASK: Reconcile portfolio-management Agent intake with founder-approved backlog and launch-first gates",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Reconcile portfolio-management Agent intake with founder-approved backlog and launch-first gates",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Task"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ai/issues/108",
@@ -226,57 +254,74 @@
       "proposed_title": "RESEARCH: Explore JAAL JSON-as-language execution and verification research independent of TAL",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Research"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-ai/issues/110",
+      "source_title": "Tests: convert tavall-ai to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-ai to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ai/issues/111",
       "source_title": "Retire Agent Ledger authority; route engineering work via GitHub Issues and QA Task Board",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Retire Agent Ledger authority; route engineering work via GitHub Issues and QA Task Board",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Retire Agent Ledger authority; route engineering work via GitHub Issues and QA Task Board",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ai/issues/113",
       "source_title": "arch(consumer): migrate 35 grandfathered *Repository types to Default Consumer DataHandlers",
       "current_state": "closed",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: arch(consumer): migrate 35 grandfathered *Repository types to Default Consumer DataHandlers",
-      "review_status": "REVIEWED_CLOSED_PENDING_APPLY",
-      "note": null
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: arch(consumer): migrate 35 grandfathered *Repository types to Default Consumer DataHandlers",
+      "review_status": "REVIEWED_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ai/issues/114",
       "source_title": "Enforce progression + README updates as an orchestrator merge-acceptance gate",
       "current_native_type": null,
-      "proposed_native_type": "Task",
-      "proposed_title": "TASK: Enforce progression + README updates as an orchestrator merge-acceptance gate",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Enforce progression + README updates as an orchestrator merge-acceptance gate",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Task"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ai/issues/117",
       "source_title": "Expose 21st MCP + Impeccable as authorized Tavall Web Agent design capabilities",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Expose 21st MCP + Impeccable as authorized Tavall Web Agent design capabilities",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Expose 21st MCP + Impeccable as authorized Tavall Web Agent design capabilities",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ai/issues/119",
       "source_title": "Integrate visual design-to-production screenshot/video capture into agent workflow",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Integrate visual design-to-production screenshot/video capture into agent workflow",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Integrate visual design-to-production screenshot/video capture into agent workflow",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ai/issues/120",
@@ -286,17 +331,19 @@
       "proposed_title": "BUG: CI Gate: propagate stderr failure reasons into result JSON and auto-resolve local canonical pin refs",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Bug"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ai/issues/21",
       "source_title": "Integrate structural and temporal providers into Tavall memory retrieval",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Integrate structural and temporal providers into Tavall memory retrieval",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Integrate structural and temporal providers into Tavall memory retrieval",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ai/issues/38",
@@ -306,47 +353,52 @@
       "proposed_title": "BUG: Wire tavall-memory-plane into active client skill discovery",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Bug"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ai/issues/74",
       "source_title": "Migration: Normalize Tavall AI module types and suffixes without treating agents or non-process capabilities as independent runtimes",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Normalize Tavall AI module types and suffixes without treating agents or non-process capabilities as independent runtimes",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Normalize Tavall AI module types and suffixes without treating agents or non-process capabilities as independent runtimes",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ai/issues/89",
       "source_title": "Implement tavall-agent-product: commercialization, market-fit and distribution specialist",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Implement tavall-agent-product: commercialization, market-fit and distribution specialist",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Implement tavall-agent-product: commercialization, market-fit and distribution specialist",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-analytics/issues/18",
       "source_title": "Migration: Introduce explicit SYSTEM names and host-owned collector lifecycle in Analytics, replacing legacy blanket LIBRARY labels through reviewed slices",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Introduce explicit SYSTEM names and host-owned collector lifecycle in Analytics, replacing legacy blanket LIBRARY labels through reviewed slices",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Introduce explicit SYSTEM names and host-owned collector lifecycle in Analytics, replacing legacy blanket LIBRARY labels through reviewed slices",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-analytics/issues/19",
       "source_title": "Tavall Times: verified publication, outbound offer and release attribution projections",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Tavall Times: verified publication, outbound offer and release attribution projections",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Tavall Times: verified publication, outbound offer and release attribution projections",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-analytics/issues/21",
@@ -356,17 +408,30 @@
       "proposed_title": "TODO: Versioned outcome evidence for autonomous recovery, release verification and Content optimization",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "TODO"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-analytics/issues/22",
+      "source_title": "Tests: convert tavall-analytics to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-analytics to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-analytics/issues/25",
       "source_title": "arch(consumer): retire five Analytics *Repository declarations",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: arch(consumer): retire five Analytics *Repository declarations",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: arch(consumer): retire five Analytics *Repository declarations",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-analytics/issues/8",
@@ -382,21 +447,23 @@
       "issue_url": "https://github.com/TavallStudios/tavall-biz/issues/1",
       "source_title": "Define evidence-backed contractual fulfillment and venture unit-ledger implementation slices",
       "current_native_type": null,
-      "proposed_native_type": "Design",
-      "proposed_title": "DESIGN: Define evidence-backed contractual fulfillment and venture unit-ledger implementation slices",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Define evidence-backed contractual fulfillment and venture unit-ledger implementation slices",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Design"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cache/issues/16",
       "source_title": "Migration: Classify the current `abstract-cache-system` contract module and `abstract-cache-semantic` owner before applying suffixes",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Classify the current `abstract-cache-system` contract module and `abstract-cache-semantic` owner before applying suffixes",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Classify the current `abstract-cache-system` contract module and `abstract-cache-semantic` owner before applying suffixes",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ci/issues/24",
@@ -406,7 +473,8 @@
       "proposed_title": "BUG: Caller requires a lane and Environment, and delivery requires a new run: no path for CI evidence or delivery from the canonical repository roots",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Bug"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ci/issues/50",
@@ -416,17 +484,30 @@
       "proposed_title": "TODO: Governed autonomous patch delivery: immutable candidate promotion, freeze and scoped authorization",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "TODO"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ci/issues/51",
       "source_title": "Reconcile shared Tavall CLI, Executor and CI-owned deployment without duplicate services",
       "current_native_type": null,
-      "proposed_native_type": "Design",
-      "proposed_title": "DESIGN: Reconcile shared Tavall CLI, Executor and CI-owned deployment without duplicate services",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Reconcile shared Tavall CLI, Executor and CI-owned deployment without duplicate services",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Design"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-ci/issues/57",
+      "source_title": "Tests: convert tavall-ci to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-ci to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ci/issues/60",
@@ -436,57 +517,85 @@
       "proposed_title": "BUG: CI evidence: record bounded build/test diagnostics for failed checks",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Bug"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-cli/issues/11",
+      "source_title": "Tests: convert tavall-cli to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-cli to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cli/issues/9",
       "source_title": "Add tavall-gh and an idempotent Work Graph issue intake command",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Add tavall-gh and an idempotent Work Graph issue intake command",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Add tavall-gh and an idempotent Work Graph issue intake command",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-cloud-networking/issues/4",
+      "source_title": "Tests: convert tavall-cloud-networking to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-cloud-networking to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/1",
       "source_title": "Implement the three-node Tavall Cloud control and agent system",
       "current_native_type": null,
-      "proposed_native_type": "Epic",
-      "proposed_title": "EPIC: Implement the three-node Tavall Cloud control and agent system",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Implement the three-node Tavall Cloud control and agent system",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Epic"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/10",
       "source_title": "Design and implement GitHub Actions operations bridge",
       "current_state": "closed",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Design and implement GitHub Actions operations bridge",
-      "review_status": "REVIEWED_CLOSED_PENDING_APPLY",
-      "note": null
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Design and implement GitHub Actions operations bridge",
+      "review_status": "REVIEWED_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/111",
       "source_title": "Track GitHub Bot sandbox CI, Tavall Cloud plugin parity, status publishing, and CI evidence retention",
       "current_native_type": null,
-      "proposed_native_type": "Infrastructure",
-      "proposed_title": "INFRA: Track GitHub Bot sandbox CI, Tavall Cloud plugin parity, status publishing, and CI evidence retention",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Track GitHub Bot sandbox CI, Tavall Cloud plugin parity, status publishing, and CI evidence retention",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Infrastructure"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/115",
       "source_title": "Build global Java runtime fabric and module placement authority",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Build global Java runtime fabric and module placement authority",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Build global Java runtime fabric and module placement authority",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/13",
@@ -506,7 +615,8 @@
       "proposed_title": "BUG: Fix DEVELOPMENT Codex home bootstrap without auth.json",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Bug"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/144",
@@ -612,21 +722,23 @@
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/191",
       "source_title": "Host internal first-party packages on dev-storage",
       "current_native_type": null,
-      "proposed_native_type": "Infrastructure",
-      "proposed_title": "INFRA: Host internal first-party packages on dev-storage",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Host internal first-party packages on dev-storage",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Infrastructure"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/20",
       "source_title": "Expose private operation evidence to connected automation",
       "current_state": "closed",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Expose private operation evidence to connected automation",
-      "review_status": "REVIEWED_CLOSED_PENDING_APPLY",
-      "note": null
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Expose private operation evidence to connected automation",
+      "review_status": "REVIEWED_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/23",
@@ -702,11 +814,12 @@
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/280",
       "source_title": "Storage: retire hardcoded tavallcloudtest loopback backing",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Storage: retire hardcoded tavallcloudtest loopback backing",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Storage: retire hardcoded tavallcloudtest loopback backing",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/30",
@@ -796,7 +909,8 @@
       "proposed_title": "BUG: Fix exact shared-dependency workspace authority collision",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Bug"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/36",
@@ -832,11 +946,12 @@
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/40",
       "source_title": "Migrate existing FFA services into typed deployment authority",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Migrate existing FFA services into typed deployment authority",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Migrate existing FFA services into typed deployment authority",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/43",
@@ -846,27 +961,30 @@
       "proposed_title": "BUG: Fix KubeVirt source compilation in the full Gradle graph",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Bug"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/440",
       "source_title": "Expose direct durable executor acquisition and explicit executor selection to ChatGPT",
       "current_state": "closed",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Expose direct durable executor acquisition and explicit executor selection to ChatGPT",
-      "review_status": "REVIEWED_CLOSED_PENDING_APPLY",
-      "note": null
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Expose direct durable executor acquisition and explicit executor selection to ChatGPT",
+      "review_status": "REVIEWED_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/441",
       "source_title": "Retire native ChatGPT browser bridge from CONTROL, source and status",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Retire native ChatGPT browser bridge from CONTROL, source and status",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Retire native ChatGPT browser bridge from CONTROL, source and status",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/45",
@@ -876,37 +994,41 @@
       "proposed_title": "BUG: Promote CONTROL GitHub authorization runtime",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Bug"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/455",
       "source_title": "Recovery: retire obsolete East/West nodes, preserve Oracle–WORK-0 overlay and enable Windows private access",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Recovery: retire obsolete East/West nodes, preserve Oracle–WORK-0 overlay and enable Windows private access",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Recovery: retire obsolete East/West nodes, preserve Oracle–WORK-0 overlay and enable Windows private access",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/458",
       "source_title": "Optional Tavall Account tunnels + SSO-gated MCP gateway",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Optional Tavall Account tunnels + SSO-gated MCP gateway",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Optional Tavall Account tunnels + SSO-gated MCP gateway",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/460",
       "source_title": "Migration: Finish source-to-module classification and naming cutover for Cloud CONTROL and Node Agent without splitting the unified Cloud distribution",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Finish source-to-module classification and naming cutover for Cloud CONTROL and Node Agent without splitting the unified Cloud distribution",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Finish source-to-module classification and naming cutover for Cloud CONTROL and Node Agent without splitting the unified Cloud distribution",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/495",
@@ -916,7 +1038,8 @@
       "proposed_title": "TODO: Autonomous recovery: verify A/B slot, independent-node failover and immutable rollback under Cloud authority",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "TODO"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/496",
@@ -926,37 +1049,63 @@
       "proposed_title": "RESEARCH: Research Cloud Phone: BYO number/SIM bridge versus provisioned calls, SMS and 2FA",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Research"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/497",
+      "source_title": "Migrate legacy Cloud executor invocation to the shared typed Executor",
+      "current_state": "open",
+      "current_native_type": "Migration",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Migrate legacy Cloud executor invocation to the shared typed Executor",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Migration"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/499",
+      "source_title": "Tests: convert tavall-cloud to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-cloud to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/500",
       "source_title": "Executor/artifact storage retention: typed GC + capacity alerts (dev-storage pool near full)",
       "current_native_type": null,
-      "proposed_native_type": "Infrastructure",
-      "proposed_title": "INFRA: Executor/artifact storage retention: typed GC + capacity alerts (dev-storage pool near full)",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Executor/artifact storage retention: typed GC + capacity alerts (dev-storage pool near full)",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Infrastructure"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/502",
       "source_title": "arch(consumer): retire 22 *Repository types and decouple Builder dependencies",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: arch(consumer): retire 22 *Repository types and decouple Builder dependencies",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: arch(consumer): retire 22 *Repository types and decouple Builder dependencies",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/504",
       "source_title": "Isolate node-enrollment from public cloud.tavall.org and enforce private overlay routing",
       "current_native_type": null,
-      "proposed_native_type": "Security",
-      "proposed_title": "SECURITY: Isolate node-enrollment from public cloud.tavall.org and enforce private overlay routing",
+      "proposed_native_type": "Bug",
+      "proposed_title": "BUG: Isolate node-enrollment from public cloud.tavall.org and enforce private overlay routing",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Security"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/510",
@@ -966,7 +1115,8 @@
       "proposed_title": "BUG: Backup: typed RUN_BACKUP has no owner provider (DEPENDENCY_UNAVAILABLE 'requires a configured control authority')",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Bug"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/511",
@@ -976,7 +1126,8 @@
       "proposed_title": "BUG: Deploy: root-specific PRODUCTION candidate fails lineage/readiness/authorization binding checks",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Bug"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/512",
@@ -986,77 +1137,107 @@
       "proposed_title": "BUG: Service projection reports stopped runtimes as RUNNING/UNHEALTHY and service DEGRADED",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Bug"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/513",
       "source_title": "Docs/CLI: promote --deployment-generation expects the PLAN generation, not the apply generation",
       "current_native_type": null,
-      "proposed_native_type": "Documentation",
-      "proposed_title": "DOCS: Docs/CLI: promote --deployment-generation expects the PLAN generation, not the apply generation",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Docs/CLI: promote --deployment-generation expects the PLAN generation, not the apply generation",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Documentation"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/53",
       "source_title": "Implement cluster-aware database runtime reconciliation",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Implement cluster-aware database runtime reconciliation",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Implement cluster-aware database runtime reconciliation",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-cloud/issues/70",
       "source_title": "Document Codex native-browser ChatGPT task handoff",
       "current_native_type": null,
-      "proposed_native_type": "Documentation",
-      "proposed_title": "DOCS: Document Codex native-browser ChatGPT task handoff",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Document Codex native-browser ChatGPT task handoff",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Documentation"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-commerce/issues/2",
+      "source_title": "Rename Commerce runtime module to tavall-commerce-runtime",
+      "current_state": "open",
+      "current_native_type": "Migration",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Rename Commerce runtime module to tavall-commerce-runtime",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Migration"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-commerce/issues/3",
+      "source_title": "Tests: convert tavall-commerce to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-commerce to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-content/issues/4",
       "source_title": "Bootstrap tavall-content-personal private content intelligence consumer",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Bootstrap tavall-content-personal private content intelligence consumer",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Bootstrap tavall-content-personal private content intelligence consumer",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-content/issues/5",
       "source_title": "Register Tavall Content in Tavall Cloud and run production-like E2E",
       "current_native_type": null,
-      "proposed_native_type": "Test",
-      "proposed_title": "TEST: Register Tavall Content in Tavall Cloud and run production-like E2E",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Register Tavall Content in Tavall Cloud and run production-like E2E",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-content/issues/52",
       "source_title": "Build tavall-content-auto-account-system: multi-platform onboarding and account readiness",
       "current_state": "closed",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Build tavall-content-auto-account-system: multi-platform onboarding and account readiness",
-      "review_status": "REVIEWED_CLOSED_PENDING_APPLY",
-      "note": null
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Build tavall-content-auto-account-system: multi-platform onboarding and account readiness",
+      "review_status": "REVIEWED_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-content/issues/55",
       "source_title": "Expose authenticated Content video workflow to ChatGPT via canonical Function Catalog",
       "current_state": "closed",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Expose authenticated Content video workflow to ChatGPT via canonical Function Catalog",
-      "review_status": "REVIEWED_CLOSED_PENDING_APPLY",
-      "note": null
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Expose authenticated Content video workflow to ChatGPT via canonical Function Catalog",
+      "review_status": "REVIEWED_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-content/issues/59",
@@ -1066,37 +1247,41 @@
       "proposed_title": "TODO: Approved clip → automated Whop Content Rewards / Clipster campaign submission",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "TODO"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-content/issues/72",
       "source_title": "Migration: Rename the verified headless `tavall-content-render-worker` RUNTIME module to a suffix-compliant identity such as `tavall-content-render-worker-runtime`, without moving the Tavall Content repository",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Rename the verified headless `tavall-content-render-worker` RUNTIME module to a suffix-compliant identity such as `tavall-content-render-worker-runtime`, without moving the Tavall Content repository",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Rename the verified headless `tavall-content-render-worker` RUNTIME module to a suffix-compliant identity such as `tavall-content-render-worker-runtime`, without moving the Tavall Content repository",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-content/issues/76",
       "source_title": "P0: Finish and live-test Tavall Content Auto Account creation, linking and operator handoff",
       "current_native_type": null,
-      "proposed_native_type": "Task",
-      "proposed_title": "TASK: P0: Finish and live-test Tavall Content Auto Account creation, linking and operator handoff",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: P0: Finish and live-test Tavall Content Auto Account creation, linking and operator handoff",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Task"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-content/issues/78",
       "source_title": "Tavall Times: reconcile editorial approvals, releases, newsletter and social distribution with Content",
       "current_native_type": null,
-      "proposed_native_type": "Task",
-      "proposed_title": "TASK: Tavall Times: reconcile editorial approvals, releases, newsletter and social distribution with Content",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Tavall Times: reconcile editorial approvals, releases, newsletter and social distribution with Content",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Task"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-content/issues/80",
@@ -1106,37 +1291,74 @@
       "proposed_title": "TODO: Autonomous campaign operating loop: vetted production, approvals, scheduling and verified publishing",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "TODO"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-content/issues/81",
       "source_title": "Create canonical multi-brand editorial channel registry and cross-platform content operations plan",
       "current_native_type": null,
-      "proposed_native_type": "Design",
-      "proposed_title": "DESIGN: Create canonical multi-brand editorial channel registry and cross-platform content operations plan",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Create canonical multi-brand editorial channel registry and cross-platform content operations plan",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Design"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-content/issues/82",
       "source_title": "Specify structured, reusable clip-edit instructions and campaign-brief compliance tests",
       "current_native_type": null,
-      "proposed_native_type": "Design",
-      "proposed_title": "DESIGN: Specify structured, reusable clip-edit instructions and campaign-brief compliance tests",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Specify structured, reusable clip-edit instructions and campaign-brief compliance tests",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Design"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-content/issues/84",
+      "source_title": "Normalize primary module types across Tavall Content modules",
+      "current_state": "closed",
+      "current_native_type": "Documentation",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Normalize primary module types across Tavall Content modules",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Documentation"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-content/issues/85",
+      "source_title": "Tests: convert tavall-content to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-content to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-custom-enum-java/issues/12",
+      "source_title": "Tests: convert tavall-custom-enum-java to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-custom-enum-java to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-database/issues/13",
       "source_title": "Add atomic typed PostgreSQL entity operation boundary",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Add atomic typed PostgreSQL entity operation boundary",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Add atomic typed PostgreSQL entity operation boundary",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-database/issues/14",
@@ -1156,107 +1378,140 @@
       "proposed_title": "BUG: Add pooled PostgreSQL connections and bounded network-failure handling",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Bug"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-database/issues/31",
       "source_title": "Migration: Reconcile Database's legacy primary provider/library classifications against canonical module types before any `-system` migration",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Reconcile Database's legacy primary provider/library classifications against canonical module types before any `-system` migration",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Reconcile Database's legacy primary provider/library classifications against canonical module types before any `-system` migration",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-database/issues/34",
+      "source_title": "Tests: convert tavall-database to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-database to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-di/issues/28",
       "source_title": "Adopt TIDI branding candidate and reconcile DependencyAccess consumer patterns",
       "current_native_type": null,
-      "proposed_native_type": "Design",
-      "proposed_title": "DESIGN: Adopt TIDI branding candidate and reconcile DependencyAccess consumer patterns",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Adopt TIDI branding candidate and reconcile DependencyAccess consumer patterns",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Design"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-di/issues/29",
+      "source_title": "Tests: convert tavall-di to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-di to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-discord/issues/1",
       "source_title": "Extract reusable Discord platform and Minecraft backend integration",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Extract reusable Discord platform and Minecraft backend integration",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Extract reusable Discord platform and Minecraft backend integration",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-discord/issues/10",
       "source_title": "Migration: Resolve Discord's in-process lifecycle module primary type and apply suffix naming only after classification",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Resolve Discord's in-process lifecycle module primary type and apply suffix naming only after classification",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Resolve Discord's in-process lifecycle module primary type and apply suffix naming only after classification",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-docs/issues/100",
       "source_title": "Verify chat-to-owner document parity, Work Graph task mapping and launch handoffs",
       "current_native_type": null,
-      "proposed_native_type": "Task",
-      "proposed_title": "TASK: Verify chat-to-owner document parity, Work Graph task mapping and launch handoffs",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Verify chat-to-owner document parity, Work Graph task mapping and launch handoffs",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Task"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-docs/issues/101",
       "source_title": "Standardize evidence-backed engineering research papers across Tavall experiments",
       "current_native_type": null,
-      "proposed_native_type": "Documentation",
-      "proposed_title": "DOCS: Standardize evidence-backed engineering research papers across Tavall experiments",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Standardize evidence-backed engineering research papers across Tavall experiments",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Documentation"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-docs/issues/107",
       "source_title": "Work Graph: retire legacy unlinked TODO.md items and transition to generated GitHub Issues views",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Work Graph: retire legacy unlinked TODO.md items and transition to generated GitHub Issues views",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Work Graph: retire legacy unlinked TODO.md items and transition to generated GitHub Issues views",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-docs/issues/16",
       "source_title": "Reconcile persistent documentation staging with current main",
       "current_native_type": null,
-      "proposed_native_type": "Task",
-      "proposed_title": "TASK: Reconcile persistent documentation staging with current main",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Reconcile persistent documentation staging with current main",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Task"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-docs/issues/78",
       "source_title": "Migration: Enforce the canonical `-system` / `-runtime` suffix rule for **actual** modules, excluding parent repositories, organizational aggregates, APPLICATIONs and secondary-role labels",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Enforce the canonical `-system` / `-runtime` suffix rule for **actual** modules, excluding parent repositories, organizational aggregates, APPLICATIONs and secondary-role labels",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Enforce the canonical `-system` / `-runtime` suffix rule for **actual** modules, excluding parent repositories, organizational aggregates, APPLICATIONs and secondary-role labels",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-docs/issues/98",
       "source_title": "Document Tavall open-source, Studio exclusivity and partner distribution strategy",
       "current_native_type": null,
-      "proposed_native_type": "Documentation",
-      "proposed_title": "DOCS: Document Tavall open-source, Studio exclusivity and partner distribution strategy",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Document Tavall open-source, Studio exclusivity and partner distribution strategy",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Documentation"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-docs/issues/99",
@@ -1266,67 +1521,96 @@
       "proposed_title": "RESEARCH: Specify $TAV universal fan/rewards token with controlled continuing mint authority and treasury safeguards",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Research"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-eventbus/issues/13",
+      "source_title": "Tests: convert tavall-eventbus to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-eventbus to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-filesystem/issues/8",
+      "source_title": "Tests: convert tavall-filesystem to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-filesystem to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-github-bot/issues/10",
       "source_title": "Work Graph: build idempotent GitHub Issue ingestion and deduplication",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Work Graph: build idempotent GitHub Issue ingestion and deduplication",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Work Graph: build idempotent GitHub Issue ingestion and deduplication",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-github-bot/issues/11",
       "source_title": "Work Graph: reconcile issue states with PR, CI and runtime evidence",
       "current_native_type": null,
-      "proposed_native_type": "Task",
-      "proposed_title": "TASK: Work Graph: reconcile issue states with PR, CI and runtime evidence",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Work Graph: reconcile issue states with PR, CI and runtime evidence",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Task"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-github-bot/issues/12",
       "source_title": "Work Graph: generate repo TODO projections and migrate the legacy ledger safely",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Work Graph: generate repo TODO projections and migrate the legacy ledger safely",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Work Graph: generate repo TODO projections and migrate the legacy ledger safely",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-github-bot/issues/13",
       "source_title": "Work Graph: establish organization Projects board and role-based queue views",
       "current_native_type": null,
-      "proposed_native_type": "Task",
-      "proposed_title": "TASK: Work Graph: establish organization Projects board and role-based queue views",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Work Graph: establish organization Projects board and role-based queue views",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Task"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-github-bot/issues/16",
       "source_title": "Work Graph: reconcile QA task authority with GitHub Issues, Linear and Notion projections",
       "current_native_type": null,
-      "proposed_native_type": "Task",
-      "proposed_title": "TASK: Work Graph: reconcile QA task authority with GitHub Issues, Linear and Notion projections",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Work Graph: reconcile QA task authority with GitHub Issues, Linear and Notion projections",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Task"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-github-bot/issues/9",
       "source_title": "Work Graph: replace global TODO ledger with canonical GitHub Issues and Project views",
       "current_native_type": null,
-      "proposed_native_type": "Epic",
-      "proposed_title": "EPIC: Work Graph: replace global TODO ledger with canonical GitHub Issues and Project views",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Work Graph: replace global TODO ledger with canonical GitHub Issues and Project views",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Epic"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-java-tools/issues/10",
@@ -1336,57 +1620,96 @@
       "proposed_title": "RESEARCH: Audit DI/service anti-patterns and document hybrid Java/native execution research constraints",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Research"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-logging/issues/13",
+      "source_title": "Tests: convert tavall-logging to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-logging to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-mc-anticheat/issues/4",
+      "source_title": "Tests: convert tavall-mc-anticheat to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-mc-anticheat to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc-bot-testing/issues/1",
       "source_title": "Extract canonical Minecraft bot testing from tavall-mc",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Extract canonical Minecraft bot testing from tavall-mc",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Extract canonical Minecraft bot testing from tavall-mc",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-mc-packet-filter/issues/4",
+      "source_title": "Tests: convert tavall-mc-packet-filter to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-mc-packet-filter to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/105",
       "source_title": "Implement FFA kit settings and distributed profile cache",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Implement FFA kit settings and distributed profile cache",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Implement FFA kit settings and distributed profile cache",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/11",
       "source_title": "Integrate regional FFA runtimes with Tavall Cloud",
       "current_state": "closed",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Integrate regional FFA runtimes with Tavall Cloud",
-      "review_status": "REVIEWED_CLOSED_PENDING_APPLY",
-      "note": null
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Integrate regional FFA runtimes with Tavall Cloud",
+      "review_status": "REVIEWED_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/112",
       "source_title": "Adopt five-plus Tavall DI dependency selection patterns",
       "current_native_type": null,
-      "proposed_native_type": "Task",
-      "proposed_title": "TASK: Adopt five-plus Tavall DI dependency selection patterns",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Adopt five-plus Tavall DI dependency selection patterns",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Task"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/126",
       "source_title": "Complete account linking and Discord rank reconciliation",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Complete account linking and Discord rank reconciliation",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Complete account linking and Discord rank reconciliation",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/133",
@@ -1412,51 +1735,56 @@
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/160",
       "source_title": "Build web-first Tavall Account identity, linking, and entitlement platform",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Build web-first Tavall Account identity, linking, and entitlement platform",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Build web-first Tavall Account identity, linking, and entitlement platform",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/185",
       "source_title": "Implement first-join game-family routing and gameplay-first tutorials",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Implement first-join game-family routing and gameplay-first tutorials",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Implement first-join game-family routing and gameplay-first tutorials",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/19",
       "source_title": "Add generic world management and persistent FFA map rotation",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Add generic world management and persistent FFA map rotation",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Add generic world management and persistent FFA map rotation",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/20",
       "source_title": "Add viewer-specific Focused FFA translucency",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Add viewer-specific Focused FFA translucency",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Add viewer-specific Focused FFA translucency",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/201",
       "source_title": "Extend Builder mocks into Minecraft-equivalent simulation kernel",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Extend Builder mocks into Minecraft-equivalent simulation kernel",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Extend Builder mocks into Minecraft-equivalent simulation kernel",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/208",
@@ -1476,17 +1804,19 @@
       "proposed_title": "BUG: Repair Gradle CI private dependency bootstrap",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Bug"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/25",
       "source_title": "Architecture: isolate existing Novus product modules inside the unified JAR",
       "current_native_type": null,
-      "proposed_native_type": "Design",
-      "proposed_title": "DESIGN: Architecture: isolate existing Novus product modules inside the unified JAR",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Architecture: isolate existing Novus product modules inside the unified JAR",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Design"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/254",
@@ -1502,41 +1832,45 @@
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/255",
       "source_title": "Migrate Tavall Builder Studio to native Windows shell with WebView2",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Migrate Tavall Builder Studio to native Windows shell with WebView2",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Migrate Tavall Builder Studio to native Windows shell with WebView2",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/263",
       "source_title": "Build public Task Board progress and QA control plane",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Build public Task Board progress and QA control plane",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Build public Task Board progress and QA control plane",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/28",
       "source_title": "Build the first usable novus-lobby runtime",
       "current_state": "closed",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Build the first usable novus-lobby runtime",
-      "review_status": "REVIEWED_CLOSED_PENDING_APPLY",
-      "note": null
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Build the first usable novus-lobby runtime",
+      "review_status": "REVIEWED_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/293",
       "source_title": "Move Minecraft bot testing to tavall-mc-bot-testing",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Move Minecraft bot testing to tavall-mc-bot-testing",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Move Minecraft bot testing to tavall-mc-bot-testing",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/306",
@@ -1546,107 +1880,118 @@
       "proposed_title": "BUG: DEVELOPMENT FFA runtime reports PostgreSQL reconciliation I/O and orphaned Redis messages",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Bug"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/32",
       "source_title": "Add persistent FFA career statistics and /stats",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Add persistent FFA career statistics and /stats",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Add persistent FFA career statistics and /stats",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/332",
       "source_title": "Complete repository separation before resuming gameplay integration",
       "current_state": "closed",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Complete repository separation before resuming gameplay integration",
-      "review_status": "REVIEWED_CLOSED_PENDING_APPLY",
-      "note": null
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Complete repository separation before resuming gameplay integration",
+      "review_status": "REVIEWED_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/34",
       "source_title": "Correct runtime modules to unified-JAR deployment",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Correct runtime modules to unified-JAR deployment",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Correct runtime modules to unified-JAR deployment",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/347",
       "source_title": "Post-separation: canonical PR integration order and agent ACK handoff",
       "current_native_type": null,
-      "proposed_native_type": "Task",
-      "proposed_title": "TASK: Post-separation: canonical PR integration order and agent ACK handoff",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Post-separation: canonical PR integration order and agent ACK handoff",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Task"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/35",
       "source_title": "Design: Add network player identity, nicknames, and database store",
       "current_native_type": null,
-      "proposed_native_type": "Design",
-      "proposed_title": "DESIGN: Add network player identity, nicknames, and database store",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Add network player identity, nicknames, and database store",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Design"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/360",
       "source_title": "Migration: Audit actual primary types before applying suffix naming to Novus product modules and future gameplay SYSTEM extractions",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Audit actual primary types before applying suffix naming to Novus product modules and future gameplay SYSTEM extractions",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Audit actual primary types before applying suffix naming to Novus product modules and future gameplay SYSTEM extractions",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/38",
       "source_title": "Add intermission region balancing and configurable FFA respawn flow",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Add intermission region balancing and configurable FFA respawn flow",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Add intermission region balancing and configurable FFA respawn flow",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/386",
       "source_title": "Recover and implement custom Twitch creator participation rewards for TavallMC (V0)",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Recover and implement custom Twitch creator participation rewards for TavallMC (V0)",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Recover and implement custom Twitch creator participation rewards for TavallMC (V0)",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/392",
       "source_title": "Verify cross-region FFA preconnect, first-flow routing and failover acceptance",
       "current_native_type": null,
-      "proposed_native_type": "Test",
-      "proposed_title": "TEST: Verify cross-region FFA preconnect, first-flow routing and failover acceptance",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Verify cross-region FFA preconnect, first-flow routing and failover acceptance",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/393",
       "source_title": "Establish repeatable Builder Studio/FFA engineering research-paper evidence format",
       "current_native_type": null,
-      "proposed_native_type": "Documentation",
-      "proposed_title": "DOCS: Establish repeatable Builder Studio/FFA engineering research-paper evidence format",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Establish repeatable Builder Studio/FFA engineering research-paper evidence format",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Documentation"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/394",
@@ -1656,67 +2001,96 @@
       "proposed_title": "RESEARCH: Inventory TavallMC anti-cheat packet authority and reloadable FEATURE module boundary",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Research"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/397",
+      "source_title": "Route Builder producer execution through Cloud's shared durable Executor",
+      "current_state": "open",
+      "current_native_type": "Migration",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Route Builder producer execution through Cloud's shared durable Executor",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Migration"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/398",
+      "source_title": "Tests: convert tavall-mc to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-mc to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/399",
       "source_title": "Run Minecraft servers from Cloud service templates (one jar per process)",
       "current_native_type": null,
-      "proposed_native_type": "Infrastructure",
-      "proposed_title": "INFRA: Run Minecraft servers from Cloud service templates (one jar per process)",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Run Minecraft servers from Cloud service templates (one jar per process)",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Infrastructure"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/401",
       "source_title": "arch(consumer): reconcile 135 legacy *Repository types and decouple Builder dependencies",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: arch(consumer): reconcile 135 legacy *Repository types and decouple Builder dependencies",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: arch(consumer): reconcile 135 legacy *Repository types and decouple Builder dependencies",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/46",
       "source_title": "Extract achievements into a reloadable runtime module",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Extract achievements into a reloadable runtime module",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Extract achievements into a reloadable runtime module",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/48",
       "source_title": "Modernize Novus Discord and unify support intake",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Modernize Novus Discord and unify support intake",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Modernize Novus Discord and unify support intake",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/49",
       "source_title": "Verify isolated Novus Discord runtime integration",
       "current_native_type": null,
-      "proposed_native_type": "Test",
-      "proposed_title": "TEST: Verify isolated Novus Discord runtime integration",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Verify isolated Novus Discord runtime integration",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/50",
       "source_title": "Finalize unified Novus support cases and Discord threads",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Finalize unified Novus support cases and Discord threads",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Finalize unified Novus support cases and Discord threads",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/51",
@@ -1762,21 +2136,23 @@
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/70",
       "source_title": "Implement command-first moderation and report operations",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Implement command-first moderation and report operations",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Implement command-first moderation and report operations",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/72",
       "source_title": "Refactor FFA round timer lifecycle orchestration",
       "current_native_type": null,
-      "proposed_native_type": "Task",
-      "proposed_title": "TASK: Refactor FFA round timer lifecycle orchestration",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Refactor FFA round timer lifecycle orchestration",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Task"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/73",
@@ -1802,211 +2178,397 @@
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/75",
       "source_title": "Implement shared placeholder and chat format systems",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Implement shared placeholder and chat format systems",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Implement shared placeholder and chat format systems",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/77",
       "source_title": "Design cross-regional essentials federation",
       "current_native_type": null,
-      "proposed_native_type": "Design",
-      "proposed_title": "DESIGN: Design cross-regional essentials federation",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Design cross-regional essentials federation",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Design"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/81",
       "source_title": "Split Novus CI ownership from Tavall source integration",
       "current_state": "closed",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Split Novus CI ownership from Tavall source integration",
-      "review_status": "REVIEWED_CLOSED_PENDING_APPLY",
-      "note": null
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Split Novus CI ownership from Tavall source integration",
+      "review_status": "REVIEWED_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-mc/issues/93",
       "source_title": "Implement linked purchase profiles and in-game commerce checkout",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Implement linked purchase profiles and in-game commerce checkout",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Implement linked purchase profiles and in-game commerce checkout",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-minecraft-framework/issues/10",
       "source_title": "DEVELOPMENT framework publication blocked by GitHub Packages billing",
       "current_native_type": null,
-      "proposed_native_type": "Infrastructure",
-      "proposed_title": "INFRA: DEVELOPMENT framework publication blocked by GitHub Packages billing",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: DEVELOPMENT framework publication blocked by GitHub Packages billing",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Infrastructure"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-minecraft-framework/issues/19",
+      "source_title": "Tests: convert tavall-minecraft-framework to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-minecraft-framework to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-networking/issues/4",
+      "source_title": "Tests: convert tavall-networking to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-networking to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-nlew/issues/5",
+      "source_title": "Tests: convert tavall-nlew to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-nlew to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-open-harness/issues/1",
       "source_title": "Implement v0 Linux process host and PTY runtime",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Implement v0 Linux process host and PTY runtime",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Implement v0 Linux process host and PTY runtime",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-open-harness/issues/8",
+      "source_title": "Rename tavall-main-harness to tavall-main-harness-runtime",
+      "current_state": "open",
+      "current_native_type": "Migration",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Rename tavall-main-harness to tavall-main-harness-runtime",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Migration"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-open-harness/issues/9",
+      "source_title": "Tests: convert tavall-open-harness to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-open-harness to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-pay-mc/issues/2",
+      "source_title": "Tests: convert tavall-pay-mc to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-pay-mc to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-pay-web/issues/4",
+      "source_title": "Tests: convert tavall-pay-web to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-pay-web to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-pay/issues/2",
       "source_title": "Complete Tavall Pay consumer cutover, sandbox E2E and removal of legacy processors",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Complete Tavall Pay consumer cutover, sandbox E2E and removal of legacy processors",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Complete Tavall Pay consumer cutover, sandbox E2E and removal of legacy processors",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-pay/issues/7",
+      "source_title": "Tests: convert tavall-pay to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-pay to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-qa/issues/10",
+      "source_title": "Tests: convert tavall-qa to Tavall house test style",
+      "current_state": "closed",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-qa to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-qa/issues/15",
       "source_title": "Reconcile the diverged QA staging root (PR #4)",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Reconcile the diverged QA staging root (PR #4)",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Reconcile the diverged QA staging root (PR #4)",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-qa/issues/6",
       "source_title": "QA Task Board: implement owner-side GitHub and Linear reference reconciliation",
       "current_native_type": null,
-      "proposed_native_type": "Task",
-      "proposed_title": "TASK: QA Task Board: implement owner-side GitHub and Linear reference reconciliation",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: QA Task Board: implement owner-side GitHub and Linear reference reconciliation",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Task"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-qa/issues/9",
       "source_title": "Define first-class real-system simulation acceptance across QA and domain test suites",
       "current_native_type": null,
-      "proposed_native_type": "Design",
-      "proposed_title": "DESIGN: Define first-class real-system simulation acceptance across QA and domain test suites",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Define first-class real-system simulation acceptance across QA and domain test suites",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Design"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-registry/issues/26",
+      "source_title": "Tests: convert tavall-registry to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-registry to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-test-suite-tools/issues/2",
       "source_title": "Centralize architecture-test execution and retire consumer mirrors",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Centralize architecture-test execution and retire consumer mirrors",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Centralize architecture-test execution and retire consumer mirrors",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-test-suite-tools/issues/25",
       "source_title": "Migration: Add canonical module-name/type validation to the shared architecture test rules after existing source/module inventory is reconciled",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Add canonical module-name/type validation to the shared architecture test rules after existing source/module inventory is reconciled",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Add canonical module-name/type validation to the shared architecture test rules after existing source/module inventory is reconciled",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-test-suite-tools/issues/27",
       "source_title": "Specify full-system DI-backed simulation and failure/restart acceptance tier",
       "current_state": "closed",
       "current_native_type": null,
-      "proposed_native_type": "Test",
-      "proposed_title": "TEST: Specify full-system DI-backed simulation and failure/restart acceptance tier",
-      "review_status": "REVIEWED_CLOSED_PENDING_APPLY",
-      "note": null
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Specify full-system DI-backed simulation and failure/restart acceptance tier",
+      "review_status": "REVIEWED_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-test-suite-tools/issues/28",
+      "source_title": "Tests: convert tavall-test-suite-tools to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-test-suite-tools to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-ventures/issues/1",
       "source_title": "Design Tavall Venture Partnership Program pilot and evidence-based partner onboarding",
       "current_native_type": null,
-      "proposed_native_type": "Design",
-      "proposed_title": "DESIGN: Design Tavall Venture Partnership Program pilot and evidence-based partner onboarding",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Design Tavall Venture Partnership Program pilot and evidence-based partner onboarding",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Design"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-web-account/issues/7",
+      "source_title": "Tests: convert tavall-web-account to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-web-account to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web-affiliates/issues/2",
       "source_title": "Tavall Times: thin affiliate operator/public projection adapter for approved Deals",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Tavall Times: thin affiliate operator/public projection adapter for approved Deals",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Tavall Times: thin affiliate operator/public projection adapter for approved Deals",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web-ai-chat/issues/2",
       "source_title": "Build adaptive Tavall AI Chat workspace, modes and Full Control Flow Builder",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Build adaptive Tavall AI Chat workspace, modes and Full Control Flow Builder",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Build adaptive Tavall AI Chat workspace, modes and Full Control Flow Builder",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web-ai-chat/issues/3",
       "source_title": "Implement One Feed Flow experience with dynamic Spotify-to-work surfaces",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Implement One Feed Flow experience with dynamic Spotify-to-work surfaces",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Implement One Feed Flow experience with dynamic Spotify-to-work surfaces",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web-ai-chat/issues/4",
       "source_title": "Visual Work Graph: endpoints, departments, persistent AI Employees and verified work",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Visual Work Graph: endpoints, departments, persistent AI Employees and verified work",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Visual Work Graph: endpoints, departments, persistent AI Employees and verified work",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web-blog/issues/10",
       "source_title": "Launch Tavall Times unified publication nav, Deals and Releases public pages",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Launch Tavall Times unified publication nav, Deals and Releases public pages",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Launch Tavall Times unified publication nav, Deals and Releases public pages",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web-blog/issues/11",
       "source_title": "Editorial draft: Stop Signing Up for Services for developers and technical managers",
       "current_native_type": null,
-      "proposed_native_type": "Documentation",
-      "proposed_title": "DOCS: Editorial draft: Stop Signing Up for Services for developers and technical managers",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Editorial draft: Stop Signing Up for Services for developers and technical managers",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Documentation"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-web-blog/issues/13",
+      "source_title": "Tests: convert tavall-web-blog to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-web-blog to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-web-cloud/issues/5",
+      "source_title": "Tests: convert tavall-web-cloud to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-web-cloud to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-web-commerce/issues/6",
+      "source_title": "Tests: convert tavall-web-commerce to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-web-commerce to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web-content/issues/12",
       "source_title": "V0: Opus-inspired Content Studio, connected-account aggregator, campaign-specific publishing",
       "current_state": "closed",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: V0: Opus-inspired Content Studio, connected-account aggregator, campaign-specific publishing",
-      "review_status": "REVIEWED_CLOSED_PENDING_APPLY",
-      "note": null
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: V0: Opus-inspired Content Studio, connected-account aggregator, campaign-specific publishing",
+      "review_status": "REVIEWED_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web-content/issues/19",
@@ -2016,7 +2578,30 @@
       "proposed_title": "TODO: Content Studio: private clip review feed and action-ready autonomous campaign approvals",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "TODO"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-web-content/issues/20",
+      "source_title": "Tests: convert tavall-web-content to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-web-content to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-web-contractors/issues/7",
+      "source_title": "Tests: convert tavall-web-contractors to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-web-contractors to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web-dashboard/issues/10",
@@ -2026,7 +2611,8 @@
       "proposed_title": "BUG: Dashboard navigation audit: account OAuth sign-in redirect flow and empty state consolidation",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Bug"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web-dashboard/issues/6",
@@ -2035,8 +2621,9 @@
       "current_native_type": null,
       "proposed_native_type": "Bug",
       "proposed_title": "BUG: Fix Tavall Times canonical dashboard inventory and add verified Superuser commerce views",
-      "review_status": "REVIEWED_CLOSED_PENDING_APPLY",
-      "note": null
+      "review_status": "REVIEWED_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Bug"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web-dashboard/issues/7",
@@ -2046,27 +2633,85 @@
       "proposed_title": "TODO: Unified Operations/Monitor queue: owner-backed incidents, campaigns, CI and AI decisions",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "TODO"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-web-dashboard/issues/8",
+      "source_title": "Tests: convert tavall-web-dashboard to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-web-dashboard to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-web-docs/issues/3",
+      "source_title": "Tests: convert tavall-web-docs to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-web-docs to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-web-mc/issues/11",
+      "source_title": "Tests: convert tavall-web-mc to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-web-mc to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-web-mcp/issues/10",
+      "source_title": "Classify the Web MCP module with a canonical primary type",
+      "current_state": "open",
+      "current_native_type": "Documentation",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Classify the Web MCP module with a canonical primary type",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Documentation"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-web-mcp/issues/11",
+      "source_title": "Tests: convert tavall-web-mcp to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-web-mcp to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web-ops/issues/11",
       "source_title": "Register administrative HTTP endpoints and provide unified Ops operator navigation",
       "current_native_type": null,
-      "proposed_native_type": "Infrastructure",
-      "proposed_title": "INFRA: Register administrative HTTP endpoints and provide unified Ops operator navigation",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Register administrative HTTP endpoints and provide unified Ops operator navigation",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Infrastructure"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web-ops/issues/19",
       "source_title": "Deploy: enable and verify PRODUCTION deployment target for tavall-web-ops overlay",
       "current_native_type": null,
-      "proposed_native_type": "Infrastructure",
-      "proposed_title": "INFRA: Deploy: enable and verify PRODUCTION deployment target for tavall-web-ops overlay",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Deploy: enable and verify PRODUCTION deployment target for tavall-web-ops overlay",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Infrastructure"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web-ops/issues/6",
@@ -2076,47 +2721,96 @@
       "proposed_title": "TODO: Independent Ops grants for scoped production automation, freeze, revoke and emergency rollback",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "TODO"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-web-ops/issues/8",
+      "source_title": "Tests: convert tavall-web-ops to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-web-ops to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web-ops/issues/9",
       "source_title": "HUMAN_REQUIRED queue + browser control panel",
       "current_state": "closed",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: HUMAN_REQUIRED queue + browser control panel",
-      "review_status": "REVIEWED_CLOSED_PENDING_APPLY",
-      "note": null
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: HUMAN_REQUIRED queue + browser control panel",
+      "review_status": "REVIEWED_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Feature"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-web-qa/issues/5",
+      "source_title": "Tests: convert tavall-web-qa to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-web-qa to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-web-store-tools/issues/4",
+      "source_title": "Tests: convert tavall-web-store-tools to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-web-store-tools to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-web-workflows/issues/7",
+      "source_title": "Tests: convert tavall-web-workflows to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-web-workflows to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web/issues/101",
       "source_title": "Tavall Times: wire Deals and Releases host routes plus Superuser operator authorization",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Tavall Times: wire Deals and Releases host routes plus Superuser operator authorization",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Tavall Times: wire Deals and Releases host routes plus Superuser operator authorization",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web/issues/103",
       "source_title": "Implement partner-facing public engineering portfolio at tj.tavall.org",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Implement partner-facing public engineering portfolio at tj.tavall.org",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Implement partner-facing public engineering portfolio at tj.tavall.org",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web/issues/104",
       "source_title": "Record locked Tavall moth emblem system and approved center-glyph-only variants",
       "current_native_type": null,
-      "proposed_native_type": "Design",
-      "proposed_title": "DESIGN: Record locked Tavall moth emblem system and approved center-glyph-only variants",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Record locked Tavall moth emblem system and approved center-glyph-only variants",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Design"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web/issues/105",
@@ -2126,140 +2820,170 @@
       "proposed_title": "RESEARCH: Validate independent games-first rewards publisher pilot and BitLabs eligibility",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Research"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-web/issues/106",
+      "source_title": "Tests: convert tavall-web to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-web to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web/issues/123",
       "source_title": "Gate Web /admin/* routes behind Tavall Ops dashboard and bind dev runtimes to loopback",
       "current_state": "closed",
       "current_native_type": null,
-      "proposed_native_type": "Security",
-      "proposed_title": "SECURITY: Gate Web /admin/* routes behind Tavall Ops dashboard and bind dev runtimes to loopback",
-      "review_status": "REVIEWED_CLOSED_PENDING_APPLY",
-      "note": null
+      "proposed_native_type": "Bug",
+      "proposed_title": "BUG: Gate Web /admin/* routes behind Tavall Ops dashboard and bind dev runtimes to loopback",
+      "review_status": "REVIEWED_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Security"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web/issues/154",
       "source_title": "Publish Tavall Privacy Policy v1 and foundational legal pages on active web endpoints",
       "current_native_type": null,
-      "proposed_native_type": "Documentation",
-      "proposed_title": "DOCS: Publish Tavall Privacy Policy v1 and foundational legal pages on active web endpoints",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Publish Tavall Privacy Policy v1 and foundational legal pages on active web endpoints",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Documentation"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web/issues/65",
       "source_title": "V0: Tavall Account social-channel OAuth linking for Content aggregation",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: V0: Tavall Account social-channel OAuth linking for Content aggregation",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: V0: Tavall Account social-channel OAuth linking for Content aggregation",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web/issues/77",
       "source_title": "Migration: Define only evidence-backed Account/Commerce fan-in SYSTEMs with compliant module names, while retaining `tavall-web-app` as APPLICATION",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Define only evidence-backed Account/Commerce fan-in SYSTEMs with compliant module names, while retaining `tavall-web-app` as APPLICATION",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Define only evidence-backed Account/Commerce fan-in SYSTEMs with compliant module names, while retaining `tavall-web-app` as APPLICATION",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web/issues/89",
       "source_title": "Coordinate existing affiliate-marketing repos with Tavall Web Account, subdomains and attribution",
       "current_native_type": null,
-      "proposed_native_type": "Task",
-      "proposed_title": "TASK: Coordinate existing affiliate-marketing repos with Tavall Web Account, subdomains and attribution",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Coordinate existing affiliate-marketing repos with Tavall Web Account, subdomains and attribution",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Task"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web/issues/92",
       "source_title": "Compose Crypto, Rewards and Affiliate product pages after host-routing PR #91",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Compose Crypto, Rewards and Affiliate product pages after host-routing PR #91",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Compose Crypto, Rewards and Affiliate product pages after host-routing PR #91",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-workflows/issues/8",
       "source_title": "Keep developer-native Tavall Workflows namespace and bridge selected workflows to Tavall AI Flows",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Keep developer-native Tavall Workflows namespace and bridge selected workflows to Tavall AI Flows",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Keep developer-native Tavall Workflows namespace and bridge selected workflows to Tavall AI Flows",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-workflows/issues/9",
+      "source_title": "Tests: convert tavall-workflows to Tavall house test style",
+      "current_state": "open",
+      "current_native_type": "Test",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: convert tavall-workflows to Tavall house test style",
+      "review_status": "REVIEWED_TYPE_CONSOLIDATION_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Test"
     },
     {
       "issue_url": "https://github.com/TavallStudios/TavallContractors/issues/10",
       "source_title": "arch(consumer): migrate 6 *Repository types to typed DataHandlers",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: arch(consumer): migrate 6 *Repository types to typed DataHandlers",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: arch(consumer): migrate 6 *Repository types to typed DataHandlers",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/TavallContractors/issues/9",
       "source_title": "Migration: Decide legacy Contractors executable ownership before changing the `spring-webview` RUNTIME module's noncompliant name",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Decide legacy Contractors executable ownership before changing the `spring-webview` RUNTIME module's noncompliant name",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Decide legacy Contractors executable ownership before changing the `spring-webview` RUNTIME module's noncompliant name",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/TavallMonoRepo/issues/1",
       "source_title": "Build: Track organization-wide Gradle Kotlin DSL migration",
       "current_state": "closed",
       "current_native_type": null,
-      "proposed_native_type": "Migration",
-      "proposed_title": "MIGRATION: Build: Track organization-wide Gradle Kotlin DSL migration",
-      "review_status": "REVIEWED_CLOSED_PENDING_APPLY",
-      "note": null
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Build: Track organization-wide Gradle Kotlin DSL migration",
+      "review_status": "REVIEWED_PENDING_APPLY",
+      "note": null,
+      "legacy_reviewed_native_type": "Migration"
     },
     {
       "issue_url": "https://github.com/TavallStudios/TavallMonoRepo/issues/7",
       "source_title": "Build ThreadRegistry and CPU/core-aware Tavall concurrency inspection",
       "current_native_type": null,
-      "proposed_native_type": "Feature",
-      "proposed_title": "FEATURE: Build ThreadRegistry and CPU/core-aware Tavall concurrency inspection",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Build ThreadRegistry and CPU/core-aware Tavall concurrency inspection",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open"
+      "current_state": "open",
+      "legacy_reviewed_native_type": "Feature"
     }
   ],
   "native_type_assignments_by_state": {
-    "open": {
-      "Feature": 44,
-      "Migration": 35,
-      "Research": 11,
-      "Design": 12,
-      "Epic": 3,
-      "Task": 14,
-      "Bug": 15,
-      "TODO": 8,
-      "Infrastructure": 7,
-      "Security": 1,
-      "Documentation": 7,
-      "Test": 3
-    },
     "closed": {
-      "Security": 1,
-      "Feature": 10,
-      "Migration": 4,
-      "Test": 1,
-      "Bug": 1
+      "EXCLUDED": 42,
+      "TODO": 17,
+      "Bug": 2
+    },
+    "open": {
+      "TODO": 181,
+      "Research": 11,
+      "Bug": 16,
+      "EXCLUDED": 2
     }
-  }
+  },
+  "migration_notes": [
+    "Proposals only: no native GitHub issues were changed by this inventory.",
+    "Legacy Feature, Task, Epic, Migration, Documentation, Test, Design and Infrastructure consolidate to TODO; confirmed Security defects to BUG.",
+    "Other is an intended type not yet configured in organization; preserve special-purpose command channels and historical non-work records without automatic mutation.",
+    "Migration must read back native GitHub types and titles, check source state/title/type for changes, and preserve issue identity, relationships and evidence."
+  ]
 }
