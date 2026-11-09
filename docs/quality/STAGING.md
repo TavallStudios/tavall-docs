@@ -48,3 +48,13 @@ Current reconciled staging head is
 `2a0813d399a7c6dbe14b697930d05188498ff95a`. It includes the current main
 baseline, focused Docs PR #115, and the owner-corrected Work Tracking policy.
 Its fresh exact-head composed validation is pending.
+
+## Staging root succession — 2026-11-09 1:10 AM PST
+
+Generation 3 root PR #108 was promoted to `main` at merge commit
+`7ab2ad1bdd02c41149d2546fbd643307c56f00c1` after the exact composed head
+`5f07bfdd5bc77485d613885593fafff8d142fc66` passed `REQUIRED_ALL` in request
+`da9ad924-eec3-4b58-81bf-2a8990a49f2f`. The `staging/quality-v2` branch is
+preserved as the base for active child PRs #93, #95, and #97. A successor
+active staging root is being established on this same branch before further
+child integration.
