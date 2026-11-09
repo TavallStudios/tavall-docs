@@ -2,14 +2,14 @@
   "schema_version": 2,
   "source": "TavallStudios GitHub issues snapshot 2026-11-08; simplified 5 types (TODO/BUG/IDEA/RESEARCH/OTHER)",
   "snapshot_date": "2026-11-08",
-  "status": "REVIEWED_SIMPLIFIED_TYPES_NOT_APPLIED",
+  "status": "REVIEWED_SIMPLIFIED_TYPES_NOT_APPLIED_20261109_REFRESHED",
   "scope": {
-    "organization_total": 271,
-    "open": 210,
-    "closed": 61,
-    "previously_typed": 50,
-    "untyped_at_snapshot": 221,
-    "reviewed_classifiable": 227,
+    "organization_total": 276,
+    "open": 214,
+    "closed": 62,
+    "previously_typed": 52,
+    "untyped_at_snapshot": 224,
+    "reviewed_classifiable": 232,
     "excluded_special_records": 44,
     "proposed_native_other_count": 0
   },
@@ -430,7 +430,7 @@
       "proposed_title": "TODO: arch(consumer): retire five Analytics *Repository declarations",
       "review_status": "REVIEWED_PENDING_APPLY",
       "note": null,
-      "current_state": "open",
+      "current_state": "closed",
       "legacy_reviewed_native_type": "Migration"
     },
     {
@@ -2593,6 +2593,16 @@
       "legacy_reviewed_native_type": "Test"
     },
     {
+      "issue_url": "https://github.com/TavallStudios/tavall-web-content/issues/33",
+      "source_title": "Mount Content Dashboard at /dashboard with shared product chrome",
+      "current_state": "open",
+      "current_native_type": null,
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Mount Content Dashboard at /dashboard with shared product chrome",
+      "review_status": "REVIEWED_PENDING_APPLY",
+      "note": "New accepted implementation/staging work reviewed from title and full body on 2026-11-09; TODO includes features and infrastructure."
+    },
+    {
       "issue_url": "https://github.com/TavallStudios/tavall-web-contractors/issues/7",
       "source_title": "Tests: convert tavall-web-contractors to Tavall house test style",
       "current_state": "open",
@@ -2613,6 +2623,26 @@
       "note": null,
       "current_state": "open",
       "legacy_reviewed_native_type": "Bug"
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-web-dashboard/issues/11",
+      "source_title": "TODO: Add reusable dashboard chrome, product switcher, and Ops role gated navigation",
+      "current_state": "open",
+      "current_native_type": "TODO",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Add reusable dashboard chrome, product switcher, and Ops role gated navigation",
+      "review_status": "REVIEWED_PENDING_APPLY",
+      "note": "New accepted implementation/staging work reviewed from title and full body on 2026-11-09; TODO includes features and infrastructure."
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-web-dashboard/issues/12",
+      "source_title": "TODO: Establish an active staging root for the dashboard library",
+      "current_state": "open",
+      "current_native_type": "TODO",
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Establish an active staging root for the dashboard library",
+      "review_status": "REVIEWED_PENDING_APPLY",
+      "note": "New accepted implementation/staging work reviewed from title and full body on 2026-11-09; TODO includes features and infrastructure."
     },
     {
       "issue_url": "https://github.com/TavallStudios/tavall-web-dashboard/issues/6",
@@ -2857,6 +2887,26 @@
       "legacy_reviewed_native_type": "Documentation"
     },
     {
+      "issue_url": "https://github.com/TavallStudios/tavall-web/issues/157",
+      "source_title": "Route the Account-authorized Content dashboard to /dashboard",
+      "current_state": "open",
+      "current_native_type": null,
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Route the Account-authorized Content dashboard to /dashboard",
+      "review_status": "REVIEWED_PENDING_APPLY",
+      "note": "New accepted implementation/staging work reviewed from title and full body on 2026-11-09; TODO includes features and infrastructure."
+    },
+    {
+      "issue_url": "https://github.com/TavallStudios/tavall-web/issues/159",
+      "source_title": "Compose Content dashboard source into Web runtime staging",
+      "current_state": "open",
+      "current_native_type": null,
+      "proposed_native_type": "TODO",
+      "proposed_title": "TODO: Compose Content dashboard source into Web runtime staging",
+      "review_status": "REVIEWED_PENDING_APPLY",
+      "note": "New accepted implementation/staging work reviewed from title and full body on 2026-11-09; TODO includes features and infrastructure."
+    },
+    {
       "issue_url": "https://github.com/TavallStudios/tavall-web/issues/65",
       "source_title": "V0: Tavall Account social-channel OAuth linking for Content aggregation",
       "current_native_type": null,
@@ -2970,11 +3020,11 @@
   "native_type_assignments_by_state": {
     "closed": {
       "EXCLUDED": 42,
-      "TODO": 17,
+      "TODO": 18,
       "Bug": 2
     },
     "open": {
-      "TODO": 181,
+      "TODO": 185,
       "Research": 11,
       "Bug": 16,
       "EXCLUDED": 2
@@ -2984,6 +3034,7 @@
     "Proposals only: no native GitHub issues were changed by this inventory.",
     "Legacy Feature, Task, Epic, Migration, Documentation, Test, Design and Infrastructure consolidate to TODO; confirmed Security defects to BUG.",
     "Other is an intended type not yet configured in organization; preserve special-purpose command channels and historical non-work records without automatic mutation.",
-    "Migration must read back native GitHub types and titles, check source state/title/type for changes, and preserve issue identity, relationships and evidence."
+    "Migration must read back native GitHub types and titles, check source state/title/type for changes, and preserve issue identity, relationships and evidence.",
+    "2026-11-09 refresh: reviewed five newly opened dashboard/web integration issues as TODO; Analytics #25 transitioned to closed; migration remains open-only by default."
   ]
 }
