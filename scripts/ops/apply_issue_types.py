@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Read-back-verified one-off native GitHub Issue Type migration.
+"""Read-back-verified issue TITLE-prefix migration (legacy file name).
 
 Default is offline and read-only. --apply requires an authorized gh api
-session. This tool does not create issues or change labels, bodies, states,
-assignees, or milestones. Native Issue Types, not title prefixes, are authoritative.
+session. This tool changes issue TITLES ONLY; native Issue Types, labels,
+bodies, states, assignees, and milestones are not changed.
 """
 import argparse
 import json
@@ -94,22 +94,19 @@ def run(path, *, apply, states, limit):
                 print("SKIP_STATE_DRIFT", item["issue_url"])
                 summary["skipped_drift"] += 1
                 continue
-            if current_type == expected_type and actual_title == expected_title:
+            if actual_title == expected_title:
                 summary["already_applied"] += 1
                 continue
-            if (current_type != item.get("current_native_type")
-                    or actual_title != item["source_title"]):
-                print("SKIP_TYPE_OR_TITLE_DRIFT", item["issue_url"])
+            if actual_title != item["source_title"]:
+                print("SKIP_TITLE_DRIFT", item["issue_url"])
                 summary["skipped_drift"] += 1
                 continue
-            github_api(
-                "-X", "PATCH", endpoint, "-f", "type=" + expected_type,
-                "-f", "title=" + expected_title,
-            )
+            github_api("-X", "PATCH", endpoint, "-f", "title=" + expected_title)
             verified = github_api(endpoint)
-            if (verified.get("type") or {}).get("name") != expected_type \
-                    or verified.get("title") != expected_title:
-                raise RuntimeError("PATCH returned but read-back type/title mismatch")
+            if verified.get("title") != expected_title:
+                raise RuntimeError("PATCH returned but title read-back mismatched")
+            if (verified.get("type") or {}).get("name") != current_type:
+                raise RuntimeError("Native Type unexpectedly changed in title-only PATCH")
             summary["applied"] += 1
             print("APPLIED", item["issue_url"], expected_type)
         except (RuntimeError, ValueError) as exc:
@@ -127,7 +124,7 @@ def main():
                         default=pathlib.Path(__file__).resolve().parents[2] /
                         "docs/progression/GITHUB_ISSUE_TYPE_REVIEW_20261108.json")
     parser.add_argument("--apply", action="store_true",
-                        help="Write bounded native Types and titles using authorized gh api")
+                        help="Write bounded issue titles only using authorized gh api")
     parser.add_argument("--state", choices=("open", "closed", "all"), default="open")
     parser.add_argument("--limit", type=int, default=25,
                         help="Maximum successful native type updates per invocation")
