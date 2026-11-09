@@ -59,12 +59,17 @@ The TavallStudios organization now configures native GitHub Issue **Types** and 
 
 ### Priority
 
-The native org **Priority** field carries `Urgent / High / Medium / Low`, derived from launch directives and Notion goals:
+The org **Priority** field is a single-select with `P0` through `P6`. Its options retain the established ordering and map the former values as `Urgent → P0`, `High → P1`, `Medium → P2`, and `Low → P3`:
 
-- **P0 → Urgent** — resolve immediately; blocks launch or safety.
-- **P1 → High** — required for the current goal/milestone.
-- **P2 → Medium** — scheduled but not blocking.
-- **P3 / none → Low** — backlog, nice-to-have, or deferred.
+- **P0** — critical and immediate; blocks launch or safety and must be resolved now.
+- **P1** — required for the current goal or milestone.
+- **P2** — scheduled work that is not blocking.
+- **P3** — normal backlog work.
+- **P4** — lower-priority backlog work.
+- **P5** — deferred work.
+- **P6** — someday work; the lowest priority.
+
+QA Task Board priority values map to GitHub as `CRITICAL → P0`, `HIGH → P1`, `NORMAL → P2`, and `LOW → P3`. P4–P6 remain available for explicit lower-priority, deferred, and someday planning; they are not inferred from the four QA priority values.
 
 ### Authority and consumer
 
