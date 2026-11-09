@@ -129,3 +129,8 @@ Generation 8 root PR #120 was promoted to `main` at merge commit
 `68f4ec50-e6c8-455d-8054-e1f013cc8db1`. Active child PRs #93, #95, and #97
 remain based on `staging/quality-v2`; the successor root will use the same
 branch to preserve their staging ancestry.
+
+Successor root PR #121 is open in Draft as the active Generation 9 root. It
+uses `staging/quality-v2`; its initial head was
+`ba21b619ae497414463925f8ff2b8897f84bf3b1`. Active child PRs #93, #95, and
+#97 remain attached to this branch. Exact-head CI is pending.
