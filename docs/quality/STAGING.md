@@ -120,3 +120,17 @@ Successor root PR #120 is open in Draft as the active Generation 8 root. It
 uses `staging/quality-v2`; its initial head was
 `dd7bc87b77afdb20fdc153cc88c0a753d863c12a`. Active child PRs #93, #95, and
 #97 remain attached to this branch. Exact-head CI is pending.
+
+## Staging root succession — 2026-11-09 5:30 AM PST
+
+Generation 8 root PR #120 was promoted to `main` at merge commit
+`42d8c49730f11ab34fa13a4b936e094c6b7c380c` after exact composed head
+`fb7a39562844d88e7fb3e578077280aedb370037` passed `REQUIRED_ALL` in request
+`68f4ec50-e6c8-455d-8054-e1f013cc8db1`. Active child PRs #93, #95, and #97
+remain based on `staging/quality-v2`; the successor root will use the same
+branch to preserve their staging ancestry.
+
+Successor root PR #121 is open in Draft as the active Generation 9 root. It
+uses `staging/quality-v2`; its initial head was
+`ba21b619ae497414463925f8ff2b8897f84bf3b1`. Active child PRs #93, #95, and
+#97 remain attached to this branch. Exact-head CI is pending.
