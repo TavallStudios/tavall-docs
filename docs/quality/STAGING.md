@@ -58,3 +58,9 @@ Generation 3 root PR #108 was promoted to `main` at merge commit
 preserved as the base for active child PRs #93, #95, and #97. A successor
 active staging root is being established on this same branch before further
 child integration.
+
+Successor root PR #116 is open in Draft as the active Generation 4 root. Its
+branch is `staging/quality-v2`; initial head was
+`4bdfef92bfeccc049dfe0e786dc72976f90f8554`. The head will advance with this
+manifest checkpoint before exact-head validation. Active children #93, #95,
+and #97 continue to target the same staging branch.
