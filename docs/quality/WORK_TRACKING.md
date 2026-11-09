@@ -50,12 +50,16 @@ The TavallStudios organization now configures native GitHub Issue **Types** and 
 - **Epic** — a Notion goal/milestone parent that groups child sub-issues.
 - **Migration** — a move, port, or cutover of code, data, or ownership.
 - **Infrastructure** — platform, build, CI, or operational-environment work.
-- **Test** — test coverage, harness, or verification work.
+- **Test** — legacy classification retained for existing issues. New ledger title markers `Test` and `Tests` normalize to **Tests**.
+- **Tests** — test coverage, harness, or verification work.
+- **Architecture** — architecture and system-structure work.
 - **Documentation** — docs, standards, or authored reference content.
 - **Security** — vulnerability, hardening, or compliance work.
 - **Research** — investigation, spike, or evaluation without a committed deliverable.
 - **Design** — product, UX, or technical design artifact.
 - **Incident** — an active or post-mortem production/service disruption.
+
+Ledger title markers normalize to these canonical issue types: `Test`/`Tests` → `Tests`, `arch(consumer)`/`Architecture` → `Architecture`, `Docs` → `Documentation`, and `Deploy` → `Infrastructure`. `TODO`, `Migration`, and `Design` retain their names.
 
 ### Priority
 
@@ -69,7 +73,7 @@ The org **Priority** field is a single-select with `P0` through `P6`. Its option
 - **P5** — deferred work.
 - **P6** — someday work; the lowest priority.
 
-QA Task Board priority values map to GitHub as `CRITICAL → P0`, `HIGH → P1`, `NORMAL → P2`, and `LOW → P3`. P4–P6 remain available for explicit lower-priority, deferred, and someday planning; they are not inferred from the four QA priority values.
+An explicit `P0`–`P6` marker in a QA task title is retained. Without one, QA Task Board priority values map to GitHub as `CRITICAL → P0`, `HIGH → P1`, `NORMAL → P2`, and `LOW → P3`. P4–P6 remain available for explicit lower-priority, deferred, and someday planning; they are not inferred from the four QA priority values.
 
 ### Authority and consumer
 
