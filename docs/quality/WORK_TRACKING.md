@@ -129,7 +129,7 @@ Tavall GitHub Bot remains a GitHub integration adapter, and Tavall CI/Cloud rema
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | 2026-11-09 12:04 AM PST | [Draft PR #115](https://github.com/TavallStudios/tavall-docs/pull/115) |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | 2026-11-09 12:51 AM PST | [Staging PR #108](https://github.com/TavallStudios/tavall-docs/pull/108) |
 
 ### Update History
 
@@ -139,5 +139,6 @@ Tavall GitHub Bot remains a GitHub integration adapter, and Tavall CI/Cloud rema
 | 2026-11-08 11:59 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | Same path | [Draft PR #115](https://github.com/TavallStudios/tavall-docs/pull/115) | Previous revision still used QA task metadata; corrected by the next event. |
 | 2026-11-09 12:01 AM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | Same path | [Draft PR #115](https://github.com/TavallStudios/tavall-docs/pull/115) | GitHub title prefixes supply Type; labels/body supply Priority; no QA-derived classification. |
 | 2026-11-09 12:04 AM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | Same path | [Draft PR #115](https://github.com/TavallStudios/tavall-docs/pull/115) | Reconciled docs and implementation source with the GitHub issue owner correction. |
+| 2026-11-09 12:51 AM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | Same path | [Staging PR #108](https://github.com/TavallStudios/tavall-docs/pull/108) | Reconciled concurrent main policy with the owner directive: native Type follows GitHub title prefix; Priority comes only from explicit issue labels/body markers. |
 
 </details>
