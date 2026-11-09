@@ -30,7 +30,7 @@ The **repository issue URL** is the canonical task identity. Project item IDs, b
 
 ## 3. Work item fields
 
-A task has: issue URL, owning repository and module/system, kind (initiative / actionable task / bug / verification), priority (P0–P3), dependencies and blocked reason, required consumer / approval, acceptance tests, design authority links, implementation PR(s), verification evidence / accepted SHA, and source provenance.
+A task has: issue URL, owning repository and module/system, kind (initiative / actionable task / bug / verification), priority (P0–P6), dependencies and blocked reason, required consumer / approval, acceptance tests, design authority links, implementation PR(s), verification evidence / accepted SHA, and source provenance.
 
 Workflow values: `INBOX → READY → IN_PROGRESS → REVIEW → VERIFY → DONE` plus `BLOCKED` and `DEFERRED`. The GitHub Projects **Status** custom field is the intended workflow projection once the board is installed. Until then, newly imported issues are triage-only INBOX unless separately supported by work evidence. Issue `open/closed` (including GitHub's `not_planned`/`duplicate` reason) is the native closure authority; `DONE` requires the issue's acceptance criteria, not merely an updated Project field. Do not maintain mutable status simultaneously in TODO text, an issue body, a bot file, and a Project field.
 
@@ -38,52 +38,45 @@ Suggested board views: **Next & Ready**, **Blocked**, **Active Agent Work**, **B
 
 ## 4. GitHub Issue Types and Priority
 
-Tavall's issue classifications are **title prefixes**, exactly like the existing PR title and branch naming conventions. **Native GitHub Issue Types are optional and not part of the required workflow.** Do not block, retry, or claim classification failure because the native Type field is empty, unsupported, or holds an older value. The issue title is the source of truth for this classification.
+GitHub issues are the canonical work-item identity and title prefixes remain the human-readable classification source. TavallStudios also configures native GitHub Issue Types and a single-select Priority field; the issue write path synchronizes those fields from the issue's own title, labels, and body. The QA Task Board is an execution/checkpoint tracking surface, not the source for issue Type or Priority.
 
-### Canonical issue title prefixes
+### Issue Types
 
-| Prefix | Use |
-| --- | --- |
-| `TODO:` | Anything that needs doing: features, tasks, parent initiatives, documentation, CI, infrastructure, migration, design, hardening, or other work of any size. |
-| `BUG:` | Confirmed incorrect, broken, unsafe, or regressed behavior. |
-| `IDEA:` | A proposal or possibility not yet authorized for execution. |
-| `RESEARCH:` | An investigation or experiment whose deliverable is evidence, a finding, or a decision. |
-| `OTHER:` | A genuine exception requiring its own explicit explanation. Avoid using it for ordinary TODOs. |
+The title prefix determines native **Type**. Normalize known prefixes to the existing organization types:
 
-Do **not** create separate Epic, Task, Feature, Migration, Infrastructure, Test, Documentation, Security, Design, or Incident issue prefixes. Those are either TODOs, bugs, research, or domain details. Security and incident response keep their existing dedicated safety/operations protocols regardless of title prefix.
+- `TODO` → `TODO`; `BUG` → `Bug`; `RESEARCH` → `Research`.
+- `Test` / `Tests` and `Validation` → `Tests`.
+- `arch(consumer)` / `Architecture` → `Architecture`.
+- `Docs` / `Documentation` → `Documentation`.
+- `Deploy`, `Build`, `Cloud operation`, `Cloud live logs`, `Cloud live read`, and `Cloud read` → `Infrastructure`.
+- `Build tavall-content-auto-account-system` → `Feature`.
+- Other exact canonical type names retain their corresponding type (including `Task`, `Feature`, `Idea`, `Epic`, `Migration`, `Security`, `Design`, and `Incident`).
 
-### Size, acceptance and relationships
-
-- A `TODO:` can be a five-minute fix or a multi-repository goal. Express large initiatives using GitHub parent/child issues and references, not an `EPIC:` type.
-- `TODO:` can mean captured, accepted, active, blocked or complete. The QA Task Board records execution state; priority, ownership, acceptance and dependencies remain separate metadata.
-- `IDEA:` represents an unapproved proposal. When approved, retitle the *same* issue as `TODO:` if it becomes implementation work, preserving its identity and discussion.
-- `RESEARCH:` is for unknowns and evidence; the resulting implementation can be a linked `TODO:` or the same issue after an explicit transition.
-- Dedicated automation command channels, temporary receipts and historical non-work issues may use protocol-specific titles; do not retitle them without owning integration approval.
-
-### Creating, updating and reporting
-
-1. Read the issue's title and body, classify by primary purpose, deduplicate, and use **exactly one** uppercase prefix with `: ` followed by the descriptive title. Never stack prefixes such as `TODO: FEATURE:`.
-2. On creation or retitling, update the issue **title only** unless other changes are explicitly warranted. Do not mutate native Issue Types, labels, body, state or PR/branch metadata as a side effect.
-3. Read back the GitHub issue title to verify the prefix persisted. Native Issue Type compatibility or permissions are irrelevant to title-prefix classification.
-4. When migrating old titles, preserve the descriptive text and issue ID, check for concurrent changes, and skip special-purpose command channels.
-5. Report separate counts for `TODO:`, `BUG:`, `IDEA:`, `RESEARCH:`, `OTHER:`, nonstandard/exempt titles, and closed issues. `open` or `closed` is a state, not a prefix.
-
-**Verified open-issue rollout (2026-11-09 UTC):** 214 open issues examined; 185 `TODO:`, 16 `BUG:`, 11 `RESEARCH:`; two Tavall Cloud command channels exempt. Existing native Issue Type values were not modified. The dated review JSON in `docs/progression/` retains its historical column names, but its classifications are used for **title prefixes only**.
-
-Examples: `TODO: Build Tavall AI Chat`, `TODO: Run CI simulation suite`, `BUG: Fix OAuth redirect loop`, `IDEA: Explore rewards mechanisms`, `RESEARCH: Evaluate credential-safe browser import`.
+`V0` and `Closed` are version/state markers, not types. Unrecognized or absent prefixes leave native Type unset; do not invent types from arbitrary title text. `Test` is retained as an existing legacy org type, while new `Test` / `Tests` title prefixes normalize to `Tests`.
 
 ### Priority
 
-The org **Priority** field carries `Urgent / High / Medium / Low`, derived from launch directives and Notion goals:
+The organization Priority field is a single-select with `P0` through `P6`. Existing option identities were remapped as `Urgent → P0`, `High → P1`, `Medium → P2`, and `Low → P3`:
 
-- **P0 → Urgent** — resolve immediately; blocks launch or safety.
-- **P1 → High** — required for the current goal/milestone.
-- **P2 → Medium** — scheduled but not blocking.
-- **P3 / none → Low** — backlog, nice-to-have, or deferred.
+- **P0** — critical and immediate; blocks launch or safety and must be resolved now.
+- **P1** — required for the current goal or milestone.
+- **P2** — scheduled work that is not blocking.
+- **P3** — normal backlog work.
+- **P4** — lower-priority backlog work.
+- **P5** — deferred work.
+- **P6** — someday work; the lowest priority.
+
+Priority is sourced only from a P0–P6 marker already present in an issue label or body. A single explicit priority label takes precedence over body markers. If the selected source has conflicting markers, leave Priority unset and report the conflict. With no marker, leave Priority unset. Do not infer priority from a title, QA Task Board value, Notion priority, or issue type.
+
+### Creating and updating issues
+
+After a successful GitHub issue create or edit, the PR-workflow-owned `tavall-gh` path synchronizes native Type from the current title prefix and Priority from existing labels/body markers. It clears stale values when no recognized type or priority exists. The paced open-issue backfill uses the same rules. Never source issue metadata from the QA Task Board client.
+
+The 2026-11-09 title-prefix review in `docs/progression/GITHUB_ISSUE_TYPE_REVIEW_20261108.json` was a classification-only inventory; its report that existing native values were not modified describes that historical review, not the subsequent metadata sync. The owner-authorized metadata backfill later examined 222 open issues, updated 2, found 220 already current, and encountered 0 errors.
 
 ### Authority and consumer
 
-GitHub Issues provide canonical issue identity and **their titles carry the prefix classification**. The QA Task Board remains the execution/task-state authority. The retired JSON Agent Ledger is not a task source.
+Each owner-repository GitHub Issue is the canonical work-item identity and source for its title-based Type and explicit Priority markers. The QA Task Board may track execution and verification checkpoints; it does not populate or override GitHub issue metadata. The retired JSON Agent Ledger is not a task source.
 
 ## 5. Intake and deduplication
 
@@ -117,7 +110,7 @@ Owning [initiative #9](https://github.com/TavallStudios/tavall-github-bot/issues
 
 Tavall GitHub Bot remains a GitHub integration adapter, and Tavall CI/Cloud remain the only CI and execution authorities. Module naming, DI and testing follow [Module Separation](code-architecture/MODULE_SEPARATION.md) and `Tavall AI`/`tavall-engineering-policy`. Each production implementation PR requires source-backed unit/integration acceptance, read-after-write evidence, projection idempotence and a correct unprivileged failure mode. No GitHub Actions execution bridge or second work scheduler.
 
-**Implementation state, 2026-10-22:** Issue authority established for the first migration wave; bot-based ingestion, org-wide Project board, generated TODO replacement and runtime verification are **not deployed or verified**.
+**Implementation state, 2026-11-07:** Organization-wide backlog intake completed across all 50+ repositories; 206 open engineering issues cataloged, triaged in `BACKLOG.md`, and mirrored to the live QA Task Board (`projectKey: tavall-engineering`). Manual unchecked TODO tracking is formally retired; work execution is tracked exclusively via GitHub Issues and QA Task Board.
 
 ## DOC TODO:
 
@@ -128,3 +121,24 @@ Tavall GitHub Bot remains a GitHub integration adapter, and Tavall CI/Cloud rema
 ### System next steps
 - [ ] Finish audit of the remaining unmatched legacy items and accept/close their issue mappings.
 - [ ] Validate a repeat-run-safe pilot and preserve a reversible backup before switching generated root TODOs.
+
+<details>
+<summary>Documentation Update State</summary>
+
+### Current Locations
+
+| Surface | Sync State | Location | Last Updated | Evidence |
+| --- | --- | --- | --- | --- |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | 2026-11-09 12:51 AM PST | [Staging PR #108](https://github.com/TavallStudios/tavall-docs/pull/108) |
+
+### Update History
+
+| Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-08 11:13 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | Same path | [Draft PR #115](https://github.com/TavallStudios/tavall-docs/pull/115) | Added initial P0–P6 guidance; superseded by the corrected source mapping below. |
+| 2026-11-08 11:59 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | Same path | [Draft PR #115](https://github.com/TavallStudios/tavall-docs/pull/115) | Previous revision still used QA task metadata; corrected by the next event. |
+| 2026-11-09 12:01 AM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | Same path | [Draft PR #115](https://github.com/TavallStudios/tavall-docs/pull/115) | GitHub title prefixes supply Type; labels/body supply Priority; no QA-derived classification. |
+| 2026-11-09 12:04 AM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | Same path | [Draft PR #115](https://github.com/TavallStudios/tavall-docs/pull/115) | Reconciled docs and implementation source with the GitHub issue owner correction. |
+| 2026-11-09 12:51 AM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | Same path | [Staging PR #108](https://github.com/TavallStudios/tavall-docs/pull/108) | Reconciled concurrent main policy with the owner directive: native Type follows GitHub title prefix; Priority comes only from explicit issue labels/body markers. |
+
+</details>
