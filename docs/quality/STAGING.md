@@ -64,3 +64,12 @@ branch is `staging/quality-v2`; initial head was
 `4bdfef92bfeccc049dfe0e786dc72976f90f8554`. The head will advance with this
 manifest checkpoint before exact-head validation. Active children #93, #95,
 and #97 continue to target the same staging branch.
+
+## Staging root succession — 2026-11-09 1:37 AM PST
+
+Generation 4 root PR #116 was promoted to `main` at merge commit
+`aa5f18ee508d9947db5ed50f32e9672b7403a9b3` after exact composed head
+`8ad13b961cec9e86dc966cba64adf394ae47d200` passed `REQUIRED_ALL` in request
+`30a90b71-9340-490c-bad8-ab718e0784cb`. Active child PRs #93, #95, and #97
+remain based on `staging/quality-v2`; the successor root will use that same
+branch to preserve their ancestry.
