@@ -73,3 +73,8 @@ Generation 4 root PR #116 was promoted to `main` at merge commit
 `30a90b71-9340-490c-bad8-ab718e0784cb`. Active child PRs #93, #95, and #97
 remain based on `staging/quality-v2`; the successor root will use that same
 branch to preserve their ancestry.
+
+Successor root PR #117 is open in Draft as the active Generation 5 root. It
+uses the same `staging/quality-v2` branch; its initial head was
+`5a4a1f56f5e46c87f7bb8870d49c74121eef6fda`. Active child PRs #93, #95, and
+#97 remain attached to this branch. Exact-head CI is pending.
