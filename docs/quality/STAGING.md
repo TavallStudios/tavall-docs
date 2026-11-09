@@ -43,3 +43,8 @@ GitHub title prefixes as the Type source, native issue Type synchronization,
 and P0-P6 Priority derived only from existing issue labels/body markers, per
 the explicit owner correction. This changed composition requires a fresh
 exact-head `REQUIRED_ALL` check; the earlier result does not cover it.
+
+Current reconciled staging head is
+`2a0813d399a7c6dbe14b697930d05188498ff95a`. It includes the current main
+baseline, focused Docs PR #115, and the owner-corrected Work Tracking policy.
+Its fresh exact-head composed validation is pending.
