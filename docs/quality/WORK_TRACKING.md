@@ -30,7 +30,7 @@ The **repository issue URL** is the canonical task identity. Project item IDs, b
 
 ## 3. Work item fields
 
-A task has: issue URL, owning repository and module/system, kind (initiative / actionable task / bug / verification), priority (P0–P3), dependencies and blocked reason, required consumer / approval, acceptance tests, design authority links, implementation PR(s), verification evidence / accepted SHA, and source provenance.
+A task has: issue URL, owning repository and module/system, kind (initiative / actionable task / bug / verification), priority (P0–P6), dependencies and blocked reason, required consumer / approval, acceptance tests, design authority links, implementation PR(s), verification evidence / accepted SHA, and source provenance.
 
 Workflow values: `INBOX → READY → IN_PROGRESS → REVIEW → VERIFY → DONE` plus `BLOCKED` and `DEFERRED`. The GitHub Projects **Status** custom field is the intended workflow projection once the board is installed. Until then, newly imported issues are triage-only INBOX unless separately supported by work evidence. Issue `open/closed` (including GitHub's `not_planned`/`duplicate` reason) is the native closure authority; `DONE` requires the issue's acceptance criteria, not merely an updated Project field. Do not maintain mutable status simultaneously in TODO text, an issue body, a bot file, and a Project field.
 
@@ -50,21 +50,30 @@ The TavallStudios organization now configures native GitHub Issue **Types** and 
 - **Epic** — a Notion goal/milestone parent that groups child sub-issues.
 - **Migration** — a move, port, or cutover of code, data, or ownership.
 - **Infrastructure** — platform, build, CI, or operational-environment work.
-- **Test** — test coverage, harness, or verification work.
+- **Test** — legacy classification retained for existing issues. GitHub title prefixes `Test` and `Tests` normalize to **Tests**.
+- **Tests** — test coverage, harness, or verification work.
+- **Architecture** — architecture and system-structure work.
 - **Documentation** — docs, standards, or authored reference content.
 - **Security** — vulnerability, hardening, or compliance work.
 - **Research** — investigation, spike, or evaluation without a committed deliverable.
 - **Design** — product, UX, or technical design artifact.
 - **Incident** — an active or post-mortem production/service disruption.
 
+The GitHub issue title prefix is the source for native **Type**; QA Task Board titles and priorities do not supply issue metadata. Normalize prefixes to canonical issue types: `TODO` → `TODO`, `BUG` → `Bug`, `RESEARCH` → `Research`, `Test`/`Tests` → `Tests`, `arch(consumer)`/`Architecture` → `Architecture`, `Docs` → `Documentation`, and `Deploy` → `Infrastructure`. `Migration`, `Design`, and other exact canonical type names retain their names. `Cloud operation`, `Cloud live logs`, `Cloud live read`, `Cloud read`, and `Build` map to `Infrastructure`; `Validation` maps to `Tests`; `Build tavall-content-auto-account-system` maps to `Feature`. Version/state markers such as `V0` and `Closed` do not identify a type. If a title prefix has no canonical mapping, leave Type unset; do not create types from arbitrary title text.
+
 ### Priority
 
-The native org **Priority** field carries `Urgent / High / Medium / Low`, derived from launch directives and Notion goals:
+The org **Priority** field is a single-select with `P0` through `P6`. Its options retain the established ordering and map the former values as `Urgent → P0`, `High → P1`, `Medium → P2`, and `Low → P3`:
 
-- **P0 → Urgent** — resolve immediately; blocks launch or safety.
-- **P1 → High** — required for the current goal/milestone.
-- **P2 → Medium** — scheduled but not blocking.
-- **P3 / none → Low** — backlog, nice-to-have, or deferred.
+- **P0** — critical and immediate; blocks launch or safety and must be resolved now.
+- **P1** — required for the current goal or milestone.
+- **P2** — scheduled work that is not blocking.
+- **P3** — normal backlog work.
+- **P4** — lower-priority backlog work.
+- **P5** — deferred work.
+- **P6** — someday work; the lowest priority.
+
+Priority is sourced only from a P0–P6 marker already present on the GitHub issue in a label or body. A single explicit priority label takes precedence over body markers. Without a marker, leave the Priority field unset; if the selected source contains conflicting markers, leave it unset and record the conflict. Do not infer Priority from the issue title or QA Task Board values. P4–P6 remain available for explicit lower-priority, deferred, and someday planning.
 
 ### Authority and consumer
 
@@ -113,3 +122,23 @@ Tavall GitHub Bot remains a GitHub integration adapter, and Tavall CI/Cloud rema
 ### System next steps
 - [ ] Finish audit of the remaining unmatched legacy items and accept/close their issue mappings.
 - [ ] Validate a repeat-run-safe pilot and preserve a reversible backup before switching generated root TODOs.
+
+<details>
+<summary>Documentation Update State</summary>
+
+### Current Locations
+
+| Surface | Sync State | Location | Last Updated | Evidence |
+| --- | --- | --- | --- | --- |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | 2026-11-09 12:04 AM PST | [Draft PR #115](https://github.com/TavallStudios/tavall-docs/pull/115) |
+
+### Update History
+
+| Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-08 11:13 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | Same path | [Draft PR #115](https://github.com/TavallStudios/tavall-docs/pull/115) | Added initial P0–P6 guidance; superseded by the corrected source mapping below. |
+| 2026-11-08 11:59 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | Same path | [Draft PR #115](https://github.com/TavallStudios/tavall-docs/pull/115) | Previous revision still used QA task metadata; corrected by the next event. |
+| 2026-11-09 12:01 AM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | Same path | [Draft PR #115](https://github.com/TavallStudios/tavall-docs/pull/115) | GitHub title prefixes supply Type; labels/body supply Priority; no QA-derived classification. |
+| 2026-11-09 12:04 AM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | Same path | [Draft PR #115](https://github.com/TavallStudios/tavall-docs/pull/115) | Reconciled docs and implementation source with the GitHub issue owner correction. |
+
+</details>
