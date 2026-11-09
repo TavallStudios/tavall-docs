@@ -78,3 +78,12 @@ Successor root PR #117 is open in Draft as the active Generation 5 root. It
 uses the same `staging/quality-v2` branch; its initial head was
 `5a4a1f56f5e46c87f7bb8870d49c74121eef6fda`. Active child PRs #93, #95, and
 #97 remain attached to this branch. Exact-head CI is pending.
+
+## Staging root succession — 2026-11-09 2:27 AM PST
+
+Generation 5 root PR #117 was promoted to `main` at merge commit
+`5efdc7b2a5ec3b91095fc9b4e9a12cb38a69b615` after exact composed head
+`8a8598a57b248e1c695fe5acdf9849429cb0f9cc` passed `REQUIRED_ALL` in request
+`e2676e12-9b1f-45d1-ab48-2f2b13492d32`. Active child PRs #93, #95, and #97
+remain based on `staging/quality-v2`; the successor root will use the same
+branch to preserve their staging ancestry.
