@@ -2,7 +2,7 @@
   "schema_version": 2,
   "source": "TavallStudios GitHub issues snapshot 2026-11-08; simplified 5 types (TODO/BUG/IDEA/RESEARCH/OTHER)",
   "snapshot_date": "2026-11-08",
-  "status": "REVIEWED_SIMPLIFIED_TYPES_NOT_APPLIED_20261109_REFRESHED",
+  "status": "OPEN_ISSUE_TITLE_PREFIXES_APPLIED_VERIFIED",
   "scope": {
     "organization_total": 276,
     "open": 214,
@@ -3035,6 +3035,23 @@
     "Legacy Feature, Task, Epic, Migration, Documentation, Test, Design and Infrastructure consolidate to TODO; confirmed Security defects to BUG.",
     "Other is an intended type not yet configured in organization; preserve special-purpose command channels and historical non-work records without automatic mutation.",
     "Migration must read back native GitHub types and titles, check source state/title/type for changes, and preserve issue identity, relationships and evidence.",
-    "2026-11-09 refresh: reviewed five newly opened dashboard/web integration issues as TODO; Analytics #25 transitioned to closed; migration remains open-only by default."
-  ]
+    "2026-11-09 refresh: reviewed five newly opened dashboard/web integration issues as TODO; Analytics #25 transitioned to closed; migration remains open-only by default.",
+    "Correction 2026-11-09: the user requires issue TITLE prefixes like PR/branch prefixes, not native GitHub Type mutations. The old proposed_native_type column is a historical review name, not an instruction to modify the native field. All 212 actionable open issue titles were verified prefixed in GitHub; 2 command channels excluded."
+  ],
+  "title_prefix_rollout": {
+    "date_utc": "2026-11-09",
+    "open_issues_verified": 214,
+    "open_prefixed_correctly": 212,
+    "existing_correct_prefixes_before_bulk_update": 3,
+    "title_only_updates_performed": 209,
+    "excluded_special_channels": 2,
+    "native_issue_type_writes": 0,
+    "by_prefix": {
+      "TODO": 185,
+      "BUG": 16,
+      "RESEARCH": 11,
+      "IDEA": 0,
+      "OTHER": 0
+    }
+  }
 }
