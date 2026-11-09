@@ -30,7 +30,7 @@ The **repository issue URL** is the canonical task identity. Project item IDs, b
 
 ## 3. Work item fields
 
-A task has: issue URL, owning repository and module/system, kind (initiative / actionable task / bug / verification), priority (P0–P3), dependencies and blocked reason, required consumer / approval, acceptance tests, design authority links, implementation PR(s), verification evidence / accepted SHA, and source provenance.
+A task has: issue URL, owning repository and module/system, kind (initiative / actionable task / bug / verification), priority (P0–P6), dependencies and blocked reason, required consumer / approval, acceptance tests, design authority links, implementation PR(s), verification evidence / accepted SHA, and source provenance.
 
 Workflow values: `INBOX → READY → IN_PROGRESS → REVIEW → VERIFY → DONE` plus `BLOCKED` and `DEFERRED`. The GitHub Projects **Status** custom field is the intended workflow projection once the board is installed. Until then, newly imported issues are triage-only INBOX unless separately supported by work evidence. Issue `open/closed` (including GitHub's `not_planned`/`duplicate` reason) is the native closure authority; `DONE` requires the issue's acceptance criteria, not merely an updated Project field. Do not maintain mutable status simultaneously in TODO text, an issue body, a bot file, and a Project field.
 
@@ -122,3 +122,20 @@ Tavall GitHub Bot remains a GitHub integration adapter, and Tavall CI/Cloud rema
 ### System next steps
 - [ ] Finish audit of the remaining unmatched legacy items and accept/close their issue mappings.
 - [ ] Validate a repeat-run-safe pilot and preserve a reversible backup before switching generated root TODOs.
+
+<details>
+<summary>Documentation Update State</summary>
+
+### Current Locations
+
+| Surface | Sync State | Location | Last Updated | Evidence |
+| --- | --- | --- | --- | --- |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | 2026-11-08 11:13 PM PST | [Draft PR #115](https://github.com/TavallStudios/tavall-docs/pull/115) |
+
+### Update History
+
+| Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-08 11:13 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | Same path | [Draft PR #115](https://github.com/TavallStudios/tavall-docs/pull/115) | Added ledger type normalization and P0–P6 priority guidance. |
+
+</details>
