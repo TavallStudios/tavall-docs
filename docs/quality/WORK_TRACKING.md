@@ -38,32 +38,25 @@ Suggested board views: **Next & Ready**, **Blocked**, **Active Agent Work**, **B
 
 ## 4. GitHub Issue Types and Priority
 
-The TavallStudios organization now configures native GitHub Issue **Types** and a native org **Priority** field. These are the canonical classification dimensions for every owner-repository issue. They supersede ad-hoc kind/priority labels and replace the JSON agent ledger as a task source (see §2 and §3).
+GitHub issues are the canonical work-item identity and title prefixes remain the human-readable classification source. TavallStudios also configures native GitHub Issue Types and a single-select Priority field; the issue write path synchronizes those fields from the issue's own title, labels, and body. The QA Task Board is an execution/checkpoint tracking surface, not the source for issue Type or Priority.
 
 ### Issue Types
 
-- **Task** — a single bounded, actionable unit of work.
-- **Bug** — a defect or incorrect behavior to fix.
-- **Feature** — a bounded new capability implemented through FEATURE PRs; relates to PR Type FEATURE / DEVELOPMENT_STAGING / RUNTIME / STAGING.
-- **TODO** — a lightweight loose reminder or follow-up, not yet promoted to a planned Task.
-- **Idea** — a proposal or suggestion; never auto-converted into a Task until explicitly accepted.
-- **Epic** — a Notion goal/milestone parent that groups child sub-issues.
-- **Migration** — a move, port, or cutover of code, data, or ownership.
-- **Infrastructure** — platform, build, CI, or operational-environment work.
-- **Test** — legacy classification retained for existing issues. GitHub title prefixes `Test` and `Tests` normalize to **Tests**.
-- **Tests** — test coverage, harness, or verification work.
-- **Architecture** — architecture and system-structure work.
-- **Documentation** — docs, standards, or authored reference content.
-- **Security** — vulnerability, hardening, or compliance work.
-- **Research** — investigation, spike, or evaluation without a committed deliverable.
-- **Design** — product, UX, or technical design artifact.
-- **Incident** — an active or post-mortem production/service disruption.
+The title prefix determines native **Type**. Normalize known prefixes to the existing organization types:
 
-The GitHub issue title prefix is the source for native **Type**; QA Task Board titles and priorities do not supply issue metadata. Normalize prefixes to canonical issue types: `TODO` → `TODO`, `BUG` → `Bug`, `RESEARCH` → `Research`, `Test`/`Tests` → `Tests`, `arch(consumer)`/`Architecture` → `Architecture`, `Docs` → `Documentation`, and `Deploy` → `Infrastructure`. `Migration`, `Design`, and other exact canonical type names retain their names. `Cloud operation`, `Cloud live logs`, `Cloud live read`, `Cloud read`, and `Build` map to `Infrastructure`; `Validation` maps to `Tests`; `Build tavall-content-auto-account-system` maps to `Feature`. Version/state markers such as `V0` and `Closed` do not identify a type. If a title prefix has no canonical mapping, leave Type unset; do not create types from arbitrary title text.
+- `TODO` → `TODO`; `BUG` → `Bug`; `RESEARCH` → `Research`.
+- `Test` / `Tests` and `Validation` → `Tests`.
+- `arch(consumer)` / `Architecture` → `Architecture`.
+- `Docs` / `Documentation` → `Documentation`.
+- `Deploy`, `Build`, `Cloud operation`, `Cloud live logs`, `Cloud live read`, and `Cloud read` → `Infrastructure`.
+- `Build tavall-content-auto-account-system` → `Feature`.
+- Other exact canonical type names retain their corresponding type (including `Task`, `Feature`, `Idea`, `Epic`, `Migration`, `Security`, `Design`, and `Incident`).
+
+`V0` and `Closed` are version/state markers, not types. Unrecognized or absent prefixes leave native Type unset; do not invent types from arbitrary title text. `Test` is retained as an existing legacy org type, while new `Test` / `Tests` title prefixes normalize to `Tests`.
 
 ### Priority
 
-The org **Priority** field is a single-select with `P0` through `P6`. Its options retain the established ordering and map the former values as `Urgent → P0`, `High → P1`, `Medium → P2`, and `Low → P3`:
+The organization Priority field is a single-select with `P0` through `P6`. Existing option identities were remapped as `Urgent → P0`, `High → P1`, `Medium → P2`, and `Low → P3`:
 
 - **P0** — critical and immediate; blocks launch or safety and must be resolved now.
 - **P1** — required for the current goal or milestone.
@@ -73,11 +66,17 @@ The org **Priority** field is a single-select with `P0` through `P6`. Its option
 - **P5** — deferred work.
 - **P6** — someday work; the lowest priority.
 
-Priority is sourced only from a P0–P6 marker already present on the GitHub issue in a label or body. A single explicit priority label takes precedence over body markers. Without a marker, leave the Priority field unset; if the selected source contains conflicting markers, leave it unset and record the conflict. Do not infer Priority from the issue title or QA Task Board values. P4–P6 remain available for explicit lower-priority, deferred, and someday planning.
+Priority is sourced only from a P0–P6 marker already present in an issue label or body. A single explicit priority label takes precedence over body markers. If the selected source has conflicting markers, leave Priority unset and report the conflict. With no marker, leave Priority unset. Do not infer priority from a title, QA Task Board value, Notion priority, or issue type.
+
+### Creating and updating issues
+
+After a successful GitHub issue create or edit, the PR-workflow-owned `tavall-gh` path synchronizes native Type from the current title prefix and Priority from existing labels/body markers. It clears stale values when no recognized type or priority exists. The paced open-issue backfill uses the same rules. Never source issue metadata from the QA Task Board client.
+
+The 2026-11-09 title-prefix review in `docs/progression/GITHUB_ISSUE_TYPE_REVIEW_20261108.json` was a classification-only inventory; its report that existing native values were not modified describes that historical review, not the subsequent metadata sync. The owner-authorized metadata backfill later examined 222 open issues, updated 2, found 220 already current, and encountered 0 errors.
 
 ### Authority and consumer
 
-GitHub Issues feed the QA Task Board; **QA remains the task authority** and `qa.tavall.org` is unchanged. The JSON agent ledger is **retired as a task source** — issues, not ledger entries, are now the canonical task identity.
+Each owner-repository GitHub Issue is the canonical work-item identity and source for its title-based Type and explicit Priority markers. The QA Task Board may track execution and verification checkpoints; it does not populate or override GitHub issue metadata. The retired JSON Agent Ledger is not a task source.
 
 ## 5. Intake and deduplication
 

@@ -31,3 +31,15 @@ source guidance. Its exact source head
 `abafe5de1c56de19413477b02ff042b9ca1cfde3` passed `REQUIRED_ALL` in request
 `59687e94-fa0b-4e9a-8c6a-1170bb2de1d2`. A fresh `REQUIRED_ALL` check of the
 composed staging head is pending; this checkpoint does not claim that result.
+
+## Staging reconciliation — 2026-11-09 12:50 AM PST
+
+The prior composed head `edb15187aff6aba2e586ac6f96f1ee4f352454cd`
+passed `REQUIRED_ALL` in request
+`3f0c3e33-ed24-4a15-9e20-61b8a4da6b0c`. Current `main` later advanced to
+`ec5c161e6b1cbc7a198cc21bbce25791c45cfed9`; that source was merged into this
+staging line. The overlapping Work Tracking policy was reconciled to retain
+GitHub title prefixes as the Type source, native issue Type synchronization,
+and P0-P6 Priority derived only from existing issue labels/body markers, per
+the explicit owner correction. This changed composition requires a fresh
+exact-head `REQUIRED_ALL` check; the earlier result does not cover it.

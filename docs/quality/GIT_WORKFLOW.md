@@ -790,6 +790,8 @@ Create or update an issue when a challenge blocks progress, may change architect
 
 Do not create issues for every tiny task, routine formatting change, temporary note, or trivial correction fully explained by one small pull request.
 
+When an issue is warranted, use exactly one uppercase **issue-title prefix** from [Work Graph §4](WORK_TRACKING.md#4-github-issue-types-and-priority): `TODO:`, `BUG:`, `IDEA:`, `RESEARCH:`, or `OTHER:`. This parallels the existing PR-title and branch-prefix conventions. Features, tasks and parent initiatives all use `TODO:`; relationships, priority and acceptance remain separate. Deduplicate, then read back the **title**. Native GitHub Issue Types are not required and must not block or be changed just to apply a prefix.
+
 Direction-setting issues should document summary, current behavior, why it matters, evidence, constraints, options, current direction, acceptance criteria, related work, and AI implementation context.
 
 Record rejected approaches, link implementation work, and close issues only when acceptance criteria are satisfied.
