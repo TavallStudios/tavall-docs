@@ -92,3 +92,12 @@ Successor root PR #118 is open in Draft as the active Generation 6 root. It
 uses `staging/quality-v2`; its initial head was
 `fa45a67c7621642b951512815e548501c827d2bb`. Active child PRs #93, #95, and
 #97 remain attached to this branch. Exact-head CI is pending.
+
+## Staging root succession — 2026-11-09 3:42 AM PST
+
+Generation 6 root PR #118 was promoted to `main` at merge commit
+`a91908dc7590dd971769c41392f3d377d431f9ed` after exact composed head
+`c03ed50a2b043e69476f6d8e127f613b840f2092` passed `REQUIRED_ALL` in request
+`0cfe65b1-7647-44d8-90c5-768ed23677c0`. Active child PRs #93, #95, and #97
+remain based on `staging/quality-v2`; the successor root will use the same
+branch to preserve their staging ancestry.
