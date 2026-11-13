@@ -50,6 +50,7 @@ This repository is documentation-only; it has no executable product module.
 | [Git Workflow](docs/quality/GIT_WORKFLOW.md) | Applicable repository guidance. Git staging is separate from NLEW topology. |
 | [CI/CD](docs/quality/CI_CD.md) | Applicable repository guidance. NLEW ontology is owned by the NLEW policy above. |
 | [Code Architecture](docs/quality/CODE_ARCHITECTURE.md) | Applicable repository guidance. |
+| [Discoverable by Design](docs/articles/DISCOVERABLE_BY_DESIGN_ENGINEERING.md) | ARTICLE explaining the rationale for typed, AST-discoverable, glanceable, agent-reusable code. |
 | [Document Routing](docs/quality/DOCUMENT_ROUTING.yml) | Applicable repository guidance. |
 | [Progression Overview](docs/progression/TAVALL_PROGRESSION_OVERVIEW.md) | Status overview of progression sources. |
 | [Documentation Reconciliation Ledger](docs/progression/TAVALL_DOCUMENTATION_RECONCILIATION_LEDGER.md) | Recent documentation reconciliation record. |
