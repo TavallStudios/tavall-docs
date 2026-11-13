@@ -22,6 +22,10 @@ Document **type** and document **lifecycle** are separate dimensions.
 
 These types are complementary. A monetizable product may legitimately have GENERAL + PRODUCT + MARKETING + USER EXPERIENCE + ARTICLEs + DESIGN + Technical + PROGRESSION + Deployment. Every real source/build module with an independent responsibility boundary has a module-scoped DESIGN document and a module-scoped PROGRESSION document even when it does not need PRODUCT, USER EXPERIENCE, or Deployment. Systems composed from modules or subordinate systems have a system-scoped DESIGN document whenever aggregate behavior, composition, ownership, or cross-module boundaries are meaningful.
 
+### Visual Media Routing
+
+For visually observable products and interfaces, **DESIGN / USER EXPERIENCE** carry labeled concept artwork, reference photography, mockups and prototype clips; **PROGRESSION** carries actual screenshots and videos captured while building and validating; **Deployment** carries captures from the verified live release. Generated imagery must never be passed off as running software or a production photograph. Each owner links the same stable, appropriately permissioned artifacts instead of inventing another media-document type. Agents capture useful milestones as part of implementation, not merely at launch. See [Visual Artifacts During Design, Build, and Deployment](DOCUMENTATION_STANDARDS.md#visual-artifacts-during-design-build-and-deployment) and the corresponding document templates. Nonvisual modules do not require a gallery.
+
 ## GENERAL
 
 GENERAL is the readable product/system overview.
@@ -350,13 +354,15 @@ All maintained documents follow the shared `DOC TODO:` maintenance-handoff contr
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `1:1` | `TavallStudios/tavall-docs/docs/quality/DOCUMENT_TYPES.md` | 2026-09-27 4:40 PM PDT | Direct docs-only update to `main`; DESIGN module/system scope and template canonicalized. |
-| Notion | `1:1` | `Tavall / Tavall Documentation Types — GENERAL, DESIGN, ARTICLE, PRODUCT, USER EXPERIENCE, PROGRESSION & DEPLOYMENT` | 2026-09-27 4:40 PM PDT | Notion taxonomy synchronization required/completed in the same documentation pass. |
+| GitHub | `1:1` | `TavallStudios/tavall-docs/docs/quality/DOCUMENT_TYPES.md` | 2026-11-06 9:19 PM PST | Visual evidence policy update (commit b7a8aae5b9bf). |
+| Notion | `1:1` | `Tavall / Tavall Documentation Types — GENERAL, DESIGN, ARTICLE, PRODUCT, USER EXPERIENCE, PROGRESSION & DEPLOYMENT` | 2026-11-06 9:19 PM PST | Matching visual media section synced and read back in Notion; other pre-existing differences not audited. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-06 9:19 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/DOCUMENT_TYPES.md` | Same path | [Commit](https://github.com/TavallStudios/tavall-docs/commit/b7a8aae5b9bf65fba08ba2d7d8809f8e40d7bb28) | Routed concepts, work-in-progress screenshots/video, and production media to existing document owners; synced matching section to Notion. |
+| 2026-11-06 9:19 PM PST | Notion | `SYNCED` | Existing canonical Notion twin | Same page | Notion page edit and readback | Mirrored the visual media policy section; no broader content drift audit performed. |
 | 2026-09-27 4:40 PM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/DOCUMENT_TYPES.md` | Same path | Direct docs-only update to `main`. | Added required MODULE/SYSTEM DESIGN scopes, 1:1 sync behavior, template routing, and org-wide rollout requirement. |
 | 2026-09-27 4:40 PM PDT | GitHub | `CREATED` | `TavallStudios/tavall-docs/docs/quality/DESIGN_DOCUMENT_TEMPLATE.md` | — | Commit `66e42cd4d7e3cbbd70bf0ed15678e2537d5557fb` | Added canonical reusable DESIGN template for module/system scope. |
 | 2026-09-27 3:02 PM PDT | Notion | `SYNCED` | `Tavall / Tavall Documentation Types — GENERAL, ARTICLE, PRODUCT, USER EXPERIENCE, PROGRESSION & DEPLOYMENT` | Same page | Notion page update | Added canonical module/system PROGRESSION scopes, timeline-table rules, aggregation authority, and required footer/sync behavior. |

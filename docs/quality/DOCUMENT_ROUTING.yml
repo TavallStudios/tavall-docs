@@ -104,6 +104,11 @@ routes:
       - work graph
       - work tracking
       - issue intake
+      - issue type
+      - issue types
+      - issue prefix
+      - issue title prefix
+      - todo issue
       - task triage
       - task board
       - github projects
@@ -128,6 +133,27 @@ routes:
     documents:
       - docs/quality/WORK_TRACKING.md
       - docs/quality/TODO_STATIC_PROJECTIONS.md
+
+  - id: visual-artifacts-and-capture
+    signals:
+      - visual documentation
+      - visual evidence
+      - visual capture
+      - capture screenshots
+      - screenshots
+      - screen recording
+      - screen recordings
+      - concept photos
+      - concept images
+      - product photos
+      - production photos
+      - production screenshots
+      - live site capture
+      - design mockups
+      - prototype images
+    documents:
+      - docs/quality/DOCUMENTATION_STANDARDS.md
+      - docs/quality/DOCUMENT_TYPES.md
 
   - id: progression-document-template
     signals:
@@ -405,6 +431,18 @@ routes:
       - persistence boundary
     documents:
       - docs/quality/code-architecture/ENTITY_PERSISTENCE.md
+      - docs/quality/DATABASE_AND_PERSISTENCE_SEPARATION_DESIGN.md
+
+  - id: database-environment-separation
+    signals:
+      - database separation
+      - database environment separation
+      - database roles
+      - database migrations
+      - db separation
+      - database design
+    documents:
+      - docs/quality/DATABASE_AND_PERSISTENCE_SEPARATION_DESIGN.md
 
   - id: registries-and-caches
     signals:

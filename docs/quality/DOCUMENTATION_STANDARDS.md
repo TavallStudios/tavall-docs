@@ -244,6 +244,21 @@ Cover:
 
 The document must provide raw format text or a precise textual description even when images exist.
 
+### Visual Artifacts During Design, Build, and Deployment
+
+For any product, interface, game, physical deliverable, or user-visible flow where appearance matters, **agents capture and maintain visual artifacts as part of the ordinary work**, rather than deferring them to a presentation or launch pass. This extends existing DESIGN, USER EXPERIENCE, PROGRESSION, and Deployment authorities; it does not create a new document type.
+
+- **DESIGN / USER EXPERIENCE:** Author or link concept art, mockups, visual references, prototype frames, storyboards, product photography references, and short interaction demos when they materially communicate the intended result. Label each artifact `CONCEPT`, `REFERENCE`, `PROTOTYPE`, or `ACCEPTED_DESIGN`; generated art is not an actual product screenshot. Cite source, rights/permission, current design revision, and the behavior or appearance it illustrates. Include an accessible text specification; visuals do not become the sole design contract.
+- **PROGRESSION:** During meaningful implementation and validation milestones, use available browser, game-client, capture, or device tooling to take **real screenshots, screen recordings, or short clips** of the running work. Capture representative success, failure, responsive/mobile, and interaction states where relevant, and link each to the exact audited source/build and test or QA result. Mark `IMPLEMENTATION`, `STAGING`, or other accurately observed environment; a screenshot by itself cannot establish correctness.
+- **Deployment:** For user-visible independently deployable systems, link production-captured screenshots or video to the verified deployed release/runtime and target. Label `PRODUCTION` only when the environment, release, and capture were actually verified. Deployed screenshots supplement, never replace, release and runtime evidence.
+- **Continuous loop:** An agent developing a visual surface should compare intended DESIGN imagery with observed implementation at meaningful slices, capture after functional/visual changes and before claiming visual acceptance, record discrepancies and next work in PROGRESSION, and capture production again after significant promotions. Avoid recording every insignificant commit. For nonvisual/backend-only changes, visual capture is not mandatory.
+- **Evidence metadata:** Every retained capture must identify what is shown, artifact kind and truth status, source URI/path, capture environment, revision/build/release when applicable, date/time (12-hour Pacific in prose), capture tool/device/browser/viewport where relevant, scenario, and linked issue/PR/QA evidence. Identify superseded captures and preserve useful history. Use stable, access-controlled artifact storage; keep image assets under the owning system's `imgs/` when appropriate, and link substantial videos rather than bloating Git history. Mirror links/embeds on required Notion ↔ GitHub document surfaces without creating competing asset authorities.
+- **Trust and safety:** Never imply a generated mockup is live, use a local/staging capture to claim production, fabricate a screenshot, or claim visual inspection when the agent lacks visual access. Redact secrets, tokens, customer data, and sensitive UI before sharing; obey asset licenses and environment permissions. If capture or asset synchronization is unavailable, record it as `NOT_CAPTURED`/`UNVERIFIED` with the blocker and next validation action.
+
+##### Why
+
+A visual design that cannot be compared with the running product is easy to misimplement, and a progress report without observable UI evidence can mistake code passing for an experience working. Keeping visual artifacts attached to their existing owners makes differences inspectable without inventing another documentation system.
+
 ## 7. Progression Documents
 
 Progression documents report what is demonstrably implemented, integrated, tested, blocked, or missing at an exact audited commit.
@@ -369,13 +384,15 @@ For historical repositories, the consolidation loop should backfill these rows i
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `1:1` | `TavallStudios/tavall-docs/docs/quality/DOCUMENTATION_STANDARDS.md` | 2026-09-27 11:45 AM PDT | Direct docs-only update to `main`; README and Deployment policy integration. |
-| Notion | `1:1` | [Tavall Documentation Standards](https://app.notion.com/p/3e738458ddfd813aa513f13de0975985?pvs=204) | 2026-09-26 9:22 AM PDT | Existing Notion twin; synchronization required for this update. |
+| GitHub | `1:1` | `TavallStudios/tavall-docs/docs/quality/DOCUMENTATION_STANDARDS.md` | 2026-11-06 9:19 PM PST | Visual evidence policy update (commit 1695de74cb1d). |
+| Notion | `1:1` | [Tavall Documentation Standards](https://app.notion.com/p/3e738458ddfd813aa513f13de0975985?pvs=204) | 2026-11-06 9:19 PM PST | Matching visual media section synced and read back in Notion; other pre-existing differences not audited. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-06 9:19 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/DOCUMENTATION_STANDARDS.md` | Same path | [Commit](https://github.com/TavallStudios/tavall-docs/commit/1695de74cb1d53261e7ee955a76fd18b6a55907b) | Added visual media lifecycle: design concepts, real build/QA capture, verified production capture; synced matching section to Notion. |
+| 2026-11-06 9:19 PM PST | Notion | `SYNCED` | Existing canonical Notion twin | Same page | Notion page edit and readback | Mirrored the visual media policy section; no broader content drift audit performed. |
 | 2026-09-27 11:45 AM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/DOCUMENTATION_STANDARDS.md` | Same path | Direct docs-only update to `main`. | Added README routing authority and required 1:1 Deployment placement. |
 | 2026-09-26 9:22 AM PDT | Notion | `CREATED` | `Tavall / Tavall Documentation Standards` | — | Notion page creation | Created as the requested 1:1 shared counterpart to the GitHub documentation standards. |
 | 2026-09-26 9:22 AM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/DOCUMENTATION_STANDARDS.md` | Same path | Docs-only PR | Added 1:1 surface placement, progression consolidation automation, and documentation update-state rules. |

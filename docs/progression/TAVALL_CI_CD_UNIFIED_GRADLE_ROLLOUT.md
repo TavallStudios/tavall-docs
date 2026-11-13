@@ -662,3 +662,21 @@ This checkpoint supersedes the current-state statements above where PR heads, st
 - `/srv/dev-storage/tavall-cache/shared-ci/gradle` and `/srv/dev-storage/tavall-cache/executors/host-local/gradle` remain the canonical shared Gradle cache roots. The Tavall-owned workspace, Environment, lane, and legacy operation scan found no remaining `.gradle` or `.gradle-user-home` directories beneath those materializations after cleanup.
 - The external `/tmp/claude-1001` scratchpad was classified `UNKNOWN/PRESERVE`: it contains dirty Tavall dependency worktrees, a branch not present in canonical source workspaces, and local overlay artifacts. Recovery-quarantined `.gradle` state under `/srv/workspace` was also preserved with its archived worktree evidence.
 - After cleanup, `tavallcloudtest` remains `ONLINE` at 63.5 GiB with 52.8 GiB free; `/srv/dev-storage` has 51 GiB available and `/` has 27 GiB available.
+
+## Live continuation — 2026-11-01 accepted-main authority and directory-bundle delivery
+
+This checkpoint records the current Tavall CI source and scratch acceptance at `TavallStudios/tavall-ci@12cd7c4f6688e0fb204bd8a2c7e327568d954df4`. It supersedes the earlier blocker that production promotion lacked an enforced `ACCEPTED_MAIN` gate. It records source behavior and isolated scratch acceptance only; the live Tavall AI plugin has not been delivered.
+
+- Production promotion requires the service definition to include `ACCEPTED_MAIN`, exact-source CI evidence containing `REQUIRED_ALL=PASS`, and an accepted-main authority check for the same repository and commit. The authority verifies the matching durable CI evidence and resolves `refs/heads/main` from the configured Git source.
+- For Tavall repositories, main resolution first validates and fetches the canonical local mirror at `/srv/dev-storage/workspaces/<repo>/repo_root`. If that mirror cannot provide the ref, the authority falls back to the GitHub API. The commit under promotion must equal the resolved main head.
+- Directory-bundle delivery checks the immutable archive digest and its file layout, parses and validates the plugin manifests before activation, and verifies accepted-main CI evidence and any bootstrap seed or previous-tree identity. It stages a content-addressed release, keeps local state under the configured state root, switches the active pointer atomically, retains protected generations, and supports rollback.
+- An existing unmanaged plugin directory can be adopted only with explicit operator confirmation and a valid operator identity. The delivery records a digest-verified full-tree generation-zero backup before activating the new bundle.
+- The five isolated scratch acceptance scenarios passed (5/5). This does not establish delivery to `/srv/dev-storage/.ai/plugins/Tavall`, discovery/reload by installed clients, or runtime acceptance. The live plugin remains undelivered, and no production plugin or service deployment is claimed.
+- The original `working/tavall-cd-completion-01a175ae` source `d52310e724e83c8a6f8f58ea0a03af358083c6fe` passed Tavall CI profile `all` under request `cb162b14-326a-419d-ace3-30fe2a86b759`; the current CI main above also contains follow-up fixes to directory-bundle validation and accepted-main mirror resolution.
+
+### Remaining delivery boundary
+
+- **Source:** `ACCEPTED_MAIN`, exact `REQUIRED_ALL` evidence, manifest checks, safe directory-bundle activation, operator-confirmed adoption, and repository-mirror main resolution are implemented in Tavall CI main at the revision above.
+- **Scratch acceptance:** all five isolated scenarios passed. These checks do not change the installed plugin or establish live client behavior.
+- **Deployment:** the Tavall AI plugin has not been delivered to `/srv/dev-storage/.ai/plugins/Tavall`; installed-runtime discovery, reload, and post-delivery acceptance remain open. Production promotion and service deployment remain unclaimed.
+- **Inventory and synchronization:** service candidates without verified service/runtime/source identity remain skipped in the linked inventory. The Notion twin remains deferred.

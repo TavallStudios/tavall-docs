@@ -91,6 +91,10 @@ Use a different explicit event only when none of these accurately describes the 
 <Use the canonical Documentation Update State footer from DOCUMENTATION_STANDARDS.md.>
 ```
 
+## Production Visual Evidence (when applicable)
+
+For an independently deployable user-visible product, link representative **screenshots or short recordings captured from the verified live deployment** in its Current Deployments evidence/notes, or in a brief visual index associated with a specific deployment event. Record target, runtime/release, source SHA, tested URL or surface, observed scenario, viewport/device, capture time in Pacific, and stable artifact URI. Re-capture material user-facing changes after promotions or rollbacks. A staging/local image or concept render is **not** production evidence; runtime/deployment verification remains authoritative. Redact private information and record missing capture honestly.
+
 ## Ownership Rules
 
 - Deployment documents are operational records, not design contracts.
@@ -110,13 +114,14 @@ Use a different explicit event only when none of these accurately describes the 
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/DEPLOYMENT_DOCUMENT_TEMPLATE.md` | 2026-09-27 11:45 AM PDT | Direct docs-only update to `main`. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/DEPLOYMENT_DOCUMENT_TEMPLATE.md` | 2026-11-06 9:19 PM PST | Visual evidence policy update (commit de6d9dde607a). |
 | Notion | `NOT_APPLICABLE` | — | 2026-09-27 11:45 AM PDT | Quality template; deployment instances, not this template, carry the required 1:1 sync rule. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-06 9:19 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/DEPLOYMENT_DOCUMENT_TEMPLATE.md` | Same path | [Commit](https://github.com/TavallStudios/tavall-docs/commit/de6d9dde607aa78f4ca7a3e84e1824f649e85568) | Added release-linked production screenshots and screen recording instructions. |
 | 2026-09-27 11:45 AM PDT | GitHub | `CREATED` | `TavallStudios/tavall-docs/docs/quality/DEPLOYMENT_DOCUMENT_TEMPLATE.md` | — | Direct docs-only update to `main`. | Added canonical Deployment document structure, event vocabulary, and 1:1 surface rule. |
 
 </details>

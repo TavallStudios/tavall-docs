@@ -1,11 +1,12 @@
-# Tavall Global TODO
+# Tavall Global TODO (Historical Projection / Migration Reference)
 
-> **Status:** Active  
-> **Authority:** Canonical organization-wide TODO ledger  
-> **Repository projections:** Every maintained TavallStudios repository exposes a bot-managed root `TODO.md` that projects only that repository's section from this file.  
-> **Last updated:** 2026-10-29
+> **Status:** Retired in favor of Canonical GitHub Issues & QA Task Board  
+> **Authority:** Historical ledger reference; canonical execution lives in GitHub Issues and the QA Task Board  
+> **QA Task Board Authority:** https://qa.tavall.org (Project: `tavall-engineering`)  
+> **Tavall Backlog Authority:** `BACKLOG.md` (206 ranked items)  
+> **Last updated:** 2026-11-07  
 
-**Transition notice (2026-10-22):** We are moving to [GitHub Issue-owned work tracking](docs/quality/WORK_TRACKING.md). For rows that contain a **canonical issue** link, that issue owns future task state and acceptance; the checkbox and prose here are **historical migration snapshots**. Unlinked rows retain their previous ledger authority until individually reconciled. Root TODO projections stay on their established v1 protocol until the GitHub Bot v2 generator is tested. See the [migration inventory](docs/progression/TAVALL_WORK_GRAPH_LEGACY_TODO_MIGRATION_20261022.md).
+**Retirement Notice (2026-11-07):** Following the organization-wide intake and QA Task Board synchronization completed under owner directive 2026-11-07, all 206 active engineering tasks across TavallStudios repositories are tracked as canonical **GitHub Issues** and mirrored to the **QA Task Board** (`projectKey: tavall-engineering`). Manual checkbox editing in this file is formally retired. See the [migration inventory](docs/progression/TAVALL_WORK_GRAPH_LEGACY_TODO_MIGRATION_20261022.md) and [work tracking standards](docs/quality/WORK_TRACKING.md).
 
 ## Projection contract
 
