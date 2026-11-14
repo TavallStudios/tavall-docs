@@ -12,6 +12,14 @@
 
 This does not introduce a new task database, a replacement GitHub App, a new Tavall Cloud scheduler, an agent framework, or a source-of-truth in the Web/QA UI. Existing QA and Web views consume read-only task/evidence projections when later authorized.
 
+## November 1, 2026: cross-system authority reconciliation (DRAFT)
+
+The 2026-10-23 GitHub Issue/Projects migration plan predates the 2026-10-24–30 acceptance of `tavall-qa` as canonical **execution, checkpoint, evidence and human-verification** authority. Tavall's existing Linear `TJ-...` planning issues and the approved Notion↔QA Task Board mapping also predate this new reconciliation.
+
+**Proposed, review-required integration:** [Tavall Work Graph cross-system TECHNICAL DESIGN](../technical/TAVALL_WORK_GRAPH_CROSS_SYSTEM_SYNC_TECHNICAL_DESIGN.md), [GitHub Bot integration #16](https://github.com/TavallStudios/tavall-github-bot/issues/16), [QA owner mapping #6](https://github.com/TavallStudios/tavall-qa/issues/6). Preserve the owner-repository GitHub Issue as the engineering/source-work record and GitHub-native close reason, while QA controls task run/evidence/acceptance. Linear and Notion preserve their own historical planning records and project-specific planning fields; their workflows are reconciled by typed owner adapters, not independent acceptance authority. The GitHub Projects proposal from #13 is a **view to be evaluated**, not a prerequisite to add another redundant status board.
+
+**Migration safety:** Linear TJ-224's historical mistaken cancellation following obsolete GitHub mirror closure is a mandatory regression case. Do not overwrite Linear planning state or QA task state based on mirror closure. Do not replace existing Work Graph policy or switch generated TODO projections solely because this design exists. No live end-to-end sync or platform-wide migration has been verified.
+
 ## 2. Ownership graph
 
 ```text
