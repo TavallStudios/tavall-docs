@@ -55,6 +55,7 @@ Role expectations:
 - `Service`: cohesive reusable domain capability shared by consumers.
 - `Orchestrator`: ordered cross-boundary workflow/lifecycle coordination.
 - `Repository`: prohibited for new Tavall-owned production declared types; existing names are shrinking migration debt only.
+- `Manager`: not a Tavall application role for new classes/interfaces; existing `*Manager` and `I*Manager` declarations require an ownership/caller migration audit. See [Manager Anti-Pattern](CLASSES.md#the-manager-anti-pattern).
 - `Util`: focused pure/stateless helper, or a clearly named DI-managed platform adapter where the existing utility convention applies.
 
 Do not use generic application `*Database` classes as the normal persistence role. Tavall Database owns ordinary PostgreSQL/JPA persistence mechanics. Do not replace them with a new `*Repository` layer.
