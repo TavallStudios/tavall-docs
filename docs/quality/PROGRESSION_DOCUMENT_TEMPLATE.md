@@ -248,6 +248,18 @@ Do not duplicate ordinary child milestones here. Add a child event only when it 
 <Use the canonical Documentation Update State footer from DOCUMENTATION_STANDARDS.md.>
 ```
 
+## Visual Implementation Evidence (when applicable)
+
+When the module/system has a visual surface, agents should capture its **real running UI or physical output** during meaningful build/QA milestones using available browser, app, game-client, or device capture tooling. Keep screenshots, screen recordings, and brief clips tied to the same implementation/revision as the Timeline and validation table. Compare them with the owning DESIGN's intended visuals; call out differences and remaining work rather than presenting mockups as test evidence.
+
+Suggested evidence index (place within the instantiated module/system Progression document, not its document-update footer):
+
+| Observed State / Scenario | Evidence Link | Environment / Device / Viewport | Source / Build | Captured (PST/PDT) | QA Result / Remaining Work |
+| --- | --- | --- | --- | --- | --- |
+| ... | screenshot/video URI | local, test, or staging; browser/viewport | repo@SHA; build or PR | YYYY-MM-DD h:mm AM/PM PST/PDT | verified observation or blocker |
+
+Label `CONCEPT` images as design links, not progression proof. Never label an artifact `PRODUCTION` without production target and release verification in the owning Deployment document. Scrub private data and secrets; keep large recordings in stable access-controlled artifact storage. When capture is impossible, record `NOT_CAPTURED`/`UNVERIFIED` and the missing verification work. Only add an evidence index where it improves understanding; do not turn each commit into a screenshot chore.
+
 ## Ownership Rules
 
 - Every real source/build module with an independent responsibility boundary has one module-scoped Progression document.
@@ -271,13 +283,14 @@ Do not duplicate ordinary child milestones here. Add a child event only when it 
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/PROGRESSION_DOCUMENT_TEMPLATE.md` | 2026-09-27 2:58 PM PDT | Direct docs-only update to `main`. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/PROGRESSION_DOCUMENT_TEMPLATE.md` | 2026-11-06 9:19 PM PST | Visual evidence policy update (commit ba096881bb38). |
 | Notion | `NOT_APPLICABLE` | — | 2026-09-27 2:58 PM PDT | Quality template; instantiated Progression documents carry the required 1:1 sync rule. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-06 9:19 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/PROGRESSION_DOCUMENT_TEMPLATE.md` | Same path | [Commit](https://github.com/TavallStudios/tavall-docs/commit/ba096881bb380360471053880a784672192b6786) | Added optional real screenshot/video implementation evidence index and capture truth requirements. |
 | 2026-09-27 2:58 PM PDT | GitHub | `CREATED` | `TavallStudios/tavall-docs/docs/quality/PROGRESSION_DOCUMENT_TEMPLATE.md` | — | Direct docs-only update to `main`. | Added module/system Progression scopes, table timelines, module-type lenses, aggregation rules, and required document-state footer. |
 
 </details>

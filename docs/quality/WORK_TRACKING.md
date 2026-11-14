@@ -1,70 +1,98 @@
 # Tavall Work Graph — Work Tracking Authority and Migration
 
-> **Status:** ACTIVE AUTHORITY RECONCILIATION / QA EXECUTION PILOT  
+> **Status:** ACTIVE TRANSITION / ISSUES PILOT  
 > **Document Type:** Engineering operations policy and technical migration contract  
 > **Authority:** Tavall Docs (policy); each GitHub Issue owns its own task state  
-> **Execution authority:** [Tavall QA](https://github.com/TavallStudios/tavall-qa/issues/6); GitHub adapter: [Tavall GitHub Bot](https://github.com/TavallStudios/tavall-github-bot/issues/16)  
-> **Established:** 2026-10-22; **reconciled:** 2026-11-04
+> **Execution owner:** [Tavall GitHub Bot](https://github.com/TavallStudios/tavall-github-bot/issues/9)  
+> **Date:** 2026-10-22
 
 ## 1. Decision and non-goals
 
-**One Work Graph, distinct authority by object.** GitHub owner-repository Issues own engineering requirement identities and GitHub-native issue closure; Tavall QA owns executable task graph, grants, claims/leases, checkpoints, acceptance evidence and Human Verify. Existing Linear TJ issues retain their planning fields. Notion owns product, design, technical, progression and portfolio decisions. Tavall AI provides the persistent supervisory context, context retrieval, task decomposition and cross-provider dispatch; it does not own another task database. The old Agent Ledger is retired. GitHub Issues are the engineering-work ledger; QA owns current worker assignments/claims, execution checkpoints and receipts. CI owns exact-source verification/promotion evidence; Cloud owns deployment/run-state; Content/Commerce/Analytics own actual external results. A GitHub Project/dashboard/TODO is a derived view, never a competing task authority.
+**Canonical execution work lives in GitHub Issues belonging to the actual owning repository.** Use one TavallStudios organization-wide GitHub Projects board as a cross-repository **view and workflow field**, never as an alternate task store. Tavall Docs and Notion remain design, policy, PROGRESSION and deployment-document authorities, not copies of task status. PRs implement work and Tavall CI provides immutable validation evidence. Tavall AI ledger records active agent execution/locks rather than a second TODO catalog.
 
 This does not introduce a new task database, a replacement GitHub App, a new Tavall Cloud scheduler, an agent framework, or a source-of-truth in the Web/QA UI. Existing QA and Web views consume read-only task/evidence projections when later authorized.
 
-### November 5, 2026: Founder decision — retire Agent Ledger authority
+## 2. Ownership graph
 
-**GitHub Issues are the engineering ledger.** Preserve GitHub owner/repository/immutable issue identity, including issues created or updated by authorized Tavall AI agents. The retired JSON Agent Ledger is historical, read-only material until reconciliation. No separate live Agent Ledger task list, claims file, scheduler, or second status authority is permitted. Any compatibility Agent named `tavall-agent-ledger` must act only as a GitHub Issues + typed QA adapter, or be renamed/retired with its consumers migrated; it cannot revive ledger storage.
+```text
+Human / Agent proposal
+   -> Tavall GitHub Bot (authorized intake, GitHub discovery, dedup, links)
+   -> Canonical owner-repository GitHub Issue
+         -> Optional GitHub Projects board row (status and filtered views)
+         -> Linked sub-issues and explicitly typed blockers
+         -> Linked implementation PR(s) / review decisions
+         -> Exact Tavall CI check/evidence
+         -> Runtime/deployment acceptance only where applicable
+   -> Bot-generated read-only TODO.md and agent/QA views
+```
 
-**QA Task Board owns execution.** Scope, parent/child tasks, assignments, leases, checkpoints, evidence, acceptance and Human Verify remain QA-owned. Engineering issue close is separate from execution acceptance. Preserve private/personal reminders outside the company work graph.
-
-**Permanent visual Work Graph (approved direction; not implemented).** Project endpoint/venture → department → Tavall AI Employee/agent relationships with linked GitHub issues, QA execution state, CI/Cloud evidence, and authorized memory context. Reuse Tavall Account/Organization identity, existing Tavall AI Chat Tavs/Employees design, QA, Graphify/Graphiti and the existing network-accessible work representation after its exact path/contract is verified. The UI is a projection, not a new database, worker scheduler or identity provider; shared agents may serve multiple endpoints with scoped grants. Prototype one endpoint, department, employee and QA task with restart/authorization/E2E evidence before any broader build.
-
-## 2. Orchestrated Work Graph and source-to-task flow
-
-Operator/chat/monitor → Tavall AI durable supervisor (intent, constraints, permission, memory source pointers, accepted decision and goal) → existing owner PRODUCT/DESIGN/TECHNICAL/PROGRESSION/MARKETING documentation → GitHub Bot owner-repository issue dedup → Tavall QA typed task creation/reuse → provider-native Codex/Claude/Gemini worker through authorized Cloud or Personal Computer execution → QA-owned lease/checkpoint and source-linked execution receipt → CI/Cloud/product-specific evidence → QA acceptance / Human Verify → authorized GitHub/Linear/Notion/Projects projections.
-
-Each discussion is classified as ACCEPTED_DECISION, PROPOSED, RESEARCH, REVOKED, SUPERSEDED, EXISTING_WORK, ACTIONABLE, VERIFIED_COMPLETE, PRIVATE_ONLY or NONACTIONABLE. Preserve source pointers, date, rationale, confidence, supersession and owner. **Capture all valuable decisions in the right existing document types, not a new global Notion backfill page and not a new issue per idea.** Create an engineering issue only for a verifiable owned work slice. Update existing issues for changed requirements after searching open and closed issues and PRs.
-
-**Document type routing:** GENERAL = what/why/boundaries; PRODUCT = audience, commercial promise and launch gates; DESIGN = chosen product behavior and alternatives; TECHNICAL = interfaces, module ownership, storage, permissions and failure contracts; PROGRESSION = observed source, CI, QA, deployment evidence and blockers; MARKETING = channels, offers, growth and revenue measurement; DEPLOYMENT/OPERATIONS = verified production state and operator runbooks. Preserve existing Notion ↔ GitHub design/progression twins and lifecycle status rather than generating duplicate documents. Not every conversation requires every type; each relevant type is kept current.
-
-**Orchestration continuity:** A single durable primary supervisory context is scoped to authorized owner/goal and delegates to provider-native harnesses, including different providers and their own optional subagents. Retrieve history from owned memory/temporal graphs and source pointers; do not copy whole provider web chats or mix tenants. QA owns persisted task/checkpoint/lease states; Cloud owns placement/permissions, CI owns exact-source checks, QA owns active worker coordination through authorized typed task APIs. Recover safely after provider quota, restart, cancellation or failed validation. Friction-driven meta-loop proposes tested task-specific loops through existing Workflows, not a new service or scheduler.
-
-**Authority reconciliation:** A GitHub Issue is the canonical engineering issue identity; a QA task is the canonical executable task/verification identity. Existing Linear IDs are planning references, not a second QA status. Notion owns human planning and design. A closed duplicate GitHub mirror must never cancel a Linear task or close QA work. No GitHub Project workflow edit may silently override QA truth. Full mapping, idempotency, negative paths and the TJ-224 incident are documented in the existing [cross-system TECHNICAL DESIGN PR #95](https://github.com/TavallStudios/tavall-docs/pull/95) and [GitHub Bot #16](https://github.com/TavallStudios/tavall-github-bot/issues/16); this policy sets precedence without duplicating that implementation spec.
-
-## November 4, 2026: founder clarification on default intake approval
-
-**Default policy for the Tavall conversation backlog:** every substantive Tavall idea, feature, improvement, architecture direction, venture opportunity, reusable workflow, research question, or launch proposal discussed during the current ten-day reconciliation is **approved for documentation and backlog intake unless the founder explicitly rejected, revoked, replaced or scoped it out**. This supersedes the previous overly conservative approach that required a second confirmation to *write* a specification or *queue* a verifiable task. It does **not** assert that every idea was previously accepted as a finalized design, built, prioritized P0, or authorized for external execution.
-
-- **Capture in place:** update the canonical existing GENERAL, PRODUCT, MARKETING, USER EXPERIENCE, DESIGN, TECHNICAL, PROGRESSION, ARTICLE and Deployment owners relevant to each topic, with source/decision date and owner. An existing issue/PR/document counts as coverage only if it **actually specifies** the distinct requirement and acceptance. Do not dump all ideas into a standalone Notion recap or auto-generate one issue per utterance.
-- **Approve intake, not spend:** non-rejected candidates carry `INTAKE_APPROVED` and their actual maturity (`ACCEPTED_DESIGN`, `DESIGN_CANDIDATE`, `RESEARCH_CANDIDATE` or `IMPLEMENTATION_READY`) independently. An unresolved vendor choice, pricing number, model benchmark, architecture alternative or legal/financial term remains an explicitly testable choice, not a secretly finalized decision. Rights/terms and product claims need owner-specific proof before publication, purchase, external connection, training, deployment, or signing.
-- **Hard exclusions:** explicit founder revocation and supersession govern. The abandoned standalone tiered Suggest skill and typed Flow Recipes as a Workflows core feature must not be reactivated; Web Chat flow experiences and ordinary contextual suggestions remain separate accepted design. Rejected campaign opportunities, prohibited footage rights and previous exact brand/artifact edits retain their own local exclusions. Keep personal/private conversations out of public engineering sources.
-- **Deduplicate by goal and owner:** search owner open/closed issues, PRs, existing Linear and Notion source before new issue creation; reuse/update when a ticket already represents the same independently verifiable acceptance. When a major feature has distinct owner implementations, file scoped child tickets with a parent link; keep QA as the executable task authority after actual typed upsert/read-back.
-- **Revenue-led prioritization:** retain P0 eligible Content clip account/post/marketplace and Times+Deals publication proof, P1 actual paid Studios services and editorials, and P2/P3 later platform enhancements/research. Approval to capture the whole backlog must not create a 200-ticket artificial P0 queue or alter real deployed-state truth.
+The **repository issue URL** is the canonical task identity. Project item IDs, bot state keys, task titles, README bullets, PR numbers and AI ledger execution IDs are not a second task authority. A cross-repo initiative chooses one primary owning repository and links the actual child-owner issues; do not move domain ownership to the parent initiative.
 
 ## 3. Work item fields
 
-An engineering issue has its repo/owner/module, kind, source and decision pointers, launch lane, priority (P0–P3), dependencies, authorization, acceptance criteria, source SHA, PRs and CI receipts. A QA task additionally has its own stable ID, parent/child execution graph, lease/checkpoint/retry state, acceptance and Human Verify. Do not invent QA IDs or reflect mutable QA status in issue-body checkboxes.
+A task has: issue URL, owning repository and module/system, kind (initiative / actionable task / bug / verification), priority (P0–P6), dependencies and blocked reason, required consumer / approval, acceptance tests, design authority links, implementation PR(s), verification evidence / accepted SHA, and source provenance.
 
-INBOX/READY/IN_PROGRESS/REVIEW/VERIFY/DONE, plus BLOCKED/ACTION_REQUIRED/DEFERRED, are human-facing projections of actual QA task state when mapped. GitHub open/closed owns issue closure only; Linear planning state is separate. QA acceptance requires current evidence and Human Verify is independent. If a typed QA registration is not accessible, explicitly record PENDING_QA_API instead of fabricating a task ID, claim or status. A GitHub Project, if installed, must not introduce a competing editable status.
+Workflow values: `INBOX → READY → IN_PROGRESS → REVIEW → VERIFY → DONE` plus `BLOCKED` and `DEFERRED`. The GitHub Projects **Status** custom field is the intended workflow projection once the board is installed. Until then, newly imported issues are triage-only INBOX unless separately supported by work evidence. Issue `open/closed` (including GitHub's `not_planned`/`duplicate` reason) is the native closure authority; `DONE` requires the issue's acceptance criteria, not merely an updated Project field. Do not maintain mutable status simultaneously in TODO text, an issue body, a bot file, and a Project field.
 
-Suggested role-based QA/operational projections: **Launch & Revenue**, **Next & Ready**, **Blocked / Needs Action**, **Active Agent Work**, **By Owner Repository**, **Awaiting Verification**, **Deferred/Research**. Reuse existing QA/Web rather than building another status dashboard.
+Suggested board views: **Next & Ready**, **Blocked**, **Active Agent Work**, **By System/Repository**, **Awaiting Verification**, **Deferred**. Use existing GitHub capabilities rather than building a separate visual dashboard in the first phase.
 
-## 4. Intake and deduplication
+## 4. GitHub Issue Types and Priority
 
-1. Capture the original request and classify accepted, research, revoked, personal-private and implementation-ready decisions. Find and update the **existing owner document types** with provenance; identify true engineering requirements and owner/module, source SHA and dependencies.
+GitHub issues are the canonical work-item identity and title prefixes remain the human-readable classification source. TavallStudios also configures native GitHub Issue Types and a single-select Priority field; the issue write path synchronizes those fields from the issue's own title, labels, and body. The QA Task Board is an execution/checkpoint tracking surface, not the source for issue Type or Priority.
+
+### Issue Types
+
+The title prefix determines native **Type**. Normalize known prefixes to the existing organization types:
+
+- `TODO` → `TODO`; `BUG` → `Bug`; `RESEARCH` → `Research`.
+- `Test` / `Tests` and `Validation` → `Tests`.
+- `arch(consumer)` / `Architecture` → `Architecture`.
+- `Docs` / `Documentation` → `Documentation`.
+- `Deploy`, `Build`, `Cloud operation`, `Cloud live logs`, `Cloud live read`, and `Cloud read` → `Infrastructure`.
+- `Build tavall-content-auto-account-system` → `Feature`.
+- Other exact canonical type names retain their corresponding type (including `Task`, `Feature`, `Idea`, `Epic`, `Migration`, `Security`, `Design`, and `Incident`).
+
+`V0` and `Closed` are version/state markers, not types. Unrecognized or absent prefixes leave native Type unset; do not invent types from arbitrary title text. `Test` is retained as an existing legacy org type, while new `Test` / `Tests` title prefixes normalize to `Tests`.
+
+### Priority
+
+The organization Priority field is a single-select with `P0` through `P6`. Existing option identities were remapped as `Urgent → P0`, `High → P1`, `Medium → P2`, and `Low → P3`:
+
+- **P0** — critical and immediate; blocks launch or safety and must be resolved now.
+- **P1** — required for the current goal or milestone.
+- **P2** — scheduled work that is not blocking.
+- **P3** — normal backlog work.
+- **P4** — lower-priority backlog work.
+- **P5** — deferred work.
+- **P6** — someday work; the lowest priority.
+
+Priority is sourced only from a P0–P6 marker already present in an issue label or body. A single explicit priority label takes precedence over body markers. If the selected source has conflicting markers, leave Priority unset and report the conflict. With no marker, leave Priority unset. Do not infer priority from a title, QA Task Board value, Notion priority, or issue type.
+
+### Creating and updating issues
+
+After a successful GitHub issue create or edit, the PR-workflow-owned `tavall-gh` path synchronizes native Type from the current title prefix and Priority from existing labels/body markers. It clears stale values when no recognized type or priority exists. The paced open-issue backfill uses the same rules. Never source issue metadata from the QA Task Board client.
+
+The 2026-11-09 title-prefix review in `docs/progression/GITHUB_ISSUE_TYPE_REVIEW_20261108.json` was a classification-only inventory; its report that existing native values were not modified describes that historical review, not the subsequent metadata sync. The owner-authorized metadata backfill later examined 222 open issues, updated 2, found 220 already current, and encountered 0 errors.
+
+### Authority and consumer
+
+Each owner-repository GitHub Issue is the canonical work-item identity and source for its title-based Type and explicit Priority markers. The QA Task Board may track execution and verification checkpoints; it does not populate or override GitHub issue metadata. The retired JSON Agent Ledger is not a task source.
+
+## 5. Intake and deduplication
+
+1. Recover owning repo/module and the accepted Tavall contract. Classify the smallest actionable task or parent initiative, and identify original request, source SHA, and supporting docs.
 2. Search **open and closed** issues and linked PRs in that owner and adjacent authority repos. Identify EXACT_MATCH / OVERLAP_REVIEW / NEW / HISTORICAL / VERIFIED_DONE. An approximate title match is review evidence, not permission to create a duplicate.
 3. For a NEW item, create the issue in its implementation owner's repo with constraints, an acceptance checklist, source link, stable source provenance and no claims of running code. For an exact existing match, link it; ambiguous overlaps remain pending triage.
 4. For repeated runs, use a stable source key / issue link and a read-before-create, commit-after-write journal. Dry-run output precedes mutation, with idempotent retry, permission checks, rate-limit awareness, crash recovery, and conflict detection.
-5. An authorized Tavall AI supervisor chooses READY/approved QA work and delegates to provider-native harnesses. Only typed QA handlers mutate task state/leases/evidence, and authorized GitHub actors mutate engineering issue state. Human approval remains distinct for external publishing, contracts, provider accounts, payments, advertising and deployment.
+5. Agents may propose work and record execution evidence. Only authorized bot/users mutate GitHub task state. Human approval continues to govern privileged product/publication/deployment actions.
 
 Migration provenance `source_commit + source_line` links in first-wave issues identify the immutable historical document; the bot must also derive a **content fingerprint** independent of mutable line numbers and reuse an already linked canonical Issue URL.
 
-## 5. Completion and evidence
+## 6. Completion and evidence
 
 An issue is **not** complete merely because a PR was merged. Completion requires the acceptance claimed by that issue: typed contracts, exact accepted SHA, test/CI outcome, consumer integration, operational rollout, and human verification when the scope calls for them. Explicitly distinguish `SOURCE_MERGED`, `SOURCE_VALIDATED`, `DELIVERED`, and `RUNTIME_VERIFIED` evidence. Do not require production deployment for docs-only work or static tools that have no runtime. Stale heads, missing CI evidence, partial accepted branches, and unreadable host state cannot silently transition to DONE. Rollback may reopen affected acceptance if authorized and demonstrably regressed.
 
-## 6. Migration and projection cutover
+## 7. Migration and projection cutover
 
 **Current baseline:** [legacy global ledger](../../TODO.md) at snapshot `7022d23f9be07ddd7fd0539ae9e928a0550e1f9a` contains 150 unchecked and 2 checked tasks across 55 repository sections. The GitHub open-issue search returned 63 issues, including potential overlaps; this is a discovery snapshot, not an exhaustive dedup verdict.
 
@@ -74,15 +102,25 @@ During migration:
 - Subsequent batches triage duplicate, stale, already completed and deferred entries **before** creating Issues. Older out-of-scope/Hytale work is not migrated in this user-approved batch.
 - Verify one GitHub Issue source mapping per task, no lost requirements, no missing repositories, retained historical links and stable duplicate-safe repeat runs.
 - After complete audited mapping, preserve/archive the legacy document and change root `TODO.md` into a **generated, read-only view** of GitHub Issues with canonical URLs, deterministic metadata and no feedback loop. Keep the legacy Git history intact.
-- GitHub Projects remains optional and requires scoped integration/real read-back; do not maintain a second writable workflow status alongside QA/Linear. Existing QA↔GitHub/Linear/Notion synchronization also requires live typed API evidence before claiming it works.
+- The GitHub Projects org-wide board requires a UI/operator or a correctly scoped integration because the currently available GitHub connector has no Projects mutation capability. The bot must not claim the board exists before a successful read-back.
 
-## 7. Implementation and proof
+## 8. Implementation and proof
 
 Owning [initiative #9](https://github.com/TavallStudios/tavall-github-bot/issues/9) has implementation slices: [ingestion/dedup #10](https://github.com/TavallStudios/tavall-github-bot/issues/10), [PR/CI and completion evidence #11](https://github.com/TavallStudios/tavall-github-bot/issues/11), [projections + full migration #12](https://github.com/TavallStudios/tavall-github-bot/issues/12), [org Project views #13](https://github.com/TavallStudios/tavall-github-bot/issues/13).
 
 Tavall GitHub Bot remains a GitHub integration adapter, and Tavall CI/Cloud remain the only CI and execution authorities. Module naming, DI and testing follow [Module Separation](code-architecture/MODULE_SEPARATION.md) and `Tavall AI`/`tavall-engineering-policy`. Each production implementation PR requires source-backed unit/integration acceptance, read-after-write evidence, projection idempotence and a correct unprivileged failure mode. No GitHub Actions execution bridge or second work scheduler.
 
-**Evidence boundary as of 2026-11-04:** owner Issues, QA modules, provider harness code and technical drafts exist, but end-to-end Bot/QA/Linear/Notion sync, generated TODO replacement and actual GitHub Projects integration are **not verified by this policy update**. The October 22 inventory above is a historical migration snapshot.
+**Implementation state, 2026-11-07:** Organization-wide backlog intake completed across all 50+ repositories; 206 open engineering issues cataloged, triaged in `BACKLOG.md`, and mirrored to the live QA Task Board (`projectKey: tavall-engineering`). Manual unchecked TODO tracking is formally retired; work execution is tracked exclusively via GitHub Issues and QA Task Board.
+
+## Founder clarification on default intake approval (November 4, 2026)
+
+**Default policy for the Tavall conversation backlog:** every substantive Tavall idea, feature, improvement, architecture direction, venture opportunity, reusable workflow, research question, or launch proposal discussed during the current ten-day reconciliation is **approved for documentation and backlog intake unless the founder explicitly rejected, revoked, replaced or scoped it out**. This supersedes the previous overly conservative approach that required a second confirmation to *write* a specification or *queue* a verifiable task. It does **not** assert that every idea was previously accepted as a finalized design, built, prioritized P0, or authorized for external execution.
+
+- **Capture in place:** update the canonical existing GENERAL, PRODUCT, MARKETING, USER EXPERIENCE, DESIGN, TECHNICAL, PROGRESSION, ARTICLE and Deployment owners relevant to each topic, with source/decision date and owner. An existing issue/PR/document counts as coverage only if it **actually specifies** the distinct requirement and acceptance. Do not dump all ideas into a standalone Notion recap or auto-generate one issue per utterance.
+- **Approve intake, not spend:** non-rejected candidates carry `INTAKE_APPROVED` and their actual maturity (`ACCEPTED_DESIGN`, `DESIGN_CANDIDATE`, `RESEARCH_CANDIDATE` or `IMPLEMENTATION_READY`) independently. An unresolved vendor choice, pricing number, model benchmark, architecture alternative or legal/financial term remains an explicitly testable choice, not a secretly finalized decision. Rights/terms and product claims need owner-specific proof before publication, purchase, external connection, training, deployment, or signing.
+- **Hard exclusions:** explicit founder revocation and supersession govern. The abandoned standalone tiered Suggest skill and typed Flow Recipes as a Workflows core feature must not be reactivated; Web Chat flow experiences and ordinary contextual suggestions remain separate accepted design. Rejected campaign opportunities, prohibited footage rights and previous exact brand/artifact edits retain their own local exclusions. Keep personal/private conversations out of public engineering sources.
+- **Deduplicate by goal and owner:** search owner open/closed issues, PRs, existing Linear and Notion source before new issue creation; reuse/update when a ticket already represents the same independently verifiable acceptance. When a major feature has distinct owner implementations, file scoped child tickets with a parent link; keep QA as the executable task authority after actual typed upsert/read-back.
+- **Revenue-led prioritization:** retain P0 eligible Content clip account/post/marketplace and Times+Deals publication proof, P1 actual paid Studios services and editorials, and P2/P3 later platform enhancements/research. Approval to capture the whole backlog must not create a 200-ticket artificial P0 queue or alter real deployed-state truth.
 
 ## 8. Founder launch and finance priorities (November 4, 2026)
 
@@ -99,12 +137,6 @@ Tavall GitHub Bot remains a GitHub integration adapter, and Tavall CI/Cloud rema
 
 Allocate a bounded **flagship Content shipping lane**, **Times/tech publication and revenue lane**, and **critical reliability lane**. Keep non-blocking research tracked but parked; no new perpetual infrastructure dependency before first paid outcome. Track **gross offered, eligible, pending, approved, invoiced, settled, withdrawn/received, fees, operating cost and net contribution** independently; a launch, impression or approved clip is not cash.
 
-## 9. Acceptance / next implementation gate
-
-- [ ] Merge this policy with the already-open Work Graph TECHNICAL DESIGN PR #95 after reviewing source/API differences; do not invent QA upsert APIs or automatically cancel external tasks.
-- [ ] Reconcile existing Notion and GitHub PRODUCT/DESIGN/TECHNICAL/PROGRESSION/MARKETING and update the correct owner issue without creating a standalone chat-backfill Notion page.
-- [ ] Verify each launch's real release blocker and QA mapping before P0 work starts. Source merge, tests, production route, provider post, campaign approval, actual received money and HUMAN_VERIFIED are distinct.
-- [ ] Preserve private personal reminders/health/legal material in existing private Notion/automation authorities only, never the public Work Graph.
 ## DOC TODO:
 
 ### Document next steps
@@ -114,3 +146,24 @@ Allocate a bounded **flagship Content shipping lane**, **Times/tech publication 
 ### System next steps
 - [ ] Finish audit of the remaining unmatched legacy items and accept/close their issue mappings.
 - [ ] Validate a repeat-run-safe pilot and preserve a reversible backup before switching generated root TODOs.
+
+<details>
+<summary>Documentation Update State</summary>
+
+### Current Locations
+
+| Surface | Sync State | Location | Last Updated | Evidence |
+| --- | --- | --- | --- | --- |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | 2026-11-09 12:51 AM PST | [Staging PR #108](https://github.com/TavallStudios/tavall-docs/pull/108) |
+
+### Update History
+
+| Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-08 11:13 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | Same path | [Draft PR #115](https://github.com/TavallStudios/tavall-docs/pull/115) | Added initial P0–P6 guidance; superseded by the corrected source mapping below. |
+| 2026-11-08 11:59 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | Same path | [Draft PR #115](https://github.com/TavallStudios/tavall-docs/pull/115) | Previous revision still used QA task metadata; corrected by the next event. |
+| 2026-11-09 12:01 AM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | Same path | [Draft PR #115](https://github.com/TavallStudios/tavall-docs/pull/115) | GitHub title prefixes supply Type; labels/body supply Priority; no QA-derived classification. |
+| 2026-11-09 12:04 AM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | Same path | [Draft PR #115](https://github.com/TavallStudios/tavall-docs/pull/115) | Reconciled docs and implementation source with the GitHub issue owner correction. |
+| 2026-11-09 12:51 AM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | Same path | [Staging PR #108](https://github.com/TavallStudios/tavall-docs/pull/108) | Reconciled concurrent main policy with the owner directive: native Type follows GitHub title prefix; Priority comes only from explicit issue labels/body markers. |
+
+</details>

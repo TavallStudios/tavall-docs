@@ -196,6 +196,7 @@ The authoritative cross-repository inventory and authority model is maintained i
 - **Consumer Quality Git Workflow Centralization**: 15 Repositories Merged to default branches (`MERGED_PRODUCTION`)
 
 ### Active Pending PRs:
+- **Tavall Database Environment Separation & Persistence Design**: [`DATABASE_AND_PERSISTENCE_SEPARATION_DESIGN.md`](../quality/DATABASE_AND_PERSISTENCE_SEPARATION_DESIGN.md) (`VALID_UNMERGED_WORK`, branch `working/wdb-database-design-20261107`)
 - **Tavall Content Publishing Queue**: [`TavallStudios/tavall-content#11`](https://github.com/TavallStudios/tavall-content/pull/11) (`VALID_UNMERGED_WORK`)
 - **Tavall MC Web Retirement & Store Boundary**: [`TavallStudios/tavall-mc#290`](https://github.com/TavallStudios/tavall-mc/pull/290) (`VALID_UNMERGED_PR`)
 - **Tavall MC Selective Documentation Preflight**: [`TavallStudios/tavall-mc#285`](https://github.com/TavallStudios/tavall-mc/pull/285) (`VALID_UNMERGED_PR`, unblocked & rebased)

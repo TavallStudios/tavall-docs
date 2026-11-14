@@ -101,6 +101,12 @@ List adjacent Tavall systems, external providers, adapters, and transport bounda
 
 For each integration, state which side owns domain authority and which side merely adapts or projects it.
 
+## Intended Visuals & Concept Media
+
+When appearance, physical form, or interaction is part of this design, embed or link representative **concept images, moodboards, mockups, prototype screenshots, product photographs/references, storyboard frames, or short demo clips**. Record the intended screen/state, artifact URI, creator/source and usage rights, design revision, and label (`CONCEPT`, `REFERENCE`, `PROTOTYPE`, or `ACCEPTED_DESIGN`). Explain the intended behavior in text, including important responsive and failure states.
+
+Generated/illustrative media must be visibly distinguished from real captures. These assets express intended design and **never prove implementation or deployment**. Link to corresponding observed captures in PROGRESSION and Deployment as work advances. Do not add an empty gallery for a nonvisual module.
+
 ## Validation Requirements
 
 Define what must be proven before this design can be considered implemented or accepted.

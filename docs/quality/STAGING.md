@@ -20,3 +20,173 @@ topology marker.
 The staging branch was refreshed from current `main` at `6e1951b9d30bfe3202b125762d0c5e141c7cb262` in commit `38c7c5ba73728be823c627f4a8b253c0d9cf6637`. Its root PR is [#34](https://github.com/TavallStudios/tavall-docs/pull/34). The CI/CD evidence child PR #31 merged at `b635ed000f686ad5b0dcf0ba6ead7398564d1541`; Cloud acceptance child PR #41 at `be1524db391249ea66eb1c1915a161a27185d82b`; staging-status PR #42 at `884a244823890a51dd215d5af0d1880402b40001`; status-evidence PR #43 at `d3241ae50932e1c950353d56fe88611399c0f65b`; and this follow-up at `d5a696013ffe1245a66c2904eed418b6ed473656`.
 
 Root #34 remains Draft. Its composed heads `b635ed000f686ad5b0dcf0ba6ead7398564d1541`, `be1524db391249ea66eb1c1915a161a27185d82b`, `884a244823890a51dd215d5af0d1880402b40001`, `d3241ae50932e1c950353d56fe88611399c0f65b`, and `d5a696013ffe1245a66c2904eed418b6ed473656` each passed `QUALITY` and `REQUIRED_ALL` on the shared Executor in jobs `46be4d4d-a5c0-4f69-b434-f7dcc1b713d7`, `5a117cec-0e26-4dd1-8839-8167e65e6814`, `c809aaa3-5937-41de-8430-0bf4a26fdb4f`, `eb43376d-ea4a-406c-9c7a-37e6b3983717`, and `1a1aec9c-d288-480a-bdeb-a858abf7912a`, respectively. These are exact-source Tavall CI results at each checkpoint. A later child merge requires a fresh exact-root validation; this checkpoint does not authorize a public-route or Production cutover.
+
+## Staging checkpoint — 2026-11-09 12:33 AM PST
+
+The active `staging/quality-v2` branch advanced from
+`2478bb5600333383a28e6c6b3a16e9a7063d4a37` to
+`356d14ac9fdfbb52f5ad34f57790a799e682bb94` by merging focused Docs PR #115.
+That child contains GitHub issue title-prefix Type and issue label/body Priority
+source guidance. Its exact source head
+`abafe5de1c56de19413477b02ff042b9ca1cfde3` passed `REQUIRED_ALL` in request
+`59687e94-fa0b-4e9a-8c6a-1170bb2de1d2`. A fresh `REQUIRED_ALL` check of the
+composed staging head is pending; this checkpoint does not claim that result.
+
+## Staging reconciliation — 2026-11-09 12:50 AM PST
+
+The prior composed head `edb15187aff6aba2e586ac6f96f1ee4f352454cd`
+passed `REQUIRED_ALL` in request
+`3f0c3e33-ed24-4a15-9e20-61b8a4da6b0c`. Current `main` later advanced to
+`ec5c161e6b1cbc7a198cc21bbce25791c45cfed9`; that source was merged into this
+staging line. The overlapping Work Tracking policy was reconciled to retain
+GitHub title prefixes as the Type source, native issue Type synchronization,
+and P0-P6 Priority derived only from existing issue labels/body markers, per
+the explicit owner correction. This changed composition requires a fresh
+exact-head `REQUIRED_ALL` check; the earlier result does not cover it.
+
+Current reconciled staging head is
+`2a0813d399a7c6dbe14b697930d05188498ff95a`. It includes the current main
+baseline, focused Docs PR #115, and the owner-corrected Work Tracking policy.
+Its fresh exact-head composed validation is pending.
+
+## Staging root succession — 2026-11-09 1:10 AM PST
+
+Generation 3 root PR #108 was promoted to `main` at merge commit
+`7ab2ad1bdd02c41149d2546fbd643307c56f00c1` after the exact composed head
+`5f07bfdd5bc77485d613885593fafff8d142fc66` passed `REQUIRED_ALL` in request
+`da9ad924-eec3-4b58-81bf-2a8990a49f2f`. The `staging/quality-v2` branch is
+preserved as the base for active child PRs #93, #95, and #97. A successor
+active staging root is being established on this same branch before further
+child integration.
+
+Successor root PR #116 is open in Draft as the active Generation 4 root. Its
+branch is `staging/quality-v2`; initial head was
+`4bdfef92bfeccc049dfe0e786dc72976f90f8554`. The head will advance with this
+manifest checkpoint before exact-head validation. Active children #93, #95,
+and #97 continue to target the same staging branch.
+
+## Staging root succession — 2026-11-09 1:37 AM PST
+
+Generation 4 root PR #116 was promoted to `main` at merge commit
+`aa5f18ee508d9947db5ed50f32e9672b7403a9b3` after exact composed head
+`8ad13b961cec9e86dc966cba64adf394ae47d200` passed `REQUIRED_ALL` in request
+`30a90b71-9340-490c-bad8-ab718e0784cb`. Active child PRs #93, #95, and #97
+remain based on `staging/quality-v2`; the successor root will use that same
+branch to preserve their ancestry.
+
+Successor root PR #117 is open in Draft as the active Generation 5 root. It
+uses the same `staging/quality-v2` branch; its initial head was
+`5a4a1f56f5e46c87f7bb8870d49c74121eef6fda`. Active child PRs #93, #95, and
+#97 remain attached to this branch. Exact-head CI is pending.
+
+## Staging root succession — 2026-11-09 2:27 AM PST
+
+Generation 5 root PR #117 was promoted to `main` at merge commit
+`5efdc7b2a5ec3b91095fc9b4e9a12cb38a69b615` after exact composed head
+`8a8598a57b248e1c695fe5acdf9849429cb0f9cc` passed `REQUIRED_ALL` in request
+`e2676e12-9b1f-45d1-ab48-2f2b13492d32`. Active child PRs #93, #95, and #97
+remain based on `staging/quality-v2`; the successor root will use the same
+branch to preserve their staging ancestry.
+
+Successor root PR #118 is open in Draft as the active Generation 6 root. It
+uses `staging/quality-v2`; its initial head was
+`fa45a67c7621642b951512815e548501c827d2bb`. Active child PRs #93, #95, and
+#97 remain attached to this branch. Exact-head CI is pending.
+
+## Staging root succession — 2026-11-09 3:42 AM PST
+
+Generation 6 root PR #118 was promoted to `main` at merge commit
+`a91908dc7590dd971769c41392f3d377d431f9ed` after exact composed head
+`c03ed50a2b043e69476f6d8e127f613b840f2092` passed `REQUIRED_ALL` in request
+`0cfe65b1-7647-44d8-90c5-768ed23677c0`. Active child PRs #93, #95, and #97
+remain based on `staging/quality-v2`; the successor root will use the same
+branch to preserve their staging ancestry.
+
+Successor root PR #119 is open in Draft as the active Generation 7 root. It
+uses `staging/quality-v2`; its initial head was
+`a43be3522b7466075922ee6cfe8d7d10e28330c9`. Active child PRs #93, #95, and
+#97 remain attached to this branch. Exact-head CI is pending.
+
+## Staging root succession — 2026-11-09 4:26 AM PST
+
+Generation 7 root PR #119 was promoted to `main` at merge commit
+`95183d45920c0d53980b3e7a4fb04157d1888f8f` after exact composed head
+`54beda33f0987a57cc9247ed7923aed7e4b683c4` passed `REQUIRED_ALL` in request
+`68234119-0f89-46f5-b977-87e8f93584d2`. Active child PRs #93, #95, and #97
+remain based on `staging/quality-v2`; the successor root will use the same
+branch to preserve their staging ancestry.
+
+Successor root PR #120 is open in Draft as the active Generation 8 root. It
+uses `staging/quality-v2`; its initial head was
+`dd7bc87b77afdb20fdc153cc88c0a753d863c12a`. Active child PRs #93, #95, and
+#97 remain attached to this branch. Exact-head CI is pending.
+
+## Staging root succession — 2026-11-09 5:30 AM PST
+
+Generation 8 root PR #120 was promoted to `main` at merge commit
+`42d8c49730f11ab34fa13a4b936e094c6b7c380c` after exact composed head
+`fb7a39562844d88e7fb3e578077280aedb370037` passed `REQUIRED_ALL` in request
+`68f4ec50-e6c8-455d-8054-e1f013cc8db1`. Active child PRs #93, #95, and #97
+remain based on `staging/quality-v2`; the successor root will use the same
+branch to preserve their staging ancestry.
+
+Successor root PR #121 is open in Draft as the active Generation 9 root. It
+uses `staging/quality-v2`; its initial head was
+`ba21b619ae497414463925f8ff2b8897f84bf3b1`. Active child PRs #93, #95, and
+#97 remain attached to this branch. Exact-head CI is pending.
+
+## Staging root succession — 2026-11-09 6:38 AM PST
+
+Generation 9 root PR #121 was promoted to `main` at merge commit
+`a54a6391f8c4d87fb2d23d5c10ae4109d9c2e61a` after exact composed head
+`1ef8ec356a091521b3eb544c649ae0110d09ef98` passed `REQUIRED_ALL` in request
+`a56bd058-5cb1-4626-a5a3-54c2ccdc5235`. Active child PRs #93, #95, and #97
+remain based on `staging/quality-v2`; the successor root will use the same
+branch to preserve their staging ancestry.
+
+Successor root PR #122 is open in Draft as the active Generation 10 root. It
+uses `staging/quality-v2`; its initial head was
+`e7f51e4af3698eee5da359d6cb4325911676ebed`. Active child PRs #93, #95, and
+#97 remain attached to this branch. Exact-head CI is pending.
+
+## Staging root succession — 2026-11-09 7:39 AM PST
+
+Generation 10 root PR #122 was promoted to `main` at merge commit
+`f73ca36ac313535651e9bd2c712b1ee57878b85b` after exact composed head
+`200039550ee78f765ff5525fa08b52cdc9d72f5d` passed `REQUIRED_ALL` in request
+`c76e4431-5d0b-4669-b20f-2a71baacc518`. Active child PRs #93, #95, and #97
+remain based on `staging/quality-v2`; the successor root will use the same
+branch to preserve their staging ancestry.
+
+Successor root PR #123 is open in Draft as the active Generation 11 root. It
+uses `staging/quality-v2`; its initial head was
+`a8098fbb6ec119187200a467ee8783cab9c37b21`. Active child PRs #93, #95, and
+#97 remain attached to this branch. Exact-head CI is pending.
+
+## Staging root succession — 2026-11-09 8:43 AM PST
+
+Generation 11 root PR #123 was promoted to `main` at merge commit
+`5d7fec4634c99ae0f6e4d9fb65d35ed63eaa6685` after exact composed head
+`d721aa4c98d8fb743eef28c686be87904c2b7455` passed `REQUIRED_ALL` in request
+`4183d7e5-3024-47b0-a415-cdaba1dbd16a`. Active child PRs #93, #95, and #97
+remain based on `staging/quality-v2`; the successor root will use the same
+branch to preserve their staging ancestry.
+
+Successor root PR #124 is open in Draft as the active Generation 12 root. It
+uses `staging/quality-v2`; its initial head was
+`62c0cf1119d7b17df6a1280d17255ba731c52a05`. Active child PRs #93, #95, and
+#97 remain attached to this branch. Exact-head CI is pending.
+
+## Staging root succession — 2026-11-09 9:39 AM PST
+
+Generation 12 root PR #124 was promoted to `main` at merge commit
+`1c34e0547793893f28747feceea3f6394e81e069` after exact composed head
+`6a0b612317cd7712a3353068d8f85e46ec9e5254` passed `REQUIRED_ALL` in request
+`b9f4575f-dee8-4418-81c2-14dca1c5ec18`. Active child PRs #93, #95, and #97
+remain based on `staging/quality-v2`; the successor root will use the same
+branch to preserve their staging ancestry.
+
+Successor root PR #125 is open in Draft as the active Generation 13 root. It
+uses `staging/quality-v2`; its initial head was
+`4424cc197688495c57518b75816f8e55dcaf104b`. Active child PRs #93, #95, and
+#97 remain attached to this branch. Exact-head CI is pending.
