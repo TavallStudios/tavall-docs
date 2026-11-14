@@ -574,7 +574,7 @@ Pull requests created by Tavall automation, ChatGPT, Codex, or another bot must 
 - GitHub exposes only one pull-request opener. Additional authors or contributors must therefore be named in the pull-request body, and real commit-level co-authorship should use `Co-authored-by:` trailers when an attributable commit identity is available.
 - Do not list passive integrations, linkback bots, or status-only automation as authors when they did not materially produce the change.
 - Request `tjXJNOOBIE` as a reviewer when they are not the pull-request author. GitHub does not permit an author to review or approve their own pull request, so an owner-authored pull request uses the Owner Self-Review path instead of a fake self-review request.
-- Do not request or trigger Codex GitHub Code Review for Tavall PRs. Keep Automatic review disabled in personal preferences and in each connected Tavall repository's Codex settings. Use the Tavall PR Review Agent ROLE for the review pass and the exact-head Tavall CI/GitHub Bot checks for automated acceptance. Keep the GitHub connection available for repository and Check operations.
+- Do not request or trigger Codex GitHub Code Review for Tavall PRs. Keep Automatic review disabled in personal preferences and in each connected Tavall repository's Codex settings. Use the Tavall PR Review Agent ROLE for the review pass and exact-head Tavall CI checks for automated acceptance; use `tavall-gh` for typed GitHub CLI invocation and Check interaction. Keep GitHub access available for repository and Check operations.
 
 ### 4.7 Accountable review and continuous feedback
 
@@ -633,7 +633,7 @@ Approval applies to the current reviewable state, not an older and more emotiona
 
 ### 4.9 Automated review and `AGENTS.md`
 
-Automatic Codex GitHub Code Review is disabled for Tavall PRs by user preference. Do not enable it and do not add an `@codex review` request. The Tavall PR Review Agent ROLE handles the in-context review pass. Repository-owned local checks and Tavall CI/GitHub Bot Checks provide exact-source validation; GitHub Actions are not used for this workflow.
+Automatic Codex GitHub Code Review is disabled for Tavall PRs by user preference. Do not enable it and do not add an `@codex review` request. The Tavall PR Review Agent ROLE handles the in-context review pass. Repository-owned local checks and Tavall CI provide exact-source validation; use `tavall-gh` for GitHub CLI invocation, authentication, environment mapping, error translation, and Check interaction. The Tavall GitHub Bot is retired. GitHub Actions are not used for this workflow.
 
 Keep the GitHub connection available for source and Check operations. A review preference does not require removing repository access.
 
@@ -660,7 +660,7 @@ Each meaningful automated finding should include severity, affected code, a real
 
 For a user-authorized fix-and-merge campaign, conflicts, Draft status, absent hosted TCI, stale blocker records, and missing checks are active work states, not reasons to stop. Refresh current remote PR heads, parent refs, and check state before deciding what remains. After each merge, reconcile `.tavallai` and ledger state to GitHub; superseded blocker text is historical evidence and does not override current user authorization.
 
-Use repository-local exact-source checks and the Tavall GitHub Bot's check/review tools as the merge evidence surface. When those checks pass and the target branch rules permit the authorized owner merge, continue even if hosted Tavall CI or CONTROL execution is unavailable. Standing merge authorization applies: merge directly once exact-head `REQUIRED_ALL` PASS is achieved and PR metadata is valid. Do not solicit a second confirmation, pause for human review approval, or create artificial blockers. Do not switch to GitHub Actions or request Codex PR review. Keep a Draft PR Draft while repairing; do not mark it Ready just to trigger a merge or review. A merge API response that rejects only Draft status is not a stopping condition: push an ordinary two-parent merge commit to the authorized target using the repository's permitted owner path, then confirm the PR's merged state and exact merge commit on GitHub. A conflict, stale base, stale check, or absent check similarly starts another repair pass; do not hand the user a “merge blockers” list while an authorized repair path remains available. Preserve branch protections and use only repository-permitted merge paths.
+Use repository-local exact-source checks and Tavall CI checks as the merge evidence surface; use `tavall-gh` for typed GitHub CLI and Check operations. When exact checks pass and target branch rules permit the authorized owner merge, continue even if hosted Tavall CI or CONTROL execution is unavailable. Standing merge authorization applies: merge directly once exact-head `REQUIRED_ALL` PASS is achieved and PR metadata is valid. Do not solicit a second confirmation, pause for human review approval, or create artificial blockers. Do not switch to GitHub Actions or request Codex PR review. Keep a Draft PR Draft while repairing; do not mark it Ready just to trigger a merge or review. A merge API response that rejects only Draft status is not a stopping condition: push an ordinary two-parent merge commit to the authorized target using the repository's permitted owner path, then confirm the PR's merged state and exact merge commit on GitHub. A conflict, stale base, stale check, or absent check similarly starts another repair pass; do not hand the user a “merge blockers” list while an authorized repair path remains available. Preserve branch protections and use only repository-permitted merge paths.
 
 ## 5. Git hygiene
 
@@ -820,7 +820,7 @@ Record rejected approaches, link implementation work, and close issues only when
 - [ ] Exact-head `REQUIRED_ALL` PASS is achieved and documented.
 - [ ] PR Type, PR State, Parent PR, Staging PR, and QA Task Board task link are recorded in the PR body; no PR waits on a human review gate before merging once checks pass.
 - [ ] Tavall PR Review Agent ROLE pass is recorded and meaningful findings are addressed or explained.
-- [ ] Local exact-source checks and current-head Tavall CI/GitHub Bot checks are recorded. List any unrun gate explicitly and continue its repair while authorized work remains.
+- [ ] Local exact-source checks and current-head Tavall CI checks are recorded. Use `tavall-gh` for GitHub Check operations; list any unrun gate explicitly and continue its repair while authorized work remains.
 
 ## 9. Reviewer checklist
 
@@ -858,7 +858,7 @@ Record rejected approaches, link implementation work, and close issues only when
 - Maintain a corresponding active persistent Draft integration PR for every active staging branch. Reuse the correct root and connect every Development Staging and Runtime tier upward.
 - Enforce the mandatory PR Flow invariant on creation and every topology transition; reject ambiguous roots and stale head/metadata matches.
 - Allow trusted owner integration where repository-specific rules permit it.
-- Run local exact-source checks and current-head Tavall CI/GitHub Bot checks on promotion diffs. Keep Codex automatic Code Review disabled.
+- Run local exact-source checks and current-head Tavall CI checks on promotion diffs. Use `tavall-gh` for GitHub Check operations and keep Codex automatic Code Review disabled.
 - Block deletion of active shared staging branches and discourage uncoordinated history rewrites.
 
 ### `main`
@@ -876,7 +876,7 @@ Record rejected approaches, link implementation work, and close issues only when
 ### Codex and `AGENTS.md`
 
 - Keep Codex Automatic review disabled in personal preferences and each connected Tavall repository. Do not request `@codex review`. Keep repository access available for source and Check operations.
-- Use the Tavall PR Review Agent ROLE for review findings and exact-head Tavall CI/GitHub Bot Checks for automated acceptance. GitHub Actions are not used for this workflow.
+- Use the Tavall PR Review Agent ROLE for review findings and exact-head Tavall CI checks for automated acceptance. Use `tavall-gh` for typed GitHub CLI and Check operations. GitHub Actions are not used for this workflow.
 - Link this workflow, `CODE_ARCHITECTURE.md`, and relevant quality and system documents from `AGENTS.md`.
 - Keep repository-specific review priorities in `AGENTS.md`.
 - Teach implementation agents to inspect active PRs, staging state, and stack relationships before choosing a base, preserve dependency stacks, and establish or repair active staging ancestry as part of creating or updating the PR.
@@ -893,3 +893,21 @@ Any exception must be explicit, narrow, attributable to an authorized maintainer
 Automation cannot grant itself an exception or convert automated output into independent human acceptance.
 
 An undocumented contributor exception is not flexibility. It is policy decay wearing business casual.
+
+<details>
+<summary>Documentation Update State</summary>
+
+### Current Locations
+
+| Surface | Sync State | Location | Last Updated | Evidence |
+| --- | --- | --- | --- | --- |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/GIT_WORKFLOW.md` | 2026-11-14 3:47 PM PST | Change pending PR on `working/docbot-retire-github-bot-20261114`. |
+| Notion | `NOT_APPLICABLE` | — | 2026-11-14 3:47 PM PST | Notion search did not identify a matching 1:1 Git workflow twin. |
+
+### Update History
+
+| Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-14 3:47 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/GIT_WORKFLOW.md` | Same path | Branch `working/docbot-retire-github-bot-20261114`; PR pending. | Replaced retired Bot check tooling references with Tavall CI checks and typed `tavall-gh` GitHub CLI/Check operations. |
+
+</details>

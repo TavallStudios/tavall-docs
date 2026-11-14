@@ -1,29 +1,29 @@
 # Repository TODO Static Projections
 
-> **Status:** Active  
-> **Applies to:** Every maintained `TavallStudios` repository  
-> **Authority:** Legacy v1 projection policy, **transitioning** under [Work Graph](WORK_TRACKING.md); linked GitHub Issues already own migrated tasks  
-> **Purpose:** Give every repository an immediately visible root TODO without creating fifty-five independent task authorities, because apparently distributed consensus was not already causing enough problems.
+> **Status:** RETIRED / HISTORICAL V1 PROJECTION POLICY<br>
+> **Applies to:** Every maintained `TavallStudios` repository<br>
+> **Authority:** Current work tracking follows [Work Tracking](WORK_TRACKING.md); this page preserves the retired static projection proposal for historical reference<br>
+> **Purpose:** Record the former root `TODO.md` projection proposal. It is not an active work intake or synchronization contract.
 
 ## Transition contract (2026-10-22)
 
-The user-approved target is **canonical owner-repository GitHub Issues**, with an org-wide GitHub Projects board and Bot-generated repository TODOs. See [Work Graph](WORK_TRACKING.md) and [Wave 1 Audit](../progression/TAVALL_WORK_GRAPH_LEGACY_TODO_MIGRATION_20261022.md). During migration, this v1 contract remains the currently documented projection format for **unmapped** legacy rows. Existing rows with a `canonical issue` link belong to the linked issue; the legacy checkbox is no longer an independent task-state authority. **Do not activate a v2 generator or retire this v1 contract until a tested pilot, issue mapping and rollback acceptance.**
+The former proposal was canonical owner-repository GitHub Issues, a GitHub Projects board, and Bot-generated repository TODOs. The owner retired the Tavall GitHub Bot on 2026-11-04. Current work originates in owner-repository GitHub Issues and feeds the QA Task Board; direct GitHub CLI operations use the typed `tavall-gh` wrapper. The Bot-based projection proposal and its v1/v2 rollout are superseded. See [Work Tracking](WORK_TRACKING.md) and the historical [Wave 1 Audit](../progression/TAVALL_WORK_GRAPH_LEGACY_TODO_MIGRATION_20261022.md).
 
-## Contract
+## Current work tracking
 
-Every maintained TavallStudios repository exposes a root `TODO.md`.
+Create and update active work in the owning repository's GitHub Issues through `tavall-gh`, then track execution on the QA Task Board using the issue URL as the key. Root `TODO.md` files are not work origins, task ledgers, or an active Bot-generated projection contract.
 
-For `TavallStudios/tavall-docs`, that file retains legacy authority over unmatched tasks during the approved migration. Mapped tasks belong to their linked GitHub Issues.
+`tavall-gh` provides typed GitHub CLI invocation, authentication, environment mapping, and error translation. It does not generate, synchronize, or own repository `TODO.md` files.
 
-For every other repository, root `TODO.md` is a **static generated projection** owned by `TavallStudios/tavall-github-bot`. It is not an independently maintained documentation source and it is not a new Tavall documentation type.
+Historic generated files and old instructions may remain in repository history. Do not add new active work there; reconcile any still-open legacy item into its canonical owner-repository issue.
 
 ## Required projection shape
 
-The first substantive section after the file title and generated metadata must be the repository's own section from the global TODO ledger.
+The format below is a historical example only; it is not a current requirement.
 
-A generated projection must then point back to the canonical global document and explain that human changes belong in the global source first.
+The previous proposal pointed back to the canonical global document and routed human changes through that source.
 
-Canonical shape:
+Historical v1 example:
 
 ```markdown
 # Repository TODO
@@ -31,7 +31,7 @@ Canonical shape:
 <!-- tavall-todo-projection
 source: https://github.com/TavallStudios/tavall-docs/blob/main/TODO.md
 repository: TavallStudios/example
-managed-by: TavallStudios/tavall-github-bot
+managed-by: TavallStudios/tavall-github-bot (retired)
 format-version: 1
 source-commit: <commit sha>
 synced-at: <ISO-8601 timestamp>
@@ -48,55 +48,38 @@ Canonical source: https://github.com/TavallStudios/tavall-docs/blob/main/TODO.md
 This file is generated. Add or change tasks in the global TODO first.
 ```
 
-The comments are machine metadata, not decorative prose. The bot may update them whenever the projection changes even when the visible task list is otherwise identical.
+The comments were proposed as machine metadata for a generator that was not accepted as the current work-tracking path.
 
 ## Synchronization rules
 
-`tavall-github-bot` owns synchronization.
-
-The bot must:
-
-1. Watch changes to `TavallStudios/tavall-docs/TODO.md`.
-2. Detect repository creation, rename, archive, reactivation, and other inventory changes that affect the global ledger.
-3. Parse repository sections by exact `owner/repository` identity.
-4. Render the matching repository section as the first substantive section in root `TODO.md`.
-5. Preserve the canonical generated metadata comment block.
-6. Use one deterministic synchronization branch/PR per repository and update an existing synchronization PR instead of opening duplicates.
-7. Target `main` unless the repository's documented canonical branch explicitly differs.
-8. Validate that the projected task body exactly matches the source section before considering the repository synchronized.
-9. Never ingest ad-hoc local edits back into the global TODO automatically.
-10. Leave explicit empty-state text when a repository currently has no open global TODO entries.
+The former GitHub Bot synchronization plan is retired. No active tool owns root `TODO.md` generation. The issue-driven Work Tracking policy supersedes the former watch, render, and branch/PR synchronization requirements. Any future projection work must begin from an owner-repository issue and its linked QA Task Board task; do not assign it to `tavall-gh` without an explicit scope change.
 
 ## Human editing rules
 
-- For *unmapped legacy* entries, edit `TavallStudios/tavall-docs/TODO.md` until formally migrated. For mapped entries, update the **canonical GitHub Issue**, not its legacy checkbox; avoid adding new tasks to the legacy ledger.
-- Do not treat a generated repository `TODO.md` as authority.
-- A local emergency edit may be used only to repair broken generated metadata or rendering, and must be reconciled back through the global source immediately.
+- Create and update active work in the canonical owner-repository GitHub Issue through `tavall-gh`, then update the linked QA Task Board task.
+- Do not add active tasks to global or repository `TODO.md` files or use a checkbox as task state.
+- Existing `TODO.md` content may be retained as historical context while open legacy items are reconciled into canonical issues.
 - Repository-specific implementation documents may still contain `DOC TODO:` maintenance handoffs; those are document-maintenance state and do not replace this repository work ledger.
 
 ## Relationship to `DOC TODO:`
 
 `DOC TODO:` belongs to an individual document and carries maintenance handoff for that document under `DOCUMENTATION_STANDARDS.md`.
 
-Root `TODO.md` is different: it is a repository-level projection of organization work owned by the global TODO ledger. The GitHub bot must not scrape every `DOC TODO:` block into the global backlog unless a separate workflow explicitly promotes an item.
+Root `TODO.md` is different: it is a repository-level legacy file, not active issue intake or a QA execution task. No GitHub Bot is active to scrape `DOC TODO:` blocks, and `tavall-gh` does not generate projections. Promote new work only through an owner-repository GitHub Issue and its linked QA Task Board task.
 
 ## Rollout
 
-The initial organization-wide rollout creates root projections through PRs targeting each repository's `main` branch. `tavall-docs/TODO.md` and this policy are updated directly on `main` as shared documentation authority.
-
-The long-term bot implementation is tracked in the `TavallStudios/tavall-github-bot` section of the global TODO.
+The former rollout proposed generated root projections and a long-term Bot implementation. That rollout is retired; it is not an active integration or a deliverable owned by `tavall-gh`.
 
 ## DOC TODO:
 
 ### Document next steps
 
-- [ ] Keep this contract synchronized with the GitHub bot implementation once projection automation lands.
-- [ ] Add exact implementation evidence and bot command/event names after the automation is built.
+- [ ] Retain this retired policy as historical context until its legacy projection references have been reconciled.
 
 ### System next steps
 
-- [ ] Complete initial root `TODO.md` rollout across every maintained TavallStudios repository.
-- [ ] Implement and validate GitHub-bot-managed synchronization.
+- No active projection automation work is owned by this document. Any future projection work starts from an owner-repository GitHub Issue and its QA Task Board task.
 
 <details>
 <summary>Documentation Update State</summary>
@@ -105,7 +88,7 @@ The long-term bot implementation is tracked in the `TavallStudios/tavall-github-
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/TODO_STATIC_PROJECTIONS.md` | 2026-10-22 | Work Graph pilot policy update (not deployed). |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/TODO_STATIC_PROJECTIONS.md` | 2026-11-14 3:47 PM PST | Change pending PR on `working/docbot-retire-github-bot-20261114`. |
 | Notion | `NOT_APPLICABLE` | — | 2026-10-01 | Generated repository-control policy; no 1:1 Notion twin assigned. |
 
 ### Update History
@@ -113,5 +96,6 @@ The long-term bot implementation is tracked in the `TavallStudios/tavall-github-
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | 2026-10-01 | GitHub | `CREATED` | `TavallStudios/tavall-docs/docs/quality/TODO_STATIC_PROJECTIONS.md` | — | Direct docs-only update to `main`. | Established the canonical global TODO and repository projection contract. |
+| 2026-11-14 3:47 PM PST | GitHub | `UPDATED_PENDING_NOTION_SYNC` | `TavallStudios/tavall-docs/docs/quality/TODO_STATIC_PROJECTIONS.md` | Same path | Branch `working/docbot-retire-github-bot-20261114`; PR pending. | Marked the Bot-based projection proposal retired and directed active work to owner-repository issues and the QA Task Board. The existing Notion status is `NOT_APPLICABLE`. |
 
 </details>

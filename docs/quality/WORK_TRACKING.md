@@ -1,40 +1,40 @@
 # Tavall Work Graph — Work Tracking Authority and Migration
 
-> **Status:** ACTIVE TRANSITION / ISSUES PILOT  
-> **Document Type:** Engineering operations policy and technical migration contract  
-> **Authority:** Tavall Docs (policy); each GitHub Issue owns its own task state  
-> **Execution owner:** [Tavall GitHub Bot](https://github.com/TavallStudios/tavall-github-bot/issues/9)  
-> **Date:** 2026-10-22
+> **Status:** ACTIVE / ISSUE-DRIVEN WORK TRACKING<br>
+> **Document Type:** Engineering operations policy and technical migration contract<br>
+> **Authority:** Tavall Docs (policy); each owner-repository GitHub Issue is the origin for its task<br>
+> **GitHub integration:** [`tavall-gh`](https://github.com/TavallStudios/tavall-cli/issues/9), the typed GitHub CLI wrapper registered in the Tavall CLI<br>
+> **Date:** 2026-11-14
 
 ## 1. Decision and non-goals
 
-**Canonical execution work lives in GitHub Issues belonging to the actual owning repository.** Use one TavallStudios organization-wide GitHub Projects board as a cross-repository **view and workflow field**, never as an alternate task store. Tavall Docs and Notion remain design, policy, PROGRESSION and deployment-document authorities, not copies of task status. PRs implement work and Tavall CI provides immutable validation evidence. Tavall AI ledger records active agent execution/locks rather than a second TODO catalog.
+**GitHub Issues in the actual owning repositories are the origin and canonical identity for work.** `tavall-gh` is the typed GitHub CLI wrapper registered in the Tavall CLI; it owns `gh` invocation, authentication, environment mapping, and error translation. People and authorized Tavall tools use it for GitHub operations. GitHub issues feed the QA Task Board, which is the aggregate execution surface across Tavall tools for assignments, runs, checkpoints, evidence, review, and acceptance. The board does not replace issue identity, title-based Type, explicit Priority, or native open/closed state. Tavall Docs and Notion remain design, policy, PROGRESSION and deployment-document authorities. PRs implement work and Tavall CI provides immutable validation evidence.
 
-This does not introduce a new task database, a replacement GitHub App, a new Tavall Cloud scheduler, an agent framework, or a source-of-truth in the Web/QA UI. Existing QA and Web views consume read-only task/evidence projections when later authorized.
+This does not introduce a new task database, a replacement GitHub App, a new Tavall Cloud scheduler, an agent framework, or a second task origin. The Tavall GitHub Bot is retired. `tavall-gh` is a typed CLI wrapper, not a bot, issue ledger, scheduler, task owner, or QA Task Board implementation.
 
 ## 2. Ownership graph
 
 ```text
 Human / Agent proposal
-   -> Tavall GitHub Bot (authorized intake, GitHub discovery, dedup, links)
+   -> Tavall CLI / authorized Tavall tool
+   -> tavall-gh (typed official GitHub CLI invocation)
    -> Canonical owner-repository GitHub Issue
-         -> Optional GitHub Projects board row (status and filtered views)
+         -> QA Task Board (aggregate assignments, runs, checkpoints, evidence, review, acceptance)
          -> Linked sub-issues and explicitly typed blockers
          -> Linked implementation PR(s) / review decisions
          -> Exact Tavall CI check/evidence
          -> Runtime/deployment acceptance only where applicable
-   -> Bot-generated read-only TODO.md and agent/QA views
 ```
 
-The **repository issue URL** is the canonical task identity. Project item IDs, bot state keys, task titles, README bullets, PR numbers and AI ledger execution IDs are not a second task authority. A cross-repo initiative chooses one primary owning repository and links the actual child-owner issues; do not move domain ownership to the parent initiative.
+The **repository issue URL** is the canonical task identity and origin. QA Task Board records are keyed to that issue and aggregate execution evidence; they do not create a second task identity. Project item IDs, wrapper invocations, task titles, README bullets, PR numbers and AI ledger execution IDs are not task origins. A cross-repo initiative chooses one primary owning repository and links the actual child-owner issues; do not move domain ownership to the parent initiative.
 
 ## 3. Work item fields
 
 A task has: issue URL, owning repository and module/system, kind (initiative / actionable task / bug / verification), priority (P0–P6), dependencies and blocked reason, required consumer / approval, acceptance tests, design authority links, implementation PR(s), verification evidence / accepted SHA, and source provenance.
 
-Workflow values: `INBOX → READY → IN_PROGRESS → REVIEW → VERIFY → DONE` plus `BLOCKED` and `DEFERRED`. The GitHub Projects **Status** custom field is the intended workflow projection once the board is installed. Until then, newly imported issues are triage-only INBOX unless separately supported by work evidence. Issue `open/closed` (including GitHub's `not_planned`/`duplicate` reason) is the native closure authority; `DONE` requires the issue's acceptance criteria, not merely an updated Project field. Do not maintain mutable status simultaneously in TODO text, an issue body, a bot file, and a Project field.
+QA Task Board statuses describe execution and acceptance (for example `ACTIVE`, `BLOCKED`, and `REVIEW`); the owning GitHub issue's open/closed state remains the task closure authority. The board is updated from issue identity and linked work evidence. Do not maintain competing workflow state in TODO text, an issue body, or a Bot-owned file.
 
-Suggested board views: **Next & Ready**, **Blocked**, **Active Agent Work**, **By System/Repository**, **Awaiting Verification**, **Deferred**. Use existing GitHub capabilities rather than building a separate visual dashboard in the first phase.
+The QA Task Board provides the aggregate execution view across Tavall tools. Keep its task keyed by the owner-repository issue URL and use its assignments, runs, checkpoints, evidence, review, and acceptance fields for execution tracking.
 
 ## 4. GitHub Issue Types and Priority
 
@@ -70,7 +70,7 @@ Priority is sourced only from a P0–P6 marker already present in an issue label
 
 ### Creating and updating issues
 
-After a successful GitHub issue create or edit, the PR-workflow-owned `tavall-gh` path synchronizes native Type from the current title prefix and Priority from existing labels/body markers. It clears stale values when no recognized type or priority exists. The paced open-issue backfill uses the same rules. Never source issue metadata from the QA Task Board client.
+After a successful GitHub issue create or edit through `tavall-gh`, the owning issue workflow synchronizes native Type from the current title prefix and Priority from existing labels/body markers. It clears stale values when no recognized type or priority exists. The paced open-issue backfill follows the same rules. This issue-classification policy belongs to the workflow; `tavall-gh` owns typed CLI invocation and result translation. Never source issue metadata from the QA Task Board client.
 
 The 2026-11-09 title-prefix review in `docs/progression/GITHUB_ISSUE_TYPE_REVIEW_20261108.json` was a classification-only inventory; its report that existing native values were not modified describes that historical review, not the subsequent metadata sync. The owner-authorized metadata backfill later examined 222 open issues, updated 2, found 220 already current, and encountered 0 errors.
 
@@ -84,9 +84,9 @@ Each owner-repository GitHub Issue is the canonical work-item identity and sourc
 2. Search **open and closed** issues and linked PRs in that owner and adjacent authority repos. Identify EXACT_MATCH / OVERLAP_REVIEW / NEW / HISTORICAL / VERIFIED_DONE. An approximate title match is review evidence, not permission to create a duplicate.
 3. For a NEW item, create the issue in its implementation owner's repo with constraints, an acceptance checklist, source link, stable source provenance and no claims of running code. For an exact existing match, link it; ambiguous overlaps remain pending triage.
 4. For repeated runs, use a stable source key / issue link and a read-before-create, commit-after-write journal. Dry-run output precedes mutation, with idempotent retry, permission checks, rate-limit awareness, crash recovery, and conflict detection.
-5. Agents may propose work and record execution evidence. Only authorized bot/users mutate GitHub task state. Human approval continues to govern privileged product/publication/deployment actions.
+5. Authorized users and Tavall tools perform GitHub issue operations through `tavall-gh`; authorization remains enforced by the configured GitHub identity and repository permissions. Agents may propose work and record execution evidence. Human approval continues to govern privileged product/publication/deployment actions.
 
-Migration provenance `source_commit + source_line` links in first-wave issues identify the immutable historical document; the bot must also derive a **content fingerprint** independent of mutable line numbers and reuse an already linked canonical Issue URL.
+Migration provenance `source_commit + source_line` links in first-wave issues identify the immutable historical document. Reuse an already linked canonical Issue URL and retain source provenance when revisiting historical migration records.
 
 ## 6. Completion and evidence
 
@@ -102,21 +102,23 @@ During migration:
 - Subsequent batches triage duplicate, stale, already completed and deferred entries **before** creating Issues. Older out-of-scope/Hytale work is not migrated in this user-approved batch.
 - Verify one GitHub Issue source mapping per task, no lost requirements, no missing repositories, retained historical links and stable duplicate-safe repeat runs.
 - After complete audited mapping, preserve/archive the legacy document and change root `TODO.md` into a **generated, read-only view** of GitHub Issues with canonical URLs, deterministic metadata and no feedback loop. Keep the legacy Git history intact.
-- The GitHub Projects org-wide board requires a UI/operator or a correctly scoped integration because the currently available GitHub connector has no Projects mutation capability. The bot must not claim the board exists before a successful read-back.
+- Issue intake and current execution tracking use owner-repository GitHub Issues and the QA Task Board. The retired GitHub Bot's planned generated TODO and GitHub Projects automation are not delivered by `tavall-gh`; the wrapper only provides typed GitHub CLI invocation and translation.
 
 ## 8. Implementation and proof
 
-Owning [initiative #9](https://github.com/TavallStudios/tavall-github-bot/issues/9) has implementation slices: [ingestion/dedup #10](https://github.com/TavallStudios/tavall-github-bot/issues/10), [PR/CI and completion evidence #11](https://github.com/TavallStudios/tavall-github-bot/issues/11), [projections + full migration #12](https://github.com/TavallStudios/tavall-github-bot/issues/12), [org Project views #13](https://github.com/TavallStudios/tavall-github-bot/issues/13).
+The former Bot initiative and slices ([#9](https://github.com/TavallStudios/tavall-github-bot/issues/9), [#10](https://github.com/TavallStudios/tavall-github-bot/issues/10), [#11](https://github.com/TavallStudios/tavall-github-bot/issues/11), [#12](https://github.com/TavallStudios/tavall-github-bot/issues/12), and [#13](https://github.com/TavallStudios/tavall-github-bot/issues/13)) are superseded by direct GitHub CLI use through [`tavall-gh`](https://github.com/TavallStudios/tavall-cli/issues/9) and issue-driven intake. Preserve the old issue links as migration history; they no longer own execution.
 
-Tavall GitHub Bot remains a GitHub integration adapter, and Tavall CI/Cloud remain the only CI and execution authorities. Module naming, DI and testing follow [Module Separation](code-architecture/MODULE_SEPARATION.md) and `Tavall AI`/`tavall-engineering-policy`. Each production implementation PR requires source-backed unit/integration acceptance, read-after-write evidence, projection idempotence and a correct unprivileged failure mode. No GitHub Actions execution bridge or second work scheduler.
+`tavall-gh` owns only typed GitHub CLI invocation, authentication, environment mapping, and error translation. Tavall CI and Cloud remain the CI and execution authorities; the QA Task Board aggregates execution tracking across Tavall tools. Module naming, DI and testing follow [Module Separation](code-architecture/MODULE_SEPARATION.md) and `Tavall AI`/`tavall-engineering-policy`. No GitHub Actions execution bridge or second work scheduler.
 
-**Implementation state, 2026-11-07:** Organization-wide backlog intake completed across all 50+ repositories; 206 open engineering issues cataloged, triaged in `BACKLOG.md`, and mirrored to the live QA Task Board (`projectKey: tavall-engineering`). Manual unchecked TODO tracking is formally retired; work execution is tracked exclusively via GitHub Issues and QA Task Board.
+**Historical implementation checkpoint, 2026-11-07:** Organization-wide backlog intake completed across all 50+ repositories; 206 open engineering issues were cataloged and triaged in `BACKLOG.md`. Manual unchecked TODO tracking was formally retired. This checkpoint predates the issue-driven QA Task Board execution flow.
+
+**Current decision, 2026-11-14:** The Tavall GitHub Bot is retired. GitHub Issues remain the ledger origin and feed the QA Task Board; direct GitHub CLI operations use `tavall-gh`. The former Bot issues #9–#13 are to be closed as superseded after this documentation change merges.
 
 ## DOC TODO:
 
 ### Document next steps
-- [ ] Link the accepted Bot producer TECHNICAL DESIGN and proof of idempotent migration.
-- [ ] Retire the v1 projection contract only after real v2 generator and Project integration acceptance.
+- [ ] Reconcile or archive the historical Bot-owned TODO projection contract so it cannot be mistaken for an active automation owner.
+- [ ] Track any future projection work from an owner-repository GitHub Issue and its linked QA Task Board task.
 
 ### System next steps
 - [ ] Finish audit of the remaining unmatched legacy items and accept/close their issue mappings.
@@ -129,7 +131,8 @@ Tavall GitHub Bot remains a GitHub integration adapter, and Tavall CI/Cloud rema
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | 2026-11-09 12:51 AM PST | [Staging PR #108](https://github.com/TavallStudios/tavall-docs/pull/108) |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | 2026-11-14 3:47 PM PST | This change is pending PR; branch `working/docbot-retire-github-bot-20261114`. |
+| Notion | `UPDATED_PENDING_NOTION_SYNC` | No matching 1:1 twin identified by search | 2026-11-14 3:47 PM PST | Sync applicability remains unresolved; search did not identify a matching page. |
 
 ### Update History
 
@@ -140,5 +143,6 @@ Tavall GitHub Bot remains a GitHub integration adapter, and Tavall CI/Cloud rema
 | 2026-11-09 12:01 AM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | Same path | [Draft PR #115](https://github.com/TavallStudios/tavall-docs/pull/115) | GitHub title prefixes supply Type; labels/body supply Priority; no QA-derived classification. |
 | 2026-11-09 12:04 AM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | Same path | [Draft PR #115](https://github.com/TavallStudios/tavall-docs/pull/115) | Reconciled docs and implementation source with the GitHub issue owner correction. |
 | 2026-11-09 12:51 AM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | Same path | [Staging PR #108](https://github.com/TavallStudios/tavall-docs/pull/108) | Reconciled concurrent main policy with the owner directive: native Type follows GitHub title prefix; Priority comes only from explicit issue labels/body markers. |
+| 2026-11-14 3:47 PM PST | GitHub | `UPDATED_PENDING_NOTION_SYNC` | `TavallStudios/tavall-docs/docs/quality/WORK_TRACKING.md` | Same path | Branch `working/docbot-retire-github-bot-20261114`; PR pending. | Retired Bot ownership, made issue-driven intake and QA Task Board execution explicit, and linked the `tavall-gh` intake issue. Notion twin search found no matching page; sync applicability is recorded for follow-up. |
 
 </details>

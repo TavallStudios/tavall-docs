@@ -257,16 +257,22 @@ Cross-repository development should validate source together before fake interme
 
 ## GitHub boundary
 
-GitHub owns source control, pull requests, review, merge history, events, and check presentation.
+GitHub owns source control, owner-repository issues, pull requests, review, merge history, and check presentation. Owner-repository issues are the work origin and feed the QA Task Board, the aggregate execution surface across Tavall tools.
 
-Typical integration:
+Authorized Tavall CLI and service operations use `tavall-gh`, the typed GitHub CLI wrapper registered in the Tavall CLI. It owns `gh` invocation, authentication, environment mapping, and error translation. The Tavall GitHub Bot is retired; GitHub integration no longer depends on its intake or event adapter.
+
+Typical issue and CI flow:
 
 ```text
-GitHub event
-  -> Tavall GitHub Bot
-  -> typed Tavall CI request
+Authorized Tavall CLI / service operation
+  -> tavall-gh
+  -> owner-repository GitHub Issue or pull request
+  -> QA Task Board execution task (keyed by issue URL)
+
+Tavall CI exact-source request
   -> Tavall CI execution
   -> typed evidence
+  -> tavall-gh
   -> GitHub Check
 ```
 
@@ -336,3 +342,21 @@ Service/Environment ownership and deployment topology are governed by Cloud/NLEW
 - NLEW is available to CI; NLEW is not the CI pipeline.
 - GitHub Actions is not Tavall CI compute.
 - Build once, record immutable identity/digest, and promote that artifact unchanged.
+
+<details>
+<summary>Documentation Update State</summary>
+
+### Current Locations
+
+| Surface | Sync State | Location | Last Updated | Evidence |
+| --- | --- | --- | --- | --- |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | 2026-11-14 3:47 PM PST | Change pending PR on `working/docbot-retire-github-bot-20261114`. |
+| Notion | `UPDATED_PENDING_NOTION_SYNC` | [Tavall Studios CI/CD](https://app.notion.com/p/3e838458ddfd81c9aee9f9240c86b231?pvs=204) | 2026-11-14 3:47 PM PST | The GitHub change is pending; Notion sync and read-back have not been performed. |
+
+### Update History
+
+| Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-14 3:47 PM PST | GitHub | `UPDATED_PENDING_NOTION_SYNC` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | Same path | Branch `working/docbot-retire-github-bot-20261114`; PR pending. | Replaced the retired Bot event path with typed `tavall-gh` operations and issue-driven QA Task Board flow. |
+
+</details>
