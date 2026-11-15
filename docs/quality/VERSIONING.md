@@ -237,7 +237,7 @@ The canonical reusable implementation lives in `TavallStudios/tavall-ci/tavall-c
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/VERSIONING.md` | 2026-11-14 10:26 PM PST | Phase 6 package coordinates and derived Maven view recorded in this source update. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/VERSIONING.md` | 2026-11-14 10:26 PM PST | Phase 6 package coordinates and derived Maven view recorded in [PR #130](https://github.com/TavallStudios/tavall-docs/pull/130). |
 | Notion | `TEMPORARY_DRIFT` | `Tavall / Platform & Infrastructure / Tavall Versioning Architecture` | 2026-10-03 | The connected Notion fetch returned `Unknown tool`; source update could not be reconciled to the twin. |
 
 ### Update History
@@ -249,6 +249,6 @@ The canonical reusable implementation lives in `TavallStudios/tavall-ci/tavall-c
 | 2026-10-03 | GitHub | `SUPERSEDED` | `docs/quality/VERSIONING.md` | PR #53/#54 Environment wording correction | Main correction later superseded by user direction | The temporary general-purpose Environment wording conflicted with the accepted service-only rule. Versioning identities remain provider-neutral and independent of Environment identity. |
 | 2026-10-03 | GitHub + Notion | `CORRECTED` | `NLEW_AND_SERVICE_OWNERSHIP.md` and its Notion twin | Service-only Cloud Environment rule | Current policy correction PR | Cloud Environments belong only to registered logical-service runtime targets; source/build/CI use exact source and the shared Executor. No source/build/artifact/version/channel/digest/release identity changes. |
 | 2026-10-09 2:49 PM PDT | GitHub | `UPDATED` | `docs/quality/VERSIONING.md` | Same path | PR #61 | The general-purpose Environment model is restored by user direction in NLEW_AND_SERVICE_OWNERSHIP.md; the service-only statements in the rows above are historical. Versioning identities remain independent of Environment identity. |
-| 2026-11-14 10:26 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/VERSIONING.md` | Same path | Phase 6 documentation PR pending | Defined package coordinate lookup, immutable CI-evidence binding, derived Maven view, and pointer-only package rollback. |
+| 2026-11-14 10:26 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/VERSIONING.md` | Same path | [PR #130](https://github.com/TavallStudios/tavall-docs/pull/130) | Defined package coordinate lookup, immutable CI-evidence binding, derived Maven view, and pointer-only package rollback. |
 
 </details>

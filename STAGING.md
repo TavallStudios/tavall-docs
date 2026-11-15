@@ -8,7 +8,7 @@ This branch is the integration root for Phase 6 incremental-verification artifac
 - QA Task: `orchestrator/20261105/increlease-20261115`.
 - Issue: none; this lane is tracked by its orchestrator QA task.
 - Work Graph Node: `orchestrator/20261105/increlease-20261115`.
-- Active descendants: focused VERSIONING.md and CI_CD.md update pending.
+- Active descendants: Docs PR #130 updates VERSIONING.md and CI_CD.md.
 - Root validation: not run; run composed `all` after the focused documentation child is integrated.
 - Scope: document local immutable package release indexing and Maven file-repository evidence without introducing a second build system or GitHub dependency.
 - Promotion to `main` requires exact-head `REQUIRED_ALL` PASS and valid task metadata. No review wait is authorized or required.

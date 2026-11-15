@@ -348,13 +348,13 @@ Service/Environment ownership and deployment topology are governed by Cloud/NLEW
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | 2026-11-14 10:26 PM PST | Phase 6 package evidence and artifact policy update. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | 2026-11-14 10:26 PM PST | Phase 6 package evidence and artifact policy update in [PR #130](https://github.com/TavallStudios/tavall-docs/pull/130). |
 | Notion | `TEMPORARY_DRIFT` | Not verified | 2026-11-14 10:26 PM PST | The connected Notion fetch returned `Unknown tool`; no twin readback was possible. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| 2026-11-14 10:26 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | Same path | Phase 6 documentation PR pending | Documented CI evidence and immutable local package publication. Notion reconciliation remains pending because the connector failed. |
+| 2026-11-14 10:26 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | Same path | [PR #130](https://github.com/TavallStudios/tavall-docs/pull/130) | Documented CI evidence and immutable local package publication. Notion reconciliation remains pending because the connector failed. |
 
 </details>
