@@ -171,6 +171,10 @@ promotion of the same artifact
 
 STAGING and PRODUCTION should consume the already validated artifact. Rebuilding from the same source in every Environment creates a new build/artifact identity and defeats the point of promotion evidence.
 
+For package consumption, the existing immutable release manifest also carries Maven `group:artifact:version`, `ArtifactChannel`, and the durable CI-evidence reference. `ReleaseIndex` resolves those coordinates back to the original `ArtifactIdentity` and immutable storage reference. Publication is allowed only after the existing PromotionGate accepts `REQUIRED_ALL` and `ACCEPTED_MAIN`, and the existing immutable publisher verifies the artifact digest. This package index does not create another release or artifact identity.
+
+The Maven file repository is a derived view under `packages/maven/<group path>/<artifact>/<version>/`: package files are hard links to the SHA-256 store, with generated POM and checksum sidecars. Gradle can consume that path as a file repository. The immutable manifest and SHA-256 object remain authoritative; the view may be regenerated and does not change runtime promotion, rollback, or last-known-good behavior. Package rollback remains a pointer move to an earlier immutable manifest. This does not authorize Maven Local or host-user Gradle caches.
+
 ## Version Changes and Evidence
 
 A change to any of the following may require fresh evidence or a new identity:
@@ -233,8 +237,8 @@ The canonical reusable implementation lives in `TavallStudios/tavall-ci/tavall-c
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/VERSIONING.md` | 2026-10-03 | Source/build/dependency/artifact/version/channel/digest/release identities remain provider-neutral and independent of service Environment identity; NLEW policy is maintained in `NLEW_AND_SERVICE_OWNERSHIP.md`. |
-| Notion | `SYNCED` | `Tavall / Platform & Infrastructure / Tavall Versioning Architecture` | 2026-10-03 | Re-read current page; it keeps service Environment names as deployment metadata and leaves source/build/artifact/release identity separate. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/VERSIONING.md` | 2026-11-14 10:26 PM PST | Phase 6 package coordinates and derived Maven view recorded in this source update. |
+| Notion | `TEMPORARY_DRIFT` | `Tavall / Platform & Infrastructure / Tavall Versioning Architecture` | 2026-10-03 | The connected Notion fetch returned `Unknown tool`; source update could not be reconciled to the twin. |
 
 ### Update History
 
@@ -245,5 +249,6 @@ The canonical reusable implementation lives in `TavallStudios/tavall-ci/tavall-c
 | 2026-10-03 | GitHub | `SUPERSEDED` | `docs/quality/VERSIONING.md` | PR #53/#54 Environment wording correction | Main correction later superseded by user direction | The temporary general-purpose Environment wording conflicted with the accepted service-only rule. Versioning identities remain provider-neutral and independent of Environment identity. |
 | 2026-10-03 | GitHub + Notion | `CORRECTED` | `NLEW_AND_SERVICE_OWNERSHIP.md` and its Notion twin | Service-only Cloud Environment rule | Current policy correction PR | Cloud Environments belong only to registered logical-service runtime targets; source/build/CI use exact source and the shared Executor. No source/build/artifact/version/channel/digest/release identity changes. |
 | 2026-10-09 2:49 PM PDT | GitHub | `UPDATED` | `docs/quality/VERSIONING.md` | Same path | PR #61 | The general-purpose Environment model is restored by user direction in NLEW_AND_SERVICE_OWNERSHIP.md; the service-only statements in the rows above are historical. Versioning identities remain independent of Environment identity. |
+| 2026-11-14 10:26 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/VERSIONING.md` | Same path | Phase 6 documentation PR pending | Defined package coordinate lookup, immutable CI-evidence binding, derived Maven view, and pointer-only package rollback. |
 
 </details>
