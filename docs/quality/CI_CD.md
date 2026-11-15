@@ -297,6 +297,8 @@ Evidence binds to the exact candidate actually executed. It should include enoug
 
 Execution details such as a temporary host path or optional container instance are evidence/provenance, not source identity.
 
+An immutable package release manifest records its Maven coordinates, channel, exact artifact identity/digest, and durable CI-evidence reference. The evidence must resolve to the candidate's exact source and show `REQUIRED_ALL` plus `ACCEPTED_MAIN` before `ReleaseIndex` publication. The package index resolves through Tavall's existing SHA-256 artifact store; it has no GitHub API dependency. A generated Maven file-repository view is a consumer projection over those immutable objects, not a second artifact authority or build system. The manifest remains the rollback target, and the view is regenerated from it.
+
 ## CD boundary
 
 Module-aware deployment distinguishes immutable artifact selection, the target's versioned desired module profile, and observed runtime module state. A build module is not automatically hot-loadable; the runtime/registry must prove support for load/unload/reload and generation-safe cleanup. For the accepted SYSTEM/FEATURE split, target-specific profile composition, Paper/Velocity single-JAR constraints and host acceptance, read [Module Separation and Ownership Boundaries](code-architecture/MODULE_SEPARATION.md#7-module-aware-cicd-profiles-and-host-loading) alongside this CD policy. Pure Tavall DI module-profile resolution does not itself perform runtime mutation.
@@ -336,3 +338,23 @@ Service/Environment ownership and deployment topology are governed by Cloud/NLEW
 - NLEW is available to CI; NLEW is not the CI pipeline.
 - GitHub Actions is not Tavall CI compute.
 - Build once, record immutable identity/digest, and promote that artifact unchanged.
+
+## Documentation Update State
+
+<details>
+<summary>Documentation Update State</summary>
+
+### Current Locations
+
+| Surface | Sync State | Location | Last Updated | Evidence |
+| --- | --- | --- | --- | --- |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | 2026-11-14 10:26 PM PST | Phase 6 package evidence and artifact policy update in [PR #130](https://github.com/TavallStudios/tavall-docs/pull/130). |
+| Notion | `TEMPORARY_DRIFT` | Not verified | 2026-11-14 10:26 PM PST | The connected Notion fetch returned `Unknown tool`; no twin readback was possible. |
+
+### Update History
+
+| Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-14 10:26 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | Same path | [PR #130](https://github.com/TavallStudios/tavall-docs/pull/130) | Documented CI evidence and immutable local package publication. Notion reconciliation remains pending because the connector failed. |
+
+</details>
