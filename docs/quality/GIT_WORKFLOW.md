@@ -436,6 +436,8 @@ The Agent-owned review-evidence tool validates manifests, prepares the review se
 
 Treat pull requests as durable branches with review metadata attached, not as paperwork created only after implementation is complete.
 
+**Every commit belongs to a pull request.** No commit reaches `main`, a staging root or any other shared branch except through a merged pull request. Open the pull request (a draft is fine) when you push the first commit of a working branch, so every pushed commit is visible, reviewable and linked to its issue from the start. Creating a branch from an existing commit adds no commit and needs no pull request of its own.
+
 #### Open-PR scale
 
 Tavall repositories may have tens, hundreds, or eventually more open pull requests when development volume justifies it. Do not invent a low global PR-count ceiling and do not pause unrelated PR creation because another area is being reconciled.
