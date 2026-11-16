@@ -20,7 +20,18 @@ Use the tools appropriate to the repository/runtime, commonly:
 - Mineflayer or equivalent client harnesses for Minecraft command/routing/lifecycle/interaction scenarios;
 - Gradle test suites for explicit unit/contract/integration separation.
 
-Repository-specific test skills continue to apply. Canonical Tavall architecture tests are suspended organization-wide; do not add their plugin, task, MCP tool, or CI gate to a consumer until the replacement suite is explicitly re-enabled.
+Repository-specific test skills continue to apply. Tavall architecture rules return as verification rung L1, `tavall ca` (see CI_CD.md, Verification ladder): they run on the compiled production classes of each changed module, not as a per-repository CI gate. The old architecture-test plugin, task and CI gate stay suspended; do not add them to consumers.
+
+## Test removal policy
+
+Tests exist to give a guarantee no cheaper rung gives. Remove a test when L0 compile, L1 `tavall ca` or L3 `tavall module reload` already proves what it asserts. In particular remove:
+
+- tests that only prove compilation, getters/setters, constructors or DI wiring;
+- mock-heavy unit tests (Tavall has no unit tier; see Real Behavior First);
+- page, route or endpoint smoke tests that the reload proof already exercises;
+- duplicated full-flow tests covering the same path.
+
+Keep `<Class>SimulationTest` edge cases, SYSTEM contract tests, database migration tests, security/auth tests and tests of money or durable-state mutation. A removal is recorded in the PR with the rung that now carries the guarantee.
 
 ## Canonical Architecture-Test Boundary
 

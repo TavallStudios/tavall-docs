@@ -102,6 +102,27 @@ The execution provider answers **where/how the planned work runs**. It does not 
 
 Lane, Node, and Executor policy may be attached when a CI task requires it. A registered service Environment is not a source/build context and must never be created to run CI.
 
+## Verification ladder: traditional CI is the last resort
+
+Tavall verifies a change with the cheapest rung that gives the required guarantee. Because Tavall modules own one SYSTEM, FEATURE or clearly scoped issue each, a change is verified at the module level, not the repository level. Traditional Tavall CI runs only when no earlier rung can give the guarantee.
+
+| Rung | Command | Guarantee | Scope |
+| --- | --- | --- | --- |
+| L0 Compile | `tavall ci compile` | Changed module compiles with javac/JDT; public API (ABI) unchanged or the change is explicit | Every change; changed module plus direct dependents only when its ABI changed |
+| L1 Architecture | `tavall ca` | Tavall architecture rules hold for every changed class (boundaries, DI, naming, anti-patterns) | Every change; compiled production classes of the changed module |
+| L2 Module behaviour | `tavall ci test --module <id>` | Edge cases of that SYSTEM/FEATURE (`<Class>SimulationTest`, contract tests) | Changed module only |
+| L3 Reload proof | `tavall module reload <id>` on the DEVELOPMENT runtime | Wiring, configuration, lifecycle and live routes of the reloaded generation are ready | Runtime-facing modules |
+| L4 Traditional CI | Tavall CI on the affected-module graph | Composed build, immutable artifact and evidence | Only the cases below |
+
+Traditional CI (L4) is required only for:
+
+- build, `.tavallci`, `.tavallcd`, dependency-lock or Gradle settings changes;
+- database migrations, security/authentication/authorization and money or durable-state mutation code;
+- a public API change of a SYSTEM module consumed by other modules;
+- source promotion to `main` and production artifact creation.
+
+When L4 runs it builds only the affected-module graph (changed modules plus modules whose compile classpath includes a changed ABI), never the whole repository by default. Every other change is accepted on L0–L3 evidence recorded against the exact source SHA.
+
 ## Workspace model
 
 A multi-repository candidate is laid out as separate repository workspaces under one CI run/materialization root.
@@ -160,7 +181,7 @@ The shared system owns cross-repository composition and resolution evidence. Eac
 
 Internal development dependencies use exact source or an explicitly selected immutable Tavall artifact. Do not use Maven Local, arbitrary sibling directories, floating mutable snapshots, or a host user's accidental Gradle state as dependency authority.
 
-Shared download/cache state may be reused when safe. Source workspaces, outputs that require isolation, and run-specific evidence remain attributable to the CI run.
+Each Gradle project keeps its own build cache and configuration cache keyed by project identity; the former unified shared cache is retired. Immutable dependency downloads (the pinned Maven mirror) may be shared read-only. Source workspaces, outputs that require isolation, and run-specific evidence remain attributable to the CI run.
 
 ## `.tavallci`
 
@@ -338,6 +359,8 @@ Service/Environment ownership and deployment topology are governed by Cloud/NLEW
 - NLEW is available to CI; NLEW is not the CI pipeline.
 - GitHub Actions is not Tavall CI compute.
 - Build once, record immutable identity/digest, and promote that artifact unchanged.
+- Verify with the cheapest sufficient rung (L0 compile, L1 `tavall ca`, L2 module tests, L3 `tavall module reload`); traditional CI is the last resort and runs on the affected-module graph only.
+- Per-project Gradle caches; no unified shared build cache.
 
 ## Documentation Update State
 
@@ -355,6 +378,7 @@ Service/Environment ownership and deployment topology are governed by Cloud/NLEW
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-16 02:45 AM UTC | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | Same path | [Issue #131](https://github.com/TavallStudios/tavall-docs/issues/131) | Owner P0: verification ladder, traditional CI as last resort on the affected-module graph, per-project Gradle caches. Notion twin not updated. |
 | 2026-11-14 10:26 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | Same path | [PR #130](https://github.com/TavallStudios/tavall-docs/pull/130) | Documented CI evidence and immutable local package publication. Notion reconciliation remains pending because the connector failed. |
 
 </details>

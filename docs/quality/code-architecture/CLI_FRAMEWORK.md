@@ -9,6 +9,7 @@ It embodies the core Tavall engineering principles:
 - **Framework Base vs. Domain Specialization:** `CLICommand<R>` owns execution plumbing, error wrapping, and settings enforcement; concrete commands own argument definitions and domain delegation.
 - **Tavall DI Composition:** Commands are DI-managed components using `@DelegatesTo` and `DependencyAccess<...>`. Constructor injection of collaborators is prohibited.
 - **Adapter Default:** CLI commands adapt command-line arguments to typed Java domain calls. They never implement business logic.
+- **One framework:** every Tavall command-line entry point is a `tavall-cli` command registered through `ICLIBootstrap`. Hand-written `main(String[] args)` parsers and second command mechanisms are not allowed; existing ones migrate. Canonical verification and runtime roots are `tavall ci`, `tavall ca` and `tavall module` (`list`, `status`, `enable`, `disable`, `reload`), which call the owning typed Java APIs (no CLI-to-CLI IPC).
 
 ---
 
