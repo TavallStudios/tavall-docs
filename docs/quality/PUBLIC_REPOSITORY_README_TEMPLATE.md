@@ -106,7 +106,7 @@ Apply the owning Tavall open-source/license policy when one exists. This templat
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/PUBLIC_REPOSITORY_README_TEMPLATE.md` | 2026-11-16 8:55 AM PST | [Docs issue #139](https://github.com/TavallStudios/tavall-docs/issues/139), parent [Workflows issue #20](https://github.com/TavallStudios/tavall-workflows/issues/20), [PR #151](https://github.com/TavallStudios/tavall-docs/pull/151); review evidence pending. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/PUBLIC_REPOSITORY_README_TEMPLATE.md` | 2026-11-16 9:00 AM PST | [Docs issue #139](https://github.com/TavallStudios/tavall-docs/issues/139), parent [Workflows issue #20](https://github.com/TavallStudios/tavall-workflows/issues/20), [PR #151](https://github.com/TavallStudios/tavall-docs/pull/151); [review evidence published](https://github.com/TavallStudios/tavall-docs/pull/151#issuecomment-6923178660). |
 | Notion | `NOT_APPLICABLE` | — | 2026-09-27 11:45 AM PDT | Quality template; no 1:1 requirement assigned. |
 
 ### Update History
@@ -114,6 +114,6 @@ Apply the owning Tavall open-source/license policy when one exists. This templat
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | 2026-09-27 11:45 AM PDT | GitHub | `CREATED` | `TavallStudios/tavall-docs/docs/quality/PUBLIC_REPOSITORY_README_TEMPLATE.md` | — | Direct docs-only update to `main`. | Added canonical public root README template. |
-| 2026-11-16 8:55 AM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/PUBLIC_REPOSITORY_README_TEMPLATE.md` | Same path | [Docs PR #151](https://github.com/TavallStudios/tavall-docs/pull/151) | Added the public workflow repository, registry-index, web-link, runtime-contract, and licensing-gap rules. |
+| 2026-11-16 9:00 AM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/PUBLIC_REPOSITORY_README_TEMPLATE.md` | Same path | [Docs PR #151](https://github.com/TavallStudios/tavall-docs/pull/151) and [verified review-evidence comment](https://github.com/TavallStudios/tavall-docs/pull/151#issuecomment-6923178660) | Added the public workflow repository, registry-index, web-link, runtime-contract, and licensing-gap rules; linked the verified validation artifacts. |
 
 </details>
