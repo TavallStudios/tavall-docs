@@ -114,12 +114,17 @@ Tavall verifies a change with the cheapest rung that gives the required guarante
 | L3 Reload proof | `tavall module reload <id>` on the DEVELOPMENT runtime | Wiring, configuration, lifecycle and live routes of the reloaded generation are ready | Runtime-facing modules |
 | L4 Traditional CI | Tavall CI on the affected-module graph | Composed build, immutable artifact and evidence | Only the cases below |
 
+Merging into a staging root or working branch needs, at the exact head SHA:
+
+- L0 compile PASS;
+- the changed module's own tests (L2);
+- a real end-to-end run of the change (L3: `tavall module reload` proof, or running the changed runtime, CLI command or tool as a user would);
+- a PR comment that starts with `TAVALL-VERIFIED <sha7>` and lists the module tests run and the end-to-end run with its result.
+
 Traditional CI (L4) is required only for:
 
-- build, `.tavallci`, `.tavallcd`, dependency-lock or Gradle settings changes;
-- database migrations, security/authentication/authorization and money or durable-state mutation code;
-- a public API change of a SYSTEM module consumed by other modules;
-- source promotion to `main` and production artifact creation.
+- promotion of a staging root to `main` (this is where build, `.tavallci`, `.tavallcd`, dependency-lock and Gradle settings changes are fully verified);
+- database migrations, SQL and security/authentication code, on any branch.
 
 When L4 runs it builds only the affected-module graph (changed modules plus modules whose compile classpath includes a changed ABI), never the whole repository by default. Every other change is accepted on L0–L3 evidence recorded against the exact source SHA.
 
@@ -378,6 +383,7 @@ Service/Environment ownership and deployment topology are governed by Cloud/NLEW
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-16 09:20 AM UTC | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | Same path | [Issue #131](https://github.com/TavallStudios/tavall-docs/issues/131) | Owner P0: staging merges use compile + module tests + real e2e (TAVALL-VERIFIED comment); traditional CI only at promotion to main and for migrations/SQL/security. |
 | 2026-11-16 02:45 AM UTC | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | Same path | [Issue #131](https://github.com/TavallStudios/tavall-docs/issues/131) | Owner P0: verification ladder, traditional CI as last resort on the affected-module graph, per-project Gradle caches. Notion twin not updated. |
 | 2026-11-14 10:26 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | Same path | [PR #130](https://github.com/TavallStudios/tavall-docs/pull/130) | Documented CI evidence and immutable local package publication. Notion reconciliation remains pending because the connector failed. |
 
