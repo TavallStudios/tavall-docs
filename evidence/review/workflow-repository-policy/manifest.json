@@ -1,0 +1,24 @@
+{
+  "repository": "TavallStudios/tavall-docs",
+  "scope": "Workflow publication policy documentation",
+  "testedSources": [
+    {
+      "repository": "TavallStudios/tavall-docs",
+      "sha": "d0fdf8a3ac1fdc485cd222145e4c4749066ca280"
+    }
+  ],
+  "result": "Docs quality self-tests, build validation, integration link/routing validation passed",
+  "boundaries": "Documentation-only; no Java module or Tavall Workflows runtime changed",
+  "assets": [
+    {
+      "kind": "screenshot",
+      "path": "evidence/review/workflow-repository-policy/01-docs-quality-validation-desktop.png",
+      "caption": "Docs quality validation (desktop)",
+      "surface": "Docs quality validation",
+      "viewport": "desktop",
+      "url": null,
+      "sourceSha": "d0fdf8a3ac1fdc485cd222145e4c4749066ca280",
+      "sha256": "091e636f6dc74470b37cb0c788b3f6a52415619e0bbd23723e351f7cb3d40cca"
+    }
+  ]
+}
