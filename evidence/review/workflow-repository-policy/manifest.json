@@ -4,7 +4,7 @@
   "testedSources": [
     {
       "repository": "TavallStudios/tavall-docs",
-      "sha": "ce8c8d6e4db4262db30d6e03a961e8487064169a"
+      "sha": "d0fdf8a3ac1fdc485cd222145e4c4749066ca280"
     }
   ],
   "result": "Docs quality self-tests, build validation, integration link/routing validation passed",
@@ -17,7 +17,7 @@
       "surface": "Docs quality validation",
       "viewport": "desktop",
       "url": null,
-      "sourceSha": "ce8c8d6e4db4262db30d6e03a961e8487064169a",
+      "sourceSha": "d0fdf8a3ac1fdc485cd222145e4c4749066ca280",
       "sha256": "091e636f6dc74470b37cb0c788b3f6a52415619e0bbd23723e351f7cb3d40cca"
     }
   ]
