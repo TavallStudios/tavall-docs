@@ -1,14 +1,21 @@
 # Tavall Docs staging
 
-This branch is the integration root for Phase 6 incremental-verification artifact documentation.
+This branch is the refreshed integration root for the `tavall-module-test` L2
+verification command documentation.
 
-- Parent: `main` at `d670ee5ec1066a00e1b3780e58cf77ba70087c1a`.
-- Child merge target: `staging/increlease-docs-20261115`.
-- PR Type: `STAGING`; PR State: `ACTIVE` (successor root PR #129).
-- QA Task: `orchestrator/20261105/increlease-20261115`.
-- Issue: none; this lane is tracked by its orchestrator QA task.
-- Work Graph Node: `orchestrator/20261105/increlease-20261115`.
-- Completed descendants: Docs PR #130 merged into this staging head at 9615487a7ccbf72233dabaee88cbe578d38ad0a9.
-- Root validation: not run; run composed `all` after the focused documentation child is integrated.
-- Scope: document local immutable package release indexing and Maven file-repository evidence without introducing a second build system or GitHub dependency.
-- Promotion to `main` requires exact-head `REQUIRED_ALL` PASS and valid task metadata. No review wait is authorized or required.
+- Parent: `main` at `051a2321e8709a4a4e30aa5f2e1c33802c08f3cd`.
+- Child merge target: `working/staging-module-test-20261116`.
+- PR Type: `STAGING`; PR State: `ACTIVE`.
+- Root PR: [#154](https://github.com/TavallStudios/tavall-docs/pull/154).
+- QA Task: `orchestrator/20261105/modtest-20261116`.
+- Issue: none; this work is tracked by its orchestrator QA task.
+- Work Graph Node: `orchestrator/20261105/modtest-20261116`.
+- Previous staging root: Docs PR #135 merged to `main`; its branch is a strict
+  ancestor of this refreshed root.
+- Completed descendants: none.
+- Root validation: pending the focused documentation child; run the composed
+  documentation validation after integration.
+- Scope: document the exact command for L2 module tests in the CI/CD
+  verification ladder.
+- Promotion to `main` requires exact-head `REQUIRED_ALL` PASS and valid task
+  metadata. No review wait is authorized or required.
