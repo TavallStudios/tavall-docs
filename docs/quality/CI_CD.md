@@ -110,9 +110,11 @@ Tavall verifies a change with the cheapest rung that gives the required guarante
 | --- | --- | --- | --- |
 | L0 Compile | `tavall ci compile` | Changed module compiles with javac/JDT; public API (ABI) unchanged or the change is explicit | Every change; changed module plus direct dependents only when its ABI changed |
 | L1 Architecture | `tavall ca` | Tavall architecture rules hold for every changed class (boundaries, DI, naming, anti-patterns) | Every change; compiled production classes of the changed module |
-| L2 Module behaviour | `tavall ci test --module <id>` | Edge cases of that SYSTEM/FEATURE (`<Class>SimulationTest`, contract tests) | Changed module only |
+| L2 Module behaviour | `tavall-module-test --worktree <worktree> --module :<gradle-path> [--tests <filter>]` | Edge cases of that SYSTEM/FEATURE (`<Class>SimulationTest`, contract tests) | Requested module only |
 | L3 Reload proof | `tavall module reload <id>` on the DEVELOPMENT runtime | Wiring, configuration, lifecycle and live routes of the reloaded generation are ready | Runtime-facing modules |
 | L4 Traditional CI | Tavall CI on the affected-module graph | Composed build, immutable artifact and evidence | Only the cases below |
+
+The canonical `tavall-module-test` executable is `/srv/dev-storage/.ai/plugins/Tavall/agents/tavall-orchestrator/tools/module-test/tavall-module-test`. It composes the exact source pins in the checkout's `.tavallci/ci.yaml`, resolves plugins and dependencies from the pinned local Maven mirror and approved local caches, and runs only the requested module's `test` task (including `compileTestJava`). It emits a typed result with test counts and the report path. Public repositories are removed from resolution; the tool does not run repository-wide `check` or traditional CI.
 
 Merging into a staging root or working branch needs, at the exact head SHA:
 
@@ -376,13 +378,14 @@ Service/Environment ownership and deployment topology are governed by Cloud/NLEW
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | 2026-11-14 10:26 PM PST | Phase 6 package evidence and artifact policy update in [PR #130](https://github.com/TavallStudios/tavall-docs/pull/130). |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | 2026-11-16 5:05 PM PST | L2 module-test command update for orchestrator lane `orchestrator/20261105/modtest-20261116`. |
 | Notion | `TEMPORARY_DRIFT` | Not verified | 2026-11-14 10:26 PM PST | The connected Notion fetch returned `Unknown tool`; no twin readback was possible. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-16 5:05 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | Same path | Orchestrator QA lane `orchestrator/20261105/modtest-20261116` | L2 now names the exact `tavall-module-test` command and its module-only guarantee. |
 | 2026-11-16 09:20 AM UTC | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | Same path | [Issue #131](https://github.com/TavallStudios/tavall-docs/issues/131) | Owner P0: staging merges use compile + module tests + real e2e (TAVALL-VERIFIED comment); traditional CI only at promotion to main and for migrations/SQL/security. |
 | 2026-11-16 02:45 AM UTC | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | Same path | [Issue #131](https://github.com/TavallStudios/tavall-docs/issues/131) | Owner P0: verification ladder, traditional CI as last resort on the affected-module graph, per-project Gradle caches. Notion twin not updated. |
 | 2026-11-14 10:26 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | Same path | [PR #130](https://github.com/TavallStudios/tavall-docs/pull/130) | Documented CI evidence and immutable local package publication. Notion reconciliation remains pending because the connector failed. |
