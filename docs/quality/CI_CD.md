@@ -378,14 +378,14 @@ Service/Environment ownership and deployment topology are governed by Cloud/NLEW
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | 2026-11-16 5:05 PM PST | L2 module-test command update for orchestrator lane `orchestrator/20261105/modtest-20261116`. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | 2026-11-17 01:09 AM UTC | [PR #155](https://github.com/TavallStudios/tavall-docs/pull/155), orchestrator lane `orchestrator/20261105/modtest-20261116`. |
 | Notion | `TEMPORARY_DRIFT` | Not verified | 2026-11-14 10:26 PM PST | The connected Notion fetch returned `Unknown tool`; no twin readback was possible. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| 2026-11-16 5:05 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | Same path | Orchestrator QA lane `orchestrator/20261105/modtest-20261116` | L2 now names the exact `tavall-module-test` command and its module-only guarantee. |
+| 2026-11-17 01:09 AM UTC | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | Same path | [PR #155](https://github.com/TavallStudios/tavall-docs/pull/155) | L2 now names the exact `tavall-module-test` command and its module-only guarantee. |
 | 2026-11-16 09:20 AM UTC | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | Same path | [Issue #131](https://github.com/TavallStudios/tavall-docs/issues/131) | Owner P0: staging merges use compile + module tests + real e2e (TAVALL-VERIFIED comment); traditional CI only at promotion to main and for migrations/SQL/security. |
 | 2026-11-16 02:45 AM UTC | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | Same path | [Issue #131](https://github.com/TavallStudios/tavall-docs/issues/131) | Owner P0: verification ladder, traditional CI as last resort on the affected-module graph, per-project Gradle caches. Notion twin not updated. |
 | 2026-11-14 10:26 PM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/CI_CD.md` | Same path | [PR #130](https://github.com/TavallStudios/tavall-docs/pull/130) | Documented CI evidence and immutable local package publication. Notion reconciliation remains pending because the connector failed. |
