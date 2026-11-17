@@ -6,6 +6,7 @@ verification command documentation.
 - Parent: `main` at `051a2321e8709a4a4e30aa5f2e1c33802c08f3cd`.
 - Child merge target: `working/staging-module-test-20261116`.
 - PR Type: `STAGING`; PR State: `ACTIVE`.
+- Root PR: [#154](https://github.com/TavallStudios/tavall-docs/pull/154).
 - QA Task: `orchestrator/20261105/modtest-20261116`.
 - Issue: none; this work is tracked by its orchestrator QA task.
 - Work Graph Node: `orchestrator/20261105/modtest-20261116`.
