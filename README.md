@@ -1,4 +1,4 @@
-# Tavall Documentation
+# AGENTS READ HERE - Tavall Architecture & Documentation
 
 **Technology stack inventory:** [TECH_STACK.md](TECH_STACK.md) (implementation and deployment evidence remain with their owning documents).
 
