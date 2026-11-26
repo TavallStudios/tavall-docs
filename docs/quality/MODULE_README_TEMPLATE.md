@@ -9,7 +9,13 @@ Use only sections that apply. Delete instructional placeholders when instantiati
 ```markdown
 # <module-name>
 
-<One or two sentences describing exactly what this module owns.>
+> **<Public Name> (`<module-name>`) — <Descriptor>**
+>
+> **What it does:** <One concrete sentence stating exactly what this module owns, grounded in current accepted ownership and current source.>
+>
+> **Does not own:** <Explicit boundary callout — only where module/consumer confusion creates material risk; delete this line when it does not apply.>
+>
+> **Descriptor status:** `PROPOSED` / `REVIEWED` / `APPROVED` / `STALE`
 
 ## Responsibility
 
@@ -103,6 +109,7 @@ Shared Git policy remains delegated to Tavall Docs. Shared CI/CD and versioning 
 
 ## Template Rules
 
+- The README opens with the standardized descriptor orientation block from [README_STANDARDS.md](README_STANDARDS.md) "Human-readable descriptors (What is this?)". The technical name is the unchanged Gradle project/module name; a module without a distinct public name repeats that name as its public name instead of inventing a brand.
 - Module READMEs are contextual routing surfaces, not mini root READMEs.
 - The repository structure graph must visibly mark the current module as **bold** and `← This Module`.
 - Every Tavall source/build module must carry `.tavallci/ci.yaml`; root repository CI aggregation cannot substitute for the module-local definition.
@@ -122,13 +129,14 @@ Shared Git policy remains delegated to Tavall Docs. Shared CI/CD and versioning 
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/MODULE_README_TEMPLATE.md` | 2026-09-27 2:58 PM PDT | Direct docs-only update to `main`. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/MODULE_README_TEMPLATE.md` | 2026-11-26 | `#156` descriptor standardization. |
 | Notion | `NOT_APPLICABLE` | — | 2026-09-27 2:58 PM PDT | Quality template; no 1:1 requirement assigned. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-26 | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/MODULE_README_TEMPLATE.md` | Same path | `#156` descriptor standardization. | Added the standardized module descriptor orientation block and replaced the loose opening summary with the required "What it does" line. |
 | 2026-09-27 2:58 PM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/MODULE_README_TEMPLATE.md` | Same path | Direct docs-only update to `main`. | Required a dedicated module Progression link while preserving module-local CI/versioning routing. |
 | 2026-09-27 2:46 PM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/MODULE_README_TEMPLATE.md` | Same path | Docs sync branch `docs/ci-versioning-notion-sync-20260927` | Added required module-local `.tavallci/ci.yaml` shape and CI/versioning routing. |
 | 2026-09-27 11:45 AM PDT | GitHub | `CREATED` | `TavallStudios/tavall-docs/docs/quality/MODULE_README_TEMPLATE.md` | — | Direct docs-only update to `main`. | Added canonical module README template including current-module tree marking and runtime/PR routing. |
