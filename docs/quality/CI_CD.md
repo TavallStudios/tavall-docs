@@ -310,6 +310,8 @@ ChatGPT MCP Console and retained CLI/CONTROL execution entrypoints submit an aut
 
 Sequential commands reuse the configured durable Executor with distinct invocation IDs. A busy/unavailable Executor returns a bounded result without provisioning fallback or elevated permissions. Process timeout/cancellation preserves the shared Executor. Nonzero command exits are command failures, separate from authorization rejection, timeout, cancellation, and unverified provider/transport failure. HOME and working-directory selection follow the authorized invocation context. Artifacts remain scoped to their source invocation.
 
+The CI and console default is the durable shared Executor; no sandbox or ephemeral Executor is used by default, and a bounded `TEMPORARY` Executor exists only as explicit overflow when the durable pool is exhausted. Executor lifecycle rules and the complete Linux-user permission roles (`STANDARD`/`FULL` profiles, `SHARED_USER`/`ISOLATED_USER` modes, the root supervisor/`tavall-cloud` control boundary, and privilege boundaries) are owned by [NLEW_AND_SERVICE_OWNERSHIP.md](NLEW_AND_SERVICE_OWNERSHIP.md) ("Linux-user permission roles").
+
 ## Evidence and artifacts
 
 Evidence binds to the exact candidate actually executed. It should include enough identity to reconstruct:
