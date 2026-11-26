@@ -715,6 +715,23 @@ routes:
     documents:
       - docs/quality/WEB_ARCHITECTURE.md
 
+  - id: workflow-repository-and-registry-ownership
+    signals:
+      - workflow repository
+      - public workflow repository
+      - published workflow
+      - publish a workflow
+      - workflow publication
+      - workflow registry
+      - workflow index
+      - canonical workflow registry
+      - workflow listing
+      - web workflow listing
+      - workflows mcp bridge
+      - workflow source repository
+    documents:
+      - docs/quality/WORKFLOW_REPOSITORY_AND_REGISTRY_OWNERSHIP.md
+
   - id: third-party-tool-boundaries
     signals:
       - third party tool
