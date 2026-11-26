@@ -337,6 +337,17 @@ An authorized repository owner may apply the correction directly to `main` where
 
 ## 4. Code review and pull-request flow
 
+### Owner process rules (canonical)
+
+**Accepted 2026-11-21 (owner directive, [issue #152](https://github.com/TavallStudios/tavall-docs/issues/152)); codified 2026-11-26:** these four rules are organization-wide. They apply to every Tavall repository, contributor, agent, automation, and owner workstream, and they are requirements rather than preferences. Each rule has one owning section below and a matching author-checklist item in Section 8.
+
+| Rule | Requirement | Owner section |
+| --- | --- | --- |
+| **R1 — Every commit belongs to a pull request** | No commit lands on `main`, `staging`, a staging root, or any other shared branch except through a tracked pull request linked to its authorizing issue or task. | [Section 4.4](#44-pull-requests-are-working-branches) |
+| **R2 — Ledger check before CI runs** | Hosted Tavall CI (`tavall-ci-gate`) is enqueued only after the exact SHA is verified as the current pull-request head, owned by an open pull request, and absent from the CI ledger as already queued, running, or passed. | [Section 4.11](#411-ci-ledger-preflight-before-hosted-ci) |
+| **R3 — Staging fast path** | Working and staging pull requests are accepted on the cheap gate (`compilation` profile, or `build` where that is the repository's compilation profile, plus targeted local tests and real end-to-end evidence); full `all` CI is reserved for batched promotion, migrations/SQL, security, and artifact publication. | [Section 4.12](#412-staging-fast-path) |
+| **R4 — Workers end tasks `MERGED` or `CLOSED`** | Every delegated or autonomous workstream terminates with its pull request explicitly `MERGED` or `CLOSED`, with the reason recorded on the linked issue and QA Task Board and no dangling branch or worktree. | [Section 4.13](#413-worker-task-completion-and-cleanup) |
+
 ### PR Flow: mandatory active staging ancestry
 
 Every active normal pull request MUST always have a valid transitive path into an active Development Staging, Runtime, or Staging PR, continuing through every configured integration tier to one unambiguous active repository/release staging root. This includes feature, fix, architecture, infrastructure, agent, documentation, and dependency work, including Draft PRs and PRs that implement this policy. There is no staging-less grace period.
@@ -436,7 +447,9 @@ The Agent-owned review-evidence tool validates manifests, prepares the review se
 
 Treat pull requests as durable branches with review metadata attached, not as paperwork created only after implementation is complete.
 
-**Every commit belongs to a pull request.** No commit reaches `main`, a staging root or any other shared branch except through a merged pull request. Open the pull request (a draft is fine) when you push the first commit of a working branch, so every pushed commit is visible, reviewable and linked to its issue from the start. Creating a branch from an existing commit adds no commit and needs no pull request of its own.
+**R1 — Every commit belongs to a pull request.** No commit reaches `main`, `staging`, a staging root, or any other shared branch except through a tracked pull request that is linked to its authorizing issue or Tavall task. Open the pull request (a draft is fine) when you push the first commit of a working branch, so every pushed commit is visible, reviewable, and linked to its authorizing work item from the start. Creating a branch from an existing commit adds no commit and needs no pull request of its own.
+
+R1 binds agents, automation, and owners as well as contributors. The authorized owner direct commit under Section 3.4 and the owner hotfix under Section 3.5 are the narrow, explicitly attributable exceptions: the pushed change is still surfaced for review, its authorizing issue records why the direct path was used, and any work the commit leaves open is carried by a pull request rather than by further unreviewed commits. An owner commit is not precedent for ordinary contributors or automation, and an unreviewed direct commit to `main` or `staging` outside those exceptions is a policy violation, not a shortcut.
 
 #### Open-PR scale
 
@@ -664,6 +677,48 @@ For a user-authorized fix-and-merge campaign, conflicts, Draft status, absent ho
 
 Use repository-local exact-source checks and the Tavall GitHub Bot's check/review tools as the merge evidence surface. When those checks pass and the target branch rules permit the authorized owner merge, continue even if hosted Tavall CI or CONTROL execution is unavailable. Standing merge authorization applies: merge directly once exact-head `REQUIRED_ALL` PASS is achieved and PR metadata is valid. Do not solicit a second confirmation, pause for human review approval, or create artificial blockers. Do not switch to GitHub Actions or request Codex PR review. Keep a Draft PR Draft while repairing; do not mark it Ready just to trigger a merge or review. A merge API response that rejects only Draft status is not a stopping condition: push an ordinary two-parent merge commit to the authorized target using the repository's permitted owner path, then confirm the PR's merged state and exact merge commit on GitHub. A conflict, stale base, stale check, or absent check similarly starts another repair pass; do not hand the user a “merge blockers” list while an authorized repair path remains available. Preserve branch protections and use only repository-permitted merge paths.
 
+### 4.11 CI ledger preflight before hosted CI
+
+**R2 — Ledger check before CI runs.** Hosted Tavall CI (`tavall-ci-gate`) is bounded shared capacity, so it is never requested speculatively. Every request is preceded by a preflight against freshly read GitHub state and the Tavall CI ledger, and all four results must hold:
+
+1. **Current pull-request head.** Re-read the pull request and confirm the SHA about to be validated is exactly its current head. A head that moved since planning is superseded: validate the new head, never the stale one. A superseded SHA, a local `HEAD` that differs from the remote pull-request head, or local uncommitted state is never enqueued.
+2. **Open pull-request ownership.** The SHA must belong to a pull request that is currently open and is not merged, closed, or superseded. A pushed commit with no open pull request is an R1 defect: establish or attach the pull request first.
+3. **Ledger deduplication.** Read the ledger and evidence records for that repository, exact SHA, and check context (the requested `--profile`). Do not enqueue when an entry is already queued, running, or `PASS` for the same profile. Re-request only when the head changed, when existing evidence covers a strictly weaker profile than the guarantee now required, or after a genuine failure has been repaired.
+4. **Full-CI capacity.** Full-profile hosted CI is additionally bounded by the canonical 24-hour full-CI quota. Never spend it on a duplicate or speculative run; batch pending work into the next authorized promotion wave (Section 4.12) and record the ledger entry consumed and the remaining capacity on the pull request or linked task.
+
+A preflight that cannot read the ledger is a gap, not an authorization: report the concrete gap, fail closed for the full profile, and use the local exact-source surface when a scoped guarantee is still obtainable. Whatever actually runs, record the CI request and evidence identity on the pull request so GitHub and the ledger describe the same execution.
+
+### 4.12 Staging fast path
+
+**R3 — Staging fast path.** Working-branch and staging pull requests are accepted on the cheapest gate that still gives the required guarantee, which keeps hosted full CI available for the cases that genuinely need it.
+
+At its exact current head, a working or staging pull request uses this fast path:
+
+- the repository's compilation gate — the `compilation` profile where the repository declares one, otherwise its equivalent build-only profile (in `tavall-docs`, `scripts/ci/run --profile build` / `scripts/ci/verify build`);
+- targeted local tests for the changed area (the owning module's or package's unit and contract tests, not a repository-wide suite);
+- a real end-to-end run of the change as a user, runtime, CLI, or tool would exercise it;
+- a pull-request comment that starts with `TAVALL-VERIFIED <sha7>` and lists the tests and end-to-end run that actually executed;
+- a completed ledger preflight (Section 4.11) for anything hosted.
+
+Full (`all`) CI is reserved for: batched promotion of a staging root to `main`; database migrations, SQL, and security/authentication code on any branch; artifact and package publication; and changes to build, CI, `.tavallci`/`.tavallcd`, or dependency-lock configuration. [CI_CD.md](CI_CD.md) owns the verification ladder, the affected-module graph, and the exact hosted gate behavior; this section owns when the fast path applies instead of the full rung.
+
+The fast path shortens validation, not accountability. Staging ancestry, exact-head identity, pull-request metadata, accountable review, and truthful evidence are unchanged, and every new push invalidates fast-path evidence for its head. A pull request that needs the full rung states why, and a pull request that claims the fast path shows its evidence.
+
+### 4.13 Worker task completion and cleanup
+
+**R4 — Workers end tasks `MERGED` or `CLOSED`.** A delegated or autonomous workstream is not a place to park work. Every worker task — subagent, delegated task, review or CI worker, or any autonomous development workstream — terminates with its pull request in exactly one terminal outcome:
+
+- **`MERGED`**: integrated into its authorized target, with GitHub's recorded merged state and exact merge commit verified; or
+- **`CLOSED`**: explicitly discontinued with a recorded reason — `SUPERSEDED` (naming the replacement pull request), `ABANDONED`, duplicate scope, or restructure — mapped to the PR State values in Section 3.2.
+
+Terminating correctly means:
+
+- the linked issue and its QA Task Board task record the terminal outcome, and a close records its reason;
+- no branch, worktree, or local commit is left dangling: merged and closed branches are deleted or intentionally retained and recorded, merged and closed worktrees are removed, and any remaining physical workspace is recorded as `LOGICAL_ONLY` instead of surviving as an unowned directory;
+- the worker reports what actually happened — the exact commits tested, the CI evidence consumed, what is merged, and what was closed and why.
+
+A worker that cannot reach `MERGED` reports the concrete blocker, sets the pull-request lifecycle to `PAUSED` or `BLOCKED` under Section 3.2, records the reason and next action, and hands the work back to the Orchestrator. It must never return silently with an open pull request, an unreported close, or a worktree nobody owns.
+
 ## 5. Git hygiene
 
 ### 5.1 Atomic commits
@@ -851,6 +906,10 @@ Record rejected approaches, link implementation work, and close issues only when
 - [ ] No secrets or accidental artifacts are included.
 - [ ] Generated code and APIs were verified.
 - [ ] Meaningful in-progress work is pushed to the remote PR branch.
+- [ ] Every commit in this branch belongs to this pull request and is linked to its authorizing issue or task; nothing was committed unreviewed to `main`, `staging`, or another shared branch (R1, Section 4.4).
+- [ ] Hosted CI was requested only after the ledger preflight: exact current pull-request head, open pull request, no queued/running/passed duplicate, and within the 24-hour full-CI quota (R2, Section 4.11).
+- [ ] Staging fast-path evidence for this exact head is recorded (`compilation`/`build` gate, targeted tests, real end-to-end run, `TAVALL-VERIFIED <sha7>`), or the full `all` justification is stated (R3, Section 4.12).
+- [ ] The task ends `MERGED` or `CLOSED` with the reason recorded on the linked issue and QA Task Board, and no dangling branch or worktree remains (R4, Section 4.13).
 - [ ] The pull request explains what changed and why.
 - [ ] `tjXJNOOBIE` and every materially authoring bot or automation are attributed in the pull-request body; real commit-level co-authorship is recorded when available.
 - [ ] Exact-head `REQUIRED_ALL` PASS is achieved and documented.

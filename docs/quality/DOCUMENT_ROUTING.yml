@@ -57,6 +57,18 @@ routes:
       - commit subject
       - pull request title
       - pr title
+      - process rules
+      - pr process rules
+      - every commit belongs to a pull request
+      - ledger check before ci
+      - ci ledger check
+      - ci ledger
+      - staging fast path
+      - fast path
+      - worker task completion
+      - worker pr completion
+      - tasks end merged or closed
+      - merged or closed
     documents:
       - docs/quality/GIT_WORKFLOW.md
 

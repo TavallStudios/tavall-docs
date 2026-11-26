@@ -129,6 +129,13 @@ DOMAIN
 
 **Canonical commit and PR title format:** Every agent-authored commit subject and pull-request title uses the typed capitalized format owned by [GIT_WORKFLOW.md §5.2](GIT_WORKFLOW.md#52-commit-messages-and-pull-request-titles) — exact allowed type prefixes `Build`, `Added`, `Changed`, `Removed`, `Fixed`, `Refactor`, `Clean`, `Test`, `Docs`, `License`, `TODO`, `Misc` — with lowercase conventional prefixes (`feat:`, `fix:`, `chore:`) and untyped subjects prohibited. Enforcement is provider-neutral (Codex, Claude, Gemini/Antigravity, DeepAI, OpenCode, GitHub PR review gates) and validated by `scripts/ci/check_commit_format.py`.
 
+**Canonical PR and CI process rules:** Every agent, worker, and automation also follows the four owner process rules owned by [GIT_WORKFLOW.md](GIT_WORKFLOW.md) (owner directive 2026-11-21, codified 2026-11-26):
+
+- **R1 every commit belongs to a pull request** — no unreviewed direct commit to `main` or `staging`; each commit lands through a tracked pull request linked to its authorizing issue/task ([Section 4.4](GIT_WORKFLOW.md#44-pull-requests-are-working-branches)).
+- **R2 ledger check before CI runs** — verify the exact SHA is the current pull-request head, belongs to an open pull request, and is not already queued, running, or passed in the CI ledger before enqueuing hosted `tavall-ci-gate`, within the 24-hour full-CI quota ([Section 4.11](GIT_WORKFLOW.md#411-ci-ledger-preflight-before-hosted-ci)).
+- **R3 staging fast path** — working and staging pull requests are accepted on the `compilation`/`build` gate plus targeted local tests and a real end-to-end run with a `TAVALL-VERIFIED <sha7>` PR comment; full `all` CI is reserved for batched promotion, migrations/SQL, security, artifact publication, and build/CI configuration changes ([Section 4.12](GIT_WORKFLOW.md#412-staging-fast-path)).
+- **R4 workers end tasks `MERGED` or `CLOSED`** — delegated and autonomous workstreams terminate with an explicitly merged or closed pull request, the reason recorded on the linked issue/QA Task Board, and no orphaned open pull request or dangling worktree ([Section 4.13](GIT_WORKFLOW.md#413-worker-task-completion-and-cleanup)).
+
 ## 4. Agent Modes
 
 First-party Tavall Agents support two normalized execution modes:
@@ -264,3 +271,6 @@ Before Tavall handoff, the execution evidence gate rejects an absent/unreasoned 
 **Accepted 2026-11-26:** Owner directive that nothing ephemeral is used by default.
 
 9. **Durable Executor Execution Only**: Every agent, console, and CI execution path uses the existing durable shared Tavall Executor. A command, job, prompt, or CI request is never authorization to create or request a sandbox, namespace, container, or per-command Executor, and no Agent may introduce sandbox architecture, sandbox-era terminology for ordinary work, or an ephemeral execution default in prompts, skills, documentation, or tooling. Bounded `TEMPORARY` Executors remain explicit overflow only, exactly as owned by [NLEW and Service Ownership](NLEW_AND_SERVICE_OWNERSHIP.md) ("Executor lifecycle: durable shared by default"). Any prompt or rule that reintroduces sandbox architecture is obsolete and must be corrected rather than followed.
+**Accepted 2026-11-26:** Owner process rules codified from [TavallStudios/tavall-docs#152](https://github.com/TavallStudios/tavall-docs/issues/152) and owned by [GIT_WORKFLOW.md](GIT_WORKFLOW.md) Section 4.
+
+10. **Worker Task Completion and CI Capacity Discipline**: Orchestrators and workers follow the canonical process rules owned by [GIT_WORKFLOW.md](GIT_WORKFLOW.md): hosted CI is enqueued only after the CI ledger preflight ([Section 4.11](GIT_WORKFLOW.md#411-ci-ledger-preflight-before-hosted-ci)), working and staging pull requests use the staging fast path instead of full CI ([Section 4.12](GIT_WORKFLOW.md#412-staging-fast-path)), and every worker task terminates `MERGED` or `CLOSED` with the reason recorded on its issue/QA Task Board task and no dangling worktree ([Section 4.13](GIT_WORKFLOW.md#413-worker-task-completion-and-cleanup)).
