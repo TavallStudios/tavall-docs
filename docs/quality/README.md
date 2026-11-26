@@ -18,21 +18,35 @@ Use this directory for shared Tavall engineering and documentation policy.
 - [MODULE_README_TEMPLATE.md](MODULE_README_TEMPLATE.md) — per-module orientation, runtime, module-local `.tavallci`, documentation, deployment-summary, progression, and development-routing template.
 - [PROGRESSION_DOCUMENT_TEMPLATE.md](PROGRESSION_DOCUMENT_TEMPLATE.md) — canonical module/system Progression structure, table timeline rules, module-type lenses, and aggregation ownership.
 - [DEPLOYMENT_DOCUMENT_TEMPLATE.md](DEPLOYMENT_DOCUMENT_TEMPLATE.md) — current/historical deployment record template for independently deployable systems.
+- [DESIGN_DOCUMENT_TEMPLATE.md](DESIGN_DOCUMENT_TEMPLATE.md) — Design document template for module/system scope.
 - [GENERAL_DOCUMENT_TEMPLATE.md](GENERAL_DOCUMENT_TEMPLATE.md) — readable product/system overview.
 - [ARTICLE_DOCUMENT_TEMPLATE.md](ARTICLE_DOCUMENT_TEMPLATE.md) — reasoning/argument/explainer.
 - [PRODUCT_DOCUMENT_TEMPLATE.md](PRODUCT_DOCUMENT_TEMPLATE.md) — commercial/product operating model.
 - [USER_EXPERIENCE_DOCUMENT_TEMPLATE.md](USER_EXPERIENCE_DOCUMENT_TEMPLATE.md) — user archetypes and end-to-end experience flows.
+- [MARKETING_DOCUMENT_TEMPLATE.md](MARKETING_DOCUMENT_TEMPLATE.md) — marketing document template.
 - [NOTION_SYSTEM_DESIGN_RECORD_TEMPLATE.md](NOTION_SYSTEM_DESIGN_RECORD_TEMPLATE.md) — compatibility path for older links; GENERAL is the current type.
 
 ## Engineering Policy
 
+- [TAVALL_TERMINOLOGY.md](TAVALL_TERMINOLOGY.md) — canonical Tavall vocabulary for Agents, workers, skills, tools, Executors, and the authority hierarchy.
+- [NLEW_AND_SERVICE_OWNERSHIP.md](NLEW_AND_SERVICE_OWNERSHIP.md) — binding Node/Lane/Environment/Workspace/Executor terminology, durable shared Executor default, Linux-user permission roles, and service-to-Environment default.
 - [CODE_ARCHITECTURE.md](CODE_ARCHITECTURE.md)
 - [CI_CD.md](CI_CD.md) — organization-wide CI/CD, module-local `.tavallci`, exact-source, evidence, artifact, staging, and promotion policy.
 - [VERSIONING.md](VERSIONING.md) — source/build/resolution/artifact/release identity, snapshot numbering, and artifact-channel policy.
 - [MODULE_TYPES.md](MODULE_TYPES.md) — canonical `RUNTIME`, `APPLICATION`, `API`, `LIBRARY`, `PROVIDER`, `ADAPTER`, `INTEGRATION`, `TOOLING`, and `TEST_SUITE` module classifications plus runtime and progression-ownership rules.
 - [WEB_ARCHITECTURE.md](WEB_ARCHITECTURE.md) — canonical Tavall web architecture, beginning with endpoint and routing ownership.
+- [CLI_ARCHITECTURE.md](CLI_ARCHITECTURE.md) — canonical Tavall CLI architecture, command ownership, and execution boundaries.
+- [DATABASE_AND_PERSISTENCE_SEPARATION_DESIGN.md](DATABASE_AND_PERSISTENCE_SEPARATION_DESIGN.md) — Database and persistence environment separation design.
+- [DIAGRAM_STANDARDS.md](DIAGRAM_STANDARDS.md) — Tavall technical diagram, SVG, and Notion visual-presentation standards.
 - [GIT_WORKFLOW.md](GIT_WORKFLOW.md)
-- [`code-architecture/`](code-architecture/)
+- [STAGING.md](STAGING.md) — persistent repository/release staging boundary for this documentation repository.
+- [TAVALL_SERVICE_RELEASE_ON_A_DIME_RUNBOOK.md](TAVALL_SERVICE_RELEASE_ON_A_DIME_RUNBOOK.md) — typed service release promotion, immutable artifact propagation, verification, and rollback runbook.
+- [`code-architecture/`](code-architecture/) — delegated architecture chapters; [CODE_ARCHITECTURE.md](CODE_ARCHITECTURE.md) Required Topic Routing indexes which chapter owns which topic.
+
+## Agent and AI Policy
+
+- [AGENT_ARCHITECTURE.md](AGENT_ARCHITECTURE.md) — Tavall Agent Stack V2 architecture, mandatory work entry sequence, Agent groups, skill-candidate review, orchestration authority, and the durable Executor execution rule.
+- [SKILL_TEMPLATE.md](SKILL_TEMPLATE.md) — canonical first-party Agent skill structure for section-adapter and procedural skills.
 
 ## Selective resolution
 
@@ -62,6 +76,7 @@ Do not link temporary branches, experiments, migration code, or known-debt imple
 
 - [ ] Keep this index synchronized as shared quality documents are added, renamed, or superseded.
 - [ ] Keep `DOCUMENT_ROUTING.yml` synchronized when an owning document or exact routing signal changes.
+- [x] Re-index every current `docs/quality` document, the delegated architecture chapters, and the Agent/AI policy surface (completed 2026-11-26: `#167`).
 - [ ] Keep the TODO projection policy indexed here as bot behavior evolves.
 - [ ] Add canonical production-example links to `WEB_ARCHITECTURE.md`, `CLASSES.md`, and other applicable architecture chapters as validated production implementations of each pattern are created.
 - [x] Link the canonical `DOC_DESIGN_RULES.md` location once reconciled (completed: superseded by `DOCUMENTATION_STANDARDS.md` and `DOCUMENT_TYPES.md`).
@@ -79,8 +94,8 @@ Do not link temporary branches, experiments, migration code, or known-debt imple
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/README.md` | 2026-10-01 | Direct docs-only update to `main`. |
-| Notion | `NOT_APPLICABLE` | — | 2026-10-01 | GitHub quality index; no 1:1 requirement assigned. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/README.md` | 2026-11-26 | Direct docs-only index refresh. |
+| Notion | `NOT_APPLICABLE` | — | 2026-11-26 | GitHub quality index; no 1:1 requirement assigned. |
 
 ### Update History
 
@@ -88,5 +103,6 @@ Do not link temporary branches, experiments, migration code, or known-debt imple
 | --- | --- | --- | --- | --- | --- | --- |
 | 2026-09-27 3:04 PM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/README.md` | Same path | Direct docs-only update to `main`. | Indexed canonical PROGRESSION rules/template and added the required document-state footer. |
 | 2026-10-01 | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/README.md` | Same path | Direct docs-only update to `main`. | Indexed the canonical repository TODO static-projection contract and clarified its relationship to `DOC TODO:`. |
+| 2026-11-26 | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/README.md` | Same path | `#167` section-index refresh | Indexed every `docs/quality` document that was missing (terminology, NLEW, Agent architecture, CLI architecture, skills, design template, diagram standards, staging, release runbook, design record) and added the Agent and AI Policy section. |
 
 </details>

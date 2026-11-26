@@ -609,6 +609,86 @@ routes:
     documents:
       - docs/quality/code-architecture/CLI_FRAMEWORK.md
 
+  - id: nlew-and-executor-lifecycle
+    signals:
+      - nlew
+      - node lane environment workspace
+      - executor
+      - durable executor
+      - shared executor
+      - executor lifecycle
+      - executor identity
+      - executor permission
+      - executor permission role
+      - temporary executor
+      - ephemeral executor
+      - ephemeral execution
+      - ephemeral sandbox
+      - sandbox
+      - sandbox architecture
+      - environment ownership
+      - service placement
+    documents:
+      - docs/quality/NLEW_AND_SERVICE_OWNERSHIP.md
+
+  - id: ci-cd
+    signals:
+      - ci/cd
+      - tavall ci
+      - ci pipeline
+      - ci job
+      - ci run
+      - .tavallci
+      - ci evidence
+      - delivery bundle
+      - frozen bundle
+      - continuous integration
+      - continuous delivery
+    documents:
+      - docs/quality/CI_CD.md
+
+  - id: versioning-and-identity
+    signals:
+      - versioning
+      - version scheme
+      - snapshot version
+      - artifact identity
+      - artifact channel
+      - release identity
+      - source identity
+    documents:
+      - docs/quality/VERSIONING.md
+
+  - id: web-architecture
+    signals:
+      - web architecture
+      - endpoint ownership
+      - route ownership
+      - http endpoint
+      - web surface
+      - rest api
+    documents:
+      - docs/quality/WEB_ARCHITECTURE.md
+
+  - id: third-party-tool-boundaries
+    signals:
+      - third party tool
+      - third-party tool
+      - integration boundary
+      - vendor sdk
+      - external sdk
+      - third party boundary
+    documents:
+      - docs/quality/code-architecture/THIRD_PARTY_TOOL_BOUNDARIES.md
+
+  - id: design-document-template
+    signals:
+      - design document template
+      - module design document
+      - system design document
+    documents:
+      - docs/quality/DESIGN_DOCUMENT_TEMPLATE.md
+
 rules:
   - An individual signal routes to its owning chapter; combine chapters only when distinct concerns are actually present.
   - For Tavall DI, Database, Registry, Cache, and other canonical tool API/access behavior, consult the owning tool's current checked-in access guide after routing to the relevant shared architecture chapter; shared docs must not duplicate tool internals.

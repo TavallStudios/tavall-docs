@@ -186,7 +186,7 @@ Cloud's `.tavallci` selects `function-catalog@ae385f8885a218c5b075dcdb1f0bac2892
 
 CONTROL confirms the Function Catalog, Cache, and Architecture Tests workspaces are clean at their exact bound SHAs. Cloud primary status fails before a Job starts with `PROVIDER_FAILURE: Workspace UUID mismatch` at `/srv/dev-storage/workspaces/tavall-cloud` (existing workspace ID `6cbfdbc7-8c75-43e3-b84c-79d637fdd332`, requested `8dc5a485-b849-4c43-8af9-771f2e8b415e`). Its WORKSPACE and DEVELOPMENT_TOOL components remain `UNKNOWN`. The staged Cloud source contains the dedicated, source-snapshot-scoped workspace authority; the installed Agent predates it. The EPHEMERAL Environment is retained for reuse after that Agent is provisioned. No Cloud build Job was submitted.
 
-### Cloud CI exact-source Environment — 2026-09-27
+### Cloud CI exact-source Environment — 2026-09-27 (PR #398 re-resolution)
 
 To bind the Cloud `.tavallci` required sources, I created an additional **EPHEMERAL** Environment in the existing lane `f75e1548-c7ab-470a-85aa-b38a770dae78`; the durable TCI Environment above was not replaced or edited. After Cloud PR #398 advanced `staging/runtime`, the same ephemeral Environment was re-resolved in place to source snapshot `b0fff546bff5670a703a736b048f91afbf5851296a7d0ab6cf7700e0bf1e6ad9`, generation 2, with `DEDICATED` work and `SHARED` services. Resource policy inherits the lane's `SYSTEM` default.
 
