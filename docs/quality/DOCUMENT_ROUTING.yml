@@ -289,6 +289,26 @@ routes:
     documents:
       - docs/quality/MODULE_TYPES.md
 
+  - id: web-frontend-repository-consolidation
+    signals:
+      - web frontend repository
+      - web frontend repository consolidation
+      - product web frontend
+      - web frontend module
+      - web-frontend module
+      - web frontend consolidation
+      - web surface consolidation
+      - web repository consolidation
+      - consolidation of web repositories
+      - archived web repository
+      - archived frontend repository
+      - shared dashboard shell
+      - tavall-web-app composition
+      - web module ownership exception
+    documents:
+      - docs/quality/code-architecture/MODULE_SEPARATION.md
+      - docs/quality/MODULE_TYPES.md
+
   - id: general-document
     signals:
       - general document

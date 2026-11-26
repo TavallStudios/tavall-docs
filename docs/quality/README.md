@@ -35,6 +35,7 @@ Use this directory for shared Tavall engineering and documentation policy.
 - [CI_CD.md](CI_CD.md) — organization-wide CI/CD, module-local `.tavallci`, exact-source, evidence, artifact, staging, and promotion policy.
 - [VERSIONING.md](VERSIONING.md) — source/build/resolution/artifact/release identity, snapshot numbering, and artifact-channel policy.
 - [MODULE_TYPES.md](MODULE_TYPES.md) — canonical `RUNTIME`, `APPLICATION`, `API`, `LIBRARY`, `PROVIDER`, `ADAPTER`, `INTEGRATION`, `TOOLING`, and `TEST_SUITE` module classifications plus runtime and progression-ownership rules.
+- [MODULE_SEPARATION.md](code-architecture/MODULE_SEPARATION.md) — module separation decisions: identity axes, dependency direction, SYSTEM/FEATURE lifecycle, migration acceptance, and the product Web frontend repository consolidation policy (ownership exceptions, exact-source manifests and coordinate mapping, rollout/reversion/archival criteria, current migration status).
 - [WEB_ARCHITECTURE.md](WEB_ARCHITECTURE.md) — canonical Tavall web architecture, beginning with endpoint and routing ownership.
 - [WORKFLOW_REPOSITORY_AND_REGISTRY_OWNERSHIP.md](WORKFLOW_REPOSITORY_AND_REGISTRY_OWNERSHIP.md) — public workflow source repository, canonical `tavall-workflows` registry/index, and web listing link ownership; executable workflow format and the Workflows MCP bridge stay separately owned.
 - [CLI_ARCHITECTURE.md](CLI_ARCHITECTURE.md) — canonical Tavall CLI architecture, command ownership, and execution boundaries.

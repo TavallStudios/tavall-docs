@@ -41,6 +41,16 @@ Every *actual* independently defined source/build module whose verified primary 
 
 Before enforcing a rename, reconcile the **real primary type and current source**. Legacy names and references are migration debt, not authorization for an untested mass rename or invented SYSTEM/FEATURE boundaries. Preserve caller compatibility until the exact-source Gradle project, artifact coordinates, module descriptors and IDs, DI bindings, CI/CD manifests, consumers, operator commands, README/PROGRESSION, and deployment/rollback paths pass migration acceptance. When a legacy module's suffix implies `RUNTIME` or `SYSTEM` but its real type differs, reconcile the misleading name separately rather than falsifying the type. This is a normative naming rule for new modules immediately; existing installations move through reviewed per-repository cutovers.
 
+## Repository-module names that are not types (2026-11-26)
+
+A repository or module named after a surface is **not** a module type. `<product>-web-frontend` is a descriptive name for a product's browser presentation module that lives in the product/platform repository it belongs to (for example `tavall-mc-web-frontend` in `tavall-mc`, `tavall-content-web-frontend` in `tavall-content`). It does not create a new type, a new layer, or an automatic `SYSTEM`/`RUNTIME`/`APPLICATION` classification, and it does not transfer domain, contract, or host authority.
+
+- Classify the real module from its own README and source. Consolidated product browser modules currently record `APPLICATION` with runtime owner `tavall-web-app`, which is the shared Web host that composes them; keep recording repository location, Gradle project, artifact/package identity and deployment host separately.
+- `tavall-web-frontend` in `TavallStudios/tavall-web` is Web's reusable rendering/Forge primitive library, and the shared dashboard shell is also Web-owned. A product module does not acquire a second copy of those primitives.
+- Ownership exceptions (Web Account/host/security, MCP transports, Docs, Store Tools and other independently versioned libraries) are justified by what each repository or module actually owns, never by its name prefix.
+
+Full policy, exceptions, manifest/coordinate contract, rollout/reversion/archival criteria and current migration status: [Module Separation §8](code-architecture/MODULE_SEPARATION.md#8-product-web-frontend-repository-consolidation-tavall-web).
+
 ## Classification Rules
 
 - Every real source/build module records one **primary** module type in its module README. `SYSTEM` and `FEATURE` are first-class primary types, not descriptive aliases for `LIBRARY` or `PROVIDER`.
@@ -174,8 +184,8 @@ See [README_STANDARDS.md](README_STANDARDS.md) and [MODULE_README_TEMPLATE.md](M
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/MODULE_TYPES.md` | 2026-10-22 | [PR #77](https://github.com/TavallStudios/tavall-docs/pull/77): module-name suffix rule; runtime acceptance remains consumer-owned. |
-| Notion | `NOT_APPLICABLE` | — | 2026-09-29 5:08 PM PDT | Quality/reference document; no 1:1 requirement assigned. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/MODULE_TYPES.md` | 2026-11-26 | [PR #77](https://github.com/TavallStudios/tavall-docs/pull/77) for the suffix rule; [Issue #127](https://github.com/TavallStudios/tavall-docs/issues/127) for the repository-module naming clarification. Runtime acceptance remains consumer-owned. |
+| Notion | `UNVERIFIED` | — | 2026-11-26 | Twin **not** reconciled for the 2026-11-26 clarification; pending Notion reconciliation under #127. Do not treat Notion as updated. |
 
 ### Update History
 
@@ -185,5 +195,6 @@ See [README_STANDARDS.md](README_STANDARDS.md) and [MODULE_README_TEMPLATE.md](M
 | 2026-09-27 2:58 PM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/MODULE_TYPES.md` | Same path | Direct docs-only update to `main`. | Added required module Progression ownership and type-specific progression lenses. |
 | 2026-09-29 5:08 PM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/MODULE_TYPES.md` | Same path | PR to `main`. | Canonized Tavall-owned `tavall-*` wrapper modules for reusable third-party tools. |
 | 2026-10-22 | GitHub | `UPDATED` | Same canonical path | Same path | [PR #77](https://github.com/TavallStudios/tavall-docs/pull/77) | Applied suffix naming for actual SYSTEM/RUNTIME modules, not repo roots or other primary types; migration stays consumer-verified. |
+| 2026-11-26 | GitHub | `UPDATED` | Same canonical path | Same path | [Issue #127](https://github.com/TavallStudios/tavall-docs/issues/127) | Clarified that `<product>-web-frontend` repository-module names are descriptive, not types, and pointed to the Web consolidation policy. Taxonomy unchanged. |
 
 </details>

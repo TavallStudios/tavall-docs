@@ -52,6 +52,7 @@ This repository is documentation-only; it has no executable product module.
 | [Git Workflow](docs/quality/GIT_WORKFLOW.md) | Applicable repository guidance. Git staging is separate from NLEW topology. |
 | [CI/CD](docs/quality/CI_CD.md) | Applicable repository guidance. NLEW ontology is owned by the NLEW policy above. |
 | [Code Architecture](docs/quality/CODE_ARCHITECTURE.md) | Applicable repository guidance. |
+| [Module Separation](docs/quality/code-architecture/MODULE_SEPARATION.md) | Module separation decisions and the product Web frontend repository consolidation policy: repository location vs Gradle module vs artifact/package vs type vs runtime/contract owner vs deployment host, ownership exceptions, exact-source manifests, rollout/reversion/archival criteria. |
 | [Discoverable by Design (ARTICLE)](docs/articles/DISCOVERABLE_BY_DESIGN_ENGINEERING.md) | Draft ARTICLE explaining the rationale for typed, AST-discoverable, glanceable, agent-reusable code; founder publication review pending. |
 | [CLI Architecture](docs/quality/CLI_ARCHITECTURE.md) | Canonical CLI command ownership, arguments, and execution boundaries. |
 | [Workflow Repository and Registry Ownership](docs/quality/WORKFLOW_REPOSITORY_AND_REGISTRY_OWNERSHIP.md) | Public workflow source repository, canonical registry/index, and web listing link ownership; executable format and Workflows MCP bridge remain separately owned. |
