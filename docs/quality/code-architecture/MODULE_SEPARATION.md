@@ -3,7 +3,7 @@
 > **Status:** Active
 > **Authority:** Binding specialization of [Tavall Module Types](../MODULE_TYPES.md), [Code Architecture](../CODE_ARCHITECTURE.md), [DI and Orchestration](DEPENDENCY_INJECTION_AND_ORCHESTRATION.md), and [Testing and Git](TESTING_AND_GIT.md).
 > **Applies to:** New modules, repository extractions, SYSTEM/FEATURE composition, API ownership, packages, Gradle dependencies, runtime lifecycle, CI, and Tavall AI engineering-policy routing.
-> **Rule:** Module classification, responsibility role, runtime owner, repository location, artifact identity, and package identity are **separate decisions**. Current checked-in producer contracts and accepted system design take precedence over illustrative trees.
+> **Rule:** Module classification, responsibility role, runtime owner, repository location, Gradle module identity, artifact identity, package identity, and deployment host are **separate decisions**. Current checked-in producer contracts and accepted system design take precedence over illustrative trees.
 > **Owns:** The decision process and integration acceptance for separating Tavall modules, assigning their runtime/API owner, and connecting module-aware CD and host lifecycle.
 > **Does not own:** The module type vocabulary, producer-specific API implementation, generic DI/registry internals, Cloud placement, canonical Gradle/CI policy, or assertion that future operators/deployments already work.
 
@@ -28,12 +28,12 @@ Every real module records the following independently in its README and module-s
 
 | Axis | Required answer | Non-equivalence |
 | --- | --- | --- |
-| Primary type | One of `RUNTIME`, `APPLICATION`, `SYSTEM`, `FEATURE`, `API`, `TOOLING`, `TEST_SUITE` | `LIBRARY`/`PROVIDER`/`ADAPTER`/`INTEGRATION` are secondary roles, not primary types |
-| Secondary roles | Zero or more actual roles | A `PROVIDER` role does not imply its own process |
-| Runtime owner | `Self`, a named runtime module, or `None` | `SYSTEM`/`FEATURE` does not imply `RUNTIME` |
-| Composition owner | Parent SYSTEM or actual consumer/aggregator; child FEATURES where they exist | A source tree root is not automatically a SYSTEM |
-| Contract owner | Which producer/runtime owns each typed API and its compatibility | Importing an API does not transfer ownership |
-| Artifact/repository/package | Gradle/artifact name, owning repo, Java package root | Moving to another repo does not grant new domain authority |
+| Repository location | Owning Git repository and directory; whether the module is that repository's root build, a subdirectory module, or still a standalone repository awaiting consolidation | A repository is not a runtime, a new domain authority, or permanent ownership |
+| Gradle module | Gradle project path and the build that includes it (for example `:tavall-content-web-frontend` in the Content build) | A Gradle module does not imply an independently deployable process, and a repository root is not the module identity |
+| Artifact and Java package | Published Maven coordinate/artifact name and Java package root, including any intentionally preserved compatibility coordinate | Moving a module or repository is not a package rename and grants no new domain authority |
+| Primary type | One of `RUNTIME`, `APPLICATION`, `SYSTEM`, `FEATURE`, `API`, `TOOLING`, `TEST_SUITE`, with zero or more secondary roles (`LIBRARY`, `PROVIDER`, `ADAPTER`, `INTEGRATION`) recorded beside it | `LIBRARY`/`PROVIDER`/`ADAPTER`/`INTEGRATION` are secondary roles, not primary types; a `PROVIDER` role does not imply its own process |
+| Runtime, composition, and contract owner | Runtime owner (`Self`, a named runtime module, or `None`); composition parent/consumer of the module; which producer/runtime owns each typed API and its compatibility | `SYSTEM`/`FEATURE` does not imply `RUNTIME`; a source tree root is not automatically a SYSTEM; importing an API does not transfer ownership |
+| Deployment host | The hostname/process/host boundary that actually serves the artifact today and the deployment document that records it | Being composed into a host is not deployment ownership, and exposing a route does not create a runtime |
 
 A `SYSTEM` owns aggregation, fan-in, lifecycle coordination and an explicit consumer-facing capability surface. A `FEATURE` is an independently controllable child where independently controlled behavior has been justified. `RUNTIME` owns its executable lifecycle, host registration, deployment and APIs exposed by that runtime. A runtime-neutral API is owned by the domain producer/system that defines it, not automatically by the first FEATURE or adapter to import it. A `TEST_SUITE` verifies production modules but is not another implementation owner.
 
@@ -42,6 +42,8 @@ Each source/build module has its own `.tavallci/ci.yaml` and one module-scoped `
 ### Module identity naming during separation
 
 For independently defined source/build modules, a primary `SYSTEM` must use a module/artifact name ending in `-system`; a primary `RUNTIME` must end in `-runtime`. This does **not** apply to a parent repository directory, aggregate root, Java package, process selector, or an `APPLICATION` that happens to own an executable lifecycle. Use the real primary type, not an assumed type inferred from `*core`, `*app`, `*node`, `*worker`, or historical `*runtime` words. A secondary provider/adapter role does not change the naming rule.
+
+Conflating these axes is the usual source of consolidation mistakes. A module named `<product>-web-frontend` is only a descriptive name: it does not create a module type, a new layer, or a new runtime, and the same name can describe a module in a product repository, an in-repository Web primitive library, or a standalone repository that has not been consolidated yet. Section 8 applies the axes to Tavall Web and its product browser surfaces.
 
 A rename is an explicit *identity migration*: capture old/new Gradle paths, Maven coordinates, module IDs/descriptors, DI/registry bindings, dependency edges, module-local `.tavallci`, CD service profiles/templates, references in documentation and all callers. Prove consumer compilation, exact-source runtime composition, original module retirement, persisted desired-state/generation migration or compatible aliasing, artifact rollback and observed host behavior. Keep the previous identity until validation; no unverified bulk rename, no duplicate runtime authority, and no renaming repository roots just to satisfy a module rule. See [Module Types](../MODULE_TYPES.md#module-name-suffix-contract-2026-10-22) for canonical vocabulary.
 
@@ -217,6 +219,126 @@ The approved operational acceptance suite exercises: exact candidate source, art
 
 See [CI/CD](../CI_CD.md) for source, evidence, frozen delivery and promotion authority; [NLEW and Service Ownership](../NLEW_AND_SERVICE_OWNERSHIP.md) for service Environments; [Module Types](../MODULE_TYPES.md) for classifications; and [Tavall DI module profiles](https://github.com/TavallStudios/tavall-di/blob/main/docs/module-profiles/README.md) for the current checked-in *desired-composition-only* contract.
 
+## 8. Product Web Frontend Repository Consolidation (Tavall Web)
+
+> **Status:** Active policy, partially executed in source. This section is the shared engineering rule for Tavall Web browser surfaces; it does not assert that every repository migration below is finished.
+> **Coordination record:** [tavall-web#185](https://github.com/TavallStudios/tavall-web/issues/185) (closed coordination issue; the still-open per-repository issues cited below remain the actionable record) and [tavall-docs#127](https://github.com/TavallStudios/tavall-docs/issues/127).
+
+### 8.1 Decision
+
+Product-owned browser presentation should ordinarily live in the repository that owns the platform or product, as a correctly classified `<product>-web-frontend` module, and be composed by the shared `tavall-web-app` Spring HTTP/application host in `TavallStudios/tavall-web`.
+
+Two Web-owned modules are intentionally *not* product presentation and stay in the Web repository:
+
+- `tavall-web-frontend` (`:tavall-web-frontend`) is Web's pure Java rendering/Forge primitive library — reusable page contracts, typed HTML/CSS/animation composition, assets and rendering. It owns no product presentation and no host lifecycle.
+- `tavall-web-dashboard` is the shared dashboard shell. Under the accepted decision it belongs to Web as a distinct dashboard module rather than to whichever product mounts a dashboard, promoting only genuinely reusable UI primitives into `tavall-web-frontend`. Dashboard *authorization* stays with the owning host/domain. It is still an active standalone repository today and is **not** yet a Web-repository module (8.6).
+
+This is **source and repository consolidation**, not domain-authority, contract, or runtime consolidation. No product gains Web's authority, and Web gains none of the product's: moving pages does not move persistence, business rules, session security, or a Spring process. `*-web-frontend` is a descriptive module name, never a new module type, a new layer, or an automatic `SYSTEM`/`RUNTIME`/`APPLICATION` classification — the real type is read from the module's own README and source.
+
+### 8.2 The six axes applied
+
+Use this table when auditing or moving a browser surface. Fill every row from current source, never from the module name.
+
+| Axis | Answers | Applied pattern | Non-equivalence to watch |
+| --- | --- | --- | --- |
+| Repository location | Which Git repository owns the presentation source? | The platform/product repository, for example the `tavall-content-web-frontend` module lives in `TavallStudios/tavall-content`; a legacy `tavall-web-<product>` repository is retired only after cutover acceptance | A repository is not a runtime, and a `tavall-web-*` repository name is not proof of Web ownership |
+| Gradle module | Which Gradle project path builds it? | `:tavall-content-web-frontend` in the Content build, `:tavall-mc-web-frontend` in the MC build; declared in that repository's `settings.gradle.kts` | A module does not imply an independent process; a repository root build and its modules are different identities |
+| Artifact and Java package | Which coordinate is consumed, which package root is declared? | The Web host consumes a typed artifact coordinate and the owner module keeps its Java package root; Web's exact-source manifest substitutes the consumed coordinate with the owner project (8.4) | A coordinate mapping or package move is not a domain-authority transfer. Verify the artifact identity in the owning repository; do not assume the directory name is the coordinate |
+| Primary module type | What is recorded in the module README? | Consolidated product browser modules record `APPLICATION` with runtime `tavall-web-app` (the composed bounded product browser surface) — confirm per module instead of inferring | `APPLICATION` here is about the bounded browser surface it assembles, not about owning a deployable Web process |
+| Runtime, composition, and contract owner | Which runtime loads it, who composes it, who owns the typed contract? | Runtime owner `tavall-web-app`; composition owner the shared Web application; the owning product keeps its API/client contract and Web keeps host, session and route authorization | Being composed by the host does not make Web the domain owner; importing a client contract does not transfer it |
+| Deployment host | Which public host actually serves it, recorded where? | The product host (`content.tavall.org`, `mc.tavall.org`, …) served by the shared Web runtime, recorded in the owning runtime deployment record and the public host routing contract | A route or hostname does not create a new runtime; a successful compile is not deployment acceptance |
+
+### 8.3 Ownership exceptions (verified capabilities, not name prefixes)
+
+Some browser-facing capabilities must **not** be pushed into an arbitrary product owner. Each exception below is justified by what the repository or module actually owns today, not by a shared prefix.
+
+| Capability | Current owner and verified capability | Why it is an exception |
+| --- | --- | --- |
+| Web Account, host, and security (shared auth/session boundary) | `TavallStudios/tavall-web-account` is an active single-module repository whose README states it provides pages and route constants only, is not a separately deployed auth service, and that Account security/MFA is served by the shared Web runtime; Web declares it as a source dependency (8.4). Parent-issue candidate `tavall-web-account` → `tavall-cloud/tavall-cloud-account-web-frontend` is **not started** and is sequenced behind account-security work, so it is not accepted policy | Identity, session, MFA and host security are one cross-product boundary. A product frontend module must never own or fork them |
+| MCP transports | `TavallStudios/tavall-web-mcp` is an active repository publishing `org.tavall:tavall-web-mcp`; its README states it owns the browser-facing Spring MVC HTTP host boundary for `mcp.tavall.org` and the `POST /mcp/{service}` route declaration, and that MCP protocol/domain execution stays with its owning backend service | One transport/host-protocol boundary serves every product. It is not product presentation and must not be re-implemented per product |
+| Docs | `TavallStudios/tavall-web-docs` is an active separate repository that owns the documentation-hub presentation surface and renders/links `TavallStudios/tavall-docs` as the canonical documentation source. The `tavall-web-docs/` directory in the Web repository is a boundary record only — explicitly *not* an independent Gradle module, artifact, service, or deployment unit | Documentation presentation is organization-wide, so it has no single product owner to move into |
+| Store Tools and independently versioned libraries | `TavallStudios/tavall-web-store-tools` is legacy payment-compatibility source (`tavall-web-store-{stripe,paypal}[-api]` plus `tavall-web-store-test-suite`) whose README hands new provider development to `tavall-pay`; `tavall-web-frontend` is Web's Forge/rendering primitive module; `tavall-web-dashboard` is an active standalone Java-library repository whose README calls it the transport-neutral reusable dashboard shell consuming `tavall-web-api` and `tavall-web-frontend` | These are genuinely reusable, independently versioned libraries or deprecating compatibility source that is **Web-owned, not product-owned**. Burying one inside a product module would create a second copy of a shared contract |
+
+Rules that follow from the exceptions:
+
+- A product frontend module must not take ownership of sessions, login, MFA, authorization policy, MCP transport, documentation source, or payment provider logic.
+- Web-host/identity tooling and genuinely reusable independently versioned tools are audited as exceptions; every other `tavall-web-*` repository is audited individually against this section before any move, because a similar name is not evidence that the repository is only frontend.
+- Deprecating compatibility source is handled by its own migration gates, not by relocating it into a product owner.
+
+### 8.4 Operational consolidation contract
+
+**Exact-source CI module-local manifests.** Every moved module keeps its own build and module-local manifest in the owning repository, and the consuming Web source stays pinned to an exact owner revision:
+
+- The owner repository's `.tavallci/ci.yaml` (repository root, or module-local where the repository keeps per-module manifests) declares the modules it builds and the sources it resolves. A moved module must be listed there and compile in the owner's own gate before Web consumes it.
+- The Web repository's root `.tavallci/ci.yaml` declares each consumed product source as a pinned source dependency (identity + digest) plus a `substitutions` map from consumed Maven coordinates to owner Gradle project paths, and lists its own `modules`.
+- Neither side may depend on a composite build of the other in a cycle: the owner builds its module, Web composes it. A move updates the owner manifest and the Web dependency pin; a move that only edits one side is incomplete.
+- The Web application excludes each product module's transitive `org.tavall:tavall-web-frontend` so exactly one Forge primitive version is composed by the host.
+
+**Dependency mapping and compatibility coordinates.** Read from the Web repository's root `.tavallci/ci.yaml` at the revision inspected for this policy (2026-11-26). Treat that file as the authority; the table is a projection of it, not a second contract.
+
+| Owner source | Consumed coordinate | Owner Gradle project |
+| --- | --- | --- |
+| `TavallStudios/tavall-content` | `org.tavall:tavall-web-content` | `:tavall-content-web-frontend` |
+| `TavallStudios/tavall-content` | `org.tavall.content:tavall-content-client` | `:tavall-content-client` |
+| `TavallStudios/tavall-cloud` | `org.tavall:tavall-web-cloud` | `:tavall-cloud-web-frontend` |
+| `TavallStudios/tavall-workflows` | `org.tavall:tavall-web-workflows` | `:tavall-workflows-web-frontend` |
+| `TavallStudios/tavall-workflows` | `org.tavall.workflows:workflows-api`, `org.tavall.workflows:workflows-system` | `:workflows-api`, `:workflows-system` |
+| `TavallStudios/tavall-commerce` | `org.tavall:tavall-web-commerce` | `:tavall-commerce-web-frontend` |
+| `TavallStudios/tavall-qa` | `org.tavall:tavall-qa-web-frontend` | `:tavall-qa-web-frontend` |
+| `TavallStudios/tavall-qa` | `org.tavall:tavall-qa-api`, `org.tavall:tavall-qa-system` | `:tavall-qa-api`, `:tavall-qa-system` |
+| `TavallStudios/tavall-web-account` | `org.tavall:tavall-web-account` | `:` (account builds a single root module) |
+
+Consequences of keeping consumed coordinates stable: the Web host can move from standalone source to owner source by changing the owner pin and the substitution, without rewriting product Java packages. Publish a coordinate rename only as a deliberate compatibility-tested migration (section 2 naming rules), never as a side effect of a file move.
+
+**Pending PR and issue migration.** A repository move relinks its work rather than duplicating it:
+
+1. The owning-repository issue records the move (old → new Gradle project, coordinate mapping, CI source identity, preserved package roots, route/host parity evidence).
+2. Open PRs in the legacy repository stop taking new work: each is moved to the owner repository or closed with a stated reason and its remaining scope relinked. A move PR does not silently absorb unrelated pending work.
+3. Documentation and progression move with the module: module README, module-scoped Progression and the owning runtime deployment record are updated in the same change set; the Web consolidation record links them.
+4. The legacy repository is archived only after 8.4 closure criteria pass — never in the same step that first lands the source move.
+
+**Rollout order.** Owner module source → owner exact-source CI gate → Web consumer pin + substitution update → Web exact-source CI gate on the exact candidate revision → deployment to a non-production environment → public route/host/asset parity verification → production promotion → legacy repository archival. Each step records the tested commit and artifact; a green compile is not route, deployment, or browser acceptance.
+
+**Reversion.** Revert the Web consumer pin and substitution first: that is a single-manifest change restoring the last accepted source, and it leaves the owner module intact for the next attempt. Artifact rollback and deployment-profile rollback remain separate explicit deployment decisions (section 7). Do not delete owner module source to revert a Web integration, and do not archive a legacy repository while it is still the revert target.
+
+**Archived-repository closure criteria.** A legacy `tavall-web-<product>` repository may be archived only when all of the following hold:
+
+- the module source and tests live in the owner repository and pass that repository's exact-source CI gate;
+- the Web consumer manifest pins the owner source and the Web gate passed on the exact composed revision;
+- public hosts, routes, authentication, endpoint ownership and visuals were verified after deployment to the product host, with browser evidence recorded on the owning issue;
+- no open consumer, branch, or pending PR still reads the legacy repository, and any remaining issue is relinked;
+- the reversion path above is documented and was exercised or explicitly accepted;
+- an explicit archival decision is recorded on the owning issue.
+
+### 8.5 Consolidation status (verified 2026-11-26)
+
+Status is reported per capability, not as a general claim that consolidation happened. Repository archival state was read from the GitHub API; module presence was read from the owner `settings.gradle.kts` where verified here.
+
+| Legacy source | Owner module | Repository state | Evidence |
+| --- | --- | --- | --- |
+| `tavall-web-mc` | `tavall-mc` / `:tavall-mc-web-frontend` | Archived | Project path present in the MC build; [tavall-mc#431](https://github.com/TavallStudios/tavall-mc/issues/431) closed |
+| `tavall-web-content` | `tavall-content` / `tavall-content-web-frontend` | Archived | Project path present in the Content build; [tavall-content#122](https://github.com/TavallStudios/tavall-content/issues/122) closed; Web substitution declared in 8.4 |
+| `tavall-web-cloud` | `tavall-cloud` / `tavall-cloud-web-frontend` | Archived | Project path present in the Cloud build; [tavall-cloud#551](https://github.com/TavallStudios/tavall-cloud/issues/551) closed |
+| `tavall-web-commerce` | `tavall-commerce` / `:tavall-commerce-web-frontend` | Archived | Consolidation PR merged into the Commerce staging line; project path **not** found on the Commerce `main` branch inspected for this policy, so main-line module location is unverified here. [tavall-commerce#4](https://github.com/TavallStudios/tavall-commerce/issues/4) closed |
+| `tavall-web-qa` | `tavall-qa` / `tavall-qa-web-frontend` | Archived (`tavall-web-qa-ARCHIVED`) | Project path present in the QA build; [tavall-qa#22](https://github.com/TavallStudios/tavall-qa/issues/22) closed |
+| `tavall-web-affiliates` | `tavall-affiliates` / `:tavall-affiliates-web-frontend` | Archived | Consolidation PR merged into the Affiliates staging line; project path **not** found on the Affiliates `main` branch inspected for this policy, so main-line module location is unverified here. [tavall-affiliates#7](https://github.com/TavallStudios/tavall-affiliates/issues/7) closed |
+| `tavall-web-workflows` | `tavall-workflows` / `:tavall-workflows-web-frontend` | **Not archived** | Project path present in the Workflows build and consolidation PR merged into its staging line; archival deferred while owner-P0 work remains in the legacy repository — [tavall-workflows#17](https://github.com/TavallStudios/tavall-workflows/issues/17) open |
+
+Web-owned exception modules in the same manifest era: `:tavall-web-frontend` (Forge/rendering primitives) and `:tavall-web-app` (host runtime) are Web modules; `tavall-web-mcp`, `tavall-web-account`, `tavall-web-docs` and `tavall-web-store-tools` remain separate repositories per 8.3.
+
+### 8.6 Not migrated — open future work
+
+These are **not** executed. Do not describe any of them as consolidated, and do not prebuild their target modules:
+
+- Shared dashboard shell as a Web module — [tavall-web#186](https://github.com/TavallStudios/tavall-web/issues/186); `tavall-web-dashboard` remains an active standalone repository, and it is not in the Web repository's module list.
+- AI Chat presentation — [tavall-ai#137](https://github.com/TavallStudios/tavall-ai/issues/137), pending an ownership/implementation inspection.
+- Analytics dashboard presentation — [tavall-analytics#31](https://github.com/TavallStudios/tavall-analytics/issues/31), a new module only when justified.
+- Ops and Account presentation consolidation — [tavall-cloud#570](https://github.com/TavallStudios/tavall-cloud/issues/570) and the Account item in [tavall-web#185](https://github.com/TavallStudios/tavall-web/issues/185), sequenced behind account-security and edge-routing work.
+- Blog/Times, Biz, Contractors, Labs, MC Studio, Ventures and remaining `tavall-web-*` repositories — individually audited per 8.3, not batched.
+- Any Web-side consumption of product modules that the Web `main` manifest does not declare (for example the MC frontend consumed through Web staging work): the manifest, not this table, decides.
+
+See [Module Types](../MODULE_TYPES.md#repository-module-names-that-are-not-types-2026-11-26) for the name-versus-type rule, [CI/CD](../CI_CD.md) for manifest, evidence and promotion authority, [VERSIONING](../VERSIONING.md) for artifact/source identity, [Web Architecture](../WEB_ARCHITECTURE.md) for route ownership, and [NLEW and Service Ownership](../NLEW_AND_SERVICE_OWNERSHIP.md) for host/service placement.
+
 ## Documentation Update State
 
 <details>
@@ -226,8 +348,8 @@ See [CI/CD](../CI_CD.md) for source, evidence, frozen delivery and promotion aut
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/code-architecture/MODULE_SEPARATION.md` | 2026-10-22 | [tavall-docs PR #77](https://github.com/TavallStudios/tavall-docs/pull/77) |
-| Notion | `NOT_APPLICABLE` | — | 2026-10-21 | Shared quality chapter; consult owning system GENERAL/TECHNICAL DESIGN separately |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/code-architecture/MODULE_SEPARATION.md` | 2026-11-26 | [tavall-docs #127](https://github.com/TavallStudios/tavall-docs/issues/127); module, coordinate and archival facts read from the owning repositories on 2026-11-26 |
+| Notion | `UNVERIFIED` | — | 2026-11-26 | Twin **not** reconciled: this consolidation policy has not been mirrored to or confirmed against Notion. Pending Notion reconciliation under #127; do not treat Notion as updated |
 
 ### Update History
 
@@ -235,5 +357,6 @@ See [CI/CD](../CI_CD.md) for source, evidence, frozen delivery and promotion aut
 | --- | --- | --- | --- | --- | --- |
 | 2026-10-21 | GitHub | `CREATED` | Same canonical path | [PR #74](https://github.com/TavallStudios/tavall-docs/pull/74) | Added canonical SYSTEM/FEATURE separation, runtime/contract ownership, source-backed examples, module-aware CD/profile/host lifecycle and integration acceptance. |
 | 2026-10-22 | GitHub | `UPDATED` | Same canonical path | [PR #77](https://github.com/TavallStudios/tavall-docs/pull/77) | Added Gradle module identity suffix migration rules and explicit repository-root exemptions. |
+| 2026-11-26 | GitHub | `UPDATED` | Same canonical path | [Issue #127](https://github.com/TavallStudios/tavall-docs/issues/127) | Separated repository location, Gradle module, artifact/package, primary type, runtime/composition/contract owner and deployment host as distinct axes; added the Web product-frontend repository consolidation policy, capability-grounded ownership exceptions, the exact-source manifest/coordinate contract, rollout/reversion/archival criteria, verified per-repository status and open unmigrated work. |
 
 </details>
