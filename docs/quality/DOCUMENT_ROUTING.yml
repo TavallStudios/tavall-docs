@@ -52,6 +52,11 @@ routes:
       - promotion
       - release
       - deployment
+      - commit message format
+      - commit format
+      - commit subject
+      - pull request title
+      - pr title
     documents:
       - docs/quality/GIT_WORKFLOW.md
 

@@ -127,6 +127,8 @@ DOMAIN
 └── coding-with-jev-agent
 ```
 
+**Canonical commit and PR title format:** Every agent-authored commit subject and pull-request title uses the typed capitalized format owned by [GIT_WORKFLOW.md §5.2](GIT_WORKFLOW.md#52-commit-messages-and-pull-request-titles) — exact allowed type prefixes `Build`, `Added`, `Changed`, `Removed`, `Fixed`, `Refactor`, `Clean`, `Test`, `Docs`, `License`, `TODO`, `Misc` — with lowercase conventional prefixes (`feat:`, `fix:`, `chore:`) and untyped subjects prohibited. Enforcement is provider-neutral (Codex, Claude, Gemini/Antigravity, DeepAI, OpenCode, GitHub PR review gates) and validated by `scripts/ci/check_commit_format.py`.
+
 ## 4. Agent Modes
 
 First-party Tavall Agents support two normalized execution modes:

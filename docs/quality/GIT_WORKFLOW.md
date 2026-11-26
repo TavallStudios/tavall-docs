@@ -674,9 +674,15 @@ Avoid mixing formatting with behavior changes, unrelated refactors with features
 
 Atomic does not mean artificially tiny. A commit may be large when one coherent system boundary genuinely requires it.
 
-### 5.2 Commit messages
+### 5.2 Commit messages and pull-request titles
 
-Every commit uses one or more typed subject lines followed by the structured body:
+Every commit subject **and** every pull-request title uses the same typed capitalized format. The subject line is one or more typed lines:
+
+```text
+Type: Capitalized concise action
+```
+
+Commits continue to use the structured body after the subject:
 
 ```text
 Type: Capitalized concise action
@@ -691,7 +697,7 @@ Validation:
 - What was run or inspected.
 ```
 
-Allowed subject types:
+The exact canonical allowed type prefixes are:
 
 - `Build`
 - `Added`
@@ -706,18 +712,46 @@ Allowed subject types:
 - `TODO`
 - `Misc`
 
-`Meta` is not an allowed type.
+No other type prefix is allowed, and no new type may be introduced by convention drift; this list is the single organization-wide canonical list. `Meta` is not an allowed type.
 
 Multiple typed subject lines may appear when every line describes the same coherent boundary.
 
-Subject rules:
+The same grammar applies to pull-request titles: a PR title is exactly `Type: Capitalized concise action` using one allowed type prefix (for example `Changed: Codify and enforce typed capitalized commit and PR title format (Refs #164)`). This applies to feature, fix, staging, integration, and documentation PRs alike; merge and revert commits remain governed by the exemptions below.
+
+Prohibited on both commit subjects and PR titles:
+
+- lowercase Conventional Commit prefixes, with or without scopes — `feat:`, `feat(ui):`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`, `ci:`, `perf:`, `style:`, `revert:`, and any other lowercase prefix;
+- untyped subjects, such as `Update README`, `WIP`, or any line lacking an allowed `Type:` prefix;
+- untyped catch-all commits that bundle unrelated multi-file work under one vague line. Split unrelated systems into separate typed commits per Section 5.1; a broad change spanning one coherent system keeps its true type (`Changed:`, `Refactor:`, ...) instead of an untyped or vague catch-all;
+- vague subjects such as `Update`, `Changes`, `Stuff`, `Fix`, `Final`, or `WIP`.
+
+Git-generated subjects are exempt because Git and GitHub create them mechanically:
+
+- merge-commit subjects such as `Merge pull request #123 from owner/branch`;
+- revert subjects such as `Revert "Original typed subject"`.
+
+Examples:
+
+```text
+Changed: Codify and enforce typed capitalized commit and PR title format (Refs #164)   # good commit and PR title
+Fixed: Reject lowercase conventional prefixes in the commit-format validator            # good
+Docs: Document executor ownership roles for Linux users                                # good
+
+feat: add commit format validator                                                      # bad: lowercase conventional prefix
+chore(deps): bump gradle                                                               # bad: lowercase conventional prefix
+Update README and fix CI and refactor cache layer                                      # bad: untyped catch-all bundling unrelated work
+Changed: stuff                                                                         # bad: vague subject
+```
+
+Subject and title rules:
 
 - Use `Type: Action`, not Conventional Commit syntax.
 - Capitalize the first word after the colon.
 - Describe the result, not the act of editing files.
-- Avoid vague subjects such as `Update`, `Changes`, `Stuff`, `Fix`, `Final`, or `WIP`.
 - Use `Refactor`, not the legacy misspelling `Refractor`, for new commits.
 - State validation truthfully. Use `Not run: <reason>` when validation was not performed.
+
+Enforcement is provider-neutral. Every Tavall implementation and review surface applies the same format — Codex, Claude, Gemini/Antigravity, DeepAI, OpenCode, and any other agent or automation — and GitHub PR review gates reject non-conforming PR titles. The deterministic validator `scripts/ci/check_commit_format.py` (unit-tested by `scripts/ci/test_commit_format.py` and wired into `.tavallci/scripts/docs-quality.sh`) validates single subjects (`--subject`), PR titles (`--pr-title`), and whole commit ranges (`--git-range <base>..<head>`, with merge/revert exemptions applied) against this exact grammar. Historical commits on `main` that predate this rule are not rewritten retroactively; new commits and PR titles must conform.
 
 ### 5.3 Working tree discipline
 
