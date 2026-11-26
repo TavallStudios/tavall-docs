@@ -53,6 +53,7 @@ This repository is documentation-only; it has no executable product module.
 | [CI/CD](docs/quality/CI_CD.md) | Applicable repository guidance. NLEW ontology is owned by the NLEW policy above. |
 | [Code Architecture](docs/quality/CODE_ARCHITECTURE.md) | Applicable repository guidance. |
 | [CLI Architecture](docs/quality/CLI_ARCHITECTURE.md) | Canonical CLI command ownership, arguments, and execution boundaries. |
+| [Workflow Repository and Registry Ownership](docs/quality/WORKFLOW_REPOSITORY_AND_REGISTRY_OWNERSHIP.md) | Public workflow source repository, canonical registry/index, and web listing link ownership; executable format and Workflows MCP bridge remain separately owned. |
 | [AI Memory Plane](docs/architecture/TAVALL_AI_MEMORY_PLANE.md) | Memory provider, ingestion, and retrieval contract referenced by the Agent architecture. |
 | [Document Routing](docs/quality/DOCUMENT_ROUTING.yml) | Applicable repository guidance. |
 | [Progression Overview](docs/progression/TAVALL_PROGRESSION_OVERVIEW.md) | Status overview of progression sources. |
@@ -89,7 +90,7 @@ No tracked license file is present in the current repository tree.
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | PRIMARY | TavallStudios/tavall-docs/README.md | 2026-11-26 | Indexed the current Agent architecture, terminology, CLI, memory-plane, and technical design documents on the section-index refresh. |
+| GitHub | PRIMARY | TavallStudios/tavall-docs/README.md | 2026-11-26 9:34 AM PST | Indexed the workflow repository and registry ownership policy (`#139`). |
 | Notion | NOT_APPLICABLE | — | 2026-11-26 | README files are not synchronized as Notion twins. |
 
 ### Update History
@@ -99,6 +100,7 @@ No tracked license file is present in the current repository tree.
 | 2026-09-27 12:29 PM PDT | GitHub | CREATED | TavallStudios/tavall-docs/README.md | — | https://github.com/TavallStudios/tavall-docs/pull/36. | Reworked the public README to describe the current project, module boundary, usage, and documentation. |
 | 2026-10-01 | GitHub | UPDATED | TavallStudios/tavall-docs/README.md | Same path | Direct docs-only update to `main`. | Indexed the canonical global TODO ledger and repository static-projection policy. |
 | 2026-10-03 | GitHub | UPDATED | TavallStudios/tavall-docs/README.md | Same path | Direct docs-only correction on `main`. | Indexed the canonical NLEW/service-ownership authority and made its precedence over PR #53's service-only wording explicit. |
+| 2026-11-26 9:34 AM PST | GitHub | UPDATED | TavallStudios/tavall-docs/README.md | Same path | `#139` workflow repository and registry ownership policy | Indexed the new workflow repository/registry ownership policy document. |
 | 2026-11-26 | GitHub | UPDATED | TavallStudios/tavall-docs/README.md | Same path | `#167` section-index refresh | Indexed the missing Agent architecture, Tavall terminology, CLI architecture, AI Memory Plane, Agent Stack progression, and Work Graph sync technical design documents. |
 
 </details>

@@ -36,6 +36,7 @@ Use this directory for shared Tavall engineering and documentation policy.
 - [VERSIONING.md](VERSIONING.md) — source/build/resolution/artifact/release identity, snapshot numbering, and artifact-channel policy.
 - [MODULE_TYPES.md](MODULE_TYPES.md) — canonical `RUNTIME`, `APPLICATION`, `API`, `LIBRARY`, `PROVIDER`, `ADAPTER`, `INTEGRATION`, `TOOLING`, and `TEST_SUITE` module classifications plus runtime and progression-ownership rules.
 - [WEB_ARCHITECTURE.md](WEB_ARCHITECTURE.md) — canonical Tavall web architecture, beginning with endpoint and routing ownership.
+- [WORKFLOW_REPOSITORY_AND_REGISTRY_OWNERSHIP.md](WORKFLOW_REPOSITORY_AND_REGISTRY_OWNERSHIP.md) — public workflow source repository, canonical `tavall-workflows` registry/index, and web listing link ownership; executable workflow format and the Workflows MCP bridge stay separately owned.
 - [CLI_ARCHITECTURE.md](CLI_ARCHITECTURE.md) — canonical Tavall CLI architecture, command ownership, and execution boundaries.
 - [DATABASE_AND_PERSISTENCE_SEPARATION_DESIGN.md](DATABASE_AND_PERSISTENCE_SEPARATION_DESIGN.md) — Database and persistence environment separation design.
 - [DIAGRAM_STANDARDS.md](DIAGRAM_STANDARDS.md) — Tavall technical diagram, SVG, and Notion visual-presentation standards.
@@ -95,13 +96,14 @@ Do not link temporary branches, experiments, migration code, or known-debt imple
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/README.md` | 2026-11-26 | `#156` descriptor standardization. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/README.md` | 2026-11-26 9:34 AM PST | `#139` workflow repository and registry ownership policy indexing. |
 | Notion | `NOT_APPLICABLE` | — | 2026-11-26 | GitHub quality index; no 1:1 requirement assigned. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-26 9:34 AM PST | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/README.md` | Same path | `#139` workflow repository and registry ownership policy. | Indexed `WORKFLOW_REPOSITORY_AND_REGISTRY_OWNERSHIP.md` in the Engineering Policy section. |
 | 2026-11-26 | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/README.md` | Same path | `#156` descriptor standardization. | Indexed `TAVALL_DESCRIPTOR_INVENTORY.md` and the standardized README descriptor format routed by `DOCUMENT_ROUTING.yml`. |
 | 2026-09-27 3:04 PM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/README.md` | Same path | Direct docs-only update to `main`. | Indexed canonical PROGRESSION rules/template and added the required document-state footer. |
 | 2026-10-01 | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/README.md` | Same path | Direct docs-only update to `main`. | Indexed the canonical repository TODO static-projection contract and clarified its relationship to `DOC TODO:`. |
