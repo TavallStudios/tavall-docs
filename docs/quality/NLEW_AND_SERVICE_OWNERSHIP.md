@@ -77,6 +77,35 @@ A Workspace is a bounded work/materialization scope used for source materializat
 
 An Executor executes authorized work. Executor identity, selection, permissions, leases, and lifetime are independent of any Environment, Lane, Workspace, or individual invocation. Shared machine execution is the default; per-job mutable output remains isolated in that operation's Workspace. Executor contracts are owned by Tavall Cloud, not by `tavall-nlew`; NLEW relationships may reference an Executor by typed identity.
 
+#### Executor lifecycle: durable shared by default
+
+The canonical Executor lifecycle is **`DURABLE` (default)**, with a bounded **`TEMPORARY`** overflow lifecycle. These Executor lifecycle values are independent of the Environment lifecycle dimensions (`DURABLE` / `EPHEMERAL`); an Executor is never implicitly created or destroyed with an Environment, Workspace, Lane, or command.
+
+- **Durable shared Executors are the default for all agent and CI work.** A durable Executor is a persistent execution surface with its own operation directory, durable policy record, SSH host identity, and invocation history. It survives individual invocations, keeps `RuntimeMaxSec=infinity` with `Restart=on-failure`, and is repaired explicitly rather than recreated per command.
+- **No sandbox or ephemeral Executor may be used by default.** A command, job, console invocation, or CI request is never a request to create a sandbox, namespace, container, or per-command Executor. Sandbox-era `tavall-sandbox` accounts/groups and `NOPASSWD:ALL` sudoers grants are retired and are not carried forward.
+- **Bounded `TEMPORARY` Executors are explicit overflow only.** They are created strictly when the durable pool is exhausted and an operator explicitly requests overflow, never as a default. A `TEMPORARY` Executor runs only as a transient systemd unit with a bounded maximum lifetime (60–3600 seconds), must never adopt, reuse, or overwrite the durable unit or durable policy of an existing operation (creation is refused on any durable collision), and its destroy path removes its policy so no identity or policy record lingers for a later operation to inherit. Only durable Executors can be repaired.
+
+#### Linux-user permission roles
+
+Executor Linux identities, permission profiles, and privilege boundaries are provisioned and enforced by the Tavall Cloud host executor supervisor and host installer (`tavall-executor-supervisor`, `install-executor-host.sh`; verified against `tavall-cloud` main `7707ff995`). Identity selection is fail-closed: the supervisor runs as root only, and `FULL`, `STANDARD`, isolated, and rootless identities must be distinct valid non-root users with distinct Linux UIDs.
+
+| Role | Linux account / source | Permission profile | User mode | Privileges | Boundaries |
+| --- | --- | --- | --- | --- | --- |
+| CONTROL host boundary | Root-supervisor `tavall-cloud` control service (`control_user`/`control_group` = `tavall-cloud`) | — (control plane) | — | Owns CONTROL state (`/var/lib/tavall-cloud`), Executor credential and artifact roots, and artifact export ownership; drives the root supervisor. | Not an execution identity for agent/CI work; the supervisor refuses non-root callers and non-configured usernames. |
+| `STANDARD` profile | `standardPermissionUsername` (defaults to `tavall-cloud`) | `STANDARD` (host default; `defaultUserPermission` defaults to `STANDARD` when omitted) | `SHARED_USER` (default) | Runs invocations as the configured non-root account with its real host groups (`tavall-cloud` shared-resource group, `systemd-journal` for journal read, `docker`). | No administrative privilege: the in-Executor sudo wrapper is limited to `sudo -n id` and refuses everything else; no `NOPASSWD:ALL` grant exists for any Executor identity. When the `STANDARD` account is `tavall-cloud` itself, it keeps the CONTROL home and `nologin` shell. |
+| `FULL` profile | `fullPermissionUsername` | `FULL` (explicit selection only, never a default) | `SHARED_USER` | The configured privileged non-root execution user. Host verification requires the account's non-root identity, `tavall-cloud` shared-resource group membership, and a verified noninteractive administrative permission check. | Owns the shared host Gradle/NPM user-home caches under the Executor host-local cache root. Only a `SHARED_USER` invocation running as this owning identity binds those shared cache roots; no other identity may. |
+| `ISOLATED_USER` mode | `isolatedUserUsername` (pre-created dedicated restricted account) | `STANDARD` only (`ISOLATED_USER` + `FULL` is an invalid combination) | `ISOLATED_USER` | Runs invocations under a dedicated restricted account: home `/nonexistent`, shell `/usr/sbin/nologin`, primary group equal to the account, no supplementary groups (no `tavall-cloud`, journal, or docker membership). | Requires explicit Executor creation intent and a pre-created account; never a default, never the `FULL` identity, never the rootless account; UID distinct from `FULL`, `STANDARD`, and rootless identities. Uses operation-local Gradle/NPM homes. |
+| Rootless Docker identity | `tavall-executor` (reserved system account) | — | — | Locked non-login account with its own dedicated group and fixed subuid/subgid range (`231072-296607`). | Reserved exclusively for rootless Docker execution; never serves as the `FULL` identity, `STANDARD` identity, or the shared Executor user. |
+
+Rules that bind these roles:
+
+- The configured default permission profile is `STANDARD` unless a host explicitly selects `FULL` in its node-local Executor permission policy; profile names never grant permissions by themselves — the host installer verifies each account, its group memberships, and the privileges its profile requires before any host mutation.
+- `SHARED_USER` is the default user mode; `ISOLATED_USER` is an explicit decision, never a fallback or default.
+- Executor invocation units inherit the selected account's supplementary groups; a restricted `ISOLATED_USER` account deliberately receives none of the shared resource groups.
+- A Gradle/NPM user home is never shared across Linux users; shared cache binding is keyed to the owning `FULL` identity, and every other identity gets operation-local tool homes.
+
+See [CI_CD.md](CI_CD.md) for how CI and console entrypoints reuse the configured durable shared Executor without provisioning fallback.
+
 ## CI relationship
 
 Tavall CI owns repository/module definition parsing, exact-source composition, Gradle/build planning, dependency resolution, typed checks, evidence, and immutable artifact identity. The repository owns its Gradle project graph and build intent. The Cloud Executor provides execution placement, Java/Gradle provisioning, filesystem isolation, and cache access.
@@ -212,6 +241,7 @@ Environment definitions must specify portable, logical volume names and mount pa
 | 2026-10-03 3:35 AM PDT | GitHub | `UPDATED` | this document | Same path | `ffd501f` (PR #56) | Service-only Environment policy; Envless CI default. |
 | 2026-10-04 8:58 PM PDT | GitHub | `UPDATED` | this document | Same path | `1bd25de` | OCI image vs Environment Definition. |
 | 2026-10-09 2:49 PM PDT | GitHub | `UPDATED` | this document | Same path | PR #61 (`e107275`) | General-purpose Environment restored by user direction; Envless CI default, OCI section, and host-path rule retained; repository ownership for tavall-nlew, tavall-filesystem, and tavall-database Redis recorded. |
+| 2026-11-26 | GitHub | `UPDATED` | this document | Same path | TavallStudios/tavall-nlew#7 documentation half (branch `working/nlew7-executor-roles-docs-20261126`) | Added canonical durable-shared-default Executor lifecycle rule and Linux-user permission roles verified against `tavall-executor-supervisor` and `install-executor-host.sh` (`tavall-cloud` main `7707ff995`). |
 
 </details>
 
