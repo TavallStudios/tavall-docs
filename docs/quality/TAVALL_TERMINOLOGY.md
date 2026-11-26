@@ -68,7 +68,11 @@ A distributable packaging mechanism (such as the Tavall AI plugin) that bundles 
 
 ### Harness
 
-A runtime or container environment (such as Tavall Open Harness or AgentTaskManager) that hosts Agents and provides system facilities, process isolation, environment variables, credentials, and transport bridges.
+A runtime or container environment (such as Tavall Open Harness or AgentTaskManager) that hosts Agents and provides system facilities, process isolation, environment variables, credentials, and transport bridges. A Harness hosts Agents; it is not the Tavall Executor that runs authorized commands, builds, and CI jobs.
+
+### Executor
+
+The durable, reusable Tavall execution surface that runs authorized agent, console, and CI work. An Executor is selected by Tavall Cloud and is **not** a Node, Lane, Environment, Workspace, or service, and it is never created implicitly by a command, job, or CI request. The canonical lifecycle is `DURABLE` (default) shared execution, with a bounded `TEMPORARY` Executor only as explicit overflow when the durable pool is exhausted. Ephemeral sandbox execution is retired and must not be reintroduced as a default. [NLEW and Service Ownership](NLEW_AND_SERVICE_OWNERSHIP.md) owns the binding Executor lifecycle, permission, and privilege contract.
 
 ### Orchestrator
 

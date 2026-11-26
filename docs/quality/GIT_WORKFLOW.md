@@ -126,7 +126,7 @@ working/release-validation
 Once a pull request exists for that branch, treat the PR and its branch as one durable unit of work.
 
 - Continue meaningful work on the existing PR branch instead of creating replacement PRs for the same scope.
-- Push coherent commits to GitHub while work is in progress. Do not leave the authoritative or most useful state only in a local worktree or ephemeral agent sandbox.
+- Push coherent commits to GitHub while work is in progress. Do not leave the authoritative or most useful state only in a local worktree or uncommitted local execution state.
 - Keep the PR description, dependencies, validation, and linked issues current as the branch evolves.
 - Draft status means the work is still active or not yet reviewable; it does not mean the branch is disposable.
 - A PR may stay open across multiple implementation and reconciliation passes when it remains the correct work boundary.
@@ -641,7 +641,7 @@ Keep the GitHub connection available for source and Check operations. A review p
 
 When Codex authors or pushes a correction, that correction becomes a new reviewable change and invalidates stale human or owner review.
 
-When Codex is implementing work on an existing PR, it must push coherent commits to that PR branch as it works rather than preserving meaningful progress only in a local sandbox. This keeps the PR usable as the work ledger and lets other agents inspect, stack on, reconcile with, or continue the exact GitHub-visible state.
+When Codex is implementing work on an existing PR, it must push coherent commits to that PR branch as it works rather than preserving meaningful progress only in uncommitted local state. This keeps the PR usable as the work ledger and lets other agents inspect, stack on, reconcile with, or continue the exact GitHub-visible state.
 
 Repository-level `AGENTS.md` should link this workflow, `CODE_ARCHITECTURE.md`, relevant quality documents, and owning system documents. Its review guidance should direct Codex to flag meaningful risks involving runtime failures, lifecycle and concurrency defects, unsafe platform APIs, dependency incompatibility, persistence and cache consistency, permissions and trust boundaries, cross-service state, resource leaks, hot paths, duplicated systems, unsafe defaults, missing tests, fabricated APIs, incomplete rollback or logging, and incorrect stack relationships.
 
@@ -743,7 +743,7 @@ Do not make unrelated drive-by changes. Leave unrelated work unchanged, record i
 
 The human contributor remains responsible for every committed line regardless of who or what typed it.
 
-Provide relevant repository documents, active PR relationships, and issues; require repository discovery; verify referenced APIs and dependencies; run tests rather than trusting generated claims; inspect the complete diff; disclose uncertainty; treat AI-authored fixes as new reviewable changes; preserve established architecture and ownership; and push meaningful progress to GitHub instead of leaving it trapped in an ephemeral execution environment.
+Provide relevant repository documents, active PR relationships, and issues; require repository discovery; verify referenced APIs and dependencies; run tests rather than trusting generated claims; inspect the complete diff; disclose uncertainty; treat AI-authored fixes as new reviewable changes; preserve established architecture and ownership; and push meaningful progress to GitHub instead of leaving it trapped in a local-only working copy.
 
 ## 6. Production promotion and deployment
 

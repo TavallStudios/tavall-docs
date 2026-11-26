@@ -39,15 +39,15 @@ State the crisp product/system thesis.
 
 Use readable capability/value bursts.
 
-### TODO capability / differentiator
+### TODO capability / differentiator — example 1
 
 Explain what it does and why somebody cares.
 
-### TODO capability / differentiator
+### TODO capability / differentiator — example 2
 
 Explain what it does and why somebody cares.
 
-### TODO capability / differentiator
+### TODO capability / differentiator — example 3
 
 Explain what it does and why somebody cares.
 
@@ -158,7 +158,7 @@ End with the few sentences or bullets somebody should remember after closing the
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/GENERAL_DOCUMENT_TEMPLATE.md` | 2026-09-27 3:03 PM PDT | Direct docs-only update to `main`. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/GENERAL_DOCUMENT_TEMPLATE.md` | 2026-11-26 | Template heading disambiguation for section indexing. |
 | Notion | `NOT_APPLICABLE` | — | 2026-09-27 3:03 PM PDT | Quality template; GENERAL instances are Notion-only by default. |
 
 ### Update History
@@ -166,5 +166,6 @@ End with the few sentences or bullets somebody should remember after closing the
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | 2026-09-27 3:03 PM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/GENERAL_DOCUMENT_TEMPLATE.md` | Same path | Direct docs-only update to `main`. | Added the required Documentation Update State footer and PROGRESSION/Deployment routing. |
+| 2026-11-26 | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/GENERAL_DOCUMENT_TEMPLATE.md` | Same path | `#167` section-index refresh | Disambiguated the three repeated capability/differentiator placeholder headings so every section pointer resolves uniquely. |
 
 </details>
