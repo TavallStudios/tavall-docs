@@ -229,6 +229,17 @@ routes:
     documents:
       - docs/quality/MODULE_README_TEMPLATE.md
 
+  - id: human-readable-descriptors
+    signals:
+      - human-readable descriptors
+      - what is this descriptor
+      - descriptor inventory
+      - readme descriptors
+      - repository descriptors
+    documents:
+      - docs/quality/README_STANDARDS.md
+      - docs/quality/TAVALL_DESCRIPTOR_INVENTORY.md
+
   - id: module-separation
     signals:
       - module separation

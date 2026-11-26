@@ -34,6 +34,76 @@ Generated source directories, fixtures, trivial build helpers, and other folders
 
 Use [MODULE_README_TEMPLATE.md](MODULE_README_TEMPLATE.md).
 
+## Human-readable descriptors (What is this?)
+
+Every repository root README and every real module README opens with a standardized orientation block that answers **"What is this?"** before any other section. A technical identifier such as `tavall-nlew` or `tavall-di` is a necessary but insufficient answer: it names the thing without telling a new developer, user, or agent what kind of thing it is.
+
+The orientation block is one line plus one sentence:
+
+```text
+Public Name (technical-name) — <Descriptor>
+
+<What it does: one concrete sentence.>
+
+Does not own: <explicit boundary callout, only where confusion creates material risk>
+```
+
+Worked example:
+
+```text
+TIDI (tavall-di) — Type-Safe Dependency Wiring
+
+Discovers, owns, and hands out application dependencies through typed access and explicit delegation.
+```
+
+### Fields
+
+| Field | Required | Definition |
+| --- | --- | --- |
+| Technical name | Yes | The unchanged canonical repository slug, Gradle project, module directory, or artifact identifier (for example `tavall-di`). Never renamed, abbreviated, or replaced by the descriptor. |
+| Public name | Yes | The established product or project name when one exists and differs from the slug (for example `TIDI` for `tavall-di`, `Tavall Cloud` for `tavall-cloud`). When no distinct public name exists, repeat the technical name rather than inventing a brand. |
+| Descriptor | Yes | 2–6 plain-language words answering "What kind of thing is this?". |
+| What it does | Yes | One concrete sentence grounded in current accepted ownership and current source. |
+| Does not own | Optional | An explicit boundary callout placed only where confusing ownership creates material risk. Omit it when the boundary is not materially confusable. |
+| Status | Yes | `PROPOSED`, `REVIEWED`, `APPROVED`, or `STALE`. |
+
+### Descriptor rules
+
+- Answer the category question first. "Type-Safe Dependency Wiring" beats "Dependency Injection Platform Solution".
+- Prefer a mental model over a feature list. A descriptor is not a summary of every capability.
+- Do not repeat generic buzzwords. A descriptor that is mostly `Platform`, `Framework`, `Intelligence`, `Solution`, `System`, or a restatement of the slug conveys nothing; rewrite it.
+- Do not invent capabilities, availability, or maturity. A component whose enforcement lives elsewhere does not own enforcement in its descriptor.
+- No slogans, superlatives, or marketing adjectives (`revolutionary`, `next-generation`, `world-class`).
+- Keep the public name, technical identifier, and descriptor visibly distinct. Never present a technical slug as the public brand when an established public name exists, and never let a descriptor displace the technical name.
+- Ground the descriptor and the "What it does" sentence in the owning README, accepted Design/Technical document, or current source. If the evidence is missing, publish the entry as `PROPOSED` or `STALE`, not as an approved claim.
+- Respect exposure boundaries. A private repository's descriptor must not leak private topology, deployment targets, or internal system relationships into a public surface.
+- Keep the same descriptor consistent across the repository root README, repository description/catalog surfaces, and any future discovery or search surface. Where two surfaces disagree, the descriptor is stale on one of them.
+
+### Descriptor status
+
+| Status | Meaning |
+| --- | --- |
+| `PROPOSED` | A candidate descriptor that has not been validated against current ownership and source. Default for any new or unresearched entry. |
+| `REVIEWED` | Checked against the owning README, accepted design, and current source by someone other than the person who drafted it; no ownership conflict recorded. |
+| `APPROVED` | Accepted for publication by the owning repository/module reviewer. Only `APPROVED` descriptors may be treated as the project's public-facing positioning. |
+| `STALE` | Previously published but now contradicted by current ownership, source, or an accepted document. A `STALE` descriptor must not be presented as current and needs a new candidate before it can be re-published. |
+
+Status describes the descriptor text only. It never describes the repository, module, or product state; those remain owned by Progression, Deployment, and the owning Design/Technical documents.
+
+### Non-goals
+
+A descriptor is **presentation metadata**, and this section grants no authority beyond that:
+
+- **Not an execution contract.** A descriptor creates no runtime behavior, permission, boundary, or acceptance requirement. It cannot be cited to authorize, forbid, or scope code changes.
+- **Not a rebranding.** Repository slugs, artifact coordinates (`org.tavall:*`), Java package names, Gradle project paths, module types, and architecture boundaries are unchanged. A descriptor never justifies renaming a repository, module, package, or directory, and never introduces a new abstraction layer.
+- **Not a second architecture document.** A README stays a routing surface. One descriptor line and one sentence do not license capability tables, ownership contracts, or design detail that belong to the owning document.
+- **Not an availability claim.** A descriptor may not imply that unimplemented, bootstrap-only, archived, or experimental capability is available.
+- **Not a substitute for the technical name.** External surfaces that require an exact identifier (artifacts, build configuration, imports, URLs, CI definitions) always use the technical name.
+
+### Coverage inventory
+
+[TAVALL_DESCRIPTOR_INVENTORY.md](TAVALL_DESCRIPTOR_INVENTORY.md) is a derived projection that inventories current repositories and verified modules against this format, together with coverage counts and open owner-review conflicts. It is evidence of current coverage, not a second authorization source: the owning README, accepted design, and source remain authoritative, and open conflicts are resolved there before a descriptor is promoted to `APPROVED`.
+
 ## Repository Structure Graphs
 
 Root READMEs show the repository's meaningful module/directory tree.
@@ -158,13 +228,14 @@ A README may summarize an owning document, but the owning document remains autho
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/README_STANDARDS.md` | 2026-09-27 11:45 AM PDT | Direct docs-only update to `main`. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/README_STANDARDS.md` | 2026-11-26 | `#156` descriptor standardization. |
 | Notion | `NOT_APPLICABLE` | — | 2026-09-27 11:45 AM PDT | Quality/reference document; no 1:1 requirement assigned. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-26 | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/README_STANDARDS.md` | Same path | `#156` descriptor standardization. | Added the canonical human-readable descriptor format, field definitions, status vocabulary, and explicit non-goals; routed coverage to the derived descriptor inventory. |
 | 2026-09-27 11:45 AM PDT | GitHub | `CREATED` | `TavallStudios/tavall-docs/docs/quality/README_STANDARDS.md` | — | Direct docs-only update to `main`. | Added canonical private/public/module README ownership and delegation rules. |
 
 </details>

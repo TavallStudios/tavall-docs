@@ -16,6 +16,7 @@ Use this directory for shared Tavall engineering and documentation policy.
 - [PRIVATE_REPOSITORY_README_TEMPLATE.md](PRIVATE_REPOSITORY_README_TEMPLATE.md) — operational private repository root README template.
 - [PUBLIC_REPOSITORY_README_TEMPLATE.md](PUBLIC_REPOSITORY_README_TEMPLATE.md) — external-facing public repository root README template.
 - [MODULE_README_TEMPLATE.md](MODULE_README_TEMPLATE.md) — per-module orientation, runtime, module-local `.tavallci`, documentation, deployment-summary, progression, and development-routing template.
+- [TAVALL_DESCRIPTOR_INVENTORY.md](TAVALL_DESCRIPTOR_INVENTORY.md) — derived projection of current repository/module “What is this?” descriptors, coverage counts, and open owner-review conflicts.
 - [PROGRESSION_DOCUMENT_TEMPLATE.md](PROGRESSION_DOCUMENT_TEMPLATE.md) — canonical module/system Progression structure, table timeline rules, module-type lenses, and aggregation ownership.
 - [DEPLOYMENT_DOCUMENT_TEMPLATE.md](DEPLOYMENT_DOCUMENT_TEMPLATE.md) — current/historical deployment record template for independently deployable systems.
 - [DESIGN_DOCUMENT_TEMPLATE.md](DESIGN_DOCUMENT_TEMPLATE.md) — Design document template for module/system scope.
@@ -94,13 +95,14 @@ Do not link temporary branches, experiments, migration code, or known-debt imple
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/README.md` | 2026-11-26 | Direct docs-only index refresh. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/README.md` | 2026-11-26 | `#156` descriptor standardization. |
 | Notion | `NOT_APPLICABLE` | — | 2026-11-26 | GitHub quality index; no 1:1 requirement assigned. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-26 | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/README.md` | Same path | `#156` descriptor standardization. | Indexed `TAVALL_DESCRIPTOR_INVENTORY.md` and the standardized README descriptor format routed by `DOCUMENT_ROUTING.yml`. |
 | 2026-09-27 3:04 PM PDT | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/README.md` | Same path | Direct docs-only update to `main`. | Indexed canonical PROGRESSION rules/template and added the required document-state footer. |
 | 2026-10-01 | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/README.md` | Same path | Direct docs-only update to `main`. | Indexed the canonical repository TODO static-projection contract and clarified its relationship to `DOC TODO:`. |
 | 2026-11-26 | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/README.md` | Same path | `#167` section-index refresh | Indexed every `docs/quality` document that was missing (terminology, NLEW, Agent architecture, CLI architecture, skills, design template, diagram standards, staging, release runbook, design record) and added the Agent and AI Policy section. |

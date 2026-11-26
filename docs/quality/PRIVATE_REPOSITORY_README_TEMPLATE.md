@@ -9,7 +9,13 @@ Use only sections that apply. Delete instructional placeholders when instantiati
 ```markdown
 # <Repository Name>
 
-<One to three factual sentences describing what this repository is and the system boundary it owns.>
+> **<Public Name> (`<technical-name>`) — <Descriptor>**
+>
+> **What it does:** <One concrete sentence grounded in current accepted ownership and current source.>
+>
+> **Does not own:** <Explicit boundary callout — only where confusion creates material risk; delete this line when it does not apply.>
+>
+> **Descriptor status:** `PROPOSED` / `REVIEWED` / `APPROVED` / `STALE`
 
 ## Ownership
 
@@ -70,6 +76,8 @@ Shared Git and architecture rules remain delegated to Tavall Docs and repository
 
 ## Template Rules
 
+- The README opens with the standardized descriptor orientation block from [README_STANDARDS.md](README_STANDARDS.md) "Human-readable descriptors (What is this?)": `Public Name (technical-name) — <Descriptor>`, one "What it does" sentence, an optional "Does not own" callout, and the descriptor status. The "What it does" sentence carries the factual repository/system-boundary statement; do not add a second competing summary above `Ownership`.
+- The descriptor is presentation metadata only. It does not rename the repository, modules, packages, or artifact coordinates, and it does not authorize claims about unimplemented or archived capability.
 - Private READMEs are operational maps, not project showcase pages.
 - The root README owns the repository-wide module map and documentation routing surface.
 - Every real module links to its own README.
@@ -85,13 +93,14 @@ Shared Git and architecture rules remain delegated to Tavall Docs and repository
 
 | Surface | Sync State | Location | Last Updated | Evidence |
 | --- | --- | --- | --- | --- |
-| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/PRIVATE_REPOSITORY_README_TEMPLATE.md` | 2026-09-27 11:45 AM PDT | Direct docs-only update to `main`. |
+| GitHub | `PRIMARY` | `TavallStudios/tavall-docs/docs/quality/PRIVATE_REPOSITORY_README_TEMPLATE.md` | 2026-11-26 | `#156` descriptor standardization. |
 | Notion | `NOT_APPLICABLE` | — | 2026-09-27 11:45 AM PDT | Quality template; no 1:1 requirement assigned. |
 
 ### Update History
 
 | Timestamp | Surface | Event | Location | Previous Location | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-26 | GitHub | `UPDATED` | `TavallStudios/tavall-docs/docs/quality/PRIVATE_REPOSITORY_README_TEMPLATE.md` | Same path | `#156` descriptor standardization. | Added the standardized top descriptor orientation block and replaced the loose summary sentence with the required "What it does" line. |
 | 2026-09-27 11:45 AM PDT | GitHub | `CREATED` | `TavallStudios/tavall-docs/docs/quality/PRIVATE_REPOSITORY_README_TEMPLATE.md` | — | Direct docs-only update to `main`. | Added canonical private root README template. |
 
 </details>
