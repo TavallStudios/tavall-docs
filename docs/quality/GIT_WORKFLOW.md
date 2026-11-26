@@ -704,6 +704,8 @@ Full (`all`) CI is reserved for: batched promotion of a staging root to `main`; 
 
 The fast path shortens validation, not accountability. Staging ancestry, exact-head identity, pull-request metadata, accountable review, and truthful evidence are unchanged, and every new push invalidates fast-path evidence for its head. A pull request that needs the full rung states why, and a pull request that claims the fast path shows its evidence.
 
+A hosted CI or infrastructure blocker is a bounded worker problem, not a stop for unrelated product work: the orchestrator continues product milestones in parallel and records any genuinely blocked milestone as an owner-visible blocker note, as owned by [AGENT_ARCHITECTURE.md §9 rule 11](AGENT_ARCHITECTURE.md#9-orchestration-model-concurrency-escalation-and-review-authority) and [WORK_TRACKING.md](WORK_TRACKING.md).
+
 ### 4.13 Worker task completion and cleanup
 
 **R4 — Workers end tasks `MERGED` or `CLOSED`.** A delegated or autonomous workstream is not a place to park work. Every worker task — subagent, delegated task, review or CI worker, or any autonomous development workstream — terminates with its pull request in exactly one terminal outcome:
