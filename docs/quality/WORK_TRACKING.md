@@ -36,6 +36,17 @@ Workflow values: `INBOX → READY → IN_PROGRESS → REVIEW → VERIFY → DONE
 
 Suggested board views: **Next & Ready**, **Blocked**, **Active Agent Work**, **By System/Repository**, **Awaiting Verification**, **Deferred**. Use existing GitHub capabilities rather than building a separate visual dashboard in the first phase.
 
+### Owner-visible blocker notes for infrastructure and CI defects
+
+A product milestone blocked by a CI or infrastructure defect is never blocked silently, and it never blocks unrelated product work. The milestone's canonical GitHub Issue and its mirrored QA Task Board task both move to the `BLOCKED` workflow value and carry the same owner-visible blocker note:
+
+- the exact blocker link — the owning CI/infrastructure Issue (for example [tavall-ai#106](https://github.com/TavallStudios/tavall-ai/issues/106)) or the failed run;
+- the concrete technical gap: what cannot run, and why the milestone cannot obtain that guarantee locally;
+- what local or otherwise unblocked verification already succeeded on the milestone's exact head (compilation gate, targeted tests, real end-to-end run, review);
+- the next action and the owner who will take it.
+
+`BLOCKED` scopes to the blocked milestone, never to the orchestrator's whole turn: other authorized product milestones continue in parallel while CI and infrastructure diagnosis runs in separate bounded worker streams, per [AGENT_ARCHITECTURE.md §9 rule 11](AGENT_ARCHITECTURE.md#9-orchestration-model-concurrency-escalation-and-review-authority). Clearing the blocker removes the note and returns the task to its actual workflow state; the blocker record remains on the Issue as evidence.
+
 ## 4. GitHub Issue Types and Priority
 
 GitHub issues are the canonical work-item identity and title prefixes remain the human-readable classification source. TavallStudios also configures native GitHub Issue Types and a single-select Priority field; the issue write path synchronizes those fields from the issue's own title, labels, and body. The QA Task Board is an execution/checkpoint tracking surface, not the source for issue Type or Priority.

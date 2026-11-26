@@ -675,6 +675,23 @@ routes:
     documents:
       - docs/quality/CI_CD.md
 
+  - id: parallel-product-milestone-continuity
+    signals:
+      - parallel product milestones
+      - parallel product milestone continuity
+      - product milestone continuity
+      - product continuity during ci blockers
+      - product work during ci blockers
+      - product milestones during ci blockers
+      - ci blocker escalation
+      - infrastructure blocker note
+      - owner-visible blocker note
+      - blocked milestone note
+      - ci-only investigation drift
+    documents:
+      - docs/quality/AGENT_ARCHITECTURE.md
+      - docs/quality/WORK_TRACKING.md
+
   - id: versioning-and-identity
     signals:
       - versioning
